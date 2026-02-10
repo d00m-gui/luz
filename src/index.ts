@@ -2,7 +2,28 @@ import chroma from "chroma-js";
 import { reset, setup } from "./setup";
 import { luzContrast, luzShade, luzSizes, luzWheel } from "./utils";
 
-const defaultTheme = {
+export interface DefaultTheme {
+  font?: string;
+  "line-height"?: string;
+  "font-bold-weight"?: number;
+  "font-weight"?: number;
+  "font-monospace"?: string;
+  "font-headings"?: string;
+  "font-emphasis"?: string;
+  base?: number;
+  power?: number;
+  primary: string;
+  name?: string;
+  mode: "light" | "dark";
+  neutrals?: string | "grey" | "gray" | "neutral";
+  prefix?: string;
+  transition?: string;
+  "box-shadow"?: string;
+  "scale-factor"?: number;
+  spacing?: string;
+}
+
+const defaultTheme: DefaultTheme = {
   font: "sans-serif",
   "line-height": "130%",
   "font-bold-weight": 800,
@@ -12,7 +33,7 @@ const defaultTheme = {
   "font-emphasis": "serif",
   base: 16,
   power: 0.2,
-  primary: chroma.random(),
+  primary: chroma.random().hex(),
   name: "primary",
   mode: "dark",
   neutrals: "gray",
@@ -23,19 +44,11 @@ const defaultTheme = {
   spacing: "5vw",
 };
 
-export function luzGenerator(tokens?: any): any {
+export function luzGenerator(tokens?: DefaultTheme): any {
   const settings = { ...defaultTheme, ...tokens };
-  let {
-    primary,
-    name,
-    mode,
-    base,
-    prefix,
-    neutrals,
-    power,
-    components,
-    ...config
-  } = settings;
+  let { primary, name, mode, base, prefix, neutrals, power, ...config } =
+    settings;
+  const normalBase = base ?? 16;
   const normalName = name && name.length > 0 ? name : "primary";
   const isDark = mode === "dark";
   const primaryShades = luzShade(primary, `${prefix}${normalName}`, isDark);
@@ -46,8 +59,8 @@ export function luzGenerator(tokens?: any): any {
   const neutral = chroma(primary).shade(0.5).desaturate(2.1).hex();
   const neutralShades = luzShade(neutral, `${prefix}${neutrals}`, isDark);
   const wheel = luzWheel(primary, prefix);
-  console.log("BASE", base);
-  const sizes = luzSizes(base, power);
+  console.log("normalBase", normalBase);
+  const sizes = luzSizes(normalBase, power);
 
   const theme = {
     settings: {
@@ -83,11 +96,11 @@ export function luzGenerator(tokens?: any): any {
     })
     .join("");
 
-  return { theme, variables, components };
+  return { theme, variables };
 }
 
-export function luz(tokens?: any): void {
-  const { theme, variables, components } = luzGenerator(tokens);
+export function luz(tokens?: DefaultTheme): void {
+  const { theme, variables } = luzGenerator(tokens);
   const luzSheet = new CSSStyleSheet({ media: "all" });
   luzSheet.replaceSync(`
     ${reset}

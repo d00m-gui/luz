@@ -1,10 +1,32 @@
 import chroma from "chroma-js";
 
+interface ShadesMap {
+  [key: string]: string;
+}
+interface WheelMap {
+  [key: string]: string;
+}
+interface SizesMap {
+  [key: string]: string;
+}
+interface LuzHueOutput {
+  blue: string;
+  sky: string;
+  cyan: string;
+  teal: string;
+  emerald: string;
+  green: string;
+  yellow: string;
+  orange: string;
+  red: string;
+  rose: string;
+}
+
 function luzShade(
   color: string,
   name: string = "shades",
   reverse: boolean = true,
-) {
+): ShadesMap {
   const darkest = chroma(color).shade(0.95);
   const lightest = chroma(color).tint(0.6);
   const shades = reverse
@@ -28,8 +50,8 @@ function luzShade(
   return shadesVars;
 }
 
-function getLightnessFromHex(sh: string) {
-  let hex = chroma(sh).hex(); // h && (h.startsWith("#") || chroma(h).hex()) && h.replace(/^#/, "");
+function getLightnessFromHex(sh: string): number {
+  let hex = chroma(sh).hex();
 
   if (hex) {
     let { r, g, b }: { r: number; g: number; b: number } = {
@@ -46,7 +68,7 @@ function getLightnessFromHex(sh: string) {
   }
 }
 
-function luzContrast(color: string) {
+function luzContrast(color: string): string {
   if (getLightnessFromHex(color) > 60) {
     return chroma(color).darken(3).css("oklch");
   } else {
@@ -54,39 +76,39 @@ function luzContrast(color: string) {
   }
 }
 
-function luzHue(color: string, rotation: string) {
+function luzHue(color: string, rotation: string): string {
   return chroma(color).set("oklch.h", rotation).css("oklch");
 }
 
-function luzWheel(color: string, prefix?:string) {
-  let initWheel = {
-     blue: luzHue(color, "270"),
-     sky: luzHue(color, "240"),
-     cyan: luzHue(color, "210"),
-     teal: luzHue(color, "180"),
-     emerald: luzHue(color, "150"),
-     green: luzHue(color, "120"),
-     yellow: luzHue(color, "90"),
-     orange: luzHue(color, "60"),
-     red: luzHue(color, "30"),
-     rose: luzHue(color, "0")
+function luzWheel(color: string, prefix?: string) {
+  let initWheel: LuzHueOutput = {
+    blue: luzHue(color, "270"),
+    sky: luzHue(color, "240"),
+    cyan: luzHue(color, "210"),
+    teal: luzHue(color, "180"),
+    emerald: luzHue(color, "150"),
+    green: luzHue(color, "120"),
+    yellow: luzHue(color, "90"),
+    orange: luzHue(color, "60"),
+    red: luzHue(color, "30"),
+    rose: luzHue(color, "0"),
   };
   let luzStep = {};
-  
   Object.entries(initWheel).map(([key, value], index) => {
     let keyp = prefix ? `${prefix}${key}` : key;
     let item = { [keyp]: value };
-    luzStep = { ...item, ...luzStep }
-  })
+    luzStep = { ...item, ...luzStep };
+  });
+
   return luzStep;
 }
 
-function luzSizes(base: number, power?: number) {
-  let computedSizes = {};
+function luzSizes(base: number, power?: number): SizesMap {
+  const computedSizes: SizesMap = {};
   let p = power ?? 0.2;
   for (let i = 1; i <= 20; i++) {
     let unit = (i / 10).toFixed(1);
-    let b = (base+i) / 10;
+    let b = (base + i) / 10;
     let sizeValue: string;
     if (i > 12) {
       const exponent = ((Math.pow(i - 12, 2) / b) * p).toFixed(2);
@@ -94,10 +116,10 @@ function luzSizes(base: number, power?: number) {
     } else {
       sizeValue = `${unit}rem`;
     }
-    computedSizes = { ...computedSizes, ...{ [`size-${i}`]: sizeValue } };
+    computedSizes[`size-${i}`] = sizeValue;
   }
 
-  const sizes = {
+  const sizes: SizesMap = {
     ...computedSizes,
     "border-radius": `${(base / 32).toFixed(1)}rem`,
     "border-width": `${(base / 128).toFixed(1)}rem`,
