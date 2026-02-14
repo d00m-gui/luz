@@ -32,7 +32,7 @@ const defaultTheme: DefaultTheme = {
   "font-headings": "sans-serif",
   "font-emphasis": "serif",
   base: 16,
-  power: 0.2,
+  power: 2,
   primary: chroma.random().hex(),
   name: "primary",
   mode: "dark",

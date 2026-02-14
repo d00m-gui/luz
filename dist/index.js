@@ -1,18 +1,18 @@
-import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.settings};return`
+import Q from"chroma-js";function X(T){let{name:D,prefix:$,neutrals:L}={...T.settings};return`
     a {
       color: var(--anchor, var(--${$}blue));
     }
     hr {
-      background: var(--${$}${S});
-      color: var(--${$}${S});
+      background: var(--${$}${D});
+      color: var(--${$}${D});
     }
     kbd {
-      border: var(--border-width) solid var(--${$}${S}-900);
-      background-color: var(--${$}${S}-500);
+      border: var(--border-width) solid var(--${$}${D}-900);
+      background-color: var(--${$}${D}-500);
       box-shadow:
-        inset 0 0 5px var(--size-5) var(--${$}${S}-300),
-        inset 0 -1rem 5px 2px var(--${$}${S}-500),
-        0 0 0 1px var(--${$}${S}-100);
+        inset 0 0 5px var(--size-5) var(--${$}${D}-300),
+        inset 0 -1rem 5px 2px var(--${$}${D}-500),
+        0 0 0 1px var(--${$}${D}-100);
     }
     table {
       tr:hover {
@@ -24,14 +24,14 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
     }
     mark,
     &::selection {
-      background-color: var(--${$}${S}-500);
+      background-color: var(--${$}${D}-500);
     }
     label[for="file"],
     &[role="file"],
     &[file-] {
       input[type="file"] {
         &::file-selector-button {
-          border-top: var(--border-width) solid var(--${$}${S}-200);
+          border-top: var(--border-width) solid var(--${$}${D}-200);
         }
       }
     }
@@ -41,7 +41,7 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
       &:active {
         &::-webkit-slider-thumb,
         &::-moz-range-thumb {
-          background: var(--${$}${S}-500);
+          background: var(--${$}${D}-500);
         }
       }
     }
@@ -49,22 +49,22 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
     [type="radio"],
     [type="range"],
     progress {
-      accent-color: var(--${$}${S}-500);
+      accent-color: var(--${$}${D}-500);
     }
     [type="checkbox"],
     [type="radio"] {
-      color: var(--${$}${S}-100);
+      color: var(--${$}${D}-100);
       &:checked {
-        background-color: var(--${$}${S}-500);
-        border-color: var(--${$}${S}-200);
+        background-color: var(--${$}${D}-500);
+        border-color: var(--${$}${D}-200);
       }
     }
     [type="checkbox"][role="switch"] {
       &::before {
-        background-color: var(--${$}${S}-500);
+        background-color: var(--${$}${D}-500);
       }
       &:checked {
-        background-color: var(--${$}${S}-500);
+        background-color: var(--${$}${D}-500);
       }
     }
     [type="radio"] {
@@ -72,15 +72,15 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
         background-color: var(--${$}-secondary-500);
       }
       &:checked {
-        background-color: var(--${$}${S}-500);
-        border-color: var(--${$}${S}-500);
+        background-color: var(--${$}${D}-500);
+        border-color: var(--${$}${D}-500);
       }
     }
     blockquote {
-      border-left: 0.25rem solid var(--${$}${S}-200);
-      border-inline-start: 0.25rem solid var(--${$}${S}-200);
+      border-left: 0.25rem solid var(--${$}${D}-200);
+      border-inline-start: 0.25rem solid var(--${$}${D}-200);
       footer {
-        color: var(--${$}${S}-500);
+        color: var(--${$}${D}-500);
       }
     }
     button[type="submit"],
@@ -90,8 +90,8 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
     [type="reset"],
     [type="submit"],
     button {
-      background-color: var(--${$}${S}-500);
-      color: var(--on-${$}${S});
+      background-color: var(--${$}${D}-500);
+      color: var(--on-${$}${D});
       &[role="secondary"],
       &[role="alternative"] {
         background-color: var(--${$}secondary-500);
@@ -126,8 +126,8 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
     [data-tooltip] {
       &[data-placement="top"]::before,
       &::before {
-        background: var(--${$}${S}-900);
-        color: var(--${$}${S}-100);
+        background: var(--${$}${D}-900);
+        color: var(--${$}${D}-100);
       }
     }
 
@@ -147,7 +147,7 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
         background-color: var(--background);
       }
     }
-  `}var X=`
+  `}var Z=`
   html,
   body {
     font-size: 62.5%;
@@ -321,8 +321,6 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
     text-box: trim-both cap text;
     text-wrap: pretty;
     font-size: var(--size-16);
-    margin-top: calc(var(--size-18) * var(--scale-factor));
-    margin-bottom: calc(var(--size-16) * var(--scale-factor));
     line-height: var(--line-height);
   }
   h1,
@@ -336,22 +334,22 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
     font-weight: var(--font-bold-weight);
   }
   h1 {
-    font-size: var(--size-20);
+    font-size: var(--size-22);
   }
   h2 {
-    font-size: var(--size-19);
+    font-size: var(--size-21);
   }
   h3 {
-    font-size: var(--size-18);
+    font-size: var(--size-20);
   }
   h4 {
-    font-size: var(--size-17);
+    font-size: var(--size-19);
   }
   h5 {
-    font-size: var(--size-16);
+    font-size: var(--size-18);
   }
   h6 {
-    font-size: var(--size-15);
+    font-size: var(--size-17);
   }
   address,
   blockquote,
@@ -559,7 +557,8 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
     }
     &::-webkit-slider-thumb,
     &::-moz-range-thumb {
-      box-shadow: inset 0 0 0 var(--border-width) var(--element-placeholder-color);
+      box-shadow: inset 0 0 0 var(--border-width)
+        var(--element-placeholder-color);
       height: var(--size-15);
       width: var(--size-15);
       background: var(--element-placeholder-color);
@@ -781,13 +780,11 @@ import K from"chroma-js";function U(D){let{name:S,prefix:$,neutrals:L}={...D.set
       opacity: 1;
     }
   }
-
-
-  `;import N from"chroma-js";function j(D,S="shades",$=!0){let L=N(D).shade(0.95),O=N(D).tint(0.6),B=$?N.scale([L,D,O]).colors(11).reverse():N.scale([L,D,O]).colors(11),T={};for(var C in B){let P=B[C]??"#f6f",G;if(C==="0")G=50;else if(C==="10")G=950;else G=parseInt(C)*100;T={...{[`${S}-${G}`]:N(P).css("oklch")},...T}}return T}function m(D){let S=N(D).hex();if(S){let{r:$,g:L,b:O}={r:parseInt(S.substring(0,2),16),g:parseInt(S.substring(2,4),16),b:parseInt(S.substring(4,6),16)};return+((0.2126*$+0.7152*L+0.0722*O)/255*100).toFixed(2)}else return console.error("[luz] Invalid HEX value"),0}function J(D){if(m(D)>60)return N(D).darken(3).css("oklch");else return N(D).brighten(3).css("oklch")}function E(D,S){return N(D).set("oklch.h",S).css("oklch")}function Z(D,S){let $={blue:E(D,"270"),sky:E(D,"240"),cyan:E(D,"210"),teal:E(D,"180"),emerald:E(D,"150"),green:E(D,"120"),yellow:E(D,"90"),orange:E(D,"60"),red:E(D,"30"),rose:E(D,"0")},L={};return Object.entries($).map(([O,B],T)=>{L={...{[S?`${S}${O}`:O]:B},...L}}),L}function W(D,S){let $={},L=S??0.2;for(let B=1;B<=20;B++){let T=(B/10).toFixed(1),C=(D+B)/10,P;if(B>12){let G=(Math.pow(B-12,2)/C*L).toFixed(2);P=`clamp(${T}rem, ${G}cqw, ${G}vw)`}else P=`${T}rem`;$[`size-${B}`]=P}return{...$,"border-radius":`${(D/32).toFixed(1)}rem`,"border-width":`${(D/128).toFixed(1)}rem`,spacing:`${(D/10*3).toFixed(0)}vw`,"element-vertical":`${(D/20).toFixed(1)}rem`,"element-horizontal":`${(D/10).toFixed(1)}rem`}}var u={font:"sans-serif","line-height":"130%","font-bold-weight":800,"font-weight":400,"font-monospace":"monospace","font-headings":"sans-serif","font-emphasis":"serif",base:16,power:0.2,primary:K.random().hex(),name:"primary",mode:"dark",neutrals:"gray",prefix:"",transition:"all ease 200ms","box-shadow":"none","scale-factor":1,spacing:"5vw"};function v(D){let S={...u,...D},{primary:$,name:L,mode:O,base:B,prefix:T,neutrals:C,power:P,...G}=S,A=B??16,M=L&&L.length>0?L:"primary",I=O==="dark",F=j($,`${T}${M}`,I),Q=K($).set("hsl.h","+180").hex(),_=j(Q,`${T}secondary`,I),Y=J(Q),V=J($),q=K($).shade(0.5).desaturate(2.1).hex(),H=j(q,`${T}${C}`,I),y=Z($,T);console.log("normalBase",A);let k=W(A,P),R={settings:{name:L,prefix:T,neutrals:C},config:G,colors:{...F,..._,...H,background:`var(--${T}${M}-950)`,foreground:`var(--${T}${M}-50)`,[`on-${T}secondary`]:Y,[`on-${T}${M}`]:V,...y,"element-background":`var(--${T}${C}-950)`,"element-border-color":`var(--${T}${C}-900)`,"element-active-border-color":`var(--${T}${M}-500)`,"element-color":`var(--${T}${M}-100)`,"element-active-color":`var(--${T}${M}-100)`,"element-placeholder-color":`var(--${T}${M}-100)`},sizes:k},w={...R.sizes,...R.config,...R.colors},z=Object.entries(w).map(([x,g])=>{return`
---${x}:${g};`}).join("");return{theme:R,variables:z}}function s(D){let{theme:S,variables:$}=v(D),L=new CSSStyleSheet({media:"all"});L.replaceSync(`
-    ${X}
-    ${U(S)}
+`;import P from"chroma-js";function I(T,D="shades",$=!0){let L=P(T).shade(0.95),C=P(T).tint(0.6),O=$?P.scale([L,T,C]).colors(11).reverse():P.scale([L,T,C]).colors(11),B={};for(var E in O){let j=O[E]??"#f6f",R;if(E==="0")R=50;else if(E==="10")R=950;else R=parseInt(E)*100;B={...{[`${D}-${R}`]:P(j).css("oklch")},...B}}return B}function m(T){let D=P(T).hex();if(D){let{r:$,g:L,b:C}={r:parseInt(D.substring(0,2),16),g:parseInt(D.substring(2,4),16),b:parseInt(D.substring(4,6),16)};return+((0.2126*$+0.7152*L+0.0722*C)/255*100).toFixed(2)}else return console.error("[luz] Invalid HEX value"),0}function M(T){if(m(T)>60)return P(T).darken(3).css("oklch");else return P(T).brighten(3).css("oklch")}function G(T,D){return P(T).set("oklch.h",D).css("oklch")}function W(T,D){let $={blue:G(T,"270"),sky:G(T,"240"),cyan:G(T,"210"),teal:G(T,"180"),emerald:G(T,"150"),green:G(T,"120"),yellow:G(T,"90"),orange:G(T,"60"),red:G(T,"30"),rose:G(T,"0")},L={};return Object.entries($).map(([C,O],B)=>{L={...{[D?`${D}${C}`:C]:O},...L}}),L}function u(T=16,D=1.31){let $=T/10,L=$*D,C=Math.pow(L,D),O=$*D;if(T>=17)return console.log("BASE",T),L=Math.pow($,2.6),O=Math.pow($,2.6),`clamp(${$.toFixed(1)}rem, ${O.toFixed(2)}cqw, ${L.toFixed(1)}rem)`;return`clamp(${$.toFixed(1)}rem, ${O.toFixed(2)}cqw, ${L.toFixed(1)}rem)`}function _(T,D=2){let $={};for(let L=1;L<=12;L++)$[`size-${L}`]=`${L/10}rem`;for(let L=13;L<=22;L++)$[`size-${L}`]=u(L);return{...$,"border-radius":`${(T/32).toFixed(1)}rem`,"border-width":`${(T/128).toFixed(1)}rem`,spacing:`${(T/10*3).toFixed(0)}rem`,"element-vertical":`${(T/20).toFixed(1)}rem`,"element-horizontal":`${(T/10).toFixed(1)}rem`}}var v={font:"sans-serif","line-height":"130%","font-bold-weight":800,"font-weight":400,"font-monospace":"monospace","font-headings":"sans-serif","font-emphasis":"serif",base:16,power:2,primary:Q.random().hex(),name:"primary",mode:"dark",neutrals:"gray",prefix:"",transition:"all ease 200ms","box-shadow":"none","scale-factor":1,spacing:"5vw"};function f(T){let D={...v,...T},{primary:$,name:L,mode:C,base:O,prefix:B,neutrals:E,power:j,...R}=D,J=O??16,N=L&&L.length>0?L:"primary",K=C==="dark",V=I($,`${B}${N}`,K),U=Q($).set("hsl.h","+180").hex(),S=I(U,`${B}secondary`,K),Y=M(U),q=M($),H=Q($).shade(0.5).desaturate(2.1).hex(),F=I(H,`${B}${E}`,K),y=W($,B);console.log("normalBase",J);let k=_(J,j),A={settings:{name:L,prefix:B,neutrals:E},config:R,colors:{...V,...S,...F,background:`var(--${B}${N}-950)`,foreground:`var(--${B}${N}-50)`,[`on-${B}secondary`]:Y,[`on-${B}${N}`]:q,...y,"element-background":`var(--${B}${E}-950)`,"element-border-color":`var(--${B}${E}-900)`,"element-active-border-color":`var(--${B}${N}-500)`,"element-color":`var(--${B}${N}-100)`,"element-active-color":`var(--${B}${N}-100)`,"element-placeholder-color":`var(--${B}${N}-100)`},sizes:k},w={...A.sizes,...A.config,...A.colors},x=Object.entries(w).map(([z,g])=>{return`
+--${z}:${g};`}).join("");return{theme:A,variables:x}}function l(T){let{theme:D,variables:$}=f(T),L=new CSSStyleSheet({media:"all"});L.replaceSync(`
+    ${Z}
+    ${X(D)}
     :root {
       ${$}
     }
-  `),console.log("[luz] \uD83C\uDFD7️ CSS StyleSheet"),document.adoptedStyleSheets=[L],document.addEventListener("DOMContentLoaded",(O)=>{console.log("[luz] \uD83C\uDFD7️ Ready to Show",document.readyState),document.querySelector("body")?.classList.add("luz-loaded")})}export{v as luzGenerator,s as luz};
+  `),console.log("[luz] \uD83C\uDFD7️ CSS StyleSheet"),document.adoptedStyleSheets=[L],document.addEventListener("DOMContentLoaded",(C)=>{console.log("[luz] \uD83C\uDFD7️ Ready to Show",document.readyState),document.querySelector("body")?.classList.add("luz-loaded")})}export{f as luzGenerator,l as luz};
