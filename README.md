@@ -1,31 +1,27 @@
-# 🌟 Luz: A Modern CSS-in-JS Theming Library for Web Applications
-
----
+# luz
 
 ## **🚀 Overview**
 Luz is a lightweight yet powerful CSS-in-JS library designed to simplify theming and styling in modern web applications. Whether you're building a **SPA**, **React app**, or **Vanilla JS** project, Luz provides a seamless way to manage colors, contrasts, typography, and responsive design tokens dynamically.
 
-With **zero dependencies** (except for Chroma.js for color manipulation), Luz integrates seamlessly with **Vanilla JavaScript**, **React (v19+)** and other frameworks. It leverages the modern [CSS StyleSheet API](https://developer.mozilla.org/en-US/docs/Web/API/CSS_Style_Sheet_API) for performant theming.
+With **zero dependencies** (except for Chroma.js for color manipulation), Luz integrates seamlessly with **Vanilla JavaScript**, **React (v19+)** and other frameworks. It leverages the modern [CSSStyleSheet: CSSStyleSheet() constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet) for performant theming.
 
 ---
 
 ## **✨ Key Features**
 
 - **🎨 Dynamic Theming**: Instantly apply **light/dark modes** and custom color schemes.
-- **⚡ Performance Optimized**: Uses **`CSSStyleSheet`** for fast, non-blocking CSS injection.
+- **⚡ Performance Optimized**: Uses **`CSSStyleSheet()`** for fast, non-blocking CSS injection.
 - **📱 Responsive Ready**: Built-in **design tokens** and **CSS variables** for consistency.
 - **🛠️ Framework Agnostic**: Works with **React (v19+)**, **Vanilla JS**, and other modern stacks.
-- **🎭 Customizable**: Override **fonts, spacing, shadows, transitions**, and more.
-- **📚 Clean CSS Reset**: Comes with a **minimal reset** to standardize your stylesheet.
-- **📦 Zero External Dependencies** (except Chroma.js for color operations).
-
+- **🎭 Customizable**: Override **fonts, spacing, colors**, and more.
+- **📚 Clean CSS Reset**: Comes with a **reset** abd **setup** to standardize your stylesheet.
 ---
 
 ## **📦 Installation**
 
-Luz can be installed via **Bun**, **npm**, or **Yarn**:
+Luz can be installed via **bun** or **pnpm**
 
-### **Using Bun**
+### **Using bun**
 ```bash
 bun add luz
 ```
@@ -42,18 +38,18 @@ pnpm install luz
 ### **1. Basic Setup (Vanilla JS)**
 Include Luz in your project and apply a theme:
 
-```javascript
-import { luz } from "luz";
-
-// Define your theme (optional)
-const myTheme = {
-  primary: "#6366F1",   // Indigo (your brand color)
-  mode: "dark",         // or "light"
-  font: "Inter, -apple-system, BlinkMacSystemFont, sans-serif",
-};
-
-// Apply the theme globally
-luz(myTheme);
+```html
+<script type="module">
+  import { luz } from "luz";
+  // Define your theme
+  const myTheme = {
+    primary: "#6366F1",   // Brand color
+    mode: "dark",         // or "light"
+    font: "'Inter', sans-serif",
+  };
+  // Apply the theme globally
+  luz(myTheme);
+</script>
 ```
 
 ### **2. Custom Styling**
