@@ -20,4 +20,5 @@ interface DefaultTheme {
 }
 declare function luzGenerator(tokens?: DefaultTheme): any;
 declare function luz(tokens?: DefaultTheme): void;
-export { luzGenerator, luz, DefaultTheme };
+declare function luzCSS(tokens?: any);
+export { luzGenerator, luzCSS, luz, DefaultTheme };

@@ -1,18 +1,18 @@
-import Q from"chroma-js";function X(T){let{name:D,prefix:$,neutrals:L}={...T.settings};return`
+import $ from"chroma-js";function u(t){let{name:r,prefix:e,neutrals:o}={...t.settings};return`
     a {
-      color: var(--anchor, var(--${$}blue));
+      color: var(--anchor, var(--${e}blue));
     }
     hr {
-      background: var(--${$}${D});
-      color: var(--${$}${D});
+      background: var(--${e}${r});
+      color: var(--${e}${r});
     }
     kbd {
-      border: var(--border-width) solid var(--${$}${D}-900);
-      background-color: var(--${$}${D}-500);
+      border: var(--border-width) solid var(--${e}${r}-900);
+      background-color: var(--${e}${r}-500);
       box-shadow:
-        inset 0 0 5px var(--size-5) var(--${$}${D}-300),
-        inset 0 -1rem 5px 2px var(--${$}${D}-500),
-        0 0 0 1px var(--${$}${D}-100);
+        inset 0 0 5px var(--size-5) var(--${e}${r}-300),
+        inset 0 -1rem 5px 2px var(--${e}${r}-500),
+        0 0 0 1px var(--${e}${r}-100);
     }
     table {
       tr:hover {
@@ -24,24 +24,24 @@ import Q from"chroma-js";function X(T){let{name:D,prefix:$,neutrals:L}={...T.set
     }
     mark,
     &::selection {
-      background-color: var(--${$}${D}-500);
+      background-color: var(--${e}${r}-500);
     }
     label[for="file"],
     &[role="file"],
     &[file-] {
       input[type="file"] {
         &::file-selector-button {
-          border-top: var(--border-width) solid var(--${$}${D}-200);
+          border-top: var(--border-width) solid var(--${e}${r}-200);
         }
       }
     }
     input[type="range"] {
-      background-color: var(--${$}${L}-500);
-      box-shadow: inset 0 0 0 var(--border-width) var(--${$}${L}-600);
+      background-color: var(--${e}${o}-500);
+      box-shadow: inset 0 0 0 var(--border-width) var(--${e}${o}-600);
       &:active {
         &::-webkit-slider-thumb,
         &::-moz-range-thumb {
-          background: var(--${$}${D}-500);
+          background: var(--${e}${r}-500);
         }
       }
     }
@@ -49,38 +49,38 @@ import Q from"chroma-js";function X(T){let{name:D,prefix:$,neutrals:L}={...T.set
     [type="radio"],
     [type="range"],
     progress {
-      accent-color: var(--${$}${D}-500);
+      accent-color: var(--${e}${r}-500);
     }
     [type="checkbox"],
     [type="radio"] {
-      color: var(--${$}${D}-100);
+      color: var(--${e}${r}-100);
       &:checked {
-        background-color: var(--${$}${D}-500);
-        border-color: var(--${$}${D}-200);
+        background-color: var(--${e}${r}-500);
+        border-color: var(--${e}${r}-200);
       }
     }
     [type="checkbox"][role="switch"] {
       &::before {
-        background-color: var(--${$}${D}-500);
+        background-color: var(--${e}${r}-500);
       }
       &:checked {
-        background-color: var(--${$}${D}-500);
+        background-color: var(--${e}${r}-500);
       }
     }
     [type="radio"] {
       &::before {
-        background-color: var(--${$}-secondary-500);
+        background-color: var(--${e}-secondary-500);
       }
       &:checked {
-        background-color: var(--${$}${D}-500);
-        border-color: var(--${$}${D}-500);
+        background-color: var(--${e}${r}-500);
+        border-color: var(--${e}${r}-500);
       }
     }
     blockquote {
-      border-left: 0.25rem solid var(--${$}${D}-200);
-      border-inline-start: 0.25rem solid var(--${$}${D}-200);
+      border-left: 0.25rem solid var(--${e}${r}-200);
+      border-inline-start: 0.25rem solid var(--${e}${r}-200);
       footer {
-        color: var(--${$}${D}-500);
+        color: var(--${e}${r}-500);
       }
     }
     button[type="submit"],
@@ -90,19 +90,19 @@ import Q from"chroma-js";function X(T){let{name:D,prefix:$,neutrals:L}={...T.set
     [type="reset"],
     [type="submit"],
     button {
-      background-color: var(--${$}${D}-500);
-      color: var(--on-${$}${D});
+      background-color: var(--${e}${r}-500);
+      color: var(--on-${e}${r});
       &[role="secondary"],
       &[role="alternative"] {
-        background-color: var(--${$}secondary-500);
-        color: var(--on-${$}secondary);
+        background-color: var(--${e}secondary-500);
+        color: var(--on-${e}secondary);
       }
       &[type="reset"],
       &[role="cancel"] {
-        background-color: var(--${$}blue);
+        background-color: var(--${e}blue);
       }
       &[role="apply"] {
-        background-color: var(--${$}green);
+        background-color: var(--${e}green);
       }
       &[role="contrast"] {
         background-color: var(--foreground);
@@ -110,24 +110,24 @@ import Q from"chroma-js";function X(T){let{name:D,prefix:$,neutrals:L}={...T.set
       }
     }
     input[aria-invalid="false"] {
-      border-color: var(--${$}green);
-      color: var(--${$}green);
+      border-color: var(--${e}green);
+      color: var(--${e}green);
       &::placeholder {
-        color: var(--${$}green);
+        color: var(--${e}green);
       }
     }
     input[aria-invalid="true"] {
-      border-color: var(--${$}red);
-      color: var(--${$}red);
+      border-color: var(--${e}red);
+      color: var(--${e}red);
       &::placeholder {
-        color: var(--${$}red);
+        color: var(--${e}red);
       }
     }
     [data-tooltip] {
       &[data-placement="top"]::before,
       &::before {
-        background: var(--${$}${D}-900);
-        color: var(--${$}${D}-100);
+        background: var(--${e}${r}-900);
+        color: var(--${e}${r}-100);
       }
     }
 
@@ -147,7 +147,7 @@ import Q from"chroma-js";function X(T){let{name:D,prefix:$,neutrals:L}={...T.set
         background-color: var(--background);
       }
     }
-  `}var Z=`
+  `}var m=`
   html,
   body {
     font-size: 62.5%;
@@ -780,11 +780,17 @@ import Q from"chroma-js";function X(T){let{name:D,prefix:$,neutrals:L}={...T.set
       opacity: 1;
     }
   }
-`;import P from"chroma-js";function I(T,D="shades",$=!0){let L=P(T).shade(0.95),C=P(T).tint(0.6),O=$?P.scale([L,T,C]).colors(11).reverse():P.scale([L,T,C]).colors(11),B={};for(var E in O){let j=O[E]??"#f6f",R;if(E==="0")R=50;else if(E==="10")R=950;else R=parseInt(E)*100;B={...{[`${D}-${R}`]:P(j).css("oklch")},...B}}return B}function m(T){let D=P(T).hex();if(D){let{r:$,g:L,b:C}={r:parseInt(D.substring(0,2),16),g:parseInt(D.substring(2,4),16),b:parseInt(D.substring(4,6),16)};return+((0.2126*$+0.7152*L+0.0722*C)/255*100).toFixed(2)}else return console.error("[luz] Invalid HEX value"),0}function M(T){if(m(T)>60)return P(T).darken(3).css("oklch");else return P(T).brighten(3).css("oklch")}function G(T,D){return P(T).set("oklch.h",D).css("oklch")}function W(T,D){let $={blue:G(T,"270"),sky:G(T,"240"),cyan:G(T,"210"),teal:G(T,"180"),emerald:G(T,"150"),green:G(T,"120"),yellow:G(T,"90"),orange:G(T,"60"),red:G(T,"30"),rose:G(T,"0")},L={};return Object.entries($).map(([C,O],B)=>{L={...{[D?`${D}${C}`:C]:O},...L}}),L}function u(T=16,D=1.31){let $=T/10,L=$*D,C=Math.pow(L,D),O=$*D;if(T>=17)return console.log("BASE",T),L=Math.pow($,2.6),O=Math.pow($,2.6),`clamp(${$.toFixed(1)}rem, ${O.toFixed(2)}cqw, ${L.toFixed(1)}rem)`;return`clamp(${$.toFixed(1)}rem, ${O.toFixed(2)}cqw, ${L.toFixed(1)}rem)`}function _(T,D=2){let $={};for(let L=1;L<=12;L++)$[`size-${L}`]=`${L/10}rem`;for(let L=13;L<=22;L++)$[`size-${L}`]=u(L);return{...$,"border-radius":`${(T/32).toFixed(1)}rem`,"border-width":`${(T/128).toFixed(1)}rem`,spacing:`${(T/10*3).toFixed(0)}rem`,"element-vertical":`${(T/20).toFixed(1)}rem`,"element-horizontal":`${(T/10).toFixed(1)}rem`}}var v={font:"sans-serif","line-height":"130%","font-bold-weight":800,"font-weight":400,"font-monospace":"monospace","font-headings":"sans-serif","font-emphasis":"serif",base:16,power:2,primary:Q.random().hex(),name:"primary",mode:"dark",neutrals:"gray",prefix:"",transition:"all ease 200ms","box-shadow":"none","scale-factor":1,spacing:"5vw"};function f(T){let D={...v,...T},{primary:$,name:L,mode:C,base:O,prefix:B,neutrals:E,power:j,...R}=D,J=O??16,N=L&&L.length>0?L:"primary",K=C==="dark",V=I($,`${B}${N}`,K),U=Q($).set("hsl.h","+180").hex(),S=I(U,`${B}secondary`,K),Y=M(U),q=M($),H=Q($).shade(0.5).desaturate(2.1).hex(),F=I(H,`${B}${E}`,K),y=W($,B);console.log("normalBase",J);let k=_(J,j),A={settings:{name:L,prefix:B,neutrals:E},config:R,colors:{...V,...S,...F,background:`var(--${B}${N}-950)`,foreground:`var(--${B}${N}-50)`,[`on-${B}secondary`]:Y,[`on-${B}${N}`]:q,...y,"element-background":`var(--${B}${E}-950)`,"element-border-color":`var(--${B}${E}-900)`,"element-active-border-color":`var(--${B}${N}-500)`,"element-color":`var(--${B}${N}-100)`,"element-active-color":`var(--${B}${N}-100)`,"element-placeholder-color":`var(--${B}${N}-100)`},sizes:k},w={...A.sizes,...A.config,...A.colors},x=Object.entries(w).map(([z,g])=>{return`
---${z}:${g};`}).join("");return{theme:A,variables:x}}function l(T){let{theme:D,variables:$}=f(T),L=new CSSStyleSheet({media:"all"});L.replaceSync(`
-    ${Z}
-    ${X(D)}
+`;import c from"chroma-js";function h(t,r="shades",e=!0){let o=c(t).shade(0.95),n=c(t).tint(0.6),i=e?c.scale([o,t,n]).colors(11).reverse():c.scale([o,t,n]).colors(11),a={};for(var l in i){let v=i[l]??"#f6f",b;if(l==="0")b=50;else if(l==="10")b=950;else b=parseInt(l)*100;a={...{[`${r}-${b}`]:c(v).css("oklch")},...a}}return a}function G(t){let r=c(t).hex();if(r){let{r:e,g:o,b:n}={r:parseInt(r.substring(0,2),16),g:parseInt(r.substring(2,4),16),b:parseInt(r.substring(4,6),16)};return+((0.2126*e+0.7152*o+0.0722*n)/255*100).toFixed(2)}else return console.error("[luz] Invalid HEX value"),0}function y(t){if(G(t)>60)return c(t).darken(3).css("oklch");else return c(t).brighten(3).css("oklch")}function s(t,r){return c(t).set("oklch.h",r).css("oklch")}function k(t,r){let e={blue:s(t,"270"),sky:s(t,"240"),cyan:s(t,"210"),teal:s(t,"180"),emerald:s(t,"150"),green:s(t,"120"),yellow:s(t,"90"),orange:s(t,"60"),red:s(t,"30"),rose:s(t,"0")},o={};return Object.entries(e).map(([n,i],a)=>{o={...{[r?`${r}${n}`:n]:i},...o}}),o}function N(t=16,r=1.31){let e=t/10,o=e*r,n=Math.pow(o,r),i=e*r;if(t>=17)return console.log("BASE",t),o=Math.pow(e,2.6),i=Math.pow(e,2.6),`clamp(${e.toFixed(1)}rem, ${i.toFixed(2)}cqw, ${o.toFixed(1)}rem)`;return`clamp(${e.toFixed(1)}rem, ${i.toFixed(2)}cqw, ${o.toFixed(1)}rem)`}function z(t,r=2){let e={};for(let o=1;o<=12;o++)e[`size-${o}`]=`${o/10}rem`;for(let o=13;o<=22;o++)e[`size-${o}`]=N(o);return{...e,"border-radius":`${(t/32).toFixed(1)}rem`,"border-width":`${(t/128).toFixed(1)}rem`,spacing:`${(t/10*3).toFixed(0)}rem`,"element-vertical":`${(t/20).toFixed(1)}rem`,"element-horizontal":`${(t/10).toFixed(1)}rem`}}var P={font:"sans-serif","line-height":"130%","font-bold-weight":800,"font-weight":400,"font-monospace":"monospace","font-headings":"sans-serif","font-emphasis":"serif",base:16,power:2,primary:$.random().hex(),name:"primary",mode:"dark",neutrals:"gray",prefix:"",transition:"all ease 200ms","box-shadow":"none","scale-factor":1,spacing:"5vw"};function x(t){let r={...P,...t},{primary:e,name:o,mode:n,base:i,prefix:a,neutrals:l,power:v,...b}=r,g=i??16,d=o&&o.length>0?o:"primary",f=n==="dark",q=h(e,`${a}${d}`,f),w=$(e).set("hsl.h","+180").hex(),C=h(w,`${a}secondary`,f),D=y(w),Y=y(e),T=$(e).shade(0.5).desaturate(2.1).hex(),E=h(T,`${a}${l}`,f),L=k(e,a);console.log("normalBase",g);let j=z(g,v),p={settings:{name:o,prefix:a,neutrals:l},config:b,colors:{...q,...C,...E,background:`var(--${a}${d}-950)`,foreground:`var(--${a}${d}-50)`,[`on-${a}secondary`]:D,[`on-${a}${d}`]:Y,...L,"element-background":`var(--${a}${l}-950)`,"element-border-color":`var(--${a}${l}-900)`,"element-active-border-color":`var(--${a}${d}-500)`,"element-color":`var(--${a}${d}-100)`,"element-active-color":`var(--${a}${d}-100)`,"element-placeholder-color":`var(--${a}${d}-100)`},sizes:j},B={...p.sizes,...p.config,...p.colors},O=Object.entries(B).map(([R,_])=>{return`
+--${R}:${_};`}).join("");return{theme:p,variables:O}}function U(t){let{theme:r,variables:e}=x(t),o=new CSSStyleSheet({media:"all"});o.replaceSync(`
+    ${m}
+    ${u(r)}
     :root {
-      ${$}
+      ${e}
     }
-  `),console.log("[luz] \uD83C\uDFD7️ CSS StyleSheet"),document.adoptedStyleSheets=[L],document.addEventListener("DOMContentLoaded",(C)=>{console.log("[luz] \uD83C\uDFD7️ Ready to Show",document.readyState),document.querySelector("body")?.classList.add("luz-loaded")})}export{f as luzGenerator,l as luz};
+  `),console.log("[luz] \uD83C\uDFD7️ CSS StyleSheet"),document.adoptedStyleSheets=[o],document.addEventListener("DOMContentLoaded",(n)=>{console.log("[luz] \uD83C\uDFD7️ Ready to Show",document.readyState),document.querySelector("body")?.classList.add("luz-loaded")})}function X(t){let{theme:r,variables:e}=x(t),o=document.createElement("style"),n=`
+    ${m}
+    ${u(r)}
+    body {
+      ${e}
+    }
+  `;return o.textContent=n,document.head.appendChild(o),n}export{x as luzGenerator,X as luzCSS,U as luz};

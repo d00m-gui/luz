@@ -3,7 +3,7 @@
 ## **🚀 Overview**
 Luz is a lightweight yet powerful CSS-in-JS library designed to simplify theming and styling in modern web applications. Whether you're building a **SPA**, **React app**, or **Vanilla JS** project, Luz provides a seamless way to manage colors, contrasts, typography, and responsive design tokens dynamically.
 
-With **zero dependencies** (except for Chroma.js for color manipulation), Luz integrates seamlessly with **Vanilla JavaScript**, **React (v19+)** and other frameworks. It leverages the modern [CSSStyleSheet: CSSStyleSheet() constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet) for performant theming.
+**Disclaimer** the main propouse of this library its to know more about future web development such as [CSSStyleSheet() constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet)
 
 ---
 

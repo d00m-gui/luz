@@ -116,3 +116,18 @@ export function luz(tokens?: DefaultTheme): void {
     document.querySelector("body")?.classList.add("luz-loaded");
   });
 }
+
+export function luzCSS(tokens?: any) {
+  const { theme, variables } = luzGenerator(tokens);
+  const styleEl = document.createElement("style");
+  const cssRules = `
+    ${reset}
+    ${setup(theme)}
+    body {
+      ${variables}
+    }
+  `;
+  styleEl.textContent = cssRules;
+  document.head.appendChild(styleEl);
+  return cssRules;
+}
