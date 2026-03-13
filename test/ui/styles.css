@@ -1,0 +1,128 @@
+:root {
+	--border: var(--border-width) solid var(--element-border-color, #ccc);
+}
+#root {
+	display: flex;
+	--font-weight: 500;
+	.title {
+		font-size: var(--size-16);
+		color: var(--yellow);
+		margin-bottom: var(--size-8);
+		span {
+			color: var(--cyan);
+		}
+		small {
+			color: var(--emerald);
+			span {
+				color: var(--yellow);
+			}
+		}
+	}
+
+	.description {
+		.nf,
+		b {
+			margin: 0 var(--size-5);
+			color: var(--primary-300);
+		}
+	}
+	aside {
+		flex: 0 0 auto;
+		width: 25.6rem;
+		padding: var(--size-10);
+		h4 {
+			text-transform: uppercase;
+			font-size: var(--size-15);
+			opacity: 0.3;
+			padding: var(--size-8);
+		}
+		header {
+			padding: var(--size-16);
+			display: flex;
+			gap: var(--size-16);
+			align-items: center;
+			.badge {
+				font-size: var(--size-12);
+				text-decoration: none;
+				font-weight: var(--font-bold-weight);
+			}
+		}
+		& > a {
+			display: block;
+			padding: var(--size-5);
+			text-decoration: none;
+			padding: var(--size-8);
+			font-size: var(--size-14);
+			background-color: var(--primary-900);
+			color: var(--primary-400);
+			margin: var(--size-5) 0;
+			border-radius: var(--size-3);
+		}
+	}
+	main {
+		padding: var(--spacing);
+		width: 100%;
+	}
+	code {
+		padding: var(--size-2) var(--size-4);
+		border-radius: var(--border-radius);
+		background-color: var(--primary-900);
+		color: var(--primary-200);
+	}
+	.cards {
+		column-width: 30rem;
+		column-gap: 1.6rem;
+		width: 100%;
+	}
+	.card {
+		/*flex: 1 1 auto;*/
+		container-type: inline-size;
+		break-inside: avoid;
+		margin-bottom: 1em;
+		& > h2 {
+			flex: 0 0 auto;
+			padding: var(--size-16);
+			color: var(--primary-400);
+			font-family: var(--font-monospace);
+			font-size: var(--size-15);
+			border-radius: var(--border-radius) var(--border-radius) 0 0;
+			background-color: var(--primary-800);
+		}
+		&::before {
+			--shade: oklch(from var(--neutral-200) l c h / 15%);
+			content: "";
+			position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			background-image: radial-gradient(ellipse at center, var(--shade), transparent 60%);
+		}
+		.card-content {
+			--dots: oklch(from var(--primary-500) l c h / 20%);
+			background-image: radial-gradient(
+				circle at 1px 1px,
+				var(--dots) var(--size-1),
+				transparent 0
+			);
+			background-size: var(--size-10) var(--size-10);
+			background-position: -5px 0;
+		}
+		article {
+			--paper: var(--neutral-900);
+			display: flex;
+			flex-direction: column;
+			gap: var(--size-8);
+			background-color: oklch(from var(--paper) l c h / 80%);
+			flex: 1 1 auto;
+			height: 100%;
+			width: 100%;
+			padding: var(--size-20) var(--size-16);
+			border-radius: var(--border-radius);
+		}
+		.grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+}

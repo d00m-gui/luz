@@ -1,15 +1,19 @@
-import { defineConfig } from 'bunup';
-import { exports, unused, injectStyles } from 'bunup/plugins';
+import { defineConfig } from "bunup";
+import { exports, unused } from "bunup/plugins";
+import { luzPlugin } from "./src/bun";
+import { config } from "./luz.config";
 
 export default defineConfig({
-	unused: true,
 	exports: true,
-	css: {
-    inject: true,
-  },
-	entry: 'src/index.ts',
-	format: ['esm'],
-	target: "browser",
-	plugins: [exports(), unused(), injectStyles()],
+	plugins: [exports(), unused(), luzPlugin(config)],
+	entry: [
+		"src/index.ts",
+		"src/react/index.ts",
+		"src/bun/index.ts",
+		"src/astro/index.ts",
+		"src/style/sheet.ts",
+	],
+	format: ["esm"],
+	unused: true,
 	minify: true,
 });

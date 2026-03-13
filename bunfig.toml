@@ -1,2 +1,2 @@
-telemetry = false
-preload = "./happydom.ts"
+[install]
+linker = "hoisted"
