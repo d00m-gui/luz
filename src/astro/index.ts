@@ -6,12 +6,12 @@ import { formatCSS } from "../tools/format";
 import { writeFileSync } from "node:fs";
 
 export const luzAstro = (config: any) => {
-	return {
-		name: "luz",
-		hooks: {
-			"astro:server:setup": (): void | Promise<void> => {
-				const { variables, tokens } = luz(config);
-				const cssContent = `
+  return {
+    name: "luz",
+    hooks: {
+      "astro:server:setup": (): void | Promise<void> => {
+        const { variables, tokens } = luz(config);
+        const cssContent = `
 						${reset()}
 						${setup(tokens)}
 						:root {
@@ -19,14 +19,14 @@ export const luzAstro = (config: any) => {
 						}
 						${base(tokens)}
 						`;
-				const minCSS = formatCSS(cssContent);
-				const outputPath = "./src/styles/luz.css";
+        const minCSS = formatCSS(cssContent);
+        const outputPath = tokens.path ?? "./src/styles/luz.css";
 
-				writeFileSync(outputPath, minCSS, {
-					encoding: "utf-8",
-				});
-				console.log(`[luz] CSS created @ '${outputPath}'`);
-			},
-		},
-	};
+        writeFileSync(outputPath, minCSS, {
+          encoding: "utf-8",
+        });
+        console.log(`[luz] CSS created @ '${outputPath}'`);
+      },
+    },
+  };
 };

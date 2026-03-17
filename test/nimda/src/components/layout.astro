@@ -1,0 +1,31 @@
+---
+import "../styles/luz.css";
+import "../styles/custom.css";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Datatype:wght@100..900&display=swap"
+      rel="stylesheet"
+    />
+    <title>nimda</title>
+  </head>
+  <body>
+    <section class="nimda">
+      <nav class="main-header">
+        <p><b>nimda</b> 2.5.4</p>
+        <div class="space"></div>
+        <a>user@domain</a>
+      </nav>
+      <slot />
+    </section>
+  </body>
+</html>
