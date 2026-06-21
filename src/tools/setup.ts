@@ -1,6 +1,6 @@
 export function setup(tokens: any) {
-	const { name, prefix, neutrals } = { ...tokens.settings };
-	return `
+  const { name, prefix, neutrals } = { ...tokens.settings };
+  return `
     a {
       color: var(--anchor, var(--${prefix}blue));
       &.secondary {

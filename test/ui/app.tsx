@@ -21,48 +21,48 @@ import "./styles.css";
 import { DialogSample } from "./samples/dialog";
 
 export function App() {
-	return (
-		<>
-			<main>
-				<h6 className="title">
-					<span>:::</span> luz{" "}
-					<small>
-						<span>&lt;</span>luz.components <span>/&gt;</span>
-					</small>
-				</h6>
-				<p className="description">
-					<i className="nf nf-fa-store" /> Showcase of built-in <b>HTML</b> and{" "}
-					<b>React Components</b>
-					<small>
-						/w batteries <i className="nf nf-md-battery_heart" /> included.
-					</small>
-				</p>
-				<hr />
-				<div className="cards">
-					<AvatarsSample />
-					<BlockquoteSample />
-					<ButtonsSample />
-					{/*<ColorsSample colors={tokens.colors} />*/}
-					<ElementsSample />
-					<FormsSample />
-					<GroupSample />
-					<HeadingsSample />
-					<InlineSample />
-					<InputsSample />
-					<LoadingSample />
-					<MenubarSample />
-					<MenusSample />
-					<TablesSample />
-					<MeterSample />
-					<SwitchSample />
-					<TabsSample />
-					<ToastSample />
-					<ToggleSample />
-					<DialogSample />
-				</div>
-			</main>
-		</>
-	);
+  return (
+    <>
+      <main>
+        <h6 className="title">
+          <span>:::</span> luz{" "}
+          <small>
+            <span>&lt;</span>luz.components <span>/&gt;</span>
+          </small>
+        </h6>
+        <p className="description">
+          <i className="nf nf-fa-store" /> Showcase of built-in <b>HTML</b> and{" "}
+          <b>React Components</b>
+          <small>
+            /w batteries <i className="nf nf-md-battery_heart" /> included.
+          </small>
+        </p>
+        <hr />
+        <div className="cards">
+          <AvatarsSample />
+          <BlockquoteSample />
+          <ButtonsSample />
+          {/*<ColorsSample colors={tokens.colors} />*/}
+          <ElementsSample />
+          <FormsSample />
+          <GroupSample />
+          <HeadingsSample />
+          <InlineSample />
+          <InputsSample />
+          <LoadingSample />
+          <MenubarSample />
+          <MenusSample />
+          <TablesSample />
+          <MeterSample />
+          <SwitchSample />
+          <TabsSample />
+          <ToastSample />
+          <ToggleSample />
+          <DialogSample />
+        </div>
+      </main>
+    </>
+  );
 }
 
 export default App;

@@ -1,8 +1,8 @@
 export const base = (tokens?: any): string => {
-	const { name, prefix, neutrals } = { ...tokens.settings };
-	const neutral = `${prefix}${neutrals}`;
-	const primary = `${prefix}${name}`;
-	return `
+  const { name, prefix, neutrals } = { ...tokens.settings };
+  const neutral = `${prefix}${neutrals}`;
+  const primary = `${prefix}${name}`;
+  return `
 		/* Card */
 		.card {
 			container-type: inline-size;

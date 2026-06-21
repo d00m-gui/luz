@@ -1,13 +1,13 @@
-import { luz } from "@/luz";
+import { luz } from "../luz";
 import { base } from "../tools/base";
 import { reset } from "../tools/reset";
 import { setup } from "../tools/setup";
 
 export function luzStyleSheet(config?: any): void {
-	const { tokens, variables } = luz(config);
-	const luzSheet = new CSSStyleSheet({ media: "all" });
-	luzSheet.replaceSync(
-		`
+  const { tokens, variables } = luz(config);
+  const luzSheet = new CSSStyleSheet({ media: "all" });
+  luzSheet.replaceSync(
+    `
 		${reset()};
     ${setup(tokens)}
     :root {
@@ -15,11 +15,11 @@ export function luzStyleSheet(config?: any): void {
     }
 		${base(tokens)}
   `,
-	);
-	console.log(`[luz] 🏗️ CSS StyleSheet`);
-	document.adoptedStyleSheets = [luzSheet];
-	document.addEventListener("DOMContentLoaded", () => {
-		console.log(`[luz] 🏗️ Ready to Show`, document.readyState);
-		document.querySelector("body")?.classList.add("luz-loaded");
-	});
+  );
+  console.log(`[luz] 🏗️ CSS StyleSheet`);
+  document.adoptedStyleSheets = [luzSheet];
+  document.addEventListener("DOMContentLoaded", () => {
+    console.log(`[luz] 🏗️ Ready to Show`, document.readyState);
+    document.querySelector("body")?.classList.add("luz-loaded");
+  });
 }

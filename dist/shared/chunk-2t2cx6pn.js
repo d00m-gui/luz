@@ -1,4 +1,8 @@
-var n=(i)=>{let{name:e,prefix:r,neutrals:t}={...i.settings},a=`${r}${t}`,o=`${r}${e}`;return`
+var n = (i) => {
+  let { name: e, prefix: r, neutrals: t } = { ...i.settings },
+    a = `${r}${t}`,
+    o = `${r}${e}`;
+  return `
 		/* Card */
 		.card {
 			container-type: inline-size;
@@ -429,7 +433,11 @@ var n=(i)=>{let{name:e,prefix:r,neutrals:t}={...i.settings},a=`${r}${t}`,o=`${r}
 			left: 0;
 			right: 0;
 		}
-	`};function l(i){let{name:e,prefix:r,neutrals:t}={...i.settings};return`
+	`;
+};
+function l(i) {
+  let { name: e, prefix: r, neutrals: t } = { ...i.settings };
+  return `
     a {
       color: var(--anchor, var(--${r}blue));
       &.secondary {
@@ -644,5 +652,6 @@ var n=(i)=>{let{name:e,prefix:r,neutrals:t}={...i.settings},a=`${r}${t}`,o=`${r}
       90% { content: "⠏"; }
       100% { content: "⠋"; }
     }
-  `}
-export{n as c,l as d};
+  `;
+}
+export { n as c, l as d };
