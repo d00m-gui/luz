@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { lui } from "../../../dist/react";
+import { lui } from "../../../src/components";
 
 export function FormsSample() {
   const [errors, setErrors] = useState({});

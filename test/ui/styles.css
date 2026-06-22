@@ -1,3 +1,5 @@
+@import url("./luz.css");
+
 :root {
   --border: var(--border-width) solid var(--element-border-color, #ccc);
 }
@@ -75,7 +77,6 @@
     width: 100%;
   }
   .card {
-    /*flex: 1 1 auto;*/
     container-type: inline-size;
     break-inside: avoid;
     margin-bottom: 1em;
@@ -87,6 +88,8 @@
       font-size: var(--size-15);
       border-radius: var(--border-radius) var(--border-radius) 0 0;
       background-color: var(--primary-800);
+      position: relative;
+      z-index: 2;
     }
     &::before {
       --shade: oklch(from var(--neutral-200) l c h / 15%);
@@ -96,7 +99,13 @@
       right: 0;
       bottom: 0;
       left: 0;
-      background-image: radial-gradient(ellipse at center, var(--shade), transparent 60%);
+      background-image: radial-gradient(
+        ellipse at center,
+        var(--shade),
+        transparent 60%
+      );
+      pointer-events: none;
+      z-index: 1;
     }
     .card-content {
       --dots: oklch(from var(--primary-500) l c h / 20%);
@@ -123,6 +132,24 @@
     .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .buttons .card-content {
+    padding: 0;
+    gap: 0.5ch;
+    margin: 0.5ch;
+  }
+  details {
+    padding: 0.5ch;
+    summary {
+      font-size: var(--size-16);
+      cursor: pointer;
+    }
+  }
+  .dialog {
+    button {
+      width: min-content;
+      margin: 1ch;
     }
   }
 }

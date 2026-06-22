@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { lui } from "../../../dist/react";
+import { lui } from "../../../src/components";
 
 export function ButtonsSample() {
   const [loading, setLoading] = useState(false);
   return (
-    <lui.card>
+    <lui.card className="card buttons">
       <h2>buttons</h2>
       <div className="card-content">
         <div role="group">

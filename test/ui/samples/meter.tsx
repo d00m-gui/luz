@@ -1,4 +1,4 @@
-import { lui } from "../../../dist/react";
+import { lui } from "../../../src/components";
 export function MeterSample() {
   return (
     <lui.card>

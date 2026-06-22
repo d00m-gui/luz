@@ -13,6 +13,7 @@ import {
   ToggleGroup,
   Button,
   Menubar,
+  Dialog,
 } from "@base-ui/react";
 import { Toast as ToastCore } from "@base-ui/react/toast";
 import { Card } from "./card";
@@ -83,4 +84,14 @@ export const lui: LuiComponents = {
     thumb: Switch.Thumb,
   },
   card: Card,
+  dialog: {
+    root: Dialog.Root,
+    trigger: Dialog.Trigger,
+    portal: Dialog.Portal,
+    backdrop: Dialog.Backdrop,
+    popup: Dialog.Popup,
+    title: Dialog.Title,
+    description: Dialog.Description,
+    close: Dialog.Close,
+  },
 };

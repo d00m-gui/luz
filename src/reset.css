@@ -409,7 +409,8 @@ input[type="range"] {
   }
   &::-webkit-slider-thumb,
   &::-moz-range-thumb {
-    box-shadow: inset 0 0 0 var(--border-width) var(--element-active-border-color);
+    box-shadow: inset 0 0 0 var(--border-width)
+      var(--element-active-border-color);
     height: var(--size-15);
     width: var(--size-15);
     background: var(--element-active-border-color);
@@ -425,10 +426,13 @@ input[type="range"] {
   }
 }
 input:where(select, textarea):not([readonly]):is(:active, :focus),
-input:not([type="submit"], [type="button"], [type="reset"], [role="switch"], [readonly]):is(
-    :active,
-    :focus
-  ) {
+input:not(
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [role="switch"],
+    [readonly]
+  ):is(:active, :focus) {
   border-color: var(--element-active-border-color);
   filter: brightness(1.05);
 }
@@ -598,35 +602,35 @@ section {
   &[data-placement="top"]:before,
   &:before {
     z-index: 99;
-    padding: 0 var(--size-10);
+    padding: 0.5ch var(--size-10);
     border-radius: var(--size-5);
     content: attr(data-tooltip);
-    border: var(--border-width) solid var(--foreground);
+    border: var(--border-width) solid var(--primary-600);
     text-overflow: ellipsis;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    font-size: var(--size-13);
+    font-size: var(--size-12);
     text-decoration: none;
     display: block;
     position: absolute;
     bottom: 100%;
     left: 50%;
     overflow: hidden;
-    transform: translate(-50%, -0.5rem);
+    transform: translate3d(-50%, -0.5rem, 0);
   }
   &[data-placement="bottom"]:before {
     top: 100%;
     bottom: auto;
-    transform: translate(-50%, 0.25rem);
+    transform: translate3d(-50%, 0.25rem, 0);
   }
   &[data-placement="left"]:before {
     inset: 50% 100% auto auto;
-    transform: translate(-0.25rem, -50%);
+    transform: translate3d(-0.25rem, -50%, 0);
   }
   &[data-placement="right"]:before {
     inset: 50% auto auto 100%;
-    transform: translate(0.25rem, -50%);
+    transform: translate3d(0.25rem, -50%, 0);
   }
   &:focus:before,
   &:hover:before {

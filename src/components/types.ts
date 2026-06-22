@@ -2,9 +2,18 @@ import { Avatar } from "@base-ui/react/avatar";
 import { Menu } from "@base-ui/react/menu";
 import { Tabs } from "@base-ui/react/tabs";
 import { Card } from "../components/card";
-import { Button } from "@base-ui/react";
 import { Menubar } from "@base-ui/react/menubar";
-import { Field, Form, Meter, Switch, Toast, Toggle, ToggleGroup } from "@base-ui/react";
+import {
+  Field,
+  Form,
+  Meter,
+  Switch,
+  Toast,
+  Toggle,
+  ToggleGroup,
+  Button,
+  Dialog,
+} from "@base-ui/react";
 import { Toast as ToastCore } from "@base-ui/react/toast";
 
 // type ElementType = React.ForwardRefExoticComponent<React.HTMLAttributes<any>>;
@@ -26,12 +35,24 @@ export interface LuiComponents {
   toast: ToastComponentTypes;
   switch: SwitchComponentTypes;
   card: CardType;
+  dialog: DialogType;
 }
 
 export interface AvatarTypes {
   root: typeof Avatar.Root;
   image: typeof Avatar.Image;
   fallback: typeof Avatar.Fallback;
+}
+
+export interface DialogType {
+  root: typeof Dialog.Root;
+  trigger: typeof Dialog.Trigger;
+  portal: typeof Dialog.Portal;
+  backdrop: typeof Dialog.Backdrop;
+  popup: typeof Dialog.Popup;
+  title: typeof Dialog.Title;
+  description: typeof Dialog.Description;
+  close: typeof Dialog.Close;
 }
 
 export type ButtonType = typeof Button;

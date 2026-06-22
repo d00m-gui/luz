@@ -1,4 +1,4 @@
-import { lui } from "../../../dist/react";
+import { lui } from "../../../src/components";
 
 export function ElementsSample() {
   return (
@@ -7,9 +7,9 @@ export function ElementsSample() {
       <div className="card-content">
         <article>
           <p>
-            Aliquam lobortis vitae nibh nec rhoncus. Morbi mattis neque eget efficitur feugiat.
-            Vivamus porta nunc a erat mattis, mattis feugiat turpis pretium. Quisque sed tristique
-            felis.
+            Aliquam lobortis vitae nibh nec rhoncus. Morbi mattis neque eget
+            efficitur feugiat. Vivamus porta nunc a erat mattis, mattis feugiat
+            turpis pretium. Quisque sed tristique felis.
           </p>
           <ul>
             <li>Aliquam lobortis lacus eu libero ornare facilisis.</li>
@@ -17,7 +17,9 @@ export function ElementsSample() {
             <li>Suspendisse id nisl ut leo finibus vehicula quis eu ex.</li>
             <li>Proin ultricies turpis et volutpat vehicula.</li>
           </ul>
-          <p>Lorem ipsum dolor sit amet consectetur bellum omnes contra omnes.</p>
+          <p>
+            Lorem ipsum dolor sit amet consectetur bellum omnes contra omnes.
+          </p>
         </article>
       </div>
     </lui.card>

@@ -1,4 +1,4 @@
-import { lui } from "../../../dist/react";
+import { lui } from "../../../src/components";
 
 export function GroupSample() {
   return (
@@ -6,7 +6,12 @@ export function GroupSample() {
       <h2>group</h2>
       <div className="card-content">
         <div role="group">
-          <input name="email" type="email" placeholder="Enter your email" autoComplete="email" />
+          <input
+            name="email"
+            type="email"
+            placeholder="Enter your email"
+            autoComplete="email"
+          />
           <input type="submit" value="Subscribe" />
         </div>
       </div>

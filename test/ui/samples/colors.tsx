@@ -1,4 +1,4 @@
-import { lui } from "../../../src/react";
+import { lui } from "../../../src/components";
 import { css } from "../../../src/tools/css";
 
 export function ColorsSample({ ...props }) {
@@ -9,7 +9,12 @@ export function ColorsSample({ ...props }) {
       <div className="colors">
         {colors &&
           Object.entries(colors).map(([color], idx: number) => {
-            if (color === "primary" || color === "secondary" || color === "neutral") return;
+            if (
+              color === "primary" ||
+              color === "secondary" ||
+              color === "neutral"
+            )
+              return;
             return (
               <div
                 key={idx}

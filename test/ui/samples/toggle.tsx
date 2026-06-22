@@ -1,4 +1,4 @@
-import { lui } from "../../../dist/react";
+import { lui } from "../../../src/components";
 export function ToggleSample() {
   return (
     <lui.card>

@@ -1,4 +1,4 @@
-import { lui } from "../../../src/react";
+import { lui } from "../../../src/components";
 
 export function AvatarsSample() {
   return (

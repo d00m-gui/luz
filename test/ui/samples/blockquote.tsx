@@ -1,4 +1,4 @@
-import { lui } from "../../../src/react";
+import { lui } from "../../../src/components";
 export function BlockquoteSample() {
   return (
     <lui.card>
@@ -7,8 +7,8 @@ export function BlockquoteSample() {
         <article>
           <blockquote>
             <h3>
-              Maecenas vehicula metus tellus, vitae congue turpis hendrerit non. Nam at dui sit amet
-              ipsum cursus ornare.
+              Maecenas vehicula metus tellus, vitae congue turpis hendrerit non.
+              Nam at dui sit amet ipsum cursus ornare.
             </h3>
             <cite>&mdash; Phasellus eget lacinia</cite>
           </blockquote>

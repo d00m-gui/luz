@@ -115,6 +115,7 @@ export function setup(tokens: any) {
     button {
       background-color: var(--${prefix}${name}-500);
       color: var(--on-${prefix}${name});
+      text-shadow: 0 0 0.2ch var(--${prefix}${name}-700);
       &[role="secondary"],
       &[role="alternative"] {
         background-color: var(--${prefix}secondary-500);
@@ -168,6 +169,7 @@ export function setup(tokens: any) {
       &::before {
         background: var(--${prefix}${name}-900);
         color: var(--${prefix}${name}-100);
+        border-color: transparent;
       }
     }
 

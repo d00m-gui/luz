@@ -17,27 +17,78 @@ import { BlockquoteSample } from "./samples/blockquote";
 import { GroupSample } from "./samples/groups";
 import { TablesSample } from "./samples/tables";
 import { LoadingSample } from "./samples/loading";
-import "./styles.css";
 import { DialogSample } from "./samples/dialog";
+import { luz } from "../../src/luz";
+import { config } from "../../luz.config";
+import { lui } from "../../src/components";
 
 export function App() {
+  const {
+    tokens: { colors, sizes, typography },
+  } = luz(config);
   return (
     <>
       <main>
         <h6 className="title">
-          <span>:::</span> luz{" "}
-          <small>
-            <span>&lt;</span>luz.components <span>/&gt;</span>
-          </small>
+          <span>&lt;</span>luz.<i>components</i> <span>/&gt;</span>
         </h6>
-        <p className="description">
-          <i className="nf nf-fa-store" /> Showcase of built-in <b>HTML</b> and{" "}
-          <b>React Components</b>
-          <small>
-            /w batteries <i className="nf nf-md-battery_heart" /> included.
-          </small>
-        </p>
         <hr />
+        <div className="settings">
+          <div className="typography">
+            {typography &&
+              Object.entries(typography).map(([key, value], idx) => {
+                return (
+                  <p key={idx}>
+                    <span>{key}:</span>
+                    <b>{value as string}</b>
+                  </p>
+                );
+              })}
+          </div>
+          <div className="colors">
+            {colors &&
+              Object.entries(colors).map(([color], idx: number) => {
+                if (
+                  color === "primary" ||
+                  color === "secondary" ||
+                  color === "neutral"
+                )
+                  return;
+                return (
+                  <div
+                    key={idx}
+                    className="color"
+                    data-tooltip={color}
+                    style={{
+                      backgroundColor: `var(--${color})`,
+                      height: "5px",
+                    }}
+                  ></div>
+                );
+              })}
+          </div>
+          <div className="sizes">
+            {Object.entries(sizes).map(
+              ([name, value]: [name: string, value: any], idx) => {
+                const size = value.startsWith("clamp")
+                  ? parseFloat(value.split(",").at(-1).replace("rem)", "")) * 10
+                  : parseFloat(value.split("rem")) * 10;
+                return (
+                  <div key={idx} data-tooltip={`${size}px size (approx)`}>
+                    <small>{name}</small>
+                    {typeof size === "number" && (
+                      <lui.meter.root value={size}>
+                        <lui.meter.track className="track">
+                          <lui.meter.indicator className="indicator" />
+                        </lui.meter.track>
+                      </lui.meter.root>
+                    )}
+                  </div>
+                );
+              },
+            )}
+          </div>
+        </div>
         <div className="cards">
           <AvatarsSample />
           <BlockquoteSample />
@@ -61,8 +112,48 @@ export function App() {
           <DialogSample />
         </div>
       </main>
+      <style precedence="high">{ColorsSampleStyle}</style>
     </>
   );
 }
-
+const ColorsSampleStyle = `
+  .settings {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 0 0 var(--spacing) 0;
+  }
+  .sizes {
+   display: flex;
+   flex-direction: row;
+   flex-wrap: wrap;
+   gap: 1ch;
+   container-type: inline-size;
+   p small {
+    display: block;
+    font-size: var(--size-13);
+   }
+  }
+  .typography {
+   container-type: inline-size;
+   p {
+    margin-bottom: 2ch;
+   }
+   span {
+    color: var(--secondary-400);
+   }
+   b {
+    display: block;
+    transform-origin: 0% 50%;
+    transform: scale(1.8);
+   }
+  }
+  .colors {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    padding: 0 2ch;
+    .color {
+      min-height: 3rem;
+    }
+  }
+`;
 export default App;
