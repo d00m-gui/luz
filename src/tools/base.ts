@@ -1,5 +1,3 @@
-import { css } from "./css";
-
 export const base = (tokens?: any): string => {
   const { name, prefix, neutrals } = { ...tokens.settings };
   const neutral = `${prefix}${neutrals}`;
