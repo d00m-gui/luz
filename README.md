@@ -10,7 +10,7 @@ bun i luz
 
 ## Usage Example (Astro Integration)
 
-For Astro projects, use the provided integration to configure static luz styles CSS variables and tokens.
+For Astro projects, use the provided integration to configure static luz styles CSS variables.
 
 **1. Configure:** Create the file and define your primary theme colors in `luz.config.mjs`.
 
@@ -43,8 +43,6 @@ export default defineConfig({
 ```css
 @import url("./luz.css");
 ```
-
-_TODO_ Explain the CSS variables (Design Tokens) outputs
 
 ## License
 
