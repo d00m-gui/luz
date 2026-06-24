@@ -1,132 +1,49 @@
 # luz
 
-## **🚀 Overview**
-Luz is a lightweight yet powerful CSS-in-JS library designed to simplify theming and styling in modern web applications. Whether you're building a **SPA**, **React app**, or **Vanilla JS** project, Luz provides a seamless way to manage colors, contrasts, typography, and responsive design tokens dynamically.
+Luz provides a minimalist mechanism for centralizing and managing styles across modern web applications built with React, Vue components, Astro, or Vanilla JS.
 
-With **zero dependencies** (except for Chroma.js for color manipulation), Luz integrates seamlessly with **Vanilla JavaScript**, **React (v19+)** and other frameworks. It leverages the modern [CSSStyleSheet: CSSStyleSheet() constructor](https://developer.mozilla.org/en-US/docs/Web/API/CSSStyleSheet/CSSStyleSheet) for performant theming.
+## Installation
 
----
-
-## **✨ Key Features**
-
-- **🎨 Dynamic Theming**: Instantly apply **light/dark modes** and custom color schemes.
-- **⚡ Performance Optimized**: Uses **`CSSStyleSheet()`** for fast, non-blocking CSS injection.
-- **📱 Responsive Ready**: Built-in **design tokens** and **CSS variables** for consistency.
-- **🛠️ Framework Agnostic**: Works with **React (v19+)**, **Vanilla JS**, and other modern stacks.
-- **🎭 Customizable**: Override **fonts, spacing, colors**, and more.
-- **📚 Clean CSS Reset**: Comes with a **reset** abd **setup** to standardize your stylesheet.
----
-
-## **📦 Installation**
-
-Luz can be installed via **bun** or **pnpm**
-
-### **Using bun**
 ```bash
-bun add luz
+bun i luz
 ```
 
-### **Using npm**
-```bash
-pnpm install luz
-```
+## Usage Example (Astro Integration)
 
----
+For Astro projects, use the provided integration to configure static luz styles CSS variables.
 
-## **📜 Usage**
-
-### **1. Basic Setup (Vanilla JS)**
-Include Luz in your project and apply a theme:
-
-```html
-<script type="module">
-  import { luz } from "luz";
-  // Define your theme
-  const myTheme = {
-    primary: "#6366F1",   // Brand color
-    mode: "dark",         // or "light"
-    font: "'Inter', sans-serif",
-  };
-  // Apply the theme globally
-  luz(myTheme);
-</script>
-```
-
-### **2. Custom Styling**
-Extend the reset or modify the theme with custom CSS:
-
-```css
-/* Custom CSS can be injected alongside Luz */
-body {
-  --secondary-600: #FF5733;
-  --transition: all ease 0.3s;
-  --red: #FF0000;
-}
-```
-
----
-
-## **🎨 Theming & Design Tokens**
-
-Luz automatically generates **smooth color transitions** and **optimal contrast**. Example output:
-
-```css
-:root {
-  --primary-50: oklch(88.28% 0.07 330.96deg);    /* Lightest shade */
-  --primary-500: oklch(64.66% 0.25 332.71deg);  /* Primary */
-  --on-primary: oklch(93.6% 0.06 326.07deg);    /* Auto-calculated contrast */
-  --secondary-500: oklch(79.2% 0.23 144.27deg);
-  --secondary-950: oklch(28.15% 0.07 145.23deg); /* Dark shade for backgrounds */
-
-  /* Element styles */
-  --element-color: var(--primary-100); /* Dark text for contrast */
-  --element-active-color: var(--primary-500);
-}
-```
-
-### **Light vs Dark Mode**
-Switch between **light** and **dark** themes effortlessly:
+**1. Configure:** Create the file and define your primary theme colors in `luz.config.mjs`.
 
 ```javascript
-luz({ mode: "dark" });  // Dark theme
-luz({ mode: "light" }); // Light theme
+export const config = {
+	primary: "#007DEA",
+	font: "'Inter', sans-serif",
+	"font-headings": "'Inter', sans-serif",
+	"font-emphasis": "'Inter', sans-serif",
+	"font-monospace": "'Cascadia Mono', monospace"
 ```
 
----
+**2. Use:** Integrate the setup in your astro.config.mjs file:
 
-## **📝 API Reference**
-
-### **`luz(customTheme?: DefaultTheme)`**
-Applies the Luz theme globally. Returns a `CSSStyleSheet` for frameworks like React.
-
-#### **`DefaultTheme` Interface**
-```ts
-interface DefaultTheme {
-  font?: string;
-  "line-height"?: string;
-  "font-bold-weight"?: number;
-  "font-weight"?: number;
-  base?: number;               // Base font size (rem/px scaling)
-  power?: number;               // Font scale exponent for sizing
-  primary: string;             // Your primary color (HEX, RGB, or name)
-  mode: "light" | "dark";      // Theme mode
-  neutrals?: "grey" | "gray";  // Neutral background color
-  prefix?: string;             // Namespace for CSS variables (e.g., "app-")
-  transition?: string;         // Transition effect (e.g., "all 0.2s ease")
-}
+```javascript
+import { config } from "./luz.config.mjs";
+import { luzAstro } from "luz/astro";
+// ... other imports
+export default defineConfig({
+  integrations: [luzAstro(config) /* ... */],
+});
 ```
 
----
+**3. Structure:** By default this configuration will create a static `./src/styles/luz.css` file. Unless you pass the parameter `path` to the config file.
 
-## **📋 Why Luz?**
-- **Framework-Friendly**: No React hooks or complex setup.
-- **Performance**: Uses **CSSStyleSheet API** for instant updates.
-- **Accessible**: Automatic contrast ensures WCAG compliance.
-- **Lightweight**: Just **~5KB** (gzip).
+**NOTE:** if the `./src/styles` directory does not exist create it.
 
----
+**4. Loading:** Create a `./src/styles/global.css` and import `./luz.css` as follow
 
-## **📚 License**
-MIT © Luz. Free for personal and commercial use.
+```css
+@import url("./luz.css");
+```
 
----
+## License
+
+MIT

@@ -1,0 +1,39 @@
+---
+import Layout from "../components/layout.astro";
+---
+
+<Layout>
+  <nav class="main-nav">
+    <select name="views">
+      <option value="products">Products</option>
+      <option value="items">Items</option>
+      <option value="articles">Articles</option>
+    </select>
+    <button>view</button>
+  </nav>
+  <div class="sections">
+    <div class="collections">
+      <p class="section-title">collections</p>
+    </div>
+    <div class="content">
+      <div class="top-content">
+        <p class="section-title">request</p>
+        <p><b>Primary Item</b></p>
+        <ul>
+          <li>Tabs</li>
+          <li>Table Inputs</li>
+          <li>Inline Add</li>
+        </ul>
+      </div>
+      <div class="bottom-content">
+        <p class="section-title">response</p>
+        <p><b>Sub-Item</b></p>
+        <ul>
+          <li>Tabs</li>
+          <li>Rich Textarea</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <aside class="shrtcts">shortcuts</aside>
+</Layout>

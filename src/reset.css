@@ -50,14 +50,17 @@ thead,
 tr,
 th,
 td,
-figure {
+figure,
+span {
   border: 0;
   margin: 0;
   padding: 0;
   font-family: inherit;
   font-style: normal;
   font-weight: 400;
-  line-height: normal;
+  line-height: var(--line-height);
+  font-size: var(--size-16);
+  font-size-adjust: 0.482;
 }
 table {
   border-collapse: collapse;
@@ -130,7 +133,6 @@ body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
 }
 body {
   background-color: var(--background);
@@ -171,9 +173,6 @@ h6 {
   overflow-wrap: break-word;
   text-box: trim-both cap text;
   text-wrap: pretty;
-  font-size: var(--size-16);
-  margin-top: calc(var(--size-18) * var(--scale-factor));
-  margin-bottom: calc(var(--size-16) * var(--scale-factor));
   line-height: var(--line-height);
 }
 h1,
@@ -187,22 +186,22 @@ h6 {
   font-weight: var(--font-bold-weight);
 }
 h1 {
-  font-size: var(--size-20);
+  font-size: var(--size-22);
 }
 h2 {
-  font-size: var(--size-19);
+  font-size: var(--size-21);
 }
 h3 {
-  font-size: var(--size-18);
+  font-size: var(--size-20);
 }
 h4 {
-  font-size: var(--size-17);
+  font-size: var(--size-19);
 }
 h5 {
-  font-size: var(--size-16);
+  font-size: var(--size-18);
 }
 h6 {
-  font-size: var(--size-15);
+  font-size: var(--size-17);
 }
 address,
 blockquote,
@@ -244,11 +243,10 @@ abbr {
   border-bottom: var(--border-width) dotted var(--foreground);
 }
 kbd {
-  font-size: var(--size-13);
-  padding: var(--size-6);
+  font-size: var(--size-12);
+  padding: var(--size-6) var(--size-8);
   padding-bottom: var(--size-12);
   border-radius: var(--border-radius);
-  color: var(--background);
   font-weight: var(--font-bold-weight);
 }
 strong,
@@ -264,15 +262,17 @@ figure {
   }
 }
 table {
-  padding: var(--size-16);
-  margin: var(--size-16) 0;
+  padding: var(--size-8);
+  margin: var(--size-8) 0;
   & th {
     color: var(--foreground);
-    padding: var(--size-16);
+    padding: var(--size-8);
+    text-align: left;
+    font-weight: 600;
   }
   & td {
     border-bottom-color: var(--background);
-    padding: var(--size-16);
+    padding: var(--size-8);
   }
 }
 code,
@@ -391,7 +391,6 @@ input[type="range"] {
   width: 100%;
   height: var(--size-10);
   transition: var(--transition);
-  background: 0 0;
   border: none;
   &:focus {
     transition: var(--transition);
@@ -410,10 +409,11 @@ input[type="range"] {
   }
   &::-webkit-slider-thumb,
   &::-moz-range-thumb {
-    box-shadow: inset 0 0 0 var(--border-width) var(--element-placeholder-color);
+    box-shadow: inset 0 0 0 var(--border-width)
+      var(--element-active-border-color);
     height: var(--size-15);
     width: var(--size-15);
-    background: var(--element-placeholder-color);
+    background: var(--element-active-border-color);
     cursor: pointer;
     border-radius: var(--size-10);
     transition: var(--transition);
@@ -450,6 +450,7 @@ textarea::placeholder {
   background-color: var(--element-background);
   width: var(--size-16);
   height: var(--size-16);
+  padding: var(--size-10);
   flex: none;
   margin: 0;
   transition: all 0.12s ease-in-out;
@@ -512,8 +513,8 @@ textarea::placeholder {
   border-radius: 100%;
   &:before {
     transform-origin: 50%;
-    width: var(--size-12);
-    height: var(--size-12);
+    width: var(--size-6);
+    height: var(--size-6);
     border: none;
     border-radius: 100%;
     top: 50%;
@@ -528,11 +529,15 @@ textarea::placeholder {
   }
 }
 blockquote {
-  margin: var(--element-vertical) 0;
   padding: var(--size-16);
+  padding-left: calc(var(--spacing) / 2);
   border-right: none;
   border-inline-end: none;
   display: block;
+  & > * {
+    font-weight: 300;
+    margin-bottom: var(--size-16);
+  }
   & footer {
     margin-top: calc(var(--element-vertical) * 0.5);
   }
@@ -597,35 +602,35 @@ section {
   &[data-placement="top"]:before,
   &:before {
     z-index: 99;
-    padding: 0 var(--size-10);
+    padding: 0.5ch var(--size-10);
     border-radius: var(--size-5);
     content: attr(data-tooltip);
-    border: var(--border-width) solid var(--foreground);
+    border: var(--border-width) solid var(--primary-600);
     text-overflow: ellipsis;
     white-space: nowrap;
     opacity: 0;
     pointer-events: none;
-    font-size: var(--size-13);
+    font-size: var(--size-12);
     text-decoration: none;
     display: block;
     position: absolute;
     bottom: 100%;
     left: 50%;
     overflow: hidden;
-    transform: translate(-50%, -0.5rem);
+    transform: translate3d(-50%, -0.5rem, 0);
   }
   &[data-placement="bottom"]:before {
     top: 100%;
     bottom: auto;
-    transform: translate(-50%, 0.25rem);
+    transform: translate3d(-50%, 0.25rem, 0);
   }
   &[data-placement="left"]:before {
     inset: 50% 100% auto auto;
-    transform: translate(-0.25rem, -50%);
+    transform: translate3d(-0.25rem, -50%, 0);
   }
   &[data-placement="right"]:before {
     inset: 50% auto auto 100%;
-    transform: translate(0.25rem, -50%);
+    transform: translate3d(0.25rem, -50%, 0);
   }
   &:focus:before,
   &:hover:before {
