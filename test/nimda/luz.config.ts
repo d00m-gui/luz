@@ -1,7 +1,7 @@
 export const config = {
-  font: `"Datatype", monospace`,
-  "font-headings": `"Datatype", monospace`,
-  "font-monospace": `"Datatype", monospace`,
+  font: `var(--datatype)`,
+  "font-headings": `var(--datatype)`,
+  "font-monospace": `var(--datatype)`,
   primary: " #e88ffe",
   background: "#0a0c10",
   "border-radius": 0,

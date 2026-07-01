@@ -427,12 +427,12 @@ input[type="range"] {
 }
 input:where(select, textarea):not([readonly]):is(:active, :focus),
 input:not(
-    [type="submit"],
-    [type="button"],
-    [type="reset"],
-    [role="switch"],
-    [readonly]
-  ):is(:active, :focus) {
+  [type="submit"],
+  [type="button"],
+  [type="reset"],
+  [role="switch"],
+  [readonly]
+):is(:active, :focus) {
   border-color: var(--element-active-border-color);
   filter: brightness(1.05);
 }

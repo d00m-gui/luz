@@ -1,6 +1,6 @@
 # luz
 
-Luz provides a minimalist mechanism for centralizing and managing styles across modern web applications built with React, Vue components, Astro, or Vanilla JS.
+Luz provides a minimalist mechanism for centralizing and managing styles across modern web applications
 
 ## Installation
 

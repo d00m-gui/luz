@@ -24,8 +24,18 @@ const defaultConfig = {
 
 export function luz(config?: any): any {
   const settings = { ...defaultConfig, ...config };
-  let { primary, name, mode, base, prefix, neutrals, power, secondary, path, ...typography } =
-    settings;
+  let {
+    primary,
+    name,
+    mode,
+    base,
+    prefix,
+    neutrals,
+    power,
+    secondary,
+    path,
+    ...typography
+  } = settings;
   if (path) {
     console.log(`[luz] Static generation`);
   }
@@ -36,7 +46,8 @@ export function luz(config?: any): any {
   const primaryName = `${prefix}${normalName}`;
   const primaryCSSVar = `var(--${primaryName})`;
 
-  const secondaryColor = secondary ?? `oklch(from ${primaryCSSVar} l c calc(h + 180))`;
+  const secondaryColor =
+    secondary ?? `oklch(from ${primaryCSSVar} l c calc(h + 180))`;
 
   const secondaryName = `${prefix}secondary`;
   const secondaryCSSVar = `var(--${secondaryName})`;
