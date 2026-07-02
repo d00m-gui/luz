@@ -21,13 +21,17 @@ import { DialogSample } from "./samples/dialog";
 import { luz } from "../../src/luz";
 import { config } from "../../luz.config";
 import { lui } from "../../src/components";
+import { LuzReact } from "../../src/react";
 
 export function App() {
   const {
+    variables,
     tokens: { colors, sizes, typography },
   } = luz(config);
+
   return (
     <>
+      <LuzReact config={config} />
       <main>
         <h6 className="title">
           <span>&lt;</span>luz.<i>components</i> <span>/&gt;</span>

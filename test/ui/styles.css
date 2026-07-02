@@ -1,5 +1,3 @@
-@import url("./luz.css");
-
 :root {
   --border: var(--border-width) solid var(--element-border-color, #ccc);
 }

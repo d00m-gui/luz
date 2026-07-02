@@ -5,5 +5,4 @@ export const config = {
   "font-emphasis": "'Inter', sans-serif",
   "font-monospace": "'Cascadia Mono', monospace",
   mode: "dark",
-  path: "./test/ui",
 };
