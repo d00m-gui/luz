@@ -25,7 +25,6 @@ import { LuzReact } from "../../src/react";
 
 export function App() {
   const {
-    variables,
     tokens: { colors, sizes, typography },
   } = luz(config);
 
