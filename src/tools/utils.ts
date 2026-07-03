@@ -11,10 +11,3 @@ export function getLightnesFromHex(hex: string): number {
   console.log("return lightness", { r, g, b }, lightness, brightness);
   return lightness;
 }
-
-export function isEmpty(obj: object): boolean {
-  if (obj === null || typeof obj === "undefined") {
-    return false;
-  }
-  return Object.keys(obj).length === 0;
-}

@@ -1,4 +1,4 @@
-import{a as l,b as d,c as n}from"../shared/chunk-cekdh3ge.js";import{d as o}from"../shared/chunk-64xhm90g.js";function u(r){let{tokens:e,variables:S}=o(r),t=new CSSStyleSheet({media:"all"});t.replaceSync(`
+import{a as l,b as d,c as n}from"../shared/chunk-cekdh3ge.js";import{d as o}from"../shared/chunk-6dv58rrf.js";function u(r){let{tokens:e,variables:S}=o(r),t=new CSSStyleSheet({media:"all"});t.replaceSync(`
 		${l()};
     ${d(e)}
     :root {

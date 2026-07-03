@@ -10,10 +10,9 @@ export function luzShadesByHue({
   reverse?: boolean;
 }) {
   const weights = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-  let percents = [14.5, 20.5, 26.9, 37.1, 43.9, 55.6, 88, 88.8, 92.2, 98, 99.9];
-  if (reverse) {
-    percents.reverse();
-  }
+  const percents = reverse
+    ? [14.5, 20.5, 26.9, 37.1, 43.9, 55.6, 88, 88.8, 92.2, 98, 99.9].reverse()
+    : [14.5, 20.5, 26.9, 37.1, 43.9, 55.6, 88, 88.8, 92.2, 98, 99.9];
 
   let shades = {};
   for (let step = 0; step < weights.length; step++) {

@@ -5,4 +5,5 @@ export const config = {
   primary: " #e88ffe",
   background: "#0a0c10",
   "border-radius": 0,
+  path: "./src/styles/luz.css",
 };
