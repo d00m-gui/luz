@@ -1,9 +1,9 @@
-import { luz } from "../luz";
+import { luz, type LuzConfig } from "../luz";
 import { base } from "../tools/base";
 import { reset } from "../tools/reset";
 import { setup } from "../tools/setup";
 
-export function luzStyleSheet(config?: any): void {
+export function luzStyleSheet(config?: LuzConfig): void {
   const { tokens, variables } = luz(config);
   const luzSheet = new CSSStyleSheet({ media: "all" });
   luzSheet.replaceSync(

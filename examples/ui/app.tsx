@@ -19,7 +19,7 @@ import { TablesSample } from "./samples/tables";
 import { LoadingSample } from "./samples/loading";
 import { DialogSample } from "./samples/dialog";
 import { luz } from "../../src/luz";
-import { config } from "../../luz.config";
+import { config } from "./luz.config";
 import { lui } from "../../src/components";
 import { LuzReact } from "../../src/react";
 import { css } from "../../src/tools/css";
@@ -86,15 +86,9 @@ export function App() {
                   ? parseFloat(value.split(",").at(-1).replace("rem)", "")) * 10
                   : parseFloat(value.split("rem")) * 10;
                 return (
-                  <div key={idx} data-tooltip={`${size}px size (approx)`}>
-                    <small>{name}</small>
-                    {typeof size === "number" && (
-                      <lui.meter.root value={size}>
-                        <lui.meter.track className="track">
-                          <lui.meter.indicator className="indicator" />
-                        </lui.meter.track>
-                      </lui.meter.root>
-                    )}
+                  <div key={idx}>
+                    <small>--{name}:</small>
+                    {typeof size === "number" && <code>{size}px</code>}
                   </div>
                 );
               },

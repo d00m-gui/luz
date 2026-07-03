@@ -72,6 +72,13 @@ export function setup(tokens: any) {
     progress {
       accent-color: var(--${prefix}${name}-500);
     }
+    progress {
+      background-color: var(--background);
+      border: none;
+      box-shadow: 0 0 var(--size-1) var(--${prefix}${name}-500) inset;
+      border-radius: var(--border-radius);
+      height: var(--size-12);
+    }
     [type="checkbox"],
     [type="radio"] {
       color: var(--${prefix}${name}-100);
@@ -173,49 +180,6 @@ export function setup(tokens: any) {
       }
     }
 
-    .loading::before, [aria-busy="true"]:not(input, select, textarea, html, form)::before {
-      content: "⠙";
-      display: inline-block;
-      font-family: var(--font-monospace);
-      font-weight: bold;
-      text-align: center;
-      padding: 0;
-      flex: 1 1 auto;
-      color: currentColor;
-      margin: 0 var(--size-5);
-      cursor: wait;
-      animation: loading 1s steps(1, end) infinite;
-    }
 
-    body.root.luz-loaded {
-      opacity: 0;
-      animation: suspense 500ms 200ms cubic-bezier(0.45, 0.05, 0.55, 0.95) forwards;
-    }
-    @keyframes suspense {
-      0% {
-        opacity: 0;
-        visibility: hidden;
-        background-color: #333;
-      }
-      100% {
-        opacity: 1;
-        visibility: visible;
-        background-color: var(--background);
-      }
-    }
-
-    @keyframes loading {
-      0% { content: "⠋"; }
-      10% { content: "⠙"; }
-      20% { content: "⠹"; }
-      30% { content: "⠸"; }
-      40% { content: "⠼"; }
-      50% { content: "⠴"; }
-      60% { content: "⠦"; }
-      70% { content: "⠧"; }
-      80% { content: "⠇"; }
-      90% { content: "⠏"; }
-      100% { content: "⠋"; }
-    }
   `;
 }

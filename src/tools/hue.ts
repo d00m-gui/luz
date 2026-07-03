@@ -1,26 +1,31 @@
-export function luzShadesByHue({
-  color,
-  name,
-  base = 0.0,
-  reverse = false,
-}: {
+import { SHADES, SHADES_REVERSE, WEIGHTS } from "./constants";
+
+export interface LuzHueConfig {
   color: string;
   name: string;
   base?: number;
   reverse?: boolean;
-}) {
-  const weights = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-  const percents = reverse
-    ? [14.5, 20.5, 26.9, 37.1, 43.9, 55.6, 88, 88.8, 92.2, 98, 99.9].reverse()
-    : [14.5, 20.5, 26.9, 37.1, 43.9, 55.6, 88, 88.8, 92.2, 98, 99.9];
+}
 
+/**
+ * Generate a palette of oklch shades from a base hue.
+ *
+ * When `reverse` is true the shade order (50 → 950) is flipped so that
+ * dark-mode palettes map light steps to high values and vice-versa.
+ */
+export function luzShadesByHue({
+  color,
+  name,
+  base = 0.05,
+  reverse = false,
+}: LuzHueConfig): Record<string, string> {
+  let percents = reverse ? SHADES_REVERSE : SHADES;
   let shades = {};
-  for (let step = 0; step < weights.length; step++) {
+  for (let step = 0; step < WEIGHTS.length; step++) {
     const perIndex = (step + 1) / 10;
     const sin = `clamp(0, calc(${base} + (sin(${perIndex} * pi) * c)), 0.4)`;
-    let percentages = percents;
-    const percent = percentages[step];
-    const key = `${name}-${weights[step]}`;
+    const percent = percents[step];
+    const key = `${name}-${WEIGHTS[step]}`;
     const value = `oklch(from ${color} ${percent}% ${sin} h)`;
     const pair = { [key]: value };
     shades = { ...pair, ...shades };

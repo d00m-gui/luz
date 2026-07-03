@@ -1,11 +1,12 @@
-import { luz } from "../luz";
+import { luz, type LuzConfig } from "../luz";
 import { reset } from "../tools/reset";
 import { setup } from "../tools/setup";
 import { base } from "../tools/base";
 import { writeFileSync } from "node:fs";
+import { transform } from "lightningcss";
 import type { AstroIntegration, AstroIntegrationLogger } from "astro";
 
-export const luzAstro = (config: any): AstroIntegration => {
+export const luzAstro = (config: LuzConfig): AstroIntegration => {
   const generateFile = (logger: AstroIntegrationLogger) => {
     const { variables, tokens } = luz(config);
     const cssContent = `
@@ -22,10 +23,19 @@ export const luzAstro = (config: any): AstroIntegration => {
         "A path in config luz must be provided for the static generation",
       );
     }
-    writeFileSync(outputPath, cssContent, {
+    let transformed = transform({
+      filename: outputPath,
+      code: Buffer.from(cssContent),
+      minify: true,
+      sourceMap: false,
+    });
+    if (!transformed.code) {
+      return logger.error("Failed to transform CSS content.");
+    }
+    writeFileSync(outputPath, transformed.code, {
       encoding: "utf-8",
     });
-    logger.info(`[luz] CSS created @ '${outputPath}'`);
+    logger.info(`Static CSS generated @ ${outputPath}`);
   };
 
   return {

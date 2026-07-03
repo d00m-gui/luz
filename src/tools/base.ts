@@ -205,8 +205,7 @@ export const base = (tokens?: any): string => {
       flex-wrap: wrap;
       & > button {
         &[data-pressed] {
-          background-color: var(--${primary}-300);
-          color: var(--${primary}-600);
+          background-color: var(--${primary}-800);
         }
       }
     }

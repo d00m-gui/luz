@@ -1,10 +1,66 @@
+/**
+ * Luz - Lightweight CSS-in-TypeScript theming library.
+ */
+
 import { luzShadesByHue } from "./tools/hue";
 import { luzSizes } from "./tools/sizes";
 import { luzWheel } from "./tools/wheel";
 
-const defaultConfig = {
+/**
+ * Full configuration for the `luz()` function.
+ */
+export interface LuzConfig {
+  font?: string;
+  lineHeight?: string;
+  "font-bold-weight"?: number;
+  "font-weight"?: number;
+  "font-monospace"?: string;
+  "font-headings"?: string;
+  "font-emphasis"?: string;
+  base?: number;
+  power?: number;
+  primary: string;
+  name?: string;
+  secondary?: string;
+  mode?: "light" | "dark";
+  neutrals?: string;
+  prefix?: string;
+  transition?: string;
+  "box-shadow"?: string;
+  spacing?: string;
+  path?: string;
+}
+
+/** Settings sub-object within tokens (metadata only). */
+export interface TokenSettings {
+  name: string;
+  prefix?: string;
+  neutrals?: string;
+}
+
+/** Generated size variable map (`--size-1` → `0.1rem`, etc.). */
+export type TokenSizes = Record<string, string>;
+
+/** Full token set used by all downstream consumers. */
+export interface LuzTokens {
+  settings: TokenSettings;
+  colors: Record<string, string>;
+  sizes: TokenSizes;
+  typography: Partial<LuzConfig>;
+}
+
+/** Return value of the `luz()` function. */
+export interface LuzResult {
+  /** Raw tokens object (structured). */
+  tokens: LuzTokens;
+  /** CSS custom property declarations as a single string. */
+  variables: string;
+}
+
+//  Internal Default Config
+const defaultConfig: LuzConfig = {
   font: "sans-serif",
-  "line-height": "130%",
+  lineHeight: "130%",
   "font-bold-weight": 800,
   "font-weight": 400,
   "font-monospace": "monospace",
@@ -12,7 +68,7 @@ const defaultConfig = {
   "font-emphasis": "serif",
   base: 16,
   power: 2,
-  primary: `#007dea`,
+  primary: "#007dea",
   name: "primary",
   mode: "dark",
   neutrals: "neutral",
@@ -22,9 +78,17 @@ const defaultConfig = {
   spacing: "5vw",
 };
 
-export function luz(config?: any): any {
-  const settings = { ...defaultConfig, ...config };
-  let {
+/**
+ * Generate theme tokens and CSS custom properties from configuration.
+ *
+ * @param config - Optional override of default settings (typography, colors, sizing).
+ * @returns Object containing structured `tokens` and a string of CSS variables.
+ */
+export function luz(config?: LuzConfig): LuzResult {
+  const settings: LuzConfig = { ...defaultConfig, ...(config ?? {}) };
+
+  // Destructure top-level config fields (all optional after spread)
+  const {
     primary,
     name,
     mode,
@@ -33,51 +97,62 @@ export function luz(config?: any): any {
     neutrals,
     power,
     secondary,
-    path,
+    path: _path,
     ...typography
   } = settings;
-  if (path) {
-    console.log(`[luz] Static generation`);
-  }
-  const normalBase = base ?? 16;
-  const isDark = mode === "dark";
 
-  const normalName = name && name.length > 0 ? name : "primary";
-  const primaryName = `${prefix}${normalName}`;
-  const primaryCSSVar = `var(--${primaryName})`;
+  // Normalise with defaults for fields that may be undefined after spread
+  const normalBase: number = (base ?? defaultConfig.base) as number;
+  const isDark: boolean = mode === "dark";
 
-  const secondaryColor =
-    secondary ?? `oklch(from ${primaryCSSVar} l c calc(h + 180))`;
+  const normalName: string = name && name.length > 0 ? name : "primary";
+  const primaryName: string = `${prefix}${normalName}`;
+  const primaryCSSVar: string = `var(--${primaryName})`;
 
-  const secondaryName = `${prefix}secondary`;
-  const secondaryCSSVar = `var(--${secondaryName})`;
+  const secondaryColor: string = (secondary ??
+    `oklch(from ${primaryCSSVar} l c calc(h + 180))`) as string;
 
-  const neutralsName = `${prefix}${neutrals}`;
-  const neutralCSSVar = `var(--${neutralsName})`;
-  const neutralColor = `oklch(from ${primaryCSSVar} l 0 h)`;
-  const primaryShades = luzShadesByHue({
+  const secondaryName: string = `${prefix}secondary`;
+  const secondaryCSSVar: string = `var(--${secondaryName})`;
+
+  const neutralsName: string = `${prefix}${neutrals}`;
+  const neutralCSSVar: string = `var(--${neutralsName})`;
+  const neutralColor: string = `oklch(from ${primaryCSSVar} l 0 h)`;
+
+  //  Shade arrays (hue-based oklch)
+  const primaryShades: Record<string, string> = luzShadesByHue({
     color: primaryCSSVar,
     name: primaryName,
     reverse: isDark,
   });
-  const secondaryShades = luzShadesByHue({
+  const secondaryShades: Record<string, string> = luzShadesByHue({
     color: secondaryCSSVar,
     name: secondaryName,
     reverse: isDark,
   });
-  const neutralShades = luzShadesByHue({
+  const neutralShades: Record<string, string> = luzShadesByHue({
     color: neutralCSSVar,
     name: neutralsName,
     base: 0.05,
     reverse: isDark,
   });
 
-  const wheel = luzWheel(`var(--${primaryName})`, prefix);
-  const sizes = luzSizes(normalBase, power);
+  //  Hue wheel (rotated hues from primary)
+  const wheel: Record<string, string> = luzWheel(
+    `var(--${primaryName})`,
+    prefix,
+  );
 
-  const tokens = {
+  //  Size tokens + derived sizing variables
+  const sizeTokens: TokenSizes & Record<string, string> = luzSizes(
+    normalBase,
+    power,
+  );
+
+  //  Compose token set
+  const tokens: LuzTokens = {
     settings: {
-      name,
+      name: normalName,
       prefix,
       neutrals,
     },
@@ -101,19 +176,23 @@ export function luz(config?: any): any {
       "element-active-color": `var(--${primaryName}-900)`,
       "element-placeholder-color": `oklch(from var(--foreground) l c h / 50%)`,
     },
-    sizes,
-    typography,
+    sizes: sizeTokens,
+    typography: { ...typography } as Partial<LuzConfig>,
   };
+
+  //  Flatten to variables string
   const tokensList = {
     ...tokens.sizes,
     ...tokens.colors,
     ...tokens.typography,
   };
-  const variables = Object.entries(tokensList)
-    .map(([key, value]) => {
-      return `\n--${key}:${value};`;
-    })
-    .join("");
 
-  return { tokens, variables };
+  const variableLines: string[] = [];
+  for (const [key, value] of Object.entries(tokensList)) {
+    if (value !== undefined && value !== null) {
+      variableLines.push(`--${key}: ${value};`);
+    }
+  }
+
+  return { tokens, variables: variableLines.join("\n") };
 }
