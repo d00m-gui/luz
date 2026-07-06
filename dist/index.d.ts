@@ -1,4 +1,58 @@
-declare function luz(config?: any): any;
+/**
+* Full configuration for the `luz()` function.
+*/
+interface LuzConfig {
+	font?: string;
+	"line-height"?: string;
+	"font-bold-weight"?: number;
+	"font-weight"?: number;
+	"font-monospace"?: string;
+	"font-headings"?: string;
+	"font-emphasis"?: string;
+	base?: number;
+	power?: number;
+	primary: string;
+	name?: string;
+	secondary?: string;
+	mode?: "light" | "dark";
+	neutrals?: string;
+	prefix?: string;
+	transition?: string;
+	"box-shadow"?: string;
+	spacing?: string;
+	path?: string;
+}
+/** Settings sub-object within tokens (metadata only). */
+interface TokenSettings {
+	name: string;
+	prefix?: string;
+	neutrals?: string;
+}
+/** Generated size variable map (`--size-1` → `0.1rem`, etc.). */
+type TokenSizes = Record<string, string>;
+/** Full token set used by all downstream consumers. */
+interface LuzTokens {
+	settings: TokenSettings;
+	colors: Record<string, string>;
+	sizes: TokenSizes;
+	typography: Partial<LuzConfig>;
+}
+/** Return value of the `luz()` function. */
+interface LuzResult {
+	/** Raw tokens object (structured). */
+	tokens: LuzTokens;
+	/** CSS custom property declarations as a single string. */
+	variables: string;
+	/** CSS @property generated via tokens */
+	propierties: string;
+}
+/**
+* Generate theme tokens and CSS custom properties from configuration.
+*
+* @param config - Optional override of default settings (typography, colors, sizing).
+* @returns Object containing structured `tokens` and a string of CSS variables.
+*/
+declare function luz(config?: LuzConfig): LuzResult;
 import { Avatar } from "@base-ui/react/avatar";
 import { Menu } from "@base-ui/react/menu";
 import { Tabs } from "@base-ui/react/tabs";
