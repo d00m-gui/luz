@@ -15,7 +15,6 @@ export function reset() {
     pre,
     a,
     abbr,
-    acronym,
     address,
     cite,
     code,

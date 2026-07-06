@@ -8,8 +8,9 @@ import type { AstroIntegration, AstroIntegrationLogger } from "astro";
 
 export const luzAstro = (config: LuzConfig): AstroIntegration => {
   const generateFile = (logger: AstroIntegrationLogger) => {
-    const { variables, tokens } = luz(config);
+    const { variables, tokens, propierties } = luz(config);
     const cssContent = `
+      ${propierties}
       ${reset()}
       ${setup(tokens)}
       :root {

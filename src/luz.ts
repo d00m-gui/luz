@@ -3,6 +3,7 @@
  */
 
 import { luzShadesByHue } from "./tools/hue";
+import { luzProperty, luzPropertyAsArray } from "./tools/props";
 import { luzSizes } from "./tools/sizes";
 import { luzWheel } from "./tools/wheel";
 
@@ -11,7 +12,7 @@ import { luzWheel } from "./tools/wheel";
  */
 export interface LuzConfig {
   font?: string;
-  lineHeight?: string;
+  "line-height"?: string;
   "font-bold-weight"?: number;
   "font-weight"?: number;
   "font-monospace"?: string;
@@ -55,19 +56,21 @@ export interface LuzResult {
   tokens: LuzTokens;
   /** CSS custom property declarations as a single string. */
   variables: string;
+  /** CSS @property generated via tokens */
+  propierties: string;
 }
 
 //  Internal Default Config
 const defaultConfig: LuzConfig = {
   font: "sans-serif",
-  lineHeight: "130%",
+  "line-height": "130%",
   "font-bold-weight": 800,
   "font-weight": 400,
   "font-monospace": "monospace",
   "font-headings": "sans-serif",
   "font-emphasis": "serif",
   base: 16,
-  power: 2,
+  power: 1.33,
   primary: "#007dea",
   name: "primary",
   mode: "dark",
@@ -109,8 +112,8 @@ export function luz(config?: LuzConfig): LuzResult {
   const primaryName: string = `${prefix}${normalName}`;
   const primaryCSSVar: string = `var(--${primaryName})`;
 
-  const secondaryColor: string = (secondary ??
-    `oklch(from ${primaryCSSVar} l c calc(h + 180))`) as string;
+  const secondaryColor: string =
+    secondary ?? `oklch(from ${primaryCSSVar} l c calc(h + 180))`;
 
   const secondaryName: string = `${prefix}secondary`;
   const secondaryCSSVar: string = `var(--${secondaryName})`;
@@ -180,12 +183,14 @@ export function luz(config?: LuzConfig): LuzResult {
     typography: { ...typography } as Partial<LuzConfig>,
   };
 
+  const CSSProps = luzProperty(tokens);
+
   //  Flatten to variables string
   const tokensList = {
     ...tokens.sizes,
     ...tokens.colors,
     ...tokens.typography,
-  };
+  } as LuzTokens;
 
   const variableLines: string[] = [];
   for (const [key, value] of Object.entries(tokensList)) {
@@ -194,5 +199,5 @@ export function luz(config?: LuzConfig): LuzResult {
     }
   }
 
-  return { tokens, variables: variableLines.join("\n") };
+  return { tokens, variables: variableLines.join("\n"), propierties: CSSProps };
 }

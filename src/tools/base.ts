@@ -29,7 +29,7 @@ export const base = (tokens?: any): string => {
 
     /* TABS */
     .tabs {
-      border-radius: var;
+      border-radius: var(--border-radius);
       .list {
         display: flex;
         position: relative;
@@ -456,8 +456,8 @@ export const base = (tokens?: any): string => {
       transform: translate3d(-50%, -50%, 0) scale(1);
       width: 50vw;
       max-width: calc(100vw - 3rem);
-      background-color: var(--primary-700);
-      box-shadow: 0.25rem 0.25rem 0.5ch var(--primary-950);
+      background-color: var(--${neutral}-900);
+      box-shadow: 0.25rem 0.25rem 0.5ch var(--${primary}-950);
       transition: all 100ms ease-out;
       container-type: inline-size;
       border-radius: var(--border-radius);
@@ -476,7 +476,7 @@ export const base = (tokens?: any): string => {
          padding: 0.5ch;
        }
       .handle {
-        background-color: var(--primary-800);
+        background-color: var(--${primary}-800);
         cursor: grab;
       }
       .title {
