@@ -1,5 +1,5 @@
 // React adapter - simplified export of @base-ui/react components
-// Provides clean `lui` namespace for Base UI components
+// Provides `lui` namespace for Base UI components
 import { Menu } from "@base-ui/react/menu";
 import { Tabs } from "@base-ui/react/tabs";
 import {

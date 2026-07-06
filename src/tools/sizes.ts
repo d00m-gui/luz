@@ -2,28 +2,30 @@ interface SizesMap {
   [key: string]: string;
 }
 
-function generateFluidTagSizes(baseFontSize = 16, scaleFactor = 1.31): string {
-  let minSize = baseFontSize / 10;
-  let maxSize = minSize * scaleFactor;
-  // let cqw = Math.pow(maxSize, scaleFactor);
-  let cqi = minSize * scaleFactor;
-  if (baseFontSize >= 17) {
-    maxSize = Math.pow(minSize, 2.6);
-    cqi = Math.pow(minSize, 2.6);
-    return `clamp(${minSize.toFixed(1)}rem, ${cqi.toFixed(2)}cqw, ${maxSize.toFixed(1)}rem)`;
-  }
-  return `clamp(${minSize.toFixed(1)}rem, ${cqi.toFixed(2)}cqw, ${maxSize.toFixed(1)}rem)`;
+function generateFluidTagSizes(baseFontSize = 16, power = 1.31): string {
+  let minimum = Math.ceil(baseFontSize / 10);
+  let preferred = minimum * power;
+  let maximum = preferred ** minimum;
+  // console.log("preferred", baseFontSize);
+  // if (baseFontSize >= 17) {
+  //   // maximum = minimum *= minimum;
+  //   return `clamp(${minimum}rem, ${preferred.toFixed(2)}cqi, ${maximum.toFixed(1)}rem)`;
+  // }
+  return `clamp(${minimum}rem, ${preferred.toFixed(2)}cqi, ${maximum.toFixed(1)}rem)`;
 }
 
 export function luzSizes(base: number, power: number = 1.31): SizesMap {
   const computedSizes: SizesMap = {};
-  for (let i = 1; i <= 12; i++) {
+  // for (let i = 1; i <= 12; i++) {
+  //   computedSizes[`size-${i}`] = `${i / 10}rem`;
+  // }
+  // for (let i = 13; i <= 22; i++) {
+  //   computedSizes[`size-${i}`] = generateFluidTagSizes(i, power);
+  // }
+
+  for (let i = 1; i <= 22; i++) {
     computedSizes[`size-${i}`] = `${i / 10}rem`;
   }
-  for (let i = 13; i <= 22; i++) {
-    computedSizes[`size-${i}`] = generateFluidTagSizes(i, power);
-  }
-
   return {
     ...computedSizes,
     "border-radius": `${(base / 32).toFixed(1)}rem`,

@@ -1,0 +1,6 @@
+@import url("./luz.css");
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}

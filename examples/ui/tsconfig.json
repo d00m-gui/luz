@@ -19,13 +19,13 @@
     "noImplicitOverride": true,
 
     "paths": {
-      "@/*": ["./*"],
+      "@/*": ["./*"]
     },
 
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noPropertyAccessFromIndexSignature": false,
+    "noPropertyAccessFromIndexSignature": false
   },
 
-  "exclude": ["dist", "node_modules"],
+  "exclude": ["dist", "node_modules"]
 }

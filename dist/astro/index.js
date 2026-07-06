@@ -1,8 +1,8 @@
-import{a as m}from"../shared/chunk-wm1ap0jw.js";import{b as s,c as e,d as n}from"../shared/chunk-vnwb157f.js";import{e as r}from"../shared/chunk-c7ccvmgn.js";import{writeFileSync as a}from"node:fs";var v=(i)=>{return{name:"luz",hooks:{"astro:server:setup":()=>{let{variables:c,tokens:o}=r(i),p=`
-						${n()}
-						${s(o)}
-						:root {
-							${c}
-						}
+import{a as u,b as e,c}from"../shared/chunk-cekdh3ge.js";import{d as n}from"../shared/chunk-6dv58rrf.js";function s(t){return t.replace(/>[\r\n ]+</g,"").replace(/(<.*?>)|\s+/g,(r,o)=>o?o:" ").trim()}import{writeFileSync as S}from"node:fs";var v=(t)=>{return{name:"luz",hooks:{"astro:build:done":()=>{let{variables:r,tokens:o}=n(t),f=`
+						${u()}
 						${e(o)}
-						`,u=m(p),t=o.path??"./src/styles/luz.css";a(t,u,{encoding:"utf-8"}),console.log(`[luz] CSS created @ '${t}'`)}}}};export{v as luzAstro};
+						:root {
+							${r}
+						}
+						${c(o)}
+						`,i=s(f),m=o.path??"./src/styles/luz.css";S(m,i,{encoding:"utf-8"}),console.log(`[luz] CSS created @ '${m}'`)}}}};export{v as luzAstro};

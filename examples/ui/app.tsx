@@ -19,20 +19,32 @@ import { TablesSample } from "./samples/tables";
 import { LoadingSample } from "./samples/loading";
 import { DialogSample } from "./samples/dialog";
 import { luz } from "../../src/luz";
-import { config } from "../../luz.config";
+import { config } from "./luz.config";
 import { lui } from "../../src/components";
+import { LuzReact } from "../../src/react";
+import { css } from "../../src/tools/css";
 
 export function App() {
   const {
     tokens: { colors, sizes, typography },
   } = luz(config);
+
   return (
     <>
+      <LuzReact config={config} />
       <main>
         <h6 className="title">
           <span>&lt;</span>luz.<i>components</i> <span>/&gt;</span>
         </h6>
         <hr />
+        <div className="beforeafter">
+          <div className="term config">
+            <textarea defaultValue={JSON.stringify(config)} />
+          </div>
+          <div className="term config">
+            <textarea defaultValue={JSON.stringify(colors)} />
+          </div>
+        </div>
         <div className="settings">
           <div className="typography">
             {typography &&
@@ -74,15 +86,9 @@ export function App() {
                   ? parseFloat(value.split(",").at(-1).replace("rem)", "")) * 10
                   : parseFloat(value.split("rem")) * 10;
                 return (
-                  <div key={idx} data-tooltip={`${size}px size (approx)`}>
-                    <small>{name}</small>
-                    {typeof size === "number" && (
-                      <lui.meter.root value={size}>
-                        <lui.meter.track className="track">
-                          <lui.meter.indicator className="indicator" />
-                        </lui.meter.track>
-                      </lui.meter.root>
-                    )}
+                  <div key={idx}>
+                    <small>--{name}:</small>
+                    {typeof size === "number" && <code>{size}px</code>}
                   </div>
                 );
               },
@@ -116,36 +122,50 @@ export function App() {
     </>
   );
 }
-const ColorsSampleStyle = `
+const ColorsSampleStyle = css`
+  .beforeafter {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    container-type: inline-size;
+    gap: var(--size-12);
+    margin: 2ch auto;
+    textarea {
+      width: 100%;
+      max-width: none;
+      resize: none;
+      font-size: var(--size-12);
+      min-height: 20vh;
+    }
+  }
   .settings {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     padding: 0 0 var(--spacing) 0;
   }
   .sizes {
-   display: flex;
-   flex-direction: row;
-   flex-wrap: wrap;
-   gap: 1ch;
-   container-type: inline-size;
-   p small {
-    display: block;
-    font-size: var(--size-13);
-   }
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1ch;
+    container-type: inline-size;
+    p small {
+      display: block;
+      font-size: var(--size-13);
+    }
   }
   .typography {
-   container-type: inline-size;
-   p {
-    margin-bottom: 2ch;
-   }
-   span {
-    color: var(--secondary-400);
-   }
-   b {
-    display: block;
-    transform-origin: 0% 50%;
-    transform: scale(1.8);
-   }
+    container-type: inline-size;
+    p {
+      margin-bottom: 2ch;
+    }
+    span {
+      color: var(--secondary-400);
+    }
+    b {
+      display: block;
+      transform-origin: 0% 50%;
+      transform: scale(1.8);
+    }
   }
   .colors {
     display: grid;
