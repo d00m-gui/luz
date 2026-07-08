@@ -10,7 +10,6 @@ export const luzAstro = (config: LuzConfig): AstroIntegration => {
   const generateFile = (logger: AstroIntegrationLogger) => {
     const { variables, tokens, propierties } = luz(config);
     const cssContent = `
-      ${propierties}
       ${reset()}
       ${setup(tokens)}
       :root {
@@ -27,15 +26,17 @@ export const luzAstro = (config: LuzConfig): AstroIntegration => {
     let transformed = transform({
       filename: outputPath,
       code: Buffer.from(cssContent),
-      minify: true,
+      minify: false,
       sourceMap: false,
     });
+
     if (!transformed.code) {
       return logger.error("Failed to transform CSS content.");
     }
-    writeFileSync(outputPath, transformed.code, {
-      encoding: "utf-8",
-    });
+    // console.log("RAW CODE", cssContent);
+    // writeFileSync(outputPath, transformed.code, {
+    //   encoding: "utf-8",
+    // });
     logger.info(`Static CSS generated @ ${outputPath}`);
   };
 

@@ -15,10 +15,11 @@ interface PropertyDecl {
     | "<number>"
     | "<length>"
     | "<percentage>"
-    | "<intiger>"
+    | "<integer>"
+    | "<color> | <string>"
     | "<number> | <length> | <percentage>";
   /** Value used as initial-value in the @property rule. */
-  initialValue: string;
+  initialValue: string | number;
   /** Whether the property can be inherited by children. */
   inherits: boolean;
 }
@@ -39,7 +40,6 @@ function inferProperties(tokens: LuzTokens): PropertyDecl[] {
         inherits: true,
       });
     } else {
-      //console.log("other sizes", size);
       result.push({
         name: size,
         syntax: "<number> | <length> | <percentage>",
@@ -49,23 +49,20 @@ function inferProperties(tokens: LuzTokens): PropertyDecl[] {
     }
   });
 
-  Object.entries(tokens.colors).map(([color, value], index) => {
-    let initColor = tokens.colors["primary"];
+  Object.entries(tokens.colors).map(([color, value]) => {
     result.push({
       name: color,
-      syntax: "<color>",
-      initialValue: `${initColor}`,
+      syntax: "<color> | <string>",
+      initialValue: value,
       inherits: true,
     });
   });
 
-  // console.log("TBT", tokens.typography);
-
-  Object.entries(tokens.typography).map(([font, value], index) => {
+  Object.entries(tokens.typography).map(([font, value]) => {
     result.push({
       name: font,
       syntax: "<string>",
-      initialValue: `${value}`,
+      initialValue: value,
       inherits: true,
     });
   });
@@ -80,7 +77,7 @@ function renderPropertyDecl(decl: PropertyDecl): string {
     `@property --${name} {
       syntax: "${syntax}";
       inherits: ${inherits};
-      initial-value: ${initialValue};
+      initial-value: ${initialValue.toString()};
     }`,
   ]
     .join("\n")
