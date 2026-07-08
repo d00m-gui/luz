@@ -410,7 +410,7 @@ export function reset() {
         transition: var(--transition);
         &::-webkit-slider-thumb,
         &::-moz-range-thumb {
-          transform: scale(calc(var(--base) / 10));
+          transform: scale(calc(var(--size-10) / 10));
         }
       }
       &::-webkit-slider-thumb,

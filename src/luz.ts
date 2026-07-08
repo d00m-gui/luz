@@ -88,7 +88,7 @@ const defaultConfig: LuzConfig = {
  * @returns Object containing structured `tokens` and a string of CSS variables.
  */
 export function luz(config?: LuzConfig): LuzResult {
-  const settings: LuzConfig = { ...defaultConfig, ...(config ?? {}) };
+  const settings: LuzConfig = { ...defaultConfig, ...config };
 
   // Destructure top-level config fields (all optional after spread)
   const {

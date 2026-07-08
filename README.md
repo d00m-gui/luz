@@ -2,11 +2,7 @@
 
 Luz provides a minimalist mechanism for centralizing and managing styles across modern web applications
 
-## Installation
-
-```bash
-bun i luz
-```
+## Installation (SOON)
 
 ## Usage Example (Astro Integration)
 
@@ -17,10 +13,13 @@ For Astro projects, use the provided integration to configure static luz styles 
 ```javascript
 export const config = {
 	primary: "#007DEA",
+	// the only "needed" config is a primary color
 	font: "'Inter', sans-serif",
 	"font-headings": "'Inter', sans-serif",
 	"font-emphasis": "'Inter', sans-serif",
-	"font-monospace": "'Cascadia Mono', monospace"
+	"font-monospace": "'Cascadia Mono', monospace",
+	... // other settings
+}
 ```
 
 **2. Use:** Integrate the setup in your astro.config.mjs file:
