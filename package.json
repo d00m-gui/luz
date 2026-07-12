@@ -1,11 +1,20 @@
 {
   "name": "luz",
-  "description": "Luz is a lightweight library designed to simplify theming and styling in modern web applications.",
   "version": "0.1.0",
-  "type": "module",
+  "description": "Luz is a lightweight library designed to simplify theming and styling in modern web applications.",
+  "homepage": "https://github.com/d00m-gui/luz",
+  "bugs": {
+    "url": "https://github.com/d00m-gui/luz/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d00m-gui/luz.git"
+  },
   "files": [
     "dist"
   ],
+  "type": "module",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -28,15 +37,6 @@
       }
     },
     "./package.json": "./package.json"
-  },
-  "homepage": "https://github.com/d00m-gui/luz",
-  "bugs": {
-    "url": "https://github.com/d00m-gui/luz/issues"
-  },
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/d00m-gui/luz.git"
   },
   "scripts": {
     "bunup": "bunup",

@@ -1,3 +1,4 @@
+import { AstroIntegration } from "astro";
 /**
 * Full configuration for the `luz()` function.
 */
@@ -25,6 +26,5 @@ interface LuzConfig {
 	path?: string;
 	minify?: boolean;
 }
-import { AstroIntegration } from "astro";
 declare const luzAstro: (config: LuzConfig) => AstroIntegration;
 export { luzAstro };

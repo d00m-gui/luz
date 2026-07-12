@@ -206,12 +206,12 @@ export function luz(config?: LuzConfig): LuzResult {
       variableLines.push(`--${key}: ${value};`);
     }
   }
-  const variables = variableLines.join("\n")
+  const variables = variableLines.join("\n");
 
   let style = `
-  ${propierties}
   ${reset}
   ${setup(tokens)}
+  ${propierties}
   :root {
     ${variables}
   }

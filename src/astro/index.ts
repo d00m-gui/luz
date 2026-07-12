@@ -1,9 +1,8 @@
+import type { AstroIntegration, AstroIntegrationLogger } from "astro";
+import { writeFileSync } from "node:fs";
 import { luz, type LuzConfig } from "../luz";
 import { base } from "../tools/base";
-import { writeFileSync } from "node:fs";
-
-import type { AstroIntegration, AstroIntegrationLogger } from "astro";
-import { LightningParser } from "@/tools/lightningpass";
+import { LightningParser } from "../tools/lightningpass";
 
 export const luzAstro = (config: LuzConfig): AstroIntegration => {
   const generateFile = (logger: AstroIntegrationLogger) => {

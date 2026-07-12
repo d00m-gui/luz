@@ -1,14 +1,5 @@
 const vars = { neutral: "", primary: "" };
 
-// Every CSS block below is a fully static string — the neutral/primary
-// bucket names (which depend on the user's `prefix`/`name`/`neutrals`
-// config, known only at `luz()` call time) are written as literal
-// placeholder tokens instead of `${}` interpolation. That keeps each block
-// valid, parseable CSS on its own, so the `minifyEmbeddedCss` bunup plugin
-// (build/minify-embedded-css.ts) can run it through lightningcss at build
-// time. The placeholders are swapped for the real names via `substitute()`
-// at render time — a couple of cheap string replaces instead of rebuilding
-// each template from scratch.
 const NEUTRAL_TOKEN = "__LUZ_NEUTRAL__";
 const PRIMARY_TOKEN = "__LUZ_PRIMARY__";
 
@@ -525,19 +516,18 @@ const popupCSS = `
       }
     }`;
 
-// -- per-`lui`-component CSS ---------------------------------------------
-// Keyed by the same names used for `lui.<name>` and for the React 19
-// `<style href="<name>" precedence="component">` tag each wrapped component
-// renders. One entry per component family that owns markup-scoped CSS;
-// families without an entry (button, toggle, switch, ...) rely only on the
-// global `setup()`/`reset()` styles and don't need a per-component tag.
 export const componentCSS = {
   card: (v: typeof vars) => substitute(cardCSS, v),
   tabs: (v: typeof vars) => substitute(tabsCSS, v),
   avatar: (v: typeof vars) => substitute(avatarCSS, v),
   menu: (v: typeof vars) =>
     substitute(
-      presentationCSS + menuCSS + arrowCSS + ArrowFillCSS + menuitemCSS + separatorCSS,
+      presentationCSS +
+        menuCSS +
+        arrowCSS +
+        ArrowFillCSS +
+        menuitemCSS +
+        separatorCSS,
       v,
     ),
   menubar: (v: typeof vars) => substitute(menubarCSS, v),

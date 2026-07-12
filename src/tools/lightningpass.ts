@@ -1,9 +1,9 @@
 import { transform, type TransformResult } from "lightningcss";
 
 interface LightParserOptions {
-  path: string | false,
-  code: string,
-  minify?: boolean,
+  path: string | false;
+  code: string;
+  minify?: boolean;
 }
 
 export const LightningParser = ({
