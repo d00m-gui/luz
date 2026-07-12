@@ -18,16 +18,17 @@ import {
 import { Toast as ToastCore } from "@base-ui/react/toast";
 import { Card } from "./card";
 import type { LuiComponents } from "./types";
+import { withComponentStyle } from "./with-style";
 
 export const lui: LuiComponents = {
   avatar: {
-    root: Avatar.Root,
+    root: withComponentStyle("avatar", Avatar.Root) as typeof Avatar.Root,
     image: Avatar.Image,
     fallback: Avatar.Fallback,
   },
   button: Button,
   menu: {
-    root: Menu.Root,
+    root: withComponentStyle("menu", Menu.Root) as typeof Menu.Root,
     trigger: Menu.Trigger,
     portal: Menu.Portal,
     arrow: Menu.Arrow,
@@ -42,34 +43,40 @@ export const lui: LuiComponents = {
     submenu: Menu.SubmenuRoot,
     submenutrigger: Menu.SubmenuTrigger,
   },
-  menubar: Menubar,
+  menubar: withComponentStyle("menubar", Menubar) as typeof Menubar,
   tabs: {
-    root: Tabs.Root,
+    root: withComponentStyle("tabs", Tabs.Root) as typeof Tabs.Root,
     tab: Tabs.Tab,
     panel: Tabs.Panel,
     list: Tabs.List,
     indicator: Tabs.Indicator,
   },
   meter: {
-    root: Meter.Root,
+    root: withComponentStyle("meter", Meter.Root) as typeof Meter.Root,
     label: Meter.Label,
     value: Meter.Value,
     track: Meter.Track,
     indicator: Meter.Indicator,
   },
-  form: Form,
+  form: withComponentStyle("form", Form) as typeof Form,
   field: {
-    root: Field.Root,
+    root: withComponentStyle("field", Field.Root) as typeof Field.Root,
     label: Field.Label,
     control: Field.Control,
     description: Field.Description,
     error: Field.Error,
   },
   toggle: Toggle,
-  togglegroup: ToggleGroup,
+  togglegroup: withComponentStyle(
+    "togglegroup",
+    ToggleGroup,
+  ) as typeof ToggleGroup,
   toast: {
     core: ToastCore,
-    provider: Toast.Provider,
+    provider: withComponentStyle(
+      "toast",
+      Toast.Provider,
+    ) as typeof Toast.Provider,
     portal: Toast.Portal,
     viewport: Toast.Viewport,
     root: Toast.Root,
@@ -83,9 +90,9 @@ export const lui: LuiComponents = {
     root: Switch.Root,
     thumb: Switch.Thumb,
   },
-  card: Card,
+  card: withComponentStyle("card", Card) as typeof Card,
   dialog: {
-    root: Dialog.Root,
+    root: withComponentStyle("dialog", Dialog.Root) as typeof Dialog.Root,
     trigger: Dialog.Trigger,
     portal: Dialog.Portal,
     backdrop: Dialog.Backdrop,

@@ -27,8 +27,7 @@ export function App() {
   } = luz(config);
 
   return (
-    <>
-      <LuzReact config={config} />
+    <LuzReact config={config}>
       <main>
         <h6 className="title">
           <span>&lt;</span>luz.<i>components</i> <span>/&gt;</span>
@@ -116,7 +115,7 @@ export function App() {
         </div>
       </main>
       <style precedence="high">{ColorsSampleStyle}</style>
-    </>
+    </LuzReact>
   );
 }
 const ColorsSampleStyle = `

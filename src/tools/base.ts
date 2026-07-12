@@ -1,96 +1,112 @@
-export const base = (tokens?: any): string => {
-  const { name, prefix, neutrals } = { ...tokens.settings };
-  const neutral = `${prefix}${neutrals}`;
-  const primary = `${prefix}${name}`;
-  return `
-    /* Card */
-    .card {
-      container-type: inline-size;
-      background: var(--${neutral}-800);
-      border-radius: var(--size-8);
-      overflow: hidden;
-      background-image: linear-gradient(
-        5deg,
-        var(--${neutral}-700),
-        var(--${neutral}-800)
-      );
-      position: relative;
-      .card-content {
-        position: relative;
-        margin: 0;
-        padding: var(--size-16);
-        display: flex;
-        flex-direction: row;
-        flex: 1 1 auto;
-        justify-content: space-evenly;
-        align-items: center;
-      }
+const vars = { neutral: "", primary: "" };
+
+// Every CSS block below is a fully static string — the neutral/primary
+// bucket names (which depend on the user's `prefix`/`name`/`neutrals`
+// config, known only at `luz()` call time) are written as literal
+// placeholder tokens instead of `${}` interpolation. That keeps each block
+// valid, parseable CSS on its own, so the `minifyEmbeddedCss` bunup plugin
+// (build/minify-embedded-css.ts) can run it through lightningcss at build
+// time. The placeholders are swapped for the real names via `substitute()`
+// at render time — a couple of cheap string replaces instead of rebuilding
+// each template from scratch.
+const NEUTRAL_TOKEN = "__LUZ_NEUTRAL__";
+const PRIMARY_TOKEN = "__LUZ_PRIMARY__";
+
+function substitute(css: string, v: typeof vars): string {
+  return css
+    .replaceAll(NEUTRAL_TOKEN, v.neutral)
+    .replaceAll(PRIMARY_TOKEN, v.primary);
+}
+
+const cardCSS = `
+.card {
+  container-type: inline-size;
+  background: var(--__LUZ_NEUTRAL__-800);
+  border-radius: var(--size-8);
+  overflow: hidden;
+  background-image: linear-gradient(
+    5deg,
+    var(--__LUZ_NEUTRAL__-700),
+    var(--__LUZ_NEUTRAL__-800)
+  );
+  position: relative;
+  .card-content {
+    position: relative;
+    margin: 0;
+    padding: var(--size-16);
+    display: flex;
+    flex-direction: row;
+    flex: 1 1 auto;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+}`;
+
+const tabsCSS = `
+.tabs {
+  border-radius: var(--border-radius);
+  .list {
+    display: flex;
+    position: relative;
+    z-index: 0;
+    padding: var(--size-5) var(--size-5) 0;
+    gap: var(--size-2);
+    border-bottom: var(--border);
+    border-color: var(--__LUZ_PRIMARY__-500);
+  }
+
+  .tab,
+  button.tab {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0;
+    outline: 0;
+    appearance: none;
+    user-select: none;
+    white-space: nowrap;
+    word-break: keep-all;
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    background-color: var(--__LUZ_NEUTRAL__-500);
+    &[data-active] {
+      background-color: var(--__LUZ_PRIMARY__-500);
     }
+  }
 
-    /* TABS */
-    .tabs {
-      border-radius: var(--border-radius);
-      .list {
-        display: flex;
-        position: relative;
-        z-index: 0;
-        padding: var(--size-5) var(--size-5) 0;
-        gap: var(--size-2);
-        border-bottom: var(--border);
-        border-color: var(--${primary}-500);
-      }
+  .indicator {
+    position: absolute;
+    z-index: -1;
+    left: 0;
+    top: 50%;
+    translate: var(--active-tab-left) -50%;
+    width: var(--active-tab-width);
+    height: 1.5rem;
+    border-radius: 0.5rem;
+    background-color: var(--__LUZ_NEUTRAL__-100);
+    transition-property: translate, width;
+    transition-duration: 200ms;
+    transition-timing-function: ease-in-out;
+  }
 
-      .tab,
-      button.tab {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0;
-        outline: 0;
-        appearance: none;
-        user-select: none;
-        white-space: nowrap;
-        word-break: keep-all;
-        border-radius: var(--border-radius) var(--border-radius) 0 0;
-        background-color: var(--${neutral}-500);
-        &[data-active] {
-          background-color: var(--${primary}-500);
-        }
-      }
-
-      .indicator {
-        position: absolute;
-        z-index: -1;
-        left: 0;
-        top: 50%;
-        translate: var(--active-tab-left) -50%;
-        width: var(--active-tab-width);
-        height: 1.5rem;
-        border-radius: 0.5rem;
-        background-color: var(--${neutral}-100);
-        transition-property: translate, width;
-        transition-duration: 200ms;
-        transition-timing-function: ease-in-out;
-      }
-
-      .panel {
-        position: relative;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        outline: 0;
-        &[hidden] {
-          display: none;
-        }
-      }
-
-      .icon {
-        width: var(--size-20);
-        height: var(--size-20);
-        color: var(--${neutral}-300);
-      }
+  .panel {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: 0;
+    &[hidden] {
+      display: none;
     }
-    /* AVATAR */
+  }
+
+  .icon {
+    width: var(--size-20);
+    height: var(--size-20);
+    color: var(--__LUZ_NEUTRAL__-300);
+  }
+}`;
+
+const avatarCSS = `
     .avatar {
       display: inline-flex;
       justify-content: center;
@@ -99,8 +115,8 @@ export const base = (tokens?: any): string => {
       border-radius: 100%;
       user-select: none;
       font-weight: 500;
-      color: var(--${neutral}-900);
-      background-color: var(--${neutral}-100);
+      color: var(--__LUZ_NEUTRAL__-900);
+      background-color: var(--__LUZ_NEUTRAL__-100);
       font-size: 1rem;
       line-height: 1;
       overflow: hidden;
@@ -119,22 +135,23 @@ export const base = (tokens?: any): string => {
         width: 100%;
         font-size: 1rem;
       }
-    }
+    }`;
 
-    /* Presentation */
+const presentationCSS = `
     [role="presentation"] {
       [role="menu"] {
         position: relative;
         left: -30% !important;
       }
-    }
-    /* Menu a.k.a Popup */
+    }`;
+
+const menuCSS = `
     [role="menu"] {
       overflow: hidden;
       display: block;
       border-radius: var(--border-radius);
-      background-color: var(--${neutral}-950);
-      color: var(--${neutral}-100);
+      background-color: var(--__LUZ_NEUTRAL__-950);
+      color: var(--__LUZ_NEUTRAL__-100);
       border: var(--border-width) solid var(--border-color);
       transform-origin: var(--transform-origin);
       padding: var(--size-5);
@@ -149,7 +166,9 @@ export const base = (tokens?: any): string => {
       button {
         font-size: var(--size-14);
       }
-    }
+    }`;
+
+const arrowCSS = `
     .arrow {
       display: flex;
       &[data-side="top"] {
@@ -168,12 +187,14 @@ export const base = (tokens?: any): string => {
         left: -13px;
         rotate: -90deg;
       }
-    }
-    .ArrowFill {
-      fill: var(--${neutral}-900);
-    }
+    }`;
 
-    /* Menubar */
+const ArrowFillCSS = `
+    .ArrowFill {
+      fill: var(--__LUZ_NEUTRAL__-900);
+    }`;
+
+const menubarCSS = `
     [role="menubar"] {
       display: flex;
       padding: var(--size-5);
@@ -189,15 +210,17 @@ export const base = (tokens?: any): string => {
         padding: var(--size-4) var(--size-8);
         border-radius: calc(var(--border-radius) / 2);
         &[data-pressed] {
-          background-color: var(--${primary}-700);
-          color: var(--${primary}-400);
+          background-color: var(--__LUZ_PRIMARY__-700);
+          color: var(--__LUZ_PRIMARY__-400);
         }
         &[disabled] {
           opacity: 0.3;
           cursor: not-allowed;
         }
       }
-    }
+    }`;
+
+const groupCSS = `
     [role="group"] {
       display: flex;
       flex-direction: row;
@@ -205,10 +228,12 @@ export const base = (tokens?: any): string => {
       flex-wrap: wrap;
       & > button {
         &[data-pressed] {
-          background-color: var(--${primary}-800);
+          background-color: var(--__LUZ_PRIMARY__-800);
         }
       }
-    }
+    }`;
+
+const menuitemCSS = `
     div[role="menuitem"],
     div[role="menuitemradio"] {
       display: block;
@@ -230,11 +255,11 @@ export const base = (tokens?: any): string => {
       }
       &[data-highlighted] {
         filter: brightness(1.2);
-        background-color: var(--${primary}-700) !important;
+        background-color: var(--__LUZ_PRIMARY__-700) !important;
       }
-    }
+    }`;
 
-    /*METER*/
+const meterCSS = `
     [role="meter"] {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -246,30 +271,32 @@ export const base = (tokens?: any): string => {
       .value {
         grid-column-start: 2;
         margin: 0;
-        color: var(--${primary}-500);
+        color: var(--__LUZ_PRIMARY__-500);
         text-align: right;
         font-weight: 800;
       }
       .track {
         grid-column: 1 / 3;
         overflow: hidden;
-        background-color: var(--${primary}-950);
-        box-shadow: inset 0 0 0 1px var(--${primary}-500);
+        background-color: var(--__LUZ_PRIMARY__-950);
+        box-shadow: inset 0 0 0 1px var(--__LUZ_PRIMARY__-500);
         height: var(--size-12);
         border-radius: var(--border-radius);
       }
       .indicator {
-        background-color: var(--${primary}-500);
+        background-color: var(--__LUZ_PRIMARY__-500);
         transition: width 500ms;
       }
-    }
+    }`;
+
+const separatorCSS = `
     .separetor {
       margin: var(--size-5);
       height: var(--size-1);
-      background-color: var(--${neutral}-600);
-    }
+      background-color: var(--__LUZ_NEUTRAL__-600);
+    }`;
 
-    /* Forms */
+const formsCSS = `
     .form {
       display: flex;
       flex-direction: column;
@@ -293,7 +320,9 @@ export const base = (tokens?: any): string => {
         color: var(--red);
         font-weight: 800;
       }
-    }
+    }`;
+
+const inputsCSS = `
     input,
     select {
       width: 100%;
@@ -303,8 +332,9 @@ export const base = (tokens?: any): string => {
           cursor: pointer;
         }
       }
-    }
-    /* Toast */
+    }`;
+
+const toastCSS = `
     .toast {
       container-type: inline-size;
       --gap: var(--size-8);
@@ -322,9 +352,9 @@ export const base = (tokens?: any): string => {
       bottom: 1rem;
       margin: 0 auto;
       box-sizing: border-box;
-      background: var(--${neutral}-950);
-      color: var(--${neutral}-200);
-      border: 1px solid var(--${primary}-800);
+      background: var(--__LUZ_NEUTRAL__-950);
+      color: var(--__LUZ_NEUTRAL__-200);
+      border: 1px solid var(--__LUZ_PRIMARY__-800);
       padding: 2rem;
       width: 100%;
       box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
@@ -420,17 +450,20 @@ export const base = (tokens?: any): string => {
         border-radius: 0.25rem;
         font-size: var(--size-12);
         &:hover {
-          color: var(--${primary}-500);
+          color: var(--__LUZ_PRIMARY__-500);
         }
       }
-    }
-    /* fixed region notifications */
+    }`;
+
+const regionCSS = `
     [role="region"] {
       position: fixed;
       bottom: 0;
       left: 0;
       right: 0;
-    }
+    }`;
+
+const backdropCSS = `
     .backdrop {
       position: fixed;
       min-height: 100dvh;
@@ -445,7 +478,9 @@ export const base = (tokens?: any): string => {
       &[data-ending-style] {
         opacity: 0;
       }
-    }
+    }`;
+
+const popupCSS = `
     .popup {
       display: flex;
       flex-direction: column;
@@ -456,8 +491,8 @@ export const base = (tokens?: any): string => {
       transform: translate3d(-50%, -50%, 0) scale(1);
       width: 50vw;
       max-width: calc(100vw - 3rem);
-      background-color: var(--${neutral}-900);
-      box-shadow: 0.25rem 0.25rem 0.5ch var(--${primary}-950);
+      background-color: var(--__LUZ_NEUTRAL__-900);
+      box-shadow: 0.25rem 0.25rem 0.5ch var(--__LUZ_PRIMARY__-950);
       transition: all 100ms ease-out;
       container-type: inline-size;
       border-radius: var(--border-radius);
@@ -476,7 +511,7 @@ export const base = (tokens?: any): string => {
          padding: 0.5ch;
        }
       .handle {
-        background-color: var(--${primary}-800);
+        background-color: var(--__LUZ_PRIMARY__-800);
         cursor: grab;
       }
       .title {
@@ -488,6 +523,41 @@ export const base = (tokens?: any): string => {
       .popup-content {
         padding: 1ch;
       }
-    }
-  `;
+    }`;
+
+// -- per-`lui`-component CSS ---------------------------------------------
+// Keyed by the same names used for `lui.<name>` and for the React 19
+// `<style href="<name>" precedence="component">` tag each wrapped component
+// renders. One entry per component family that owns markup-scoped CSS;
+// families without an entry (button, toggle, switch, ...) rely only on the
+// global `setup()`/`reset()` styles and don't need a per-component tag.
+export const componentCSS = {
+  card: (v: typeof vars) => substitute(cardCSS, v),
+  tabs: (v: typeof vars) => substitute(tabsCSS, v),
+  avatar: (v: typeof vars) => substitute(avatarCSS, v),
+  menu: (v: typeof vars) =>
+    substitute(
+      presentationCSS + menuCSS + arrowCSS + ArrowFillCSS + menuitemCSS + separatorCSS,
+      v,
+    ),
+  menubar: (v: typeof vars) => substitute(menubarCSS, v),
+  togglegroup: (v: typeof vars) => substitute(groupCSS, v),
+  meter: (v: typeof vars) => substitute(meterCSS, v),
+  form: () => formsCSS,
+  field: () => inputsCSS,
+  toast: (v: typeof vars) => substitute(toastCSS, v) + regionCSS,
+  dialog: (v: typeof vars) => backdropCSS + substitute(popupCSS, v),
+};
+
+// -- main --------------------------------------------------------------------
+
+export const base = (tokens?: any): string => {
+  const v = {
+    neutral: `${tokens.settings.prefix}${tokens.settings.neutrals}`,
+    primary: `${tokens.settings.prefix}${tokens.settings.name}`,
+  };
+
+  return Object.values(componentCSS)
+    .map((css) => css(v))
+    .join("\n");
 };

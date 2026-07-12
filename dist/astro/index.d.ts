@@ -20,7 +20,10 @@ interface LuzConfig {
 	transition?: string;
 	"box-shadow"?: string;
 	spacing?: string;
+	background?: string;
+	foreground?: string;
 	path?: string;
+	minify?: boolean;
 }
 import { AstroIntegration } from "astro";
 declare const luzAstro: (config: LuzConfig) => AstroIntegration;

@@ -3,7 +3,9 @@
  */
 
 import { luzShadesByHue } from "./tools/hue";
-import { luzProperty, luzPropertyAsArray } from "./tools/props";
+import { luzProperty } from "./tools/props";
+import { reset } from "./tools/reset";
+import { setup } from "./tools/setup";
 import { luzSizes } from "./tools/sizes";
 import { luzWheel } from "./tools/wheel";
 
@@ -29,7 +31,10 @@ export interface LuzConfig {
   transition?: string;
   "box-shadow"?: string;
   spacing?: string;
+  background?: string;
+  foreground?: string;
   path?: string;
+  minify?: boolean;
 }
 
 /** Settings sub-object within tokens (metadata only). */
@@ -58,6 +63,8 @@ export interface LuzResult {
   variables: string;
   /** CSS @property generated via tokens */
   propierties: string;
+  /** Complete CSS as a string */
+  style: string;
 }
 
 //  Internal Default Config
@@ -101,6 +108,7 @@ export function luz(config?: LuzConfig): LuzResult {
     power,
     secondary,
     path: _path,
+    minify,
     ...typography
   } = settings;
 
@@ -183,7 +191,7 @@ export function luz(config?: LuzConfig): LuzResult {
     typography: { ...typography } as Partial<LuzConfig>,
   };
 
-  const CSSProps = luzProperty(tokens);
+  const propierties = luzProperty(tokens);
 
   //  Flatten to variables string
   const tokensList = {
@@ -198,6 +206,29 @@ export function luz(config?: LuzConfig): LuzResult {
       variableLines.push(`--${key}: ${value};`);
     }
   }
+  const variables = variableLines.join("\n")
 
-  return { tokens, variables: variableLines.join("\n"), propierties: CSSProps };
+  let style = `
+  ${propierties}
+  ${reset}
+  ${setup(tokens)}
+  :root {
+    ${variables}
+  }
+  `;
+
+  if (minify) {
+    style = minifyCss(style);
+  }
+
+  return { tokens, variables, style, propierties };
+}
+
+/** Strips comments and collapses whitespace in a CSS string. */
+function minifyCss(css: string): string {
+  return css
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/\n+/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }

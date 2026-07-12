@@ -1,4 +1,6 @@
-export function setup(tokens: any) {
+import type { LuzTokens } from "@/luz";
+
+export function setup(tokens: LuzTokens) {
   const { name, prefix, neutrals } = { ...tokens.settings };
   return `
     a {

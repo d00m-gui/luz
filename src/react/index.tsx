@@ -1,24 +1,20 @@
-import { reset } from "@/tools/reset";
 import { luz, type LuzConfig } from "../luz";
-import { base } from "../tools/base";
-import { setup } from "../tools/setup";
+import { LuzTokensContext } from "./context";
 
-export function LuzReact({ config }: { config: LuzConfig }): React.ReactNode {
-  const { variables, tokens, propierties } = luz(config);
-  const style = `
-    ${propierties}
-    ${reset()}
-		${setup(tokens)}
-		:root {
-			${variables}
-		}
-		${base(tokens)}
-	`;
-  // console.log("STYLE", style.trim());
-
+export function LuzReact({
+  config,
+  children,
+}: {
+  config: LuzConfig;
+  children?: React.ReactNode;
+}): React.ReactNode {
+  const { tokens, style } = luz(config);
   return (
-    <style href="luz" precedence="high">
-      {style.trim()}
-    </style>
+    <LuzTokensContext.Provider value={tokens}>
+      <style href="luz" precedence="global">
+        {style}
+      </style>
+      {children}
+    </LuzTokensContext.Provider>
   );
 }
