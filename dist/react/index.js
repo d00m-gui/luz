@@ -1,1 +1,29 @@
-import{a as t}from"../shared/chunk-dvkt8f5v.js";import{e as o}from"../shared/chunk-s6a5yy4h.js";import{jsxDEV as e}from"react/jsx-dev-runtime";function f({config:n,children:r}){let{tokens:c,style:l}=o(n);return e(t.Provider,{value:c,children:[e("style",{href:"luz",precedence:"global",children:l},void 0,!1,void 0,this),r]},void 0,!0,void 0,this)}export{f as LuzReact};
+import { a as e } from "../shared/chunk-y7h9s52r.js";
+import { createContext as p, useContext as n } from "react";
+var l = p(null);
+import { jsxDEV as o } from "react/jsx-dev-runtime";
+function a({ config: i, children: r }) {
+  let { tokens: c, style: f } = e(i);
+  return o(
+    l.Provider,
+    {
+      value: c,
+      children: [
+        o(
+          "style",
+          { href: "luz", precedence: "global", children: f },
+          void 0,
+          !1,
+          void 0,
+          this,
+        ),
+        r,
+      ],
+    },
+    void 0,
+    !0,
+    void 0,
+    this,
+  );
+}
+export { a as LuzReact };

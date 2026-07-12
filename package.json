@@ -2,19 +2,40 @@
   "name": "luz",
   "version": "0.1.0",
   "description": "Luz is a lightweight library designed to simplify theming and styling in modern web applications.",
-  "homepage": "https://github.com/d00m-gui/luz",
+  "keywords": [
+    "astro",
+    "color-palette",
+    "css",
+    "css-in-ts",
+    "css-variables",
+    "custom-properties",
+    "design-tokens",
+    "oklch",
+    "react",
+    "styling",
+    "tailwind-alternative",
+    "theming"
+  ],
+  "homepage": "https://github.com/d00m-gui/luz#readme",
   "bugs": {
     "url": "https://github.com/d00m-gui/luz/issues"
   },
   "license": "MIT",
+  "author": "d00m-gui",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/d00m-gui/luz.git"
   },
+  "workspaces": [
+    "examples/*"
+  ],
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "type": "module",
+  "sideEffects": false,
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -38,6 +59,9 @@
     },
     "./package.json": "./package.json"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "bunup": "bunup",
     "dev:watch": "bunup --watch",
@@ -46,6 +70,7 @@
     "format": "oxfmt",
     "lint": "oxlint --ignore-pattern \"dist/**\" .",
     "prepare": "bun simple-git-hooks",
+    "prepublishOnly": "bun run lint && bun run type-check && bun run test && bun run bunup",
     "release": "bumpp --commit --push --tag",
     "test": "bun test",
     "test:coverage": "bun test --coverage",
@@ -61,7 +86,7 @@
     "@types/jest": "^30.0.0",
     "@types/node": "^26.1.0",
     "@types/react": "^19.2.17",
-    "astro": "^7.0.4",
+    "astro": "^7.0.6",
     "bumpp": "^11.1.0",
     "bunup": "^0.16.32",
     "oxfmt": "^0.57.0",
@@ -94,5 +119,9 @@
   },
   "simple-git-hooks": {
     "pre-commit": "bun run lint && bun run type-check"
+  },
+  "engines": {
+    "bun": ">=1.0.0",
+    "node": ">=18"
   }
 }
