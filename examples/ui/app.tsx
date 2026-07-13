@@ -35,10 +35,17 @@ export function App() {
         <hr />
         <div className="beforeafter">
           <div className="term config">
-            <textarea defaultValue={JSON.stringify(config)} />
+            <textarea defaultValue={JSON.stringify(config, null, 2)} />
           </div>
           <div className="term config">
-            <textarea defaultValue={JSON.stringify(colors)} />
+            <textarea
+              defaultValue={JSON.stringify(
+                { colors, sizes, typography },
+                null,
+                2,
+              )}
+            />
+            {/*<ReactJson src={} theme="monokai" />*/}
           </div>
         </div>
         <div className="settings">
