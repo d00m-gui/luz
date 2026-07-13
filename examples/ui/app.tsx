@@ -45,7 +45,6 @@ export function App() {
                 2,
               )}
             />
-            {/*<ReactJson src={} theme="monokai" />*/}
           </div>
         </div>
         <div className="settings">
