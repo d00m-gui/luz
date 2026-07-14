@@ -1,1 +1,1 @@
-export { e as luz, l as lui };
+export{e as luz,l as lui};
