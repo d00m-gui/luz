@@ -1,11 +1,14 @@
-export const config = {
-  font: `var(--datatype)`,
-  "font-headings": `var(--datatype)`,
-  "font-monospace": `var(--datatype)`,
-  primary: "#e88ffe",
-  background: "#0a0c10",
-  "border-radius": 0,
-  andrea: "#fecc45",
+import type { LuzConfig } from "../../src/luz";
+
+// Mirrors Posting's built-in "galaxy" theme (https://github.com/darrenburns/posting)
+export const config: LuzConfig = {
+  font: `var(--mona)`,
+  "font-headings": `var(--mona)`,
+  "font-monospace": `var(--mona)`,
+  primary: "#C45AFF",
+  secondary: "#A684E8",
+  mode: "dark",
+  background: "#0F0F1F",
   path: "./src/styles/luz.css",
   minify: true,
 };

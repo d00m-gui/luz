@@ -8,8 +8,8 @@ export default defineConfig({
   fonts: [
     {
       provider: fontProviders.fontsource(),
-      name: "Datatype",
-      cssVariable: "--datatype",
+      name: "Monaspace Neon",
+      cssVariable: "--mona",
       weights: ["100 900"],
     },
   ],
