@@ -1,6 +1,5 @@
 import type { LuzConfig } from "../../src/luz";
 
-// Mirrors Posting's built-in "galaxy" theme (https://github.com/darrenburns/posting)
 export const config: LuzConfig = {
   font: `var(--mona)`,
   "font-headings": `var(--mona)`,
