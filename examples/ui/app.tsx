@@ -2,7 +2,6 @@ import { TabsSample } from "./samples/tabs";
 import { MenusSample } from "./samples/menus";
 import { ButtonsSample } from "./samples/buttons";
 import { AvatarsSample } from "./samples/avatars";
-// import { ColorsSample } from "./samples/colors";
 import { MenubarSample } from "./samples/menubar";
 import { MeterSample } from "./samples/meter";
 import { FormsSample } from "./samples/forms";
@@ -20,9 +19,7 @@ import { LoadingSample } from "./samples/loading";
 import { DialogSample } from "./samples/dialog";
 import { luz } from "../../src/luz";
 import { config } from "./luz.config";
-import { lui } from "../../src/components";
 import { LuzReact } from "../../src/react";
-import { css } from "../../src/tools/css";
 
 export function App() {
   const {
@@ -30,8 +27,7 @@ export function App() {
   } = luz(config);
 
   return (
-    <>
-      <LuzReact config={config} />
+    <LuzReact config={config}>
       <main>
         <h6 className="title">
           <span>&lt;</span>luz.<i>components</i> <span>/&gt;</span>
@@ -39,10 +35,16 @@ export function App() {
         <hr />
         <div className="beforeafter">
           <div className="term config">
-            <textarea defaultValue={JSON.stringify(config)} />
+            <textarea defaultValue={JSON.stringify(config, null, 2)} />
           </div>
           <div className="term config">
-            <textarea defaultValue={JSON.stringify(colors)} />
+            <textarea
+              defaultValue={JSON.stringify(
+                { colors, sizes, typography },
+                null,
+                2,
+              )}
+            />
           </div>
         </div>
         <div className="settings">
@@ -119,10 +121,10 @@ export function App() {
         </div>
       </main>
       <style precedence="high">{ColorsSampleStyle}</style>
-    </>
+    </LuzReact>
   );
 }
-const ColorsSampleStyle = css`
+const ColorsSampleStyle = `
   .beforeafter {
     display: grid;
     grid-template-columns: 1fr 3fr;

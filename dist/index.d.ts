@@ -20,7 +20,10 @@ interface LuzConfig {
 	transition?: string;
 	"box-shadow"?: string;
 	spacing?: string;
+	background?: string;
+	foreground?: string;
 	path?: string;
+	minify?: boolean;
 }
 /** Settings sub-object within tokens (metadata only). */
 interface TokenSettings {
@@ -45,6 +48,8 @@ interface LuzResult {
 	variables: string;
 	/** CSS @property generated via tokens */
 	propierties: string;
+	/** Complete CSS as a string */
+	style: string;
 }
 /**
 * Generate theme tokens and CSS custom properties from configuration.

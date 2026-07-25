@@ -20,7 +20,13 @@ interface LuzConfig {
 	transition?: string;
 	"box-shadow"?: string;
 	spacing?: string;
+	background?: string;
+	foreground?: string;
 	path?: string;
+	minify?: boolean;
 }
-declare function luzStyleSheet(config?: LuzConfig): void;
-export { luzStyleSheet };
+declare function LuzReact({ config, children }: {
+	config: LuzConfig;
+	children?: React.ReactNode;
+}): React.ReactNode;
+export { LuzReact };

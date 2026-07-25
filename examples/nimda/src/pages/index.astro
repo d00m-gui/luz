@@ -3,37 +3,120 @@ import Layout from "../components/layout.astro";
 ---
 
 <Layout>
-  <nav class="main-nav">
-    <select name="views">
-      <option value="products">Products</option>
-      <option value="items">Items</option>
-      <option value="articles">Articles</option>
-    </select>
-    <button>view</button>
-  </nav>
-  <div class="sections">
-    <div class="collections">
-      <p class="section-title">collections</p>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">nimda <span class="version">0.1.0</span></div>
+      <div class="session">guest@luz.dev</div>
+    </header>
+
+    <div class="url-bar">
+      <span class="method get">GET</span>
+      <span class="url"
+        >https://jsonplaceholder.typicode.com/users/<mark>$USER_ID</mark></span
+      >
+      <button class="send">Send</button>
     </div>
-    <div class="content">
-      <div class="top-content">
-        <p class="section-title">request</p>
-        <p><b>Primary Item</b></p>
-        <ul>
-          <li>Tabs</li>
-          <li>Table Inputs</li>
-          <li>Inline Add</li>
+
+    <div class="panels">
+      <section class="panel collection">
+        <h3 class="panel-title">Collection</h3>
+        <ul class="tree">
+          <li><span class="m get">GET</span> get random user</li>
+          <li><span class="m post">POS</span> something</li>
+          <li><span class="m post">POS</span> echo post</li>
+          <li><span class="m get">GET</span> echo</li>
+          <li class="folder">
+            jsonplaceholder/
+            <ul>
+              <li class="folder">
+                posts/
+                <ul>
+                  <li><span class="m get">GET</span> get one</li>
+                  <li><span class="m post">POS</span> create</li>
+                  <li><span class="m get">GET</span> get all</li>
+                  <li><span class="m del">DEL</span> delete a post</li>
+                  <li class="folder">
+                    comments/
+                    <ul>
+                      <li><span class="m get">GET</span> get comments</li>
+                      <li><span class="m put">PUT</span> edit a comment</li>
+                    </ul>
+                  </li>
+                </ul>
+              </li>
+              <li class="folder">
+                users/
+                <ul>
+                  <li class="active">
+                    <span class="m get">GET</span> get a user
+                  </li>
+                  <li><span class="m post">POS</span> create a user</li>
+                  <li><span class="m get">GET</span> get all users</li>
+                  <li><span class="m put">PUT</span> update a user</li>
+                </ul>
+              </li>
+            </ul>
+          </li>
         </ul>
-      </div>
-      <div class="bottom-content">
-        <p class="section-title">response</p>
-        <p><b>Sub-Item</b></p>
-        <ul>
-          <li>Tabs</li>
-          <li>Rich Textarea</li>
-        </ul>
-      </div>
+        <p class="hint">Retrieve a single user</p>
+      </section>
+
+      <section class="panel request">
+        <h3 class="panel-title">Request</h3>
+        <nav class="tabs">
+          <span class="tab active">Headers</span>
+          <span class="tab">Body</span>
+          <span class="tab">Parameters</span>
+          <span class="tab">Auth</span>
+          <span class="tab">Metadata</span>
+          <span class="tab">Options</span>
+        </nav>
+        <div class="kv-table">
+          <div class="kv"><span>Content-Type</span><span>application/json</span></div>
+          <div class="kv"><span>Referer</span><span>https://example.com/</span></div>
+          <div class="kv"><span>Accept-Encoding</span><span>gzip</span></div>
+          <div class="kv"><span>Cache-Control</span><span>no-cache</span></div>
+        </div>
+        <div class="add-row">
+          <input placeholder="Header name" />
+          <input placeholder="Value" />
+          <button>Add header</button>
+        </div>
+      </section>
+
+      <section class="panel response">
+        <h3 class="panel-title">
+          Response <span class="status">200 OK</span>
+        </h3>
+        <nav class="tabs">
+          <span class="tab active">Body</span>
+          <span class="tab">Headers</span>
+          <span class="tab">Cookies</span>
+          <span class="tab">Trace</span>
+        </nav>
+        <pre class="body"><code>{`{
+  "id": 5,
+  "name": "Chelsey Dietrich",
+  "username": "Kamren",
+  "email": "Lucio_Hettinger@annie.ca",
+  "address": { "street": "Skiles Walks" }
+}`}</code></pre>
+        <div class="statusline">
+          <span>JSON</span>
+          <span>Wrap</span>
+          <span>507.00B in 158.63ms</span>
+        </div>
+      </section>
     </div>
+
+    <footer class="keys">
+      <span><b>↑</b> Focus previous</span>
+      <span><b>^j</b> Send</span>
+      <span><b>^t</b> Method</span>
+      <span><b>^s</b> Save</span>
+      <span><b>^n</b> New</span>
+      <span><b>^p</b> Commands</span>
+      <span><b>^o</b> Jump</span>
+    </footer>
   </div>
-  <aside class="shrtcts">shortcuts</aside>
 </Layout>

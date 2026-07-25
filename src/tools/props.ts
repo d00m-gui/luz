@@ -1,264 +1,135 @@
 /**
- * Infers and emits CSS @property declarations for all animatable custom properties.
- * Each entry maps a variable name to its inferred syntax, initial value, and inheritance flag.
+ * Infers and emits CSS @property declarations for animatable custom properties.
+ * Each token's actual value is classified by shape; values that can't be
+ * represented by a single `@property` syntax component (shorthands like
+ * `border` or `transition`) are skipped rather than mis-typed.
  */
 
 import type { LuzTokens } from "../luz";
 
-interface PropertyDecl {
-  /** The variable name (without --). */
-  name: string;
-  /** CSS typescript `syntax` string. */
-  syntax:
-    | "<color>"
-    | "<string>"
-    | "<number>"
-    | "<length>"
-    | "<percentage>"
-    | "<intiger>"
-    | "<number> | <length> | <percentage>";
-  /** Value used as initial-value in the @property rule. */
-  initialValue: string;
-  /** Whether the property can be inherited by children. */
-  inherits: boolean;
+const SYNTAX = {
+  color: "<color>",
+  number: "<number>",
+  length: "<length>",
+  percentage: "<percentage>",
+  ident: "<custom-ident>",
+} as const;
+
+type PropertySyntax = (typeof SYNTAX)[keyof typeof SYNTAX];
+
+const NUMBER = /^-?\d+(\.\d+)?$/;
+const PERCENTAGE = /^-?\d+(\.\d+)?%$/;
+const LENGTH =
+  /^-?\d+(\.\d+)?(rem|em|px|vh|vw|vmin|vmax|ch|cqi|cqw|cqh|cqmin|cqmax|pt|pc|cm|mm|in|q)$/;
+const FLUID_LENGTH = /^(calc|clamp|min|max)\(/;
+const HEX_COLOR = /^#[0-9a-fA-F]{3,8}$/;
+const COLOR_FN = /^(rgba?|hsla?|oklch|oklab|lab|lch|color)\(/;
+const CUSTOM_IDENT = /^-?[a-zA-Z_][a-zA-Z0-9_-]*$/;
+
+/** True if `value` has no top-level whitespace (ignoring text inside parens). */
+function isSingleToken(value: string): boolean {
+  let depth = 0;
+  for (const char of value) {
+    if (char === "(") depth++;
+    else if (char === ")") depth--;
+    else if (depth === 0 && /\s/.test(char)) return false;
+  }
+  return true;
 }
 
 /**
- * Maps a token key (without `--`) to an inferred `@property` declaration.
- * Non-animatable or multi-value tokens are excluded.
+ * Infers the narrowest `@property` syntax a value can be safely registered
+ * under, or `null` if it's a shorthand/multi-token value with no single
+ * matching syntax component.
  */
-function inferProperties(tokens: LuzTokens): PropertyDecl[] {
-  const result: PropertyDecl[] = [];
-  Object.entries(tokens.sizes).map(([size, value], index) => {
-    if (size.startsWith("size-")) {
-      let iv = `${index + 1}`;
-      result.push({
-        name: size,
-        syntax: "<number> | <length> | <percentage>",
-        initialValue: iv,
-        inherits: true,
-      });
-    } else {
-      //console.log("other sizes", size);
-      result.push({
-        name: size,
-        syntax: "<number> | <length> | <percentage>",
-        initialValue: value.replace("rem", ""),
-        inherits: true,
-      });
-    }
-  });
+function classify(
+  value: string,
+  isColorToken: boolean,
+): { syntax: PropertySyntax; initialValue: string } | null {
+  const v = value.trim();
+  if (!isSingleToken(v)) return null;
 
-  Object.entries(tokens.colors).map(([color, value], index) => {
-    let initColor = tokens.colors["primary"];
-    result.push({
-      name: color,
-      syntax: "<color>",
-      initialValue: `${initColor}`,
-      inherits: true,
-    });
-  });
+  if (NUMBER.test(v)) return { syntax: SYNTAX.number, initialValue: v };
+  if (PERCENTAGE.test(v)) return { syntax: SYNTAX.percentage, initialValue: v };
+  if (LENGTH.test(v) || FLUID_LENGTH.test(v))
+    return { syntax: SYNTAX.length, initialValue: v };
+  if (HEX_COLOR.test(v) || COLOR_FN.test(v))
+    // `initial-value` must be computationally independent — a value that
+    // references `var(...)` (e.g. `oklch(from var(--primary) ...)`) can't
+    // be used as-is, so fall back to a static placeholder of the same type.
+    return {
+      syntax: SYNTAX.color,
+      initialValue: v.includes("var(") ? "#000000" : v,
+    };
+  if (v.startsWith("var("))
+    // A bare var() reference is only reliably typeable as `<color>`, and
+    // only for tokens we know originate from the colors bucket.
+    return isColorToken
+      ? { syntax: SYNTAX.color, initialValue: "#000000" }
+      : null;
+  if (CUSTOM_IDENT.test(v)) return { syntax: SYNTAX.ident, initialValue: v };
 
-  console.log("TBT", tokens.typography);
-
-  Object.entries(tokens.typography).map(([font, value], index) => {
-    result.push({
-      name: font,
-      syntax: "<string>",
-      initialValue: `${value}`,
-      inherits: true,
-    });
-  });
-
-  return result;
+  return null;
 }
 
-// for (const key of Object.keys(tokens.colors)) {
-//   result.push({
-//     name: key,
-//     syntax: "<color>",
-//     initialValue: tokens.colors["primary"] ?? "#333",
-//     inherits: true,
-//   });
-// }
+/** Builds a declaration for one token, or `null` if it can't be typed. */
+function toDecl(name: string, value: string, isColor: boolean) {
+  const classified = classify(value, isColor);
+  if (!classified) return null;
+  return { name, inherits: true, ...classified };
+}
 
-// for (const key of Object.keys(tokens.sizes)) {
-//   let value = tokens.sizes[key];
-//   console.log("default value", key);
-//   if (value?.startsWith("clamp(")) {
-//     result.push({
-//       name: key,
-//       syntax: "<length>",
-//       initialValue: value,
-//       inherits: true,
-//     });
-//   }
-// }
+/** Inferred from `toDecl`'s return shape rather than hand-declared. */
+type PropertyDecl = NonNullable<ReturnType<typeof toDecl>>;
 
-// function inferProperties(tokens: LuzTokens): PropertyDecl[] {
-//   const result: PropertyDecl[] = [];
-//   const colorMap = tokens.colors;
+/**
+ * Merges tokens in the same precedence used to build `:root`'s variables
+ * block (sizes → colors → typography), so a name present in more than one
+ * bucket (e.g. a user-supplied `spacing` override) only produces one
+ * `@property` rule, matching the value that actually lands in CSS.
+ */
+function mergedTokenValues(tokens: LuzTokens): Map<string, [string, boolean]> {
+  const merged = new Map<string, [string, boolean]>();
+  const add = (record: Record<string, unknown>, isColor: boolean) => {
+    for (const [name, value] of Object.entries(record)) {
+      if (value === undefined || value === null) continue;
+      merged.set(name, [String(value), isColor]);
+    }
+  };
+  add(tokens.sizes, false);
+  add(tokens.colors, true);
+  add(tokens.typography as Record<string, unknown>, false);
+  return merged;
+}
 
-//   // --- Size scales: --size-N → <length> ---
-//   for (const key of Object.keys(tokens.sizes)) {
-//     if (!key.startsWith("size-")) continue;
-//     const value = tokens.sizes[key];
-//     //console.log("SIZES", value);
-//     result.push({
-//       name: key,
-//       syntax: "<length>",
-//       initialValue: value ?? "0",
-//       inherits: true,
-//     });
-
-//     console.log("RESULTS", result);
-//   }
-
-//   // --- Color system with animated components (oklch … h / c references) ---
-//   const ANIMATABLE_COLOR_KEYS = [
-//     `${tokens.settings.name}-950`,
-//     `${tokens.settings.name}-900`,
-//     `${tokens.settings.name}-800`,
-//     `${tokens.settings.name}-700`,
-//     `${tokens.settings.name}-600`,
-//     `${tokens.settings.name}-500`,
-//     `${tokens.settings.name}-400`,
-//     `${tokens.settings.name}-300`,
-//     `${tokens.settings.name}-200`,
-//     `${tokens.settings.name}-100`,
-//     `${tokens.settings.name}-50`,
-//   ];
-
-//   for (const name of ANIMATABLE_COLOR_KEYS) {
-//     const value = colorMap[name];
-//     if (!value || !/calc\(.*sin\(/.test(value)) continue; // skip non-animated entries
-//     result.push({
-//       name,
-//       syntax: "<color>",
-//       initialValue: "hsl(0, 0%, 0%)",
-//       inherits: true,
-//     });
-//   }
-
-//   // --- Solid base/derived colors that can benefit from @property animation ---
-//   const SOLID_COLOR_KEYS = [
-//     tokens.settings.name, // e.g. primary
-//     "secondary", // rotated hue color
-//     "background", // resolved or referenced
-//     `${tokens.settings.neutrals}-900`, // foreground alias
-//     `on-${tokens.settings.name}`, // on-primary
-//   ];
-
-//   for (const name of SOLID_COLOR_KEYS) {
-//     const value = colorMap[name];
-//     if (!value || /var\(--/.test(value)) continue; // skip unresolved references
-//     result.push({
-//       name,
-//       syntax: "<color>",
-//       initialValue: "#000",
-//       inherits: true,
-//     });
-//   }
-
-//   // --- Hue wheel (rotated hues): all animatable ---
-//   for (const [name] of Object.entries(colorMap)) {
-//     if (
-//       /^(red|copper|orange|yellow|green|emerald|teal|cyan|blue|sky)$/.test(name)
-//     ) {
-//       const value = colorMap[name];
-//       if (!value) continue;
-//       result.push({
-//         name,
-//         syntax: "<color>",
-//         initialValue: "#000",
-//         inherits: true,
-//       });
-//     }
-//   }
-
-//   // --- Special on-primary (uses `oklch(from …)` formula but is animatable as color) ---
-//   if (!result.find((r) => r.name === "on-primary")) {
-//     const value = colorMap["on-primary"];
-//     if (value && !/var\(--/.test(value)) {
-//       result.push({
-//         name: "on-primary",
-//         syntax: "<color>",
-//         initialValue: "#000",
-//         inherits: true,
-//       });
-//     }
-//   }
-
-//   // --- Lengths / widths / spacing ---
-//   const LENGTH_MAP: Array<[string, string]> = [
-//     ["border-radius", "0px"],
-//     ["border-width", "0px"],
-//     ["element-vertical", "0px"],
-//     ["element-horizontal", "0px"],
-//   ];
-//   for (const [name, initial] of LENGTH_MAP) {
-//     if (!(name in colorMap)) continue;
-//     result.push({
-//       name,
-//       syntax: "<length>",
-//       initialValue: initial,
-//       inherits: true,
-//     });
-//   }
-
-//   // --- Percentage / vw spacing ---
-//   const spacing = tokens.colors.spacing;
-//   if (spacing && !/var\(--/.test(spacing)) {
-//     result.push({
-//       name: "spacing",
-//       syntax: "<percentage>",
-//       initialValue: "0%",
-//       inherits: true,
-//     });
-//   }
-
-//   // --- Typography numbers ---
-//   for (const [name, initial] of [
-//     ["line-height", "1.3"],
-//     ["font-weight", "400"],
-//     ["font-bold-weight", "700"],
-//   ] as const) {
-//     if (!(name in tokens.typography)) continue;
-//     result.push({
-//       name,
-//       syntax: "<number>",
-//       initialValue: String(initial),
-//       inherits: true,
-//     });
-//   }
-
-//   return result;
-// }
+/** Maps Luz tokens to inferred `@property` declarations. */
+function inferProperties(tokens: LuzTokens): PropertyDecl[] {
+  const declarations: PropertyDecl[] = [];
+  for (const [name, [value, isColor]] of mergedTokenValues(tokens)) {
+    const decl = toDecl(name, value, isColor);
+    if (decl) declarations.push(decl);
+  }
+  return declarations;
+}
 
 /** Render a single `@property` CSS rule from a declaration object. */
 function renderPropertyDecl(decl: PropertyDecl): string {
   const { name, syntax, initialValue, inherits } = decl;
-  return [
-    `@property --${name} {
-      syntax: "${syntax}";
-      inherits: ${inherits};
-      initial-value: ${initialValue};
-    }`,
-  ]
-    .join("\n")
-    .trim();
+  return `@property --${name} {
+    syntax: "${syntax}";
+    inherits: ${inherits};
+    initial-value: ${initialValue};
+  }`;
 }
 
 /**
  * Returns a string of CSS `@property` declarations inferred from Luz tokens.
- * Non-animatable properties (font-family, multi-value transitions, box-shadow) are excluded.
  */
 export function luzProperty(
   /** Pre-generated Luz tokens object — the source of truth for type inference. */
   tokens: LuzTokens,
 ): string {
-  const declarations = inferProperties(tokens);
-  return declarations.map(renderPropertyDecl).join("\n\n");
+  return inferProperties(tokens).map(renderPropertyDecl).join("\n\n");
 }
 
 /** Type guard so consumers know this produces a valid CSS @property set. */

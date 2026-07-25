@@ -16,8 +16,6 @@ import {
 } from "@base-ui/react";
 import { Toast as ToastCore } from "@base-ui/react/toast";
 
-// type ElementType = React.ForwardRefExoticComponent<React.HTMLAttributes<any>>;
-
 /**
  * Unified component namespace for Base UI components.
  */
