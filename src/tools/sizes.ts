@@ -32,5 +32,11 @@ export function luzSizes(base: number, power: number = 1.31): SizesMap {
     spacing: `${((base / 10) * 3).toFixed(0)}rem`,
     "element-vertical": `${(base / 20).toFixed(1)}rem`,
     "element-horizontal": `${(base / 10).toFixed(1)}rem`,
+    "transform-origin": `50% 50%`,
+    "toast-index": `0`,
+    "toast-offset-y": `0`,
+    "toast-swipe-movement-y": `0`,
+    "toast-swipe-movement-x": `0`,
+    "toast-height": `15.5rem`
   };
 }

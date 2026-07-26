@@ -539,7 +539,6 @@ export const componentCSS = {
   dialog: (v: typeof vars) => backdropCSS + substitute(popupCSS, v),
 };
 
-// -- main --------------------------------------------------------------------
 
 export const base = (tokens?: any): string => {
   const v = {

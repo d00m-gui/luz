@@ -182,6 +182,7 @@ export function luz(config?: LuzConfig): LuzResult {
       border: `var(--border-width) solid var(--element-border-color)`,
       "element-background": `var(--${neutralsName}-950)`,
       "element-border-color": `oklch(from var(--${neutralsName}-600) l c h / 50%)`,
+      "border-color": `oklch(from var(--${neutralsName}-600) l c h / 50%)`,
       "element-active-border-color": `oklch(from var(--${primaryName}-200) l c h / 50%)`,
       "element-color": `var(--${primaryName}-100)`,
       "element-active-color": `var(--${primaryName}-900)`,
