@@ -159,4 +159,6 @@ interface SwitchComponentTypes {
 }
 type CardType = typeof Card;
 declare const lui: LuiComponents;
-export { luz, lui };
+declare const luz2: typeof luz;
+declare const lui2: typeof lui;
+export { luz2 as luz, lui2 as lui };
