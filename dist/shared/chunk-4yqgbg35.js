@@ -15,4 +15,4 @@ a { color: var(--anchor, var(--${r}blue)); &.secondary { --anchor: var(--${r}sec
     ${K}
   }
   `;if(p)w=cr(w);return{tokens:s,variables:K,style:w,propierties:j}}function cr(e){return e.replace(/\/\*[\s\S]*?\*\//g,"").replace(/\n+/g,"").replace(/\s{2,}/g," ").trim()}
-export{xr as a};
+export{xr as e};
