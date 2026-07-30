@@ -7,6 +7,9 @@ export default defineConfig({
   plugins: [minifyEmbeddedCss(), exports(), unused()],
   entry: ["src/index.ts", "src/react/index.tsx", "src/astro/index.ts"],
   format: ["esm"],
+  jsx: {
+    development: false,
+  },
   unused: true,
   minify: true,
 });
