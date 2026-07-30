@@ -188,6 +188,8 @@ bun run dev          # React component playground (examples/ui)
 bun run astro:dev    # Astro integration demo (examples/nimda)
 ```
 
+The `bunup` script always builds with `NODE_ENV=production` so published React entrypoints use `react/jsx-runtime`.
+
 Run a single test file with `bun test tests/luz.test.ts`. Pre-commit hooks run `lint` and `type-check`, so commits fail if either does.
 
 ## License

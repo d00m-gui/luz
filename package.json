@@ -62,7 +62,7 @@
     "access": "public"
   },
   "scripts": {
-    "bunup": "bunup",
+    "bunup": "NODE_ENV=production bunup",
     "dev:watch": "bunup --watch",
     "dev": "bun run --cwd examples/ui dev",
     "astro:dev": "bun run --cwd examples/nimda dev --host",
