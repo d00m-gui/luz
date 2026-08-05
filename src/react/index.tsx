@@ -1,5 +1,6 @@
+import { useMemo, useState } from "react";
 import { luz, type LuzConfig } from "../luz";
-import { LuzTokensContext } from "./context";
+import { LuzThemeContext, type LuzTheme } from "./context";
 
 export function LuzReact({
   config,
@@ -8,13 +9,32 @@ export function LuzReact({
   config: LuzConfig;
   children?: React.ReactNode;
 }): React.ReactNode {
-  const { tokens, style } = luz(config);
+  const [override, setOverride] = useState<Partial<LuzConfig>>({});
+  const merged = useMemo(
+    () => ({ ...config, ...override }),
+    [config, override],
+  );
+  const { tokens, style } = useMemo(() => luz(merged), [merged]);
+
+  const theme: LuzTheme = useMemo(
+    () => ({
+      tokens,
+      setPrimary: (primary: string) =>
+        setOverride((current) => ({ ...current, primary })),
+      setMode: (mode: NonNullable<LuzConfig["mode"]>) =>
+        setOverride((current) => ({ ...current, mode })),
+    }),
+    [tokens],
+  );
+
   return (
-    <LuzTokensContext.Provider value={tokens}>
+    <LuzThemeContext.Provider value={theme}>
       <style href="luz" precedence="global">
         {style}
       </style>
       {children}
-    </LuzTokensContext.Provider>
+    </LuzThemeContext.Provider>
   );
 }
+
+export { useTheme, type LuzTheme } from "./context";

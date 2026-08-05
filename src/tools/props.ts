@@ -13,18 +13,36 @@ const SYNTAX = {
   length: "<length>",
   percentage: "<percentage>",
   ident: "<custom-ident>",
+  transformList: "<transform-list>",
 } as const;
 
 type PropertySyntax = (typeof SYNTAX)[keyof typeof SYNTAX];
 
-const NUMBER = /^-?\d+(\.\d+)?$/;
-const PERCENTAGE = /^-?\d+(\.\d+)?%$/;
-const LENGTH =
-  /^-?\d+(\.\d+)?(rem|em|px|vh|vw|vmin|vmax|ch|cqi|cqw|cqh|cqmin|cqmax|pt|pc|cm|mm|in|q)$/;
-const FLUID_LENGTH = /^(calc|clamp|min|max)\(/;
 const HEX_COLOR = /^#[0-9a-fA-F]{3,8}$/;
 const COLOR_FN = /^(rgba?|hsla?|oklch|oklab|lab|lch|color)\(/;
 const CUSTOM_IDENT = /^-?[a-zA-Z_][a-zA-Z0-9_-]*$/;
+
+// `<transform-list>` is one of the syntax components the CSS Properties and
+// Values API registers directly — one or more transform functions, space
+// separated. There is no equivalent single-syntax component for
+// `box-shadow`, so multi-shadow values stay unsupported (fall through to
+// `null` below).
+const TRANSFORM_FN =
+  "matrix3d|matrix|translate3d|translateX|translateY|translateZ|translate|scale3d|scaleX|scaleY|scaleZ|scale|rotate3d|rotateX|rotateY|rotateZ|rotate|skewX|skewY|skew|perspective";
+const TRANSFORM_LIST = new RegExp(
+  `^(?:(?:${TRANSFORM_FN})\\((?:[^()]|\\([^()]*\\))*\\)\\s*)+$`,
+);
+
+/** Regexes that map 1:1 to a `@property` syntax with the value used as-is. */
+const SIMPLE_SYNTAX: [RegExp, PropertySyntax][] = [
+  [/^-?\d+(\.\d+)?$/, SYNTAX.number],
+  [/^-?\d+(\.\d+)?%$/, SYNTAX.percentage],
+  [
+    /^-?\d+(\.\d+)?(rem|em|px|vh|vw|vmin|vmax|ch|cqi|cqw|cqh|cqmin|cqmax|pt|pc|cm|mm|in|q)$/,
+    SYNTAX.length,
+  ],
+  [/^(calc|clamp|min|max)\(/, SYNTAX.length],
+];
 
 /** True if `value` has no top-level whitespace (ignoring text inside parens). */
 function isSingleToken(value: string): boolean {
@@ -47,12 +65,16 @@ function classify(
   isColorToken: boolean,
 ): { syntax: PropertySyntax; initialValue: string } | null {
   const v = value.trim();
+  if (TRANSFORM_LIST.test(v))
+    return {
+      syntax: SYNTAX.transformList,
+      initialValue: v.includes("var(") ? "translateX(0)" : v,
+    };
   if (!isSingleToken(v)) return null;
 
-  if (NUMBER.test(v)) return { syntax: SYNTAX.number, initialValue: v };
-  if (PERCENTAGE.test(v)) return { syntax: SYNTAX.percentage, initialValue: v };
-  if (LENGTH.test(v) || FLUID_LENGTH.test(v))
-    return { syntax: SYNTAX.length, initialValue: v };
+  for (const [re, syntax] of SIMPLE_SYNTAX) {
+    if (re.test(v)) return { syntax, initialValue: v };
+  }
   if (HEX_COLOR.test(v) || COLOR_FN.test(v))
     // `initial-value` must be computationally independent — a value that
     // references `var(...)` (e.g. `oklch(from var(--primary) ...)`) can't
@@ -130,9 +152,4 @@ export function luzProperty(
   tokens: LuzTokens,
 ): string {
   return inferProperties(tokens).map(renderPropertyDecl).join("\n\n");
-}
-
-/** Type guard so consumers know this produces a valid CSS @property set. */
-export function luzPropertyAsArray(tokens: LuzTokens): PropertyDecl[] {
-  return inferProperties(tokens);
 }

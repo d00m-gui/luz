@@ -14,7 +14,7 @@ interface LuzConfig {
 	primary: string;
 	name?: string;
 	secondary?: string;
-	mode?: "light" | "dark";
+	mode?: "light" | "dark" | "auto";
 	neutrals?: string;
 	prefix?: string;
 	transition?: string;
@@ -22,7 +22,6 @@ interface LuzConfig {
 	spacing?: string;
 	background?: string;
 	foreground?: string;
-	path?: string;
 	minify?: boolean;
 }
 /** Settings sub-object within tokens (metadata only). */
@@ -31,13 +30,12 @@ interface TokenSettings {
 	prefix?: string;
 	neutrals?: string;
 }
-/** Generated size variable map (`--size-1` → `0.1rem`, etc.). */
-type TokenSizes = Record<string, string>;
 /** Full token set used by all downstream consumers. */
 interface LuzTokens {
 	settings: TokenSettings;
 	colors: Record<string, string>;
-	sizes: TokenSizes;
+	/** Generated size variable map (`--size-1` → `0.1rem`, etc.). */
+	sizes: Record<string, string>;
 	typography: Partial<LuzConfig>;
 }
 /** Return value of the `luz()` function. */

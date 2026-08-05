@@ -18,7 +18,9 @@ describe("luzSizes()", () => {
     const sizes = luzSizes(16);
     const numbered = Object.keys(sizes).filter((k) => k.startsWith("size-"));
     expect(numbered).toHaveLength(22);
-    expect(Object.keys(sizes)).toHaveLength(27);
+    // 22 numbered steps + border-radius/border-width/spacing/element-vertical/
+    // element-horizontal/transform-origin + 6 toast-* tokens = 33.
+    expect(Object.keys(sizes)).toHaveLength(33);
   });
 
   test("derives spacing and radii from the base font size", () => {

@@ -102,4 +102,42 @@ describe("luz()", () => {
     expect(style).not.toContain("\n");
     expect(style).not.toMatch(/\s{2,}/);
   });
+
+  describe('mode: "auto"', () => {
+    test("ships a light baseline in :root", () => {
+      const auto = luz({ primary: "#000", mode: "auto" });
+      const light = luz({ primary: "#000", mode: "light" });
+      expect(auto.tokens.colors["primary-50"]).toBe(
+        light.tokens.colors["primary-50"],
+      );
+    });
+
+    test("wraps dark-only overrides in a prefers-color-scheme media query", () => {
+      const { style } = luz({ primary: "#000", mode: "auto" });
+      expect(style).toContain("@media (prefers-color-scheme: dark)");
+    });
+
+    test("dark override block carries the dark shade values", () => {
+      const auto = luz({ primary: "#000", mode: "auto" });
+      const dark = luz({ primary: "#000", mode: "dark" });
+      const match = auto.style.match(
+        /@media \(prefers-color-scheme: dark\) \{[\s\S]*?--primary-50: ([^;]+);/,
+      );
+      expect(match?.[1]).toBe(dark.tokens.colors["primary-50"]);
+    });
+
+    test("mode-independent tokens (sizes, wheel) are not duplicated in the override", () => {
+      const { style } = luz({ primary: "#000", mode: "auto" });
+      const overrideBlock = style.slice(
+        style.indexOf("@media (prefers-color-scheme: dark)"),
+      );
+      expect(overrideBlock).not.toContain("--size-1:");
+      expect(overrideBlock).not.toContain("--red:");
+    });
+
+    test("light and dark modes stay unaffected by the auto branch", () => {
+      const dark = luz({ primary: "#000", mode: "dark" });
+      expect(dark.style).not.toContain("prefers-color-scheme");
+    });
+  });
 });

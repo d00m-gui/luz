@@ -20,15 +20,23 @@ import { Card } from "./card";
 import type { LuiComponents } from "./types";
 import { withComponentStyle } from "./with-style";
 
+/** Wires a component to its lazy `<style>` injection, preserving its original type. */
+function styled<T extends React.ComponentType<never>>(
+  name: Parameters<typeof withComponentStyle>[0],
+  Component: T,
+): T {
+  return withComponentStyle(name, Component as never) as unknown as T;
+}
+
 export const lui: LuiComponents = {
   avatar: {
-    root: withComponentStyle("avatar", Avatar.Root) as typeof Avatar.Root,
+    root: styled("avatar", Avatar.Root),
     image: Avatar.Image,
     fallback: Avatar.Fallback,
   },
   button: Button,
   menu: {
-    root: withComponentStyle("menu", Menu.Root) as typeof Menu.Root,
+    root: styled("menu", Menu.Root),
     trigger: Menu.Trigger,
     portal: Menu.Portal,
     arrow: Menu.Arrow,
@@ -43,40 +51,34 @@ export const lui: LuiComponents = {
     submenu: Menu.SubmenuRoot,
     submenutrigger: Menu.SubmenuTrigger,
   },
-  menubar: withComponentStyle("menubar", Menubar) as typeof Menubar,
+  menubar: styled("menubar", Menubar),
   tabs: {
-    root: withComponentStyle("tabs", Tabs.Root) as typeof Tabs.Root,
+    root: styled("tabs", Tabs.Root),
     tab: Tabs.Tab,
     panel: Tabs.Panel,
     list: Tabs.List,
     indicator: Tabs.Indicator,
   },
   meter: {
-    root: withComponentStyle("meter", Meter.Root) as typeof Meter.Root,
+    root: styled("meter", Meter.Root),
     label: Meter.Label,
     value: Meter.Value,
     track: Meter.Track,
     indicator: Meter.Indicator,
   },
-  form: withComponentStyle("form", Form) as typeof Form,
+  form: styled("form", Form),
   field: {
-    root: withComponentStyle("field", Field.Root) as typeof Field.Root,
+    root: styled("field", Field.Root),
     label: Field.Label,
     control: Field.Control,
     description: Field.Description,
     error: Field.Error,
   },
   toggle: Toggle,
-  togglegroup: withComponentStyle(
-    "togglegroup",
-    ToggleGroup,
-  ) as typeof ToggleGroup,
+  togglegroup: styled("togglegroup", ToggleGroup),
   toast: {
     core: ToastCore,
-    provider: withComponentStyle(
-      "toast",
-      Toast.Provider,
-    ) as typeof Toast.Provider,
+    provider: styled("toast", Toast.Provider),
     portal: Toast.Portal,
     viewport: Toast.Viewport,
     root: Toast.Root,
@@ -90,9 +92,9 @@ export const lui: LuiComponents = {
     root: Switch.Root,
     thumb: Switch.Thumb,
   },
-  card: withComponentStyle("card", Card) as typeof Card,
+  card: styled("card", Card),
   dialog: {
-    root: withComponentStyle("dialog", Dialog.Root) as typeof Dialog.Root,
+    root: styled("dialog", Dialog.Root),
     trigger: Dialog.Trigger,
     portal: Dialog.Portal,
     backdrop: Dialog.Backdrop,

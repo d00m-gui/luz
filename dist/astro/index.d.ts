@@ -15,7 +15,7 @@ interface LuzConfig {
 	primary: string;
 	name?: string;
 	secondary?: string;
-	mode?: "light" | "dark";
+	mode?: "light" | "dark" | "auto";
 	neutrals?: string;
 	prefix?: string;
 	transition?: string;
@@ -23,8 +23,11 @@ interface LuzConfig {
 	spacing?: string;
 	background?: string;
 	foreground?: string;
-	path?: string;
 	minify?: boolean;
 }
-declare const luzAstro: (config: LuzConfig) => AstroIntegration;
-export { luzAstro };
+/** `LuzConfig` with `path` required — only the Astro adapter writes a file. */
+type LuzAstroConfig = LuzConfig & {
+	path: string;
+};
+declare const luzAstro: (config: LuzAstroConfig) => AstroIntegration;
+export { luzAstro, LuzAstroConfig };

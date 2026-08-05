@@ -1,6 +1,6 @@
-import type { LuzConfig } from "../../src/luz";
+import type { LuzAstroConfig } from "../../src/astro";
 
-export const config: LuzConfig = {
+export const config: LuzAstroConfig = {
   font: `var(--mona)`,
   "font-headings": `var(--mona)`,
   "font-monospace": `var(--mona)`,

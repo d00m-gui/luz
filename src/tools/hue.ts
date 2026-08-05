@@ -1,12 +1,5 @@
 import { SHADES, SHADES_REVERSE, WEIGHTS } from "./constants";
 
-export interface LuzHueConfig {
-  color: string;
-  name: string;
-  base?: number;
-  reverse?: boolean;
-}
-
 /**
  * Generate a palette of oklch shades from a base hue.
  *
@@ -18,7 +11,12 @@ export function luzShadesByHue({
   name,
   base = 0.05,
   reverse = false,
-}: LuzHueConfig): Record<string, string> {
+}: {
+  color: string;
+  name: string;
+  base?: number;
+  reverse?: boolean;
+}): Record<string, string> {
   let percents = reverse ? SHADES_REVERSE : SHADES;
   let shades = {};
   for (let step = 0; step < WEIGHTS.length; step++) {

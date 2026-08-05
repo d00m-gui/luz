@@ -1,7 +1,3 @@
-interface SizesMap {
-  [key: string]: string;
-}
-
 // Fluid sizes interpolate linearly between these two container inline-sizes.
 const MIN_CONTAINER_REM = 20; // 320px
 const MAX_CONTAINER_REM = 77.5; // 1240px
@@ -16,8 +12,11 @@ function generateFluidTagSize(step: number, power: number): string {
   return `clamp(${minSize.toFixed(2)}rem, ${yIntercept.toFixed(2)}rem + ${(slope * 100).toFixed(2)}cqi, ${maxSize.toFixed(2)}rem)`;
 }
 
-export function luzSizes(base: number, power: number = 1.31): SizesMap {
-  const computedSizes: SizesMap = {};
+export function luzSizes(
+  base: number,
+  power: number = 1.31,
+): Record<string, string> {
+  const computedSizes: Record<string, string> = {};
   for (let i = 1; i <= 12; i++) {
     computedSizes[`size-${i}`] = `${i / 10}rem`;
   }

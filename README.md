@@ -142,9 +142,9 @@ For Astro projects, `luzAstro` generates a static CSS file at build time and on 
 **1. Define your theme** in `luz.config.ts`:
 
 ```ts
-import type { LuzConfig } from "luz";
+import type { LuzAstroConfig } from "luz/astro";
 
-export const config: LuzConfig = {
+export const config: LuzAstroConfig = {
   primary: "#D44541",
   secondary: "#94F6D8",
   font: '"DM Sans", sans-serif',
@@ -171,7 +171,7 @@ export default defineConfig({
 @import url("./luz.css");
 ```
 
-> `path` is required — the integration logs an error and writes nothing if it is missing. Make sure the target directory (e.g. `./src/styles`) exists. Set `minify: true` in the config to emit minified CSS.
+> `path` is required — the integration throws (after logging) if it is missing, so a broken config fails the build instead of shipping unthemed output. Make sure the target directory (e.g. `./src/styles`) exists. Set `minify: true` in the config to emit minified CSS.
 
 ## Development
 
