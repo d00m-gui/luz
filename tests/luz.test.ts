@@ -140,4 +140,43 @@ describe("luz()", () => {
       expect(dark.style).not.toContain("prefers-color-scheme");
     });
   });
+
+  describe("configurable color/size steps", () => {
+    test("default output is unaffected", () => {
+      const withDefaults = luz({
+        primary: "#D44541",
+        colorSteps: 11,
+        sizeSteps: 22,
+        sizeDynamicFrom: 13,
+        sizeRelativeToBase: false,
+      });
+      const omitted = luz({ primary: "#D44541" });
+      expect(withDefaults.tokens).toEqual(omitted.tokens);
+    });
+
+    test("colorSteps controls shades per palette", () => {
+      const { tokens } = luz({ primary: "#D44541", colorSteps: 5 });
+      const primaryShades = Object.keys(tokens.colors).filter((k) =>
+        /^primary-\d+$/.test(k),
+      );
+      expect(primaryShades).toHaveLength(5);
+    });
+
+    test("sizeSteps controls the number of size-N tokens", () => {
+      const { tokens } = luz({ primary: "#D44541", sizeSteps: 10 });
+      const numbered = Object.keys(tokens.sizes).filter((k) =>
+        k.startsWith("size-"),
+      );
+      expect(numbered).toHaveLength(10);
+    });
+
+    test("sizeRelativeToBase scales size-1 with base", () => {
+      const { tokens } = luz({
+        primary: "#D44541",
+        base: 32,
+        sizeRelativeToBase: true,
+      });
+      expect(tokens.sizes["size-1"]).toBe("0.2rem");
+    });
+  });
 });

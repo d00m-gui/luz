@@ -70,7 +70,8 @@ luz({
   primary: "#007dea", // required — base of the whole palette
   secondary: "#94F6D8", // optional — defaults to primary hue + 180°
   neutrals: "neutral", // name used for the neutral ramp
-  mode: "dark", // "light" | "dark" — inverts the shade ramp
+  mode: "dark", // "light" | "dark" | "auto" — "auto" ships both under prefers-color-scheme
+  colorSteps: 11, // shade steps per palette (50–950 by default)
 
   // Typography
   font: "sans-serif",
@@ -83,8 +84,11 @@ luz({
 
   // Sizing
   base: 16, // base font size in px, drives the size scale
-  power: 1.33, // growth ratio for the scale
+  power: 1.33, // growth ratio for the fluid zone
   spacing: "5vw",
+  sizeSteps: 22, // total size-N tokens generated
+  sizeDynamicFrom: 13, // first step that becomes a fluid cqi clamp()
+  sizeRelativeToBase: false, // true: scale the whole ramp by base / 16
 
   // Misc
   prefix: "", // prefix every generated custom-property name

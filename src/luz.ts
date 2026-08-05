@@ -33,6 +33,14 @@ export interface LuzConfig {
   background?: string;
   foreground?: string;
   minify?: boolean;
+  /** Shade steps generated per color palette. Default `11` (50–950). */
+  colorSteps?: number;
+  /** Total `size-N` tokens generated. Default `22`. */
+  sizeSteps?: number;
+  /** First `size-N` step that uses the fluid `clamp()` zone. Default `13`. */
+  sizeDynamicFrom?: number;
+  /** Scale the size ramp by `base / 16` instead of a fixed 16px assumption. Default `false`. */
+  sizeRelativeToBase?: boolean;
 }
 
 /** Settings sub-object within tokens (metadata only). */
@@ -82,6 +90,10 @@ const defaultConfig: LuzConfig = {
   transition: "all ease 200ms",
   "box-shadow": "none",
   spacing: "5vw",
+  colorSteps: 11,
+  sizeSteps: 22,
+  sizeDynamicFrom: 13,
+  sizeRelativeToBase: false,
 };
 
 /** Element-level style rules (buttons, inputs, tables, …) wired to theme tokens. */
@@ -112,6 +124,10 @@ export function luz(config?: LuzConfig): LuzResult {
     power,
     secondary,
     minify,
+    colorSteps,
+    sizeSteps,
+    sizeDynamicFrom,
+    sizeRelativeToBase,
     ...typography
   } = settings;
 
@@ -148,17 +164,20 @@ export function luz(config?: LuzConfig): LuzResult {
       color: primaryCSSVar,
       name: primaryName,
       reverse,
+      steps: colorSteps,
     });
     const secondaryShades = luzShadesByHue({
       color: secondaryCSSVar,
       name: secondaryName,
       reverse,
+      steps: colorSteps,
     });
     const neutralShades = luzShadesByHue({
       color: neutralCSSVar,
       name: neutralsName,
       base: 0.05,
       reverse,
+      steps: colorSteps,
     });
 
     return {
@@ -187,7 +206,13 @@ export function luz(config?: LuzConfig): LuzResult {
   const colors = buildColors(isDark);
 
   //  Size tokens + derived sizing variables
-  const sizeTokens: Record<string, string> = luzSizes(normalBase, power);
+  const sizeTokens: Record<string, string> = luzSizes(
+    normalBase,
+    power,
+    sizeSteps,
+    sizeDynamicFrom,
+    sizeRelativeToBase,
+  );
 
   //  Compose token set
   const tokens: LuzTokens = {

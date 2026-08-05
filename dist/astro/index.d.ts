@@ -24,6 +24,14 @@ interface LuzConfig {
 	background?: string;
 	foreground?: string;
 	minify?: boolean;
+	/** Shade steps generated per color palette. Default `11` (50–950). */
+	colorSteps?: number;
+	/** Total `size-N` tokens generated. Default `22`. */
+	sizeSteps?: number;
+	/** First `size-N` step that uses the fluid `clamp()` zone. Default `13`. */
+	sizeDynamicFrom?: number;
+	/** Scale the size ramp by `base / 16` instead of a fixed 16px assumption. Default `false`. */
+	sizeRelativeToBase?: boolean;
 }
 /** `LuzConfig` with `path` required — only the Astro adapter writes a file. */
 type LuzAstroConfig = LuzConfig & {

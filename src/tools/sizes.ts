@@ -2,8 +2,7 @@
 const MIN_CONTAINER_REM = 20; // 320px
 const MAX_CONTAINER_REM = 77.5; // 1240px
 
-function generateFluidTagSize(step: number, power: number): string {
-  const minSize = step / 10;
+function generateFluidTagSize(minSize: number, power: number): string {
   const maxSize = minSize * power;
 
   const slope = (maxSize - minSize) / (MAX_CONTAINER_REM - MIN_CONTAINER_REM);
@@ -15,13 +14,20 @@ function generateFluidTagSize(step: number, power: number): string {
 export function luzSizes(
   base: number,
   power: number = 1.31,
+  steps: number = 22,
+  dynamicFrom: number = 13,
+  relativeToBase: boolean = false,
 ): Record<string, string> {
+  const scale = relativeToBase ? base / 16 : 1;
   const computedSizes: Record<string, string> = {};
-  for (let i = 1; i <= 12; i++) {
-    computedSizes[`size-${i}`] = `${i / 10}rem`;
-  }
-  for (let i = 13; i <= 22; i++) {
-    computedSizes[`size-${i}`] = generateFluidTagSize(i, power);
+  for (let i = 1; i <= steps; i++) {
+    const refRem = (i / 10) * scale;
+    computedSizes[`size-${i}`] =
+      i < dynamicFrom
+        ? relativeToBase
+          ? `${parseFloat(refRem.toFixed(3))}rem`
+          : `${i / 10}rem`
+        : generateFluidTagSize(refRem, power);
   }
 
   return {
