@@ -29,9 +29,12 @@ export function LuzReact({
 
   return (
     <LuzThemeContext.Provider value={theme}>
-      <style href="luz" precedence="global">
-        {style}
-      </style>
+      {/* No `href`/`precedence`: either one opts this into React 19's
+          hoistable-style Resource treatment, which never patches an
+          already-inserted stylesheet's content on re-render — fatal for a
+          stylesheet meant to update live as `config` changes. A plain
+          `<style>` re-renders its text content normally, like any element. */}
+      <style>{style}</style>
       {children}
     </LuzThemeContext.Provider>
   );
