@@ -21,4 +21,4 @@ a { color: var(--anchor, var(--${t}blue)); &.secondary { --anchor: var(--${t}sec
   }
   ${W}
   `;if(f)x=zt(x);return{tokens:w,variables:G,style:x,properties:U}}function zt(i){return i.replace(/\/\*[\s\S]*?\*\//g,"").replace(/\n+/g,"").replace(/\s{2,}/g," ").trim()}
-export{jt as a};
+export{jt as e};

@@ -62,15 +62,16 @@
     "access": "public"
   },
   "scripts": {
-    "bunup": "bunup",
+    "bunup": "NODE_ENV=production bunup",
     "dev:watch": "bunup --watch",
     "dev": "bun run --cwd examples/ui dev",
     "astro:dev": "bun run --cwd examples/nimda dev --host",
     "format": "oxfmt",
     "lint": "oxlint --ignore-pattern \"dist/**\" .",
     "prepare": "bun simple-git-hooks",
-    "prepublishOnly": "bun run lint && bun run type-check && bun run test && bun run bunup",
-    "release": "bumpp --commit --push --tag",
+    "verify:dist": "bun tests/verify-dist.ts",
+    "prepublishOnly": "bun run lint && bun run type-check && bun run test && bun run bunup && bun run verify:dist",
+    "release": "bun run bunup && bun run verify:dist && bumpp --commit --push --tag",
     "test": "bun test",
     "test:coverage": "bun test --coverage",
     "test:watch": "bun test --watch",
@@ -92,7 +93,8 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "simple-git-hooks": "^2.13.1",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "vite": "^8.1.2"
   },
   "peerDependencies": {
     "astro": "^6.0.5",
