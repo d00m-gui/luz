@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
-import { lui } from "luz";
-import { LuzReact } from "luz/react";
+import { lui } from "@d00m-gui/luz";
+import { LuzReact } from "@d00m-gui/luz/react";
 
 const html = renderToString(
   createElement(

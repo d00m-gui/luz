@@ -1,6 +1,8 @@
 # luz
 
-> ⚠️ **Under active development.** APIs may change before `1.0.0`.
+[![CI](https://github.com/d00m-gui/luz/actions/workflows/ci.yml/badge.svg)](https://github.com/d00m-gui/luz/actions/workflows/ci.yml)
+
+> ⚠️ **Under active development.** APIs may change before `1.0.0`. Published as `@d00m-gui/luz`.
 
 **luz** is a lightweight CSS-in-TypeScript theming library. Give it a single primary color and it generates a full set of CSS custom properties — an [oklch](https://developer.mozilla.org/en-US/docs/Web/CSS/color_value/oklch) color palette, a rotated hue wheel, semantic tokens, and a fluid size scale — from one JavaScript configuration object.
 
@@ -17,18 +19,18 @@ It works as a lightweight alternative to utility-first frameworks like Tailwind:
 ## Installation
 
 ```bash
-bun add luz
-# or: npm install luz / pnpm add luz
+bun add @d00m-gui/luz
+# or: npm install @d00m-gui/luz / pnpm add @d00m-gui/luz
 ```
 
-React and Astro are optional [peer dependencies](package.json) — install them only if you use the corresponding adapter.
+React, `@base-ui/react`, and Astro are optional [peer dependencies](package.json) — install them only if you use the corresponding adapter.
 
 ## Core usage
 
 The `luz()` function is the heart of the library. It takes a config object and returns generated tokens and CSS.
 
 ```ts
-import { luz } from "luz";
+import { luz } from "@d00m-gui/luz";
 
 const { tokens, variables, style } = luz({
   primary: "#D44541",
@@ -113,8 +115,8 @@ Set `prefix` to namespace everything (e.g. `prefix: "lz-"` → `--lz-primary-500
 Wrap your app in `LuzReact` to inject the generated stylesheet, then use the pre-styled `lui` components (built on [`@base-ui/react`](https://base-ui.com)).
 
 ```tsx
-import { LuzReact } from "luz/react"; // provider that injects the stylesheet
-import { lui } from "luz"; // pre-styled components
+import { LuzReact } from "@d00m-gui/luz/react"; // provider that injects the stylesheet
+import { lui } from "@d00m-gui/luz"; // pre-styled components
 
 const config = { primary: "#D44541", secondary: "#94F6D8" };
 
@@ -136,7 +138,7 @@ export function App() {
 
 `LuzReact` renders a global `<style>` from `luz(config).style` and exposes the tokens via context, so every child can use `var(--…)` immediately. The `lui` namespace re-exports Base UI primitives (`button`, `card`, `menu`, `tabs`, `form`, `field`, `toast`, `switch`, `dialog`, `meter`, and more) pre-wired to luz tokens.
 
-> `LuzReact` is exported from `luz/react`; `luz` and `lui` are exported from the package root.
+> `LuzReact` is exported from `@d00m-gui/luz/react`; `luz` and `lui` are exported from the package root.
 
 ## Astro usage
 
@@ -145,7 +147,7 @@ For Astro projects, `luzAstro` generates a static CSS file at build time and on 
 **1. Define your theme** in `luz.config.ts`:
 
 ```ts
-import type { LuzAstroConfig } from "luz/astro";
+import type { LuzAstroConfig } from "@d00m-gui/luz/astro";
 
 export const config: LuzAstroConfig = {
   primary: "#D44541",
@@ -159,7 +161,7 @@ export const config: LuzAstroConfig = {
 
 ```js
 import { defineConfig } from "astro/config";
-import { luzAstro } from "luz/astro";
+import { luzAstro } from "@d00m-gui/luz/astro";
 import { config } from "./luz.config";
 
 export default defineConfig({

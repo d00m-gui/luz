@@ -304,13 +304,14 @@ export function luz(config?: LuzConfig): LuzResult {
 /**
  * Strips comments and collapses whitespace in a CSS string.
  *
- * Deliberately hand-rolled instead of using `lightningcss` here: this file
- * is imported by browser bundles (React) as well as Node (Astro), and
- * `lightningcss`'s native binding pulls in Node-only modules
+ * Deliberately hand-rolled instead of using a CSS parser like `lightningcss`:
+ * this file is imported by browser bundles (React) as well as Node (Astro),
+ * and `lightningcss`'s native binding pulls in Node-only modules
  * (`child_process` via `detect-libc`) that break in the browser. The Astro
- * adapter (Node-only) uses `lightningcss` directly for its own output.
+ * adapter reuses this same function for its own output — no runtime CSS
+ * dependency needed.
  */
-function minifyCss(css: string): string {
+export function minifyCss(css: string): string {
   return css
     .replace(/\/\*[\s\S]*?\*\//g, "")
     .replace(/\n+/g, "")

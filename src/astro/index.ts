@@ -1,7 +1,6 @@
 import type { AstroIntegration, AstroIntegrationLogger } from "astro";
-import { transform } from "lightningcss";
 import { writeFileSync } from "node:fs";
-import { luz, type LuzConfig } from "../luz";
+import { luz, minifyCss, type LuzConfig } from "../luz";
 import { base } from "../tools/base";
 
 /** `LuzConfig` with `path` required — only the Astro adapter writes a file. */
@@ -20,17 +19,8 @@ export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
       throw new Error("luzAstro: `path` is required in config");
     }
 
-    const transformed = transform({
-      filename: outputPath,
-      code: Buffer.from(cssContent),
-      minify: isMinified,
-      sourceMap: false,
-    });
-
-    if (!transformed.code) {
-      return logger.error("Failed to transform CSS content.");
-    }
-    writeFileSync(outputPath, transformed.code, {
+    const output = isMinified ? minifyCss(cssContent) : cssContent;
+    writeFileSync(outputPath, output, {
       encoding: "utf-8",
     });
     logger.info(`Static CSS generated @ ${outputPath}`);
