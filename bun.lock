@@ -4,17 +4,15 @@
   "workspaces": {
     "": {
       "name": "luz",
-      "dependencies": {
-        "@base-ui/react": "^1.6.0",
-        "lightningcss": "^1.32.0",
-      },
       "devDependencies": {
+        "@base-ui/react": "^1.6.0",
         "@types/bun": "^1.3.14",
         "@types/node": "^26.1.1",
         "@types/react": "^19.2.17",
         "astro": "7.1.1",
         "bumpp": "^11.1.0",
         "bunup": "^0.16.32",
+        "lightningcss": "^1.32.0",
         "oxfmt": "^0.59.0",
         "oxlint": "^1.74.0",
         "react": "^19.2.7",
@@ -24,12 +22,14 @@
         "vite": "^8.1.2",
       },
       "peerDependencies": {
-        "astro": "^6.0.5",
+        "@base-ui/react": "^1.6.0",
+        "astro": "^6.0.5 || ^7.0.0",
         "react": "^18.0.0 || ^19.0.0",
         "react-dom": "^18.0.0 || ^19.0.0",
         "typescript": ">=4.5.0",
       },
       "optionalPeers": [
+        "@base-ui/react",
         "astro",
         "react",
         "react-dom",

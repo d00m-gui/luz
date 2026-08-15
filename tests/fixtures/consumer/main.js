@@ -1,4 +1,4 @@
-import { lui, luz } from "luz";
+import { lui, luz } from "@d00m-gui/luz";
 
 if (typeof luz !== "function") {
   throw new TypeError("luz must be a function");
