@@ -3,3 +3,5 @@ import { lui as components } from "./components";
 
 export const luz: typeof createLuz = createLuz;
 export const lui: typeof components = components;
+
+export type { LuzConfig, LuzResult, LuzTokens, TokenSettings } from "./luz";
