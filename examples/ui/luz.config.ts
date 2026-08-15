@@ -5,7 +5,7 @@ export const config: LuzConfig = {
   secondary: "#94F6D8",
   font: `"DM Sans", sans-serif`,
   "font-monospace": `"Datatype", monospace`,
-  power: 1.66,
+  power: 1.1
 };
 // --scarlet-rush: #D44541;
 // --dark-walnut: #432207;

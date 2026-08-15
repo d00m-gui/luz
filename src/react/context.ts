@@ -1,16 +1,23 @@
 import { createContext, useContext } from "react";
-import type { LuzTokens } from "../luz";
+import type { LuzConfig, LuzTokens } from "../luz";
 
-/** Holds the tokens produced by `luz(config)` for the subtree rendered inside `<LuzReact>`. */
-export const LuzTokensContext = createContext<LuzTokens | null>(null);
+/** Live theme handle: current tokens plus setters that trigger a re-render inside `<LuzReact>`. */
+export interface LuzTheme {
+  tokens: LuzTokens;
+  setPrimary(primary: string): void;
+  setMode(mode: NonNullable<LuzConfig["mode"]>): void;
+}
 
-/** Reads the current `LuzTokens` from context. Throws if used outside `<LuzReact>`. */
-export function useLuzTokens(): LuzTokens {
-  const tokens = useContext(LuzTokensContext);
-  if (!tokens) {
+export const LuzThemeContext: React.Context<LuzTheme | null> =
+  createContext<LuzTheme | null>(null);
+
+/** Reads the current `LuzTheme` from context. Throws if used outside `<LuzReact>`. */
+export function useTheme(): LuzTheme {
+  const theme = useContext(LuzThemeContext);
+  if (!theme) {
     throw new Error(
-      "luz: components from `lui` must be rendered inside <LuzReact config={...}>.",
+      "luz: useTheme() must be called inside <LuzReact config={...}>.",
     );
   }
-  return tokens;
+  return theme;
 }

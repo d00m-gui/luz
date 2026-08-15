@@ -3,10 +3,23 @@ const vars = { neutral: "", primary: "" };
 const NEUTRAL_TOKEN = "__LUZ_NEUTRAL__";
 const PRIMARY_TOKEN = "__LUZ_PRIMARY__";
 
+/**
+ * Adds a `var(--name)` fallback to `var(--name-N)` shade references, so a
+ * theme generated with fewer `colorSteps` (missing that weight) still
+ * resolves to the base color instead of an undefined custom property.
+ */
+function withShadeFallback(css: string, name: string): string {
+  return css.replace(
+    new RegExp(`var\\(--${name}-(\\d{2,3})\\)`, "g"),
+    `var(--${name}-$1, var(--${name}))`,
+  );
+}
+
 function substitute(css: string, v: typeof vars): string {
-  return css
+  const replaced = css
     .replaceAll(NEUTRAL_TOKEN, v.neutral)
     .replaceAll(PRIMARY_TOKEN, v.primary);
+  return withShadeFallback(withShadeFallback(replaced, v.primary), v.neutral);
 }
 
 const cardCSS = `
@@ -163,19 +176,19 @@ const arrowCSS = `
     .arrow {
       display: flex;
       &[data-side="top"] {
-        bottom: -8px;
+        bottom: -0.8rem;
         rotate: 180deg;
       }
       &[data-side="bottom"] {
-        top: -8px;
+        top: -0.8rem;
         rotate: 0deg;
       }
       &[data-side="left"] {
-        right: -13px;
+        right: -1.3rem;
         rotate: 90deg;
       }
       &[data-side="right"] {
-        left: -13px;
+        left: -1.3rem;
         rotate: -90deg;
       }
     }`;
@@ -270,7 +283,7 @@ const meterCSS = `
         grid-column: 1 / 3;
         overflow: hidden;
         background-color: var(--__LUZ_PRIMARY__-950);
-        box-shadow: inset 0 0 0 1px var(--__LUZ_PRIMARY__-500);
+        box-shadow: inset 0 0 0 var(--border-width) var(--__LUZ_PRIMARY__-500);
         height: var(--size-12);
         border-radius: var(--border-radius);
       }
@@ -345,10 +358,10 @@ const toastCSS = `
       box-sizing: border-box;
       background: var(--__LUZ_NEUTRAL__-950);
       color: var(--__LUZ_NEUTRAL__-200);
-      border: 1px solid var(--__LUZ_PRIMARY__-800);
+      border: var(--border-width) solid var(--__LUZ_PRIMARY__-800);
       padding: 2rem;
       width: 100%;
-      box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
+      box-shadow: 0 0.2rem 1rem rgb(0 0 0 / 0.1);
       background-clip: padding-box;
       border-radius: var(--border-radius);
       transform-origin: bottom center;
@@ -407,7 +420,7 @@ const toastCSS = `
         top: 100%;
         width: 100%;
         left: 0;
-        height: calc(var(--gap) + 1px);
+        height: calc(var(--gap) + var(--border-width));
       }
       .content {
         overflow: hidden;

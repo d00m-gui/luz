@@ -1,6 +1,6 @@
-import { forwardRef } from "react";
+import { forwardRef, useMemo } from "react";
 import { componentCSS } from "../tools/base";
-import { useLuzTokens } from "../react/context";
+import { useTheme } from "../react/context";
 
 type ComponentName = keyof typeof componentCSS;
 
@@ -15,16 +15,21 @@ export function withComponentStyle<P extends object, R = unknown>(
   Component: React.ComponentType<P>,
 ) {
   const Styled = forwardRef<R, P>(function StyledComponent(props, ref) {
-    const tokens = useLuzTokens();
-    const v = {
-      neutral: `${tokens.settings.prefix}${tokens.settings.neutrals}`,
-      primary: `${tokens.settings.prefix}${tokens.settings.name}`,
-    };
+    const { tokens } = useTheme();
+    const { prefix, neutrals, name: primaryName } = tokens.settings;
+    const css = useMemo(
+      () =>
+        componentCSS[name]({
+          neutral: `${prefix}${neutrals}`,
+          primary: `${prefix}${primaryName}`,
+        }),
+      [prefix, neutrals, primaryName],
+    );
 
     return (
       <>
         <style href={name} precedence="luz-component">
-          {componentCSS[name](v)}
+          {css}
         </style>
         <Component {...(props as P)} ref={ref as never} />
       </>

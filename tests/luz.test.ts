@@ -2,10 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { luz } from "../src/luz";
 
 describe("luz()", () => {
-  test("returns tokens, variables, propierties and style", () => {
+  test("returns tokens, variables, properties and style", () => {
     const result = luz({ primary: "#D44541" });
     expect(Object.keys(result).sort()).toEqual([
-      "propierties",
+      "properties",
       "style",
       "tokens",
       "variables",
@@ -101,5 +101,94 @@ describe("luz()", () => {
     const { style } = luz({ primary: "#000", minify: true });
     expect(style).not.toContain("\n");
     expect(style).not.toMatch(/\s{2,}/);
+  });
+
+  describe('mode: "auto"', () => {
+    test("ships a light baseline in :root", () => {
+      const auto = luz({ primary: "#000", mode: "auto" });
+      const light = luz({ primary: "#000", mode: "light" });
+      expect(auto.tokens.colors["primary-50"]).toBe(
+        light.tokens.colors["primary-50"],
+      );
+    });
+
+    test("wraps dark-only overrides in a prefers-color-scheme media query", () => {
+      const { style } = luz({ primary: "#000", mode: "auto" });
+      expect(style).toContain("@media (prefers-color-scheme: dark)");
+    });
+
+    test("dark override block carries the dark shade values", () => {
+      const auto = luz({ primary: "#000", mode: "auto" });
+      const dark = luz({ primary: "#000", mode: "dark" });
+      const match = auto.style.match(
+        /@media \(prefers-color-scheme: dark\) \{[\s\S]*?--primary-50: ([^;]+);/,
+      );
+      expect(match?.[1]).toBe(dark.tokens.colors["primary-50"]);
+    });
+
+    test("mode-independent tokens (sizes, wheel) are not duplicated in the override", () => {
+      const { style } = luz({ primary: "#000", mode: "auto" });
+      const overrideBlock = style.slice(
+        style.indexOf("@media (prefers-color-scheme: dark)"),
+      );
+      expect(overrideBlock).not.toContain("--size-1:");
+      expect(overrideBlock).not.toContain("--red:");
+    });
+
+    test("light and dark modes stay unaffected by the auto branch", () => {
+      const dark = luz({ primary: "#000", mode: "dark" });
+      expect(dark.style).not.toContain("prefers-color-scheme");
+    });
+  });
+
+  describe("configurable color/size steps", () => {
+    test("default output is unaffected", () => {
+      const withDefaults = luz({
+        primary: "#D44541",
+        colorSteps: 11,
+        sizeSteps: 22,
+        sizeDynamicFrom: 13,
+        sizeRelativeToBase: false,
+      });
+      const omitted = luz({ primary: "#D44541" });
+      expect(withDefaults.tokens).toEqual(omitted.tokens);
+    });
+
+    test("colorSteps controls shades per palette", () => {
+      const { tokens } = luz({ primary: "#D44541", colorSteps: 5 });
+      const primaryShades = Object.keys(tokens.colors).filter((k) =>
+        /^primary-\d+$/.test(k),
+      );
+      expect(primaryShades).toHaveLength(5);
+    });
+
+    test("sizeSteps controls the number of size-N tokens", () => {
+      const { tokens } = luz({ primary: "#D44541", sizeSteps: 10 });
+      const numbered = Object.keys(tokens.sizes).filter((k) =>
+        k.startsWith("size-"),
+      );
+      expect(numbered).toHaveLength(10);
+    });
+
+    test("sizeRelativeToBase scales size-1 with base", () => {
+      const { tokens } = luz({
+        primary: "#D44541",
+        base: 32,
+        sizeRelativeToBase: true,
+      });
+      expect(tokens.sizes["size-1"]).toBe("0.2rem");
+    });
+  });
+
+  describe("shade fallback for low colorSteps", () => {
+    test("shade references fall back to the base color", () => {
+      const { style } = luz({ primary: "#D44541", colorSteps: 2 });
+      expect(style).toContain("var(--primary-500, var(--primary))");
+    });
+
+    test("default colorSteps still gets the fallback (harmless even when present)", () => {
+      const { style } = luz({ primary: "#D44541" });
+      expect(style).toContain("var(--primary-900, var(--primary))");
+    });
   });
 });

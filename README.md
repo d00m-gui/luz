@@ -44,10 +44,9 @@ const { tokens, variables, style } = luz({
 | ------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
 | `tokens`      | `object` | Structured source of truth: `{ settings, colors, sizes, typography }`.                                               |
 | `variables`   | `string` | The custom-property declarations (`--primary: …;`), ready for a `:root` block.                                       |
-| `propierties` | `string` | Generated CSS [`@property`](https://developer.mozilla.org/en-US/docs/Web/CSS/@property) rules for animatable tokens. |
+| `properties` | `string` | Generated CSS [`@property`](https://developer.mozilla.org/en-US/docs/Web/CSS/@property) rules for animatable tokens. |
 | `style`       | `string` | Complete stylesheet: reset + element setup + `@property` rules + `:root { … }`.                                      |
 
-> Note: the field is spelled `propierties` — that is the established name, not a typo.
 
 Inject `style` however you like (a `<style>` tag, a `.css` file, your bundler), then reference the tokens in your CSS:
 
@@ -70,7 +69,8 @@ luz({
   primary: "#007dea", // required — base of the whole palette
   secondary: "#94F6D8", // optional — defaults to primary hue + 180°
   neutrals: "neutral", // name used for the neutral ramp
-  mode: "dark", // "light" | "dark" — inverts the shade ramp
+  mode: "dark", // "light" | "dark" | "auto" — "auto" ships both under prefers-color-scheme
+  colorSteps: 11, // shade steps per palette (50–950 by default)
 
   // Typography
   font: "sans-serif",
@@ -83,8 +83,11 @@ luz({
 
   // Sizing
   base: 16, // base font size in px, drives the size scale
-  power: 1.33, // growth ratio for the scale
+  power: 1.33, // growth ratio for the fluid zone
   spacing: "5vw",
+  sizeSteps: 22, // total size-N tokens generated
+  sizeDynamicFrom: 13, // first step that becomes a fluid cqi clamp()
+  sizeRelativeToBase: false, // true: scale the whole ramp by base / 16
 
   // Misc
   prefix: "", // prefix every generated custom-property name
@@ -142,9 +145,9 @@ For Astro projects, `luzAstro` generates a static CSS file at build time and on 
 **1. Define your theme** in `luz.config.ts`:
 
 ```ts
-import type { LuzConfig } from "luz";
+import type { LuzAstroConfig } from "luz/astro";
 
-export const config: LuzConfig = {
+export const config: LuzAstroConfig = {
   primary: "#D44541",
   secondary: "#94F6D8",
   font: '"DM Sans", sans-serif',
@@ -171,7 +174,7 @@ export default defineConfig({
 @import url("./luz.css");
 ```
 
-> `path` is required — the integration logs an error and writes nothing if it is missing. Make sure the target directory (e.g. `./src/styles`) exists. Set `minify: true` in the config to emit minified CSS.
+> `path` is required — the integration throws (after logging) if it is missing, so a broken config fails the build instead of shipping unthemed output. Make sure the target directory (e.g. `./src/styles`) exists. Set `minify: true` in the config to emit minified CSS.
 
 ## Development
 

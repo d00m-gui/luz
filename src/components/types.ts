@@ -124,18 +124,4 @@ export interface SwitchComponentTypes {
 
 export type CardType = typeof Card;
 
-export type Lui = LuiComponents & {
-  avatar: AvatarTypes;
-  button: ButtonType;
-  menu: MenuItemTypes;
-  menubar: MenubarType;
-  tabs: TabsComponentTypes;
-  meter: MeterComponentTypes;
-  form: FormRoot;
-  field: FieldTypes;
-  toggle: ToggleRoot;
-  togglegroup: ToggleGroupRoot;
-  toast: ToastComponentTypes;
-  switch: SwitchComponentTypes;
-  card: CardType;
-};
+export type Lui = LuiComponents;

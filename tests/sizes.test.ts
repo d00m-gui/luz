@@ -18,7 +18,9 @@ describe("luzSizes()", () => {
     const sizes = luzSizes(16);
     const numbered = Object.keys(sizes).filter((k) => k.startsWith("size-"));
     expect(numbered).toHaveLength(22);
-    expect(Object.keys(sizes)).toHaveLength(27);
+    // 22 numbered steps + border-radius/border-width/spacing/element-vertical/
+    // element-horizontal/transform-origin + 6 toast-* tokens = 33.
+    expect(Object.keys(sizes)).toHaveLength(33);
   });
 
   test("derives spacing and radii from the base font size", () => {
@@ -34,5 +36,39 @@ describe("luzSizes()", () => {
     const sizes = luzSizes(32);
     expect(sizes["border-radius"]).toBe("1.0rem"); // 32 / 32
     expect(sizes["element-horizontal"]).toBe("3.2rem"); // 32 / 10
+  });
+
+  describe("steps / dynamicFrom / relativeToBase", () => {
+    test("default call is unaffected by the new params", () => {
+      const withDefaults = luzSizes(16, 1.31, 22, 13, false);
+      const omitted = luzSizes(16);
+      expect(withDefaults).toEqual(omitted);
+    });
+
+    test("custom step count changes the numbered token count", () => {
+      const sizes = luzSizes(16, 1.31, 10);
+      const numbered = Object.keys(sizes).filter((k) => k.startsWith("size-"));
+      expect(numbered).toHaveLength(10);
+      expect(sizes["size-11"]).toBeUndefined();
+    });
+
+    test("dynamicFrom moves the fixed/fluid split point", () => {
+      const sizes = luzSizes(16, 1.31, 22, 5);
+      expect(sizes["size-4"]).toBe("0.4rem");
+      expect(sizes["size-5"]).toContain("clamp(");
+    });
+
+    test("relativeToBase scales the ramp proportionally to base", () => {
+      const base16 = luzSizes(16, 1.31, 22, 13, true);
+      const base32 = luzSizes(32, 1.31, 22, 13, true);
+      expect(base16["size-1"]).toBe("0.1rem");
+      expect(base32["size-1"]).toBe("0.2rem"); // scale = 32/16 = 2
+    });
+
+    test("relativeToBase also scales the fluid zone", () => {
+      const base16 = luzSizes(16, 1.31, 22, 13, true);
+      const base32 = luzSizes(32, 1.31, 22, 13, true);
+      expect(base16["size-13"]).not.toBe(base32["size-13"]);
+    });
   });
 });
