@@ -2,10 +2,10 @@ import { describe, expect, test } from "bun:test";
 import { luz } from "../src/luz";
 
 describe("luz()", () => {
-  test("returns tokens, variables, propierties and style", () => {
+  test("returns tokens, variables, properties and style", () => {
     const result = luz({ primary: "#D44541" });
     expect(Object.keys(result).sort()).toEqual([
-      "propierties",
+      "properties",
       "style",
       "tokens",
       "variables",
@@ -177,6 +177,18 @@ describe("luz()", () => {
         sizeRelativeToBase: true,
       });
       expect(tokens.sizes["size-1"]).toBe("0.2rem");
+    });
+  });
+
+  describe("shade fallback for low colorSteps", () => {
+    test("shade references fall back to the base color", () => {
+      const { style } = luz({ primary: "#D44541", colorSteps: 2 });
+      expect(style).toContain("var(--primary-500, var(--primary))");
+    });
+
+    test("default colorSteps still gets the fallback (harmless even when present)", () => {
+      const { style } = luz({ primary: "#D44541" });
+      expect(style).toContain("var(--primary-900, var(--primary))");
     });
   });
 });

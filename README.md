@@ -44,10 +44,9 @@ const { tokens, variables, style } = luz({
 | ------------- | -------- | -------------------------------------------------------------------------------------------------------------------- |
 | `tokens`      | `object` | Structured source of truth: `{ settings, colors, sizes, typography }`.                                               |
 | `variables`   | `string` | The custom-property declarations (`--primary: …;`), ready for a `:root` block.                                       |
-| `propierties` | `string` | Generated CSS [`@property`](https://developer.mozilla.org/en-US/docs/Web/CSS/@property) rules for animatable tokens. |
+| `properties` | `string` | Generated CSS [`@property`](https://developer.mozilla.org/en-US/docs/Web/CSS/@property) rules for animatable tokens. |
 | `style`       | `string` | Complete stylesheet: reset + element setup + `@property` rules + `:root { … }`.                                      |
 
-> Note: the field is spelled `propierties` — that is the established name, not a typo.
 
 Inject `style` however you like (a `<style>` tag, a `.css` file, your bundler), then reference the tokens in your CSS:
 

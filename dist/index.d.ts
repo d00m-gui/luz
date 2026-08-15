@@ -53,7 +53,7 @@ interface LuzResult {
 	/** CSS custom property declarations as a single string. */
 	variables: string;
 	/** CSS @property generated via tokens */
-	propierties: string;
+	properties: string;
 	/** Complete CSS as a string */
 	style: string;
 }

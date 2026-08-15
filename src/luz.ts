@@ -66,7 +66,7 @@ export interface LuzResult {
   /** CSS custom property declarations as a single string. */
   variables: string;
   /** CSS @property generated via tokens */
-  propierties: string;
+  properties: string;
   /** Complete CSS as a string */
   style: string;
 }
@@ -226,7 +226,7 @@ export function luz(config?: LuzConfig): LuzResult {
     typography: { ...typography } as Partial<LuzConfig>,
   };
 
-  const propierties = luzProperty(tokens);
+  const properties = luzProperty(tokens);
 
   /** Renders a flat `--name: value;` line per entry, skipping nullish values. */
   function toVariableLines(record: Record<string, unknown>): string {
@@ -239,11 +239,27 @@ export function luz(config?: LuzConfig): LuzResult {
     return lines.join("\n");
   }
 
-  const variables = toVariableLines({
-    ...tokens.sizes,
-    ...tokens.colors,
-    ...tokens.typography,
-  });
+  function withShadeFallback(css: string, names: string[]): string {
+    return names.reduce(
+      (acc, name) =>
+        acc.replace(
+          new RegExp(`var\\(--${name}-(\\d{2,3})\\)`, "g"),
+          `var(--${name}-$1, var(--${name}))`,
+        ),
+      css,
+    );
+  }
+
+  const shadedNames = [primaryName, secondaryName, neutralsName];
+
+  const variables = withShadeFallback(
+    toVariableLines({
+      ...tokens.sizes,
+      ...tokens.colors,
+      ...tokens.typography,
+    }),
+    shadedNames,
+  );
 
   // In "auto" mode, only the entries that actually differ from the light
   // baseline need to ship inside the dark media override.
@@ -254,7 +270,10 @@ export function luz(config?: LuzConfig): LuzResult {
     for (const [key, value] of Object.entries(darkColors)) {
       if (colors[key] !== value) changed[key] = value;
     }
-    const darkVariables = toVariableLines(changed);
+    const darkVariables = withShadeFallback(
+      toVariableLines(changed),
+      shadedNames,
+    );
     if (darkVariables) {
       darkOverrideBlock = `
   @media (prefers-color-scheme: dark) {
@@ -267,8 +286,8 @@ export function luz(config?: LuzConfig): LuzResult {
 
   let style = `
   ${reset}
-  ${setup(tokens)}
-  ${propierties}
+  ${withShadeFallback(setup(tokens), shadedNames)}
+  ${properties}
   :root {
     ${variables}
   }
@@ -279,7 +298,7 @@ export function luz(config?: LuzConfig): LuzResult {
     style = minifyCss(style);
   }
 
-  return { tokens, variables, style, propierties };
+  return { tokens, variables, style, properties };
 }
 
 /**
