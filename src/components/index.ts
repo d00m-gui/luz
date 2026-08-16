@@ -19,6 +19,13 @@ import { Toast as ToastCore } from "@base-ui/react/toast";
 import { Card } from "./card";
 import type { LuiComponents } from "./types";
 import { withComponentStyle } from "./with-style";
+import {
+  withSound,
+  withLifecycleSound,
+  withValiditySound,
+  type Soundable,
+} from "./with-sound";
+import type { SoundEvent } from "../tools/sound";
 
 /** Wires a component to its lazy `<style>` injection, preserving its original type. */
 function styled<T extends React.ComponentType<never>>(
@@ -28,19 +35,55 @@ function styled<T extends React.ComponentType<never>>(
   return withComponentStyle(name, Component as never) as unknown as T;
 }
 
+/**
+ * Wires a component's trigger prop to play a luz sound event, preserving
+ * its original type. No-op unless `config.sound.enabled` is `true`.
+ */
+function sounded<T extends React.ComponentType<never>>(
+  event: SoundEvent,
+  Component: T,
+  triggerProp?: string,
+): Soundable<T> {
+  return withSound(
+    event,
+    Component as never,
+    triggerProp,
+  ) as unknown as Soundable<T>;
+}
+
+/** Like `sounded`, but for components shown/hidden imperatively (mount/unmount), not clicked. */
+function lifecycleSounded<T extends React.ComponentType<never>>(
+  openEvent: SoundEvent,
+  closeEvent: SoundEvent,
+  Component: T,
+): Soundable<T> {
+  return withLifecycleSound(
+    openEvent,
+    closeEvent,
+    Component as never,
+  ) as unknown as Soundable<T>;
+}
+
+/** Plays `error`/`success` when a `Field.Root`'s validity flips, driven by its `data-invalid` attribute. */
+function validitySounded<T extends React.ComponentType<never>>(
+  Component: T,
+): T {
+  return withValiditySound(Component as never) as unknown as T;
+}
+
 export const lui: LuiComponents = {
   avatar: {
     root: styled("avatar", Avatar.Root),
     image: Avatar.Image,
     fallback: Avatar.Fallback,
   },
-  button: Button,
+  button: sounded("click", Button),
   menu: {
     root: styled("menu", Menu.Root),
     trigger: Menu.Trigger,
     portal: Menu.Portal,
     arrow: Menu.Arrow,
-    item: Menu.Item,
+    item: sounded("click", Menu.Item),
     link: Menu.LinkItem,
     separator: Menu.Separator,
     popup: Menu.Popup,
@@ -54,7 +97,7 @@ export const lui: LuiComponents = {
   menubar: styled("menubar", Menubar),
   tabs: {
     root: styled("tabs", Tabs.Root),
-    tab: Tabs.Tab,
+    tab: sounded("snap", Tabs.Tab),
     panel: Tabs.Panel,
     list: Tabs.List,
     indicator: Tabs.Indicator,
@@ -66,22 +109,22 @@ export const lui: LuiComponents = {
     track: Meter.Track,
     indicator: Meter.Indicator,
   },
-  form: styled("form", Form),
+  form: sounded("success", styled("form", Form), "onFormSubmit"),
   field: {
-    root: styled("field", Field.Root),
+    root: validitySounded(styled("field", Field.Root)),
     label: Field.Label,
-    control: Field.Control,
+    control: sounded("hover", Field.Control, "onFocus"),
     description: Field.Description,
     error: Field.Error,
   },
-  toggle: Toggle,
+  toggle: sounded("toggle", Toggle),
   togglegroup: styled("togglegroup", ToggleGroup),
   toast: {
     core: ToastCore,
     provider: styled("toast", Toast.Provider),
     portal: Toast.Portal,
     viewport: Toast.Viewport,
-    root: Toast.Root,
+    root: lifecycleSounded("pop", "whoosh", Toast.Root),
     content: Toast.Content,
     title: Toast.Title,
     description: Toast.Description,
@@ -89,13 +132,13 @@ export const lui: LuiComponents = {
     close: Toast.Close,
   },
   switch: {
-    root: Switch.Root,
+    root: sounded("toggle", Switch.Root, "onCheckedChange"),
     thumb: Switch.Thumb,
   },
   card: styled("card", Card),
   dialog: {
     root: styled("dialog", Dialog.Root),
-    trigger: Dialog.Trigger,
+    trigger: sounded("click", Dialog.Trigger),
     portal: Dialog.Portal,
     backdrop: Dialog.Backdrop,
     popup: Dialog.Popup,

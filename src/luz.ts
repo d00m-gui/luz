@@ -6,6 +6,7 @@ import { luzShadesByHue } from "./tools/hue";
 import { luzProperty } from "./tools/props";
 import { reset } from "./tools/reset";
 import { luzSizes } from "./tools/sizes";
+import type { LuzSoundConfig } from "./tools/sound";
 import { luzWheel } from "./tools/wheel";
 import { withShadeFallback } from "./tools/base";
 
@@ -42,6 +43,8 @@ export interface LuzConfig {
   sizeDynamicFrom?: number;
   /** Scale the size ramp by `base / 16` instead of a fixed 16px assumption. Default `false`. */
   sizeRelativeToBase?: boolean;
+  /** Synthesized UI sound effects (Web Audio API, no external files). Opt-in, disabled by default. */
+  sound?: LuzSoundConfig;
 }
 
 /** Settings sub-object within tokens (metadata only). */
@@ -129,6 +132,7 @@ export function luz(config?: LuzConfig): LuzResult {
     sizeSteps,
     sizeDynamicFrom,
     sizeRelativeToBase,
+    sound: _sound,
     ...typography
   } = settings;
 

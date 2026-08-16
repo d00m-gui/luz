@@ -17,6 +17,7 @@ import { GroupSample } from "./samples/groups";
 import { TablesSample } from "./samples/tables";
 import { LoadingSample } from "./samples/loading";
 import { DialogSample } from "./samples/dialog";
+import { SoundSample } from "./samples/sound";
 import { luz } from "../../src/luz";
 import { config } from "./luz.config";
 import { LuzReact } from "../../src/react";
@@ -118,6 +119,7 @@ export function App() {
           <ToastSample />
           <ToggleSample />
           <DialogSample />
+          <SoundSample />
         </div>
       </main>
       <style precedence="high">{ColorsSampleStyle}</style>
