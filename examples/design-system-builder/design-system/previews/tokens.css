@@ -1,0 +1,1383 @@
+
+  
+html,
+body {
+  font-size: 62.5%;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+blockquote,
+pre,
+a,
+abbr,
+address,
+cite,
+code,
+del,
+dfn,
+em,
+img,
+q,
+s,
+samp,
+small,
+strike,
+strong,
+sub,
+sup,
+tt,
+var,
+dd,
+dl,
+dt,
+li,
+ol,
+ul,
+fieldset,
+form,
+label,
+legend,
+button,
+table,
+caption,
+tbody,
+tfoot,
+thead,
+tr,
+th,
+td,
+figure,
+span {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  font-family: inherit;
+  font-style: normal;
+  font-weight: 400;
+  line-height: var(--line-height);
+  font-size: var(--size-16);
+  font-size-adjust: 0.482;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+ol,
+ul {
+  list-style: none;
+}
+q:before,
+q:after,
+blockquote:before,
+blockquote:after {
+  content: "";
+}
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+nav,
+section,
+summary {
+  display: block;
+}
+audio,
+canvas,
+video {
+  display: inline-block;
+}
+audio:not([controls]) {
+  height: 0;
+  display: none;
+}
+[hidden],
+.hidden {
+  display: none;
+}
+*,
+:before,
+:after {
+  box-sizing: inherit;
+}
+img,
+picture,
+video,
+canvas,
+svg {
+  max-width: 100%;
+  display: block;
+}
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+#root,
+#__next {
+  isolation: isolate;
+}
+html,
+body {
+  interpolate-size: allow-keywords;
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font);
+  font-weight: 400;
+  font-size: var(--size-16);
+}
+a {
+  text-transform: none;
+  font-weight: inherit;
+  border: none;
+  outline: none;
+  text-decoration: underline;
+  & img {
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+  &:active,
+  &:hover,
+  &:visited {
+    cursor: pointer;
+    outline: none;
+  }
+  &:hover {
+    filter: brightness(1.1);
+    transition: var(--transition);
+  }
+}
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  overflow-wrap: break-word;
+  text-box: trim-both cap text;
+  text-wrap: pretty;
+  line-height: var(--line-height);
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-headings);
+  line-height: calc(var(--line-height) - 30%);
+  font-weight: var(--font-bold-weight);
+}
+h1 {
+  font-size: var(--size-22);
+}
+h2 {
+  font-size: var(--size-21);
+}
+h3 {
+  font-size: var(--size-20);
+}
+h4 {
+  font-size: var(--size-19);
+}
+h5 {
+  font-size: var(--size-18);
+}
+h6 {
+  font-size: var(--size-17);
+}
+address,
+blockquote,
+dl,
+ol,
+p,
+pre,
+table,
+ul {
+  color: currentColor;
+  font-weight: var(--font-weight);
+}
+ul li {
+  margin-left: var(--element-vertical);
+  list-style: inside square;
+}
+hr {
+  clear: both;
+  float: none;
+  height: 0;
+  margin: var(--size-16) 0;
+  border: none;
+  width: 100%;
+  height: 0.1rem;
+}
+br {
+  float: none;
+  clear: both;
+  width: 100%;
+  height: 0;
+  margin: 0.5rem 0;
+  display: block;
+  overflow: hidden;
+}
+small {
+  font-size: var(--size-13);
+}
+abbr {
+  border-bottom: var(--border-width) dotted var(--foreground);
+}
+kbd {
+  font-size: var(--size-12);
+  padding: var(--size-6) var(--size-8);
+  padding-bottom: var(--size-12);
+  border-radius: var(--border-radius);
+  font-weight: var(--font-bold-weight);
+}
+strong,
+b {
+  font-weight: var(--font-bold-weight, 700);
+}
+em {
+  font-family: var(--font-emphasis);
+}
+figure {
+  & img {
+    width: 100%;
+  }
+}
+table {
+  padding: var(--size-8);
+  margin: var(--size-8) 0;
+  & th {
+    color: var(--foreground);
+    padding: var(--size-8);
+    text-align: left;
+    font-weight: 600;
+  }
+  & td {
+    border-bottom-color: var(--background);
+    padding: var(--size-8);
+  }
+}
+code,
+pre,
+samp {
+  font-family: var(--font-monospace);
+  overflow-x: auto;
+  & > code {
+    padding: var(--size-16);
+  }
+}
+form {
+  flex-direction: column;
+  display: flex;
+  &[role="row"] {
+    flex-direction: row;
+  }
+}
+fieldset {
+  gap: calc(var(--size-16) / 2);
+  padding: var(--element-vertical) 0;
+  flex-direction: column;
+  display: flex;
+}
+label {
+  gap: calc(var(--size-16) / 2);
+  width: fit-content;
+  margin-bottom: calc(var(--size-16) / 2);
+  flex-direction: column;
+  align-items: flex-start;
+  font-weight: 700;
+  display: flex;
+  &[row-] {
+    gap: var(--size-16);
+    flex-flow: wrap;
+    align-items: center;
+    line-height: 90%;
+  }
+}
+input,
+select,
+textarea {
+  will-change: auto;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  color: var(--element-color);
+  font-weight: var(--font-weight);
+  transition: var(--transition);
+  outline: 0;
+}
+input,
+optgroup,
+select,
+textarea {
+  line-height: var(--line-height);
+  letter-spacing: inherit;
+  font-family: inherit;
+  font-size: var(--size-16);
+  overflow: visible;
+}
+input,
+optgroup,
+select,
+textarea,
+label,
+.disabled {
+  &[disabled],
+  &[disabled-],
+  &.disabled {
+    user-select: none;
+    pointer-events: none;
+    cursor: not-allowed;
+    opacity: 0.4;
+  }
+}
+input:not(
+  [type="color"],
+  [type="checkbox"],
+  [type="radio"],
+  [type="range"]
+),
+select,
+textarea {
+  padding: var(--element-vertical) var(--element-horizontal);
+}
+input[type="search"] {
+  border-radius: var(--size-20);
+}
+select {
+  padding-right: var(--size-20);
+  position: relative;
+}
+label[for="file"],
+&[role="file"],
+&[file-] {
+  & input[type="file"] {
+    padding: var(--size-16);
+    padding-bottom: calc(var(--size-16) * 3);
+    text-align: center;
+    border-style: dashed;
+    font-weight: 700;
+    display: block;
+    position: relative;
+    &::file-selector-button {
+      font-size: var(--size-16);
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      text-align: center;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translate(-50%);
+    }
+  }
+}
+input[type="range"] {
+  width: 100%;
+  height: var(--size-10);
+  transition: var(--transition);
+  border: none;
+  &:focus {
+    transition: var(--transition);
+    outline: none;
+    &::-webkit-slider-thumb,
+    &::-moz-range-thumb {
+      transition: var(--transition);
+    }
+  }
+  &:active {
+    transition: var(--transition);
+    &::-webkit-slider-thumb,
+    &::-moz-range-thumb {
+      transform: scale(calc(var(--size-10) / 10));
+    }
+  }
+  &::-webkit-slider-thumb,
+  &::-moz-range-thumb {
+    box-shadow: inset 0 0 0 var(--border-width)
+      var(--element-active-border-color);
+    height: var(--size-15);
+    width: var(--size-15);
+    background: var(--element-active-border-color);
+    cursor: pointer;
+    border-radius: var(--size-10);
+    transition: var(--transition);
+    border: none;
+  }
+  &[display-vertical] {
+    height: auto;
+    width: var(--size-10);
+    writing-mode: sideways-lr;
+  }
+}
+input:where(select, textarea):not([readonly]):is(:active, :focus),
+input:not(
+    [type="submit"],
+    [type="button"],
+    [type="reset"],
+    [role="switch"],
+    [readonly]
+  ):is(:active, :focus) {
+  border-color: var(--element-active-border-color);
+  filter: brightness(1.05);
+}
+input::-webkit-input-placeholder,
+input::placeholder,
+select:invalid,
+textarea::-webkit-input-placeholder,
+textarea::placeholder {
+  color: var(--element-placeholder-color);
+  opacity: 1;
+}
+[type="checkbox"],
+[type="radio"] {
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  width: var(--size-16);
+  height: var(--size-16);
+  padding: var(--size-10);
+  flex: none;
+  margin: 0;
+  transition: all 0.12s ease-in-out;
+  display: inline-block;
+  position: relative;
+  &:checked {
+    margin: 0;
+    transition: all 0.12s ease-in-out;
+  }
+  &:before {
+    content: "";
+    transform-origin: 50%;
+    border-bottom: 0.2rem solid var(--element-active-color);
+    border-right: 0.2rem solid var(--element-active-color);
+    width: 0.7rem;
+    height: 1.2rem;
+    transition: all 0.12s ease-in-out;
+    display: block;
+    position: absolute;
+    top: 45%;
+    left: calc(50% - 0.5rem);
+    transform: rotate(0) translate(-50%) translateY(-50%) scale(0);
+  }
+  &:checked:before {
+    transition: all 0.12s ease-in-out;
+    transform: rotate(45deg) translate(-50%) translateY(-50%) scale(1);
+  }
+}
+[type="checkbox"][role="switch"] {
+  width: calc(var(--size-16) * 3);
+  height: calc(var(--size-16) * 1.5);
+  border-radius: var(--size-16);
+  position: relative;
+  &:before {
+    content: "";
+    width: var(--size-16);
+    height: var(--size-16);
+    transition: var(--transition);
+    will-change: auto;
+    border: none;
+    border-radius: 100%;
+    display: block;
+    position: absolute;
+    top: 50%;
+    left: 5%;
+    transform: translateY(-50%);
+  }
+  &:checked {
+    filter: brightness(1.1);
+    &:before {
+      background-color: var(--background);
+      filter: brightness(1.1);
+      left: calc(96% - var(--size-16));
+    }
+  }
+}
+[type="radio"] {
+  width: var(--size-16);
+  height: var(--size-16);
+  border-radius: 100%;
+  &:before {
+    transform-origin: 50%;
+    width: var(--size-6);
+    height: var(--size-6);
+    border: none;
+    border-radius: 100%;
+    top: 50%;
+    left: 50%;
+    transform: rotate(0) translate(-50%) translateY(-50%) scale(0);
+  }
+  &:checked {
+    &:before {
+      background-color: var(--element-active-color);
+      transform: rotate(0) translate(-50%) translateY(-50%) scale(1);
+    }
+  }
+}
+blockquote {
+  padding: var(--size-16);
+  border-right: none;
+  border-inline-end: none;
+  display: block;
+  & > * {
+    font-weight: 300;
+    margin-bottom: var(--size-16);
+  }
+  & footer {
+    margin-top: calc(var(--element-vertical) * 0.5);
+  }
+}
+button[type="submit"],
+[role="button"],
+[type="button"],
+[type="file"]::file-selector-button,
+[type="reset"],
+[type="submit"],
+button {
+  padding: var(--element-vertical) var(--element-horizontal);
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  font-weight: var(--font-weight);
+  font-size: var(--size-16);
+  line-height: var(--line-height);
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  transition: var(--transition);
+  will-change: transform;
+  outline: 0;
+  text-decoration: none;
+  &:hover,
+  &:active {
+    transition: var(--transition);
+  }
+}
+nav {
+  justify-content: space-between;
+  display: flex;
+  overflow: visible;
+  & ul,
+  & ol {
+    align-items: center;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    &:first-of-type {
+      margin-left: calc(var(--element-horizontal) * -1);
+    }
+    & li {
+      padding: var(--element-vertical) var(--element-horizontal);
+      margin: 0;
+      display: inline-block;
+    }
+  }
+}
+section {
+  padding: var(--spacing);
+}
+[data-tooltip] {
+  will-change: auto;
+  transition: var(--transition);
+  position: relative;
+  &:not(a, button, input) {
+    cursor: help;
+    text-decoration: none;
+  }
+  &[data-placement="top"]:before,
+  &:before {
+    z-index: 99;
+    padding: 0 var(--size-10);
+    border-radius: var(--size-5);
+    content: attr(data-tooltip);
+    border: var(--border-width) solid var(--foreground);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    font-size: var(--size-13);
+    text-decoration: none;
+    display: block;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    overflow: hidden;
+    transform: translate(-50%, -0.5rem);
+  }
+  &[data-placement="bottom"]:before {
+    top: 100%;
+    bottom: auto;
+    transform: translate(-50%, 0.25rem);
+  }
+  &[data-placement="left"]:before {
+    inset: 50% 100% auto auto;
+    transform: translate(-0.25rem, -50%);
+  }
+  &[data-placement="right"]:before {
+    inset: 50% auto auto 100%;
+    transform: translate(0.25rem, -50%);
+  }
+  &:focus:before,
+  &:hover:before {
+    opacity: 1;
+  }
+}
+.loading::before,
+[aria-busy="true"]:not(input, select, textarea, html, form)::before {
+  content: "⠙";
+  display: inline-block;
+  font-family: var(--font-monospace);
+  font-weight: bold;
+  text-align: center;
+  padding: 0;
+  flex: 1 1 auto;
+  color: currentColor;
+  margin: 0 var(--size-5);
+  cursor: wait;
+  animation: loading 1s steps(1, end) infinite;
+}
+
+body.root.luz-loaded {
+  opacity: 0;
+  animation: suspense 500ms 200ms cubic-bezier(0.45, 0.05, 0.55, 0.95)
+    forwards;
+}
+@keyframes suspense {
+  0% {
+    opacity: 0;
+    visibility: hidden;
+    background-color: #333;
+  }
+  100% {
+    opacity: 1;
+    visibility: visible;
+    background-color: var(--background);
+  }
+}
+
+@keyframes loading {
+  0% {
+    content: "⠋";
+  }
+  10% {
+    content: "⠙";
+  }
+  20% {
+    content: "⠹";
+  }
+  30% {
+    content: "⠸";
+  }
+  40% {
+    content: "⠼";
+  }
+  50% {
+    content: "⠴";
+  }
+  60% {
+    content: "⠦";
+  }
+  70% {
+    content: "⠧";
+  }
+  80% {
+    content: "⠇";
+  }
+  90% {
+    content: "⠏";
+  }
+  100% {
+    content: "⠋";
+  }
+}
+
+  
+a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-500, var(--secondary)); } &.contrast { --anchor: var(--neutral-500, var(--neutral)); } &.danger { --anchor: var(--red); } &.success { --anchor: var(--emerald); } &.warning { --anchor: var(--yellow); } } hr { background: var(--primary); color: var(--primary); } kbd { border: var(--border-width) solid var(--primary-900, var(--primary)); background-color: var(--primary-500, var(--primary)); color: var(--on-primary); box-shadow: inset 0 0 var(--size-3) var(--size-3) var(--primary-300, var(--primary)), inset 0 -1rem var(--size-5) var(--size-2) var(--primary-600, var(--primary)), 0 0 0 var(--size-1) var(--primary-600, var(--primary)); } table { tr:hover { background-color: var(--primary-800, var(--primary)); color: var(--primary-300, var(--primary)); } th { background-color: var(--element-background); } } mark, ::selection, ::-moz-selection { background-color: var(--primary-500, var(--primary)); color: var(--on-primary); outline: 3px solid var(--primary-500, var(--primary)); } label[for="file"], [role="file"], [file-] { input[type="file"] { &::file-selector-button { border-top: var(--border-width) solid var(--primary-200, var(--primary)); } } } input[type="range"] { background-color: var(--neutral-900, var(--neutral)); box-shadow: inset 0 0 0 var(--border-width) var(--neutral-600, var(--neutral)); &:active { &::-webkit-slider-thumb, &::-moz-range-thumb { background: var(--primary-500, var(--primary)); } } } [type="checkbox"], [type="radio"], [type="range"], progress { accent-color: var(--primary-500, var(--primary)); } progress { background-color: var(--background); border: none; box-shadow: 0 0 var(--size-1) var(--primary-500, var(--primary)) inset; border-radius: var(--border-radius); height: var(--size-12); } [type="checkbox"], [type="radio"] { color: var(--primary-100, var(--primary)); &:checked { background-color: var(--primary-500, var(--primary)); border-color: var(--primary-200, var(--primary)); } } [type="checkbox"][role="switch"] { &::before { background-color: var(--primary-500, var(--primary)); } &:checked { background-color: var(--primary-500, var(--primary)); } } [type="radio"] { &::before { background-color: var(---secondary-500); } &:checked { background-color: var(--primary-500, var(--primary)); border-color: var(--primary-500, var(--primary)); } } blockquote { border-left: 0.25rem solid var(--primary-200, var(--primary)); border-inline-start: 0.25rem solid var(--primary-200, var(--primary)); footer { color: var(--primary-500, var(--primary)); } } [type="file"]::file-selector-button { background-color: var(--primary-500, var(--primary)); color: var(--on-primary); text-shadow: 0 0 0.2ch var(--primary-700, var(--primary)); } .btn, .button, button[type="submit"], [role="button"], [type="button"], [type="reset"], [type="submit"], button { background-color: var(--primary-500, var(--primary)); color: var(--on-primary); text-shadow: 0 0 0.2ch var(--primary-700, var(--primary)); &[role="secondary"], &[role="alternative"] { background-color: var(--secondary-500, var(--secondary)); color: var(--on-secondary); } &[type="reset"], &[role="cancel"], &.cancel, &.reset { background-color: var(--neutral-500, var(--neutral)); } &[role="apply"], &.apply, &.success { background-color: var(--green); } &[role="contrast"], &.contrast { background-color: var(--foreground); color: var(--background); } &.danger { background-color: var(--red); } &.warning { background-color: var(--yellow); } &.ghost { background-color: transparent; color: var(--primary-400, var(--primary)); } &:hover, &.over { filter: brightness(1.1); } &:active, &.pressed { filter: brightness(1.3); transform: scale(0.98); } } input[aria-invalid="false"] { border-color: var(--green); color: var(--green); &::placeholder { color: var(--green); } } input[aria-invalid="true"] { border-color: var(--red); color: var(--red); &::placeholder { color: var(--red); } } [data-tooltip] { &[data-placement="top"]::before, &::before { background: var(--primary-900, var(--primary)); color: var(--primary-100, var(--primary)); border-color: transparent; } }
+  
+  @property --size-1 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.1rem;
+  }
+
+@property --size-2 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.2rem;
+  }
+
+@property --size-3 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.3rem;
+  }
+
+@property --size-4 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.4rem;
+  }
+
+@property --size-5 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.5rem;
+  }
+
+@property --size-6 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.6rem;
+  }
+
+@property --size-7 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.7rem;
+  }
+
+@property --size-8 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.8rem;
+  }
+
+@property --size-9 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.9rem;
+  }
+
+@property --size-10 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 1rem;
+  }
+
+@property --size-11 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 1.1rem;
+  }
+
+@property --size-12 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 1.2rem;
+  }
+
+@property --size-13 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(1.30rem, 1.15rem + 0.75cqi, 1.73rem);
+  }
+
+@property --size-14 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(1.40rem, 1.24rem + 0.80cqi, 1.86rem);
+  }
+
+@property --size-15 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(1.50rem, 1.33rem + 0.86cqi, 2.00rem);
+  }
+
+@property --size-16 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(1.60rem, 1.42rem + 0.92cqi, 2.13rem);
+  }
+
+@property --size-17 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(1.70rem, 1.50rem + 0.98cqi, 2.26rem);
+  }
+
+@property --size-18 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(1.80rem, 1.59rem + 1.03cqi, 2.39rem);
+  }
+
+@property --size-19 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(1.90rem, 1.68rem + 1.09cqi, 2.53rem);
+  }
+
+@property --size-20 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(2.00rem, 1.77rem + 1.15cqi, 2.66rem);
+  }
+
+@property --size-21 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(2.10rem, 1.86rem + 1.21cqi, 2.79rem);
+  }
+
+@property --size-22 {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: clamp(2.20rem, 1.95rem + 1.26cqi, 2.93rem);
+  }
+
+@property --border-radius {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.5rem;
+  }
+
+@property --border-width {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.1rem;
+  }
+
+@property --spacing {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 5vw;
+  }
+
+@property --element-vertical {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 0.8rem;
+  }
+
+@property --element-horizontal {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 1.6rem;
+  }
+
+@property --toast-index {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+@property --toast-offset-y {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+@property --toast-swipe-movement-y {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+@property --toast-swipe-movement-x {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+  }
+
+@property --toast-height {
+    syntax: "<length>";
+    inherits: true;
+    initial-value: 15.5rem;
+  }
+
+@property --primary {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #D44541;
+  }
+
+@property --primary-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --primary-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --secondary {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #94F6D8;
+  }
+
+@property --neutral {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --neutral-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --background {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --foreground {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --on-secondary {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --on-primary {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --red {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --copper {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --orange {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --yellow {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --green {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --emerald {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --teal {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --cyan {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --blue {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --sky {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --element-background {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --element-border-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --border-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --element-active-border-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --element-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --element-active-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --element-placeholder-color {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: #000000;
+  }
+
+@property --line-height {
+    syntax: "<percentage>";
+    inherits: true;
+    initial-value: 130%;
+  }
+
+@property --font-bold-weight {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 800;
+  }
+
+@property --font-weight {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 400;
+  }
+
+@property --font-emphasis {
+    syntax: "<custom-ident>";
+    inherits: true;
+    initial-value: serif;
+  }
+
+@property --box-shadow {
+    syntax: "<custom-ident>";
+    inherits: true;
+    initial-value: none;
+  }
+  :root {
+    --size-1: 0.1rem;
+--size-2: 0.2rem;
+--size-3: 0.3rem;
+--size-4: 0.4rem;
+--size-5: 0.5rem;
+--size-6: 0.6rem;
+--size-7: 0.7rem;
+--size-8: 0.8rem;
+--size-9: 0.9rem;
+--size-10: 1rem;
+--size-11: 1.1rem;
+--size-12: 1.2rem;
+--size-13: clamp(1.30rem, 1.15rem + 0.75cqi, 1.73rem);
+--size-14: clamp(1.40rem, 1.24rem + 0.80cqi, 1.86rem);
+--size-15: clamp(1.50rem, 1.33rem + 0.86cqi, 2.00rem);
+--size-16: clamp(1.60rem, 1.42rem + 0.92cqi, 2.13rem);
+--size-17: clamp(1.70rem, 1.50rem + 0.98cqi, 2.26rem);
+--size-18: clamp(1.80rem, 1.59rem + 1.03cqi, 2.39rem);
+--size-19: clamp(1.90rem, 1.68rem + 1.09cqi, 2.53rem);
+--size-20: clamp(2.00rem, 1.77rem + 1.15cqi, 2.66rem);
+--size-21: clamp(2.10rem, 1.86rem + 1.21cqi, 2.79rem);
+--size-22: clamp(2.20rem, 1.95rem + 1.26cqi, 2.93rem);
+--border-radius: 0.5rem;
+--border-width: 0.1rem;
+--spacing: 5vw;
+--element-vertical: 0.8rem;
+--element-horizontal: 1.6rem;
+--transform-origin: 50% 50%;
+--toast-index: 0;
+--toast-offset-y: 0;
+--toast-swipe-movement-y: 0;
+--toast-swipe-movement-x: 0;
+--toast-height: 15.5rem;
+--primary: #D44541;
+--primary-950: oklch(from var(--primary) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--primary-900: oklch(from var(--primary) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--primary-800: oklch(from var(--primary) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--primary-700: oklch(from var(--primary) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--primary-600: oklch(from var(--primary) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--primary-500: oklch(from var(--primary) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--primary-400: oklch(from var(--primary) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--primary-300: oklch(from var(--primary) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--primary-200: oklch(from var(--primary) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--primary-100: oklch(from var(--primary) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--primary-50: oklch(from var(--primary) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--secondary-950: oklch(from var(--secondary) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--secondary-900: oklch(from var(--secondary) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--secondary-800: oklch(from var(--secondary) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--secondary-700: oklch(from var(--secondary) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--secondary-600: oklch(from var(--secondary) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--secondary-500: oklch(from var(--secondary) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--secondary-400: oklch(from var(--secondary) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--secondary-300: oklch(from var(--secondary) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--secondary-200: oklch(from var(--secondary) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--secondary-100: oklch(from var(--secondary) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--secondary-50: oklch(from var(--secondary) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--secondary: #94F6D8;
+--neutral: oklch(from var(--primary) l 0 h);
+--neutral-950: oklch(from var(--neutral) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--neutral-900: oklch(from var(--neutral) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--neutral-800: oklch(from var(--neutral) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--neutral-700: oklch(from var(--neutral) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--neutral-600: oklch(from var(--neutral) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--neutral-500: oklch(from var(--neutral) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--neutral-400: oklch(from var(--neutral) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--neutral-300: oklch(from var(--neutral) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--neutral-200: oklch(from var(--neutral) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--neutral-100: oklch(from var(--neutral) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--neutral-50: oklch(from var(--neutral) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--background: var(--neutral-900, var(--neutral));
+--foreground: var(--neutral-100, var(--neutral));
+--on-secondary: var(--secondary-100, var(--secondary));
+--on-primary: oklch(from var(--primary) 88% 0 h);
+--red: oklch(from var(--primary) l c 0);
+--copper: oklch(from var(--primary) l c 30);
+--orange: oklch(from var(--primary) l c 60);
+--yellow: oklch(from var(--primary) l c 90);
+--green: oklch(from var(--primary) l c 120);
+--emerald: oklch(from var(--primary) l c 150);
+--teal: oklch(from var(--primary) l c 180);
+--cyan: oklch(from var(--primary) l c 210);
+--blue: oklch(from var(--primary) l c 240);
+--sky: oklch(from var(--primary) l c 270);
+--border: var(--border-width) solid var(--element-border-color);
+--element-background: var(--neutral-950, var(--neutral));
+--element-border-color: oklch(from var(--neutral-600, var(--neutral)) l c h / 50%);
+--border-color: oklch(from var(--neutral-600, var(--neutral)) l c h / 50%);
+--element-active-border-color: oklch(from var(--primary-200, var(--primary)) l c h / 50%);
+--element-color: var(--primary-100, var(--primary));
+--element-active-color: var(--primary-900, var(--primary));
+--element-placeholder-color: oklch(from var(--foreground) l c h / 50%);
+--font: "DM Sans", sans-serif;
+--line-height: 130%;
+--font-bold-weight: 800;
+--font-weight: 400;
+--font-monospace: "Datatype", monospace;
+--font-headings: "DM Serif Display", serif;
+--font-emphasis: serif;
+--transition: all ease 200ms;
+--box-shadow: none;
+  }
+  
+  

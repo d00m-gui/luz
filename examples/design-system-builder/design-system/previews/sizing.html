@@ -1,0 +1,23 @@
+<!-- @dsCard group="Sizing" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="./tokens.css" />
+<style>
+  body { padding: 2rem; background: var(--background); color: var(--foreground); display: grid; gap: 0.6rem; }
+  .row { display: flex; align-items: center; gap: 1rem; font-family: var(--font-monospace); font-size: 1.2rem; }
+  .bar { background: var(--primary-500); height: 1rem; }
+</style>
+</head>
+<body>
+  <div class="row"><span style="width:8rem">--size-1</span><div class="bar" style="width:var(--size-1)"></div></div>
+  <div class="row"><span style="width:8rem">--size-4</span><div class="bar" style="width:var(--size-4)"></div></div>
+  <div class="row"><span style="width:8rem">--size-8</span><div class="bar" style="width:var(--size-8)"></div></div>
+  <div class="row"><span style="width:8rem">--size-12</span><div class="bar" style="width:var(--size-12)"></div></div>
+  <div class="row"><span style="width:8rem">--size-16</span><div class="bar" style="width:var(--size-16)"></div></div>
+  <div class="row"><span style="width:8rem">--size-22</span><div class="bar" style="width:var(--size-22)"></div></div>
+  <div class="row"><span style="width:8rem">--spacing</span><div class="bar" style="width:var(--spacing)"></div></div>
+  <div class="row"><span style="width:8rem">--border-radius</span><div class="bar" style="width:var(--border-radius);border-radius:var(--border-radius);background:var(--secondary-500)"></div></div>
+</body>
+</html>

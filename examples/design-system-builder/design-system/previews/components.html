@@ -1,0 +1,31 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="./tokens.css" />
+<style>
+  body { padding: 2rem; background: var(--background); color: var(--foreground); display: grid; gap: 1.6rem; }
+  [role="group"] { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div role="group">
+    <button type="button">Default</button>
+    <button type="button" class="success">Success</button>
+    <button type="button" class="danger">Danger</button>
+    <button type="button" class="warning">Warning</button>
+    <button type="button" class="ghost">Ghost</button>
+    <button type="button" class="contrast">Contrast</button>
+    <button type="button" class="reset">Reset</button>
+  </div>
+  <form>
+    <label>Text field<input type="text" placeholder="Placeholder" /></label>
+    <label row->Switch<input type="checkbox" role="switch" /></label>
+  </form>
+  <table>
+    <thead><tr><th>Token</th><th>Value</th></tr></thead>
+    <tbody><tr><td>--primary</td><td>#D44541</td></tr></tbody>
+  </table>
+</body>
+</html>

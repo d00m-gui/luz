@@ -1,0 +1,30 @@
+{
+  "projectId": "11e3012c-1f6c-49a0-ba81-8f6fa6871a45",
+  "pkg": "@d00m-gui/luz",
+  "globalName": "Luz",
+  "shape": "package",
+  "buildCmd": "bun run bunup && bun .design-sync/generate-css.ts",
+  "tsconfig": "tsconfig.json",
+  "cssEntry": ".ds-sync/generated/luz.css",
+  "readmeHeader": ".design-sync/conventions.md",
+  "provider": {
+    "component": "LuzReact",
+    "props": { "config": {} }
+  },
+  "componentSrcMap": {
+    "Button": "src/components/index.ts",
+    "Card": "src/components/card.tsx",
+    "Toggle": "src/components/index.ts",
+    "Avatar": "src/components/index.ts",
+    "Menu": "src/components/index.ts",
+    "Menubar": "src/components/index.ts",
+    "Tabs": "src/components/index.ts",
+    "Meter": "src/components/index.ts",
+    "Form": "src/components/index.ts",
+    "Field": "src/components/index.ts",
+    "ToggleGroup": "src/components/index.ts",
+    "Toast": "src/components/index.ts",
+    "Switch": "src/components/index.ts",
+    "Dialog": "src/components/index.ts"
+  }
+}

@@ -55,7 +55,13 @@ export function luzShadesByHue({
 
   let shades = {};
   for (let step = 0; step < weights.length; step++) {
-    const perIndex = isDefaultSteps ? (step + 1) / 10 : (step + 1) / steps;
+    // 0 at the first weight, 1 at the last — symmetric, so both palette
+    // extremes land at sin(0)=0 (minimal chroma) and the true midpoint
+    // weight hits sin(π/2)=1 (peak chroma). `(step + 1) / steps` (the old
+    // formula) was shifted by one step: it skipped perIndex=0 entirely and
+    // ran past 1 at the last step, giving a *negative* chroma multiplier
+    // there while the lightest shade got nonzero tint instead of none.
+    const perIndex = weights.length === 1 ? 0.5 : step / (weights.length - 1);
     const sin = `clamp(0, calc(${base} + (sin(${perIndex} * pi) * c)), 0.4)`;
     const percent = percents[step];
     const key = `${name}-${weights[step]}`;

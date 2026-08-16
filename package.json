@@ -65,6 +65,7 @@
     "bunup": "NODE_ENV=production bunup",
     "dev:watch": "bunup --watch",
     "dev": "bun run --cwd examples/ui dev",
+    "design:dev": "bun run --cwd examples/design-system-builder dev",
     "astro:dev": "bun run --cwd examples/nimda dev --host",
     "format": "oxfmt",
     "lint": "oxlint --ignore-pattern \"dist/**\" .",
