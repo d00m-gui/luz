@@ -23,33 +23,6 @@
   -webkit-mask-size: contain;
 }
 
-/* ---------- masthead ---------- */
-
-.masthead {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  gap: var(--size-16);
-  padding: var(--size-10) clamp(2rem, 6vw, 7rem);
-  border-bottom: var(--border);
-  background: oklch(from var(--neutral-950) l c h / 85%);
-  backdrop-filter: blur(12px);
-
-  .brand-mark {
-    display: flex;
-    align-items: center;
-    gap: var(--size-8);
-    font-family: var(--font-monospace);
-    font-size: var(--size-12);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    opacity: 0.7;
-    flex: 0 0 auto;
-  }
-}
-
 .field label,
 .field > label {
   display: block;
@@ -79,13 +52,10 @@
   font-size: var(--size-13);
 }
 
-.preset-strip {
-  flex: 1 1 auto;
-  min-width: 0;
+.preset-grid {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--size-8);
-  overflow-x: auto;
-  scrollbar-width: thin;
 }
 
 button.preset {
@@ -141,18 +111,28 @@ button.mode-pill {
 /* ---------- floating settings panel ---------- */
 
 button.floating-panel-toggle {
-  flex: 0 0 auto;
+  position: fixed;
+  top: clamp(1rem, 3vw, 2rem);
+  right: clamp(1rem, 3vw, 2rem);
+  z-index: 21;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: var(--size-20);
   height: var(--size-20);
   border-radius: 50%;
-  font-size: var(--size-15);
-  line-height: 1;
   padding: 0;
+  box-shadow: 0 0.4rem 1.2rem oklch(0 0 0 / 40%);
+  .logo-mark {
+    width: 55%;
+    height: 55%;
+    background-color: var(--on-primary);
+  }
 }
 
 .floating-panel {
   position: fixed;
-  top: 5.5rem;
+  top: clamp(4.5rem, 3vw + 3.5rem, 5.5rem);
   right: clamp(1rem, 3vw, 3rem);
   z-index: 20;
   width: min(34rem, calc(100vw - 2rem));
@@ -236,9 +216,10 @@ button.floating-panel-toggle {
 
 /* ---------- color / font pickers ---------- */
 
-.color-picker-trigger,
-.font-picker-trigger {
-  display: contents;
+/* a real box (not `display:contents`, which reports a zero-size rect and
+   throws off the popover's anchor point), sized to its content only */
+.picker-trigger {
+  display: inline-block;
   cursor: pointer;
 }
 
@@ -247,12 +228,30 @@ button.floating-panel-toggle {
   cursor: pointer;
 }
 
+/* small, uppercase micro-label — not the library's default h2 sizing */
+.picker-title {
+  margin: 0;
+  padding-bottom: var(--size-5);
+  border-bottom: var(--border);
+  font-size: var(--size-11);
+  font-family: inherit;
+  font-weight: var(--font-bold-weight);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.6;
+  cursor: grab;
+  user-select: none;
+  &:active {
+    cursor: grabbing;
+  }
+}
+
 .color-picker-popup {
   display: flex;
   flex-direction: column;
-  gap: var(--size-8);
-  width: 18rem;
-  padding: var(--size-14);
+  gap: var(--size-6);
+  width: 14rem;
+  padding: var(--size-10);
   border-radius: var(--border-radius);
   border: var(--border);
   background: var(--neutral-950);
@@ -260,29 +259,30 @@ button.floating-panel-toggle {
   label {
     display: flex;
     flex-direction: column;
-    gap: var(--size-3);
-    font-size: var(--size-11);
+    gap: 2px;
+    font-size: var(--size-10);
     opacity: 0.7;
   }
 }
 
 .color-picker-preview {
-  height: var(--size-16);
+  height: var(--size-14);
   border-radius: var(--border-radius);
   border: var(--border);
 }
 
 .color-picker-hex {
   font-family: var(--font-monospace);
+  font-size: var(--size-11);
   text-align: center;
 }
 
 .font-picker-popup {
   display: flex;
   flex-direction: column;
-  gap: var(--size-8);
-  width: 22rem;
-  padding: var(--size-14);
+  gap: var(--size-6);
+  width: 17rem;
+  padding: var(--size-10);
   border-radius: var(--border-radius);
   border: var(--border);
   background: var(--neutral-950);
@@ -326,6 +326,23 @@ button.font-picker-item {
   transition: var(--transition);
   &:hover {
     background: oklch(from var(--primary-500) l c h / 12%);
+  }
+}
+
+/* every plain-copy spot on the page is contentEditable — a style guide you
+   type into directly. Hover/focus affordance so it reads as editable
+   without adding chrome around text that's otherwise just… text. */
+.editable {
+  cursor: text;
+  border-radius: 0.3rem;
+  outline-offset: 0.3rem;
+  transition: var(--transition);
+  &:hover {
+    background: oklch(from var(--primary-500) l c h / 10%);
+  }
+  &:focus {
+    outline: var(--border-width) dashed oklch(from var(--primary-400) l c h / 60%);
+    background: transparent;
   }
 }
 

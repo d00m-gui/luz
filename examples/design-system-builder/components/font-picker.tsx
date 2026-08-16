@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Popover } from "@base-ui/react/popover";
+import { useDraggable } from "./use-draggable";
 
 interface FontEntry {
   id: string;
@@ -58,6 +59,7 @@ export function FontPicker({
   const [fonts, setFonts] = useState<FontEntry[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
+  const drag = useDraggable();
 
   function handleOpenChange(open: boolean) {
     if (open && fonts.length === 0 && !loading) {
@@ -83,13 +85,20 @@ export function FontPicker({
 
   return (
     <Popover.Root onOpenChange={handleOpenChange}>
-      <Popover.Trigger className="font-picker-trigger" aria-label={label}>
+      <Popover.Trigger
+        className="picker-trigger"
+        aria-label={label}
+        render={<div />}
+        nativeButton={false}
+      >
         {children}
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8}>
-          <Popover.Popup className="font-picker-popup">
-            <Popover.Title className="hint">{label}</Popover.Title>
+          <Popover.Popup className="font-picker-popup" ref={drag.targetRef as never}>
+            <Popover.Title className="picker-title" onPointerDown={drag.onPointerDown}>
+              {label}
+            </Popover.Title>
             <input
               type="text"
               autoFocus

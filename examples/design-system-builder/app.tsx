@@ -7,6 +7,7 @@ import { PRESETS, type Preset } from "./presets";
 import { ColorPicker } from "./components/color-picker";
 import { FontPicker } from "./components/font-picker";
 import { FloatingPanel } from "./components/floating-panel";
+import { Editable } from "./components/editable";
 
 /** Renders the logo tinted with `var(--foreground)` via a CSS mask, instead of the SVG's own colors. */
 function Logo({
@@ -257,46 +258,46 @@ export function App() {
           <option key={key} value={key} />
         ))}
       </datalist>
-      <header className="masthead">
-        <div className="brand-mark">
-          <Logo size={26} />
-          <span>luz builder</span>
-        </div>
+      <FloatingPanel>
+        <fieldset className="floating-section">
+          <legend>Mode</legend>
+          <div className="mode-pills">
+            {(["light", "dark", "auto"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                className={`mode-pill${config.mode === m ? " active" : ""}`}
+                onClick={() => set("mode", m)}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
+        </fieldset>
 
-        <div className="preset-strip">
-          {PRESETS.map((preset) => (
-            <button
-              key={preset.name}
-              type="button"
-              className={`preset${activePreset === preset.name ? " active" : ""}`}
-              onClick={() => applyPreset(preset)}
-              title={preset.name}
-            >
-              <span className="preset-swatches">
-                <span style={{ backgroundColor: preset.background }} />
-                <span style={{ backgroundColor: preset.primary }} />
-                <span style={{ backgroundColor: preset.secondary }} />
-              </span>
-              {preset.name}
-            </button>
-          ))}
-        </div>
+        <fieldset className="floating-section">
+          <legend>Presets</legend>
+          <div className="preset-grid">
+            {PRESETS.map((preset) => (
+              <button
+                key={preset.name}
+                type="button"
+                className={`preset${activePreset === preset.name ? " active" : ""}`}
+                onClick={() => applyPreset(preset)}
+                title={preset.name}
+              >
+                <span className="preset-swatches">
+                  <span style={{ backgroundColor: preset.background }} />
+                  <span style={{ backgroundColor: preset.primary }} />
+                  <span style={{ backgroundColor: preset.secondary }} />
+                </span>
+                {preset.name}
+              </button>
+            ))}
+          </div>
+        </fieldset>
 
-        <div className="mode-pills">
-          {(["light", "dark", "auto"] as const).map((m) => (
-            <button
-              key={m}
-              type="button"
-              className={`mode-pill${config.mode === m ? " active" : ""}`}
-              onClick={() => set("mode", m)}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-
-        <FloatingPanel title="Advanced settings">
-          {SECTIONS.map((section) => (
+        {SECTIONS.map((section) => (
             <fieldset className="floating-section" key={section.title}>
               <legend>{section.title}</legend>
               {section.fields.map((field) => (
@@ -356,8 +357,7 @@ export function App() {
               + Add color
             </button>
           </fieldset>
-        </FloatingPanel>
-      </header>
+      </FloatingPanel>
 
       <div className="builder">
         <main className="preview">
@@ -365,7 +365,7 @@ export function App() {
           <section className="doc-section cover">
             <div className="eyebrow">
               <span className="dot" />
-              Brand spectrum
+              <Editable as="span" defaultText="Brand spectrum" />
             </div>
             <Logo className="cover-logo" />
             <EditableTitle onChange={setTitle} />
@@ -385,11 +385,12 @@ export function App() {
             <div className="panel">
               <div className="panel-grid">
                 <div className="panel-block">
-                  <h4>Primary</h4>
-                  <p className="hint">
-                    The color that represents the brand, used for primary
-                    actions and accents.
-                  </p>
+                  <Editable as="h4" defaultText="Primary" />
+                  <Editable
+                    as="p"
+                    className="hint"
+                    defaultText="The color that represents the brand, used for primary actions and accents."
+                  />
                   <div className="spec-row">
                     <ColorPicker
                       label="Primary"
@@ -409,10 +410,12 @@ export function App() {
                 </div>
 
                 <div className="panel-block">
-                  <h4>Text &amp; background</h4>
-                  <p className="hint">
-                    Grayscale that makes up the background and text color.
-                  </p>
+                  <Editable as="h4" defaultText="Text & background" />
+                  <Editable
+                    as="p"
+                    className="hint"
+                    defaultText="Grayscale that makes up the background and text color."
+                  />
                   <div className="pair-row">
                     <div className="pair">
                       <ColorPicker
@@ -439,11 +442,12 @@ export function App() {
               </div>
 
               <div className="panel-block">
-                <h4>System</h4>
-                <p className="hint">
-                  A rotated hue wheel, derived from the primary, used to
-                  communicate status and direction.
-                </p>
+                <Editable as="h4" defaultText="System" />
+                <Editable
+                  as="p"
+                  className="hint"
+                  defaultText="A rotated hue wheel, derived from the primary, used to communicate status and direction."
+                />
                 <div className="wheel">
                   {WHEEL_HUES.map((hue) => (
                     <div key={hue} className="pair">
@@ -458,7 +462,7 @@ export function App() {
               </div>
 
               <div className="panel-block">
-                <h4>Shade ramps</h4>
+                <Editable as="h4" defaultText="Shade ramps" />
                 <ColorRamp label={name} name={primaryName} colors={tokens.colors} />
                 <ColorRamp label="secondary" name={secondaryName} colors={tokens.colors} />
                 <ColorRamp label={neutrals} name={neutralsName} colors={tokens.colors} />
@@ -504,7 +508,7 @@ export function App() {
               </div>
 
               <div className="type-specimen">
-                <h4>Font family</h4>
+                <Editable as="h4" defaultText="Font family" />
                 <FontPicker
                   label="Body font"
                   value={tokens.typography.font ?? ""}
@@ -531,9 +535,9 @@ export function App() {
             </div>
 
             <div className="panel type-article">
-              <h1 style={{ fontFamily: "var(--font-headings)" }}>Heading one</h1>
-              <h2 style={{ fontFamily: "var(--font-headings)" }}>Heading two</h2>
-              <h3 style={{ fontFamily: "var(--font-headings)" }}>Heading three</h3>
+              <Editable as="h1" style={{ fontFamily: "var(--font-headings)" }} defaultText="Heading one" />
+              <Editable as="h2" style={{ fontFamily: "var(--font-headings)" }} defaultText="Heading two" />
+              <Editable as="h3" style={{ fontFamily: "var(--font-headings)" }} defaultText="Heading three" />
               <p>
                 Body text set in <em>var(--font)</em>, the default reading
                 face for this design system. <strong>Bold text</strong> uses
@@ -586,31 +590,41 @@ export function App() {
 
             <div className="grid">
               <lui.card>
-                <h2>buttons</h2>
+                <Editable as="h2" defaultText="buttons" />
                 <div className="card-content buttons">
-                  <button>Primary</button>
-                  <button className="ghost">Ghost</button>
-                  <button className="danger">Danger</button>
-                  <button className="cancel">Cancel</button>
+                  <button>
+                    <Editable as="span" defaultText="Primary" />
+                  </button>
+                  <button className="ghost">
+                    <Editable as="span" defaultText="Ghost" />
+                  </button>
+                  <button className="danger">
+                    <Editable as="span" defaultText="Danger" />
+                  </button>
+                  <button className="cancel">
+                    <Editable as="span" defaultText="Cancel" />
+                  </button>
                 </div>
               </lui.card>
 
               <lui.card>
-                <h2>form</h2>
+                <Editable as="h2" defaultText="form" />
                 <div className="card-content">
                   <lui.field.root className="field">
-                    <lui.field.label>Label</lui.field.label>
+                    <lui.field.label>
+                      <Editable as="span" defaultText="Label" />
+                    </lui.field.label>
                     <lui.field.control placeholder="Placeholder…" />
                   </lui.field.root>
                   <label className="switch-row">
                     <input type="checkbox" role="switch" defaultChecked />
-                    Enabled
+                    <Editable as="span" defaultText="Enabled" />
                   </label>
                 </div>
               </lui.card>
 
               <lui.card>
-                <h2>elements</h2>
+                <Editable as="h2" defaultText="elements" />
                 <div className="card-content">
                   <p>
                     <mark>Highlighted</mark> text, a <kbd>Kbd</kbd>, and{" "}
@@ -640,11 +654,11 @@ function SectionHeading({
     <div className="section-heading">
       <div className="index-title">
         <span className="index">{index}</span>
-        <h2>{title}</h2>
+        <Editable as="h2" defaultText={title} />
       </div>
       <div className="badge">
         <span className="dot" />
-        {badge}
+        <Editable as="span" defaultText={badge} />
       </div>
     </div>
   );
@@ -685,26 +699,30 @@ function DashboardMock({ name }: { name: string }) {
       <div className="dashboard-body">
         <header className="dashboard-header">
           <div>
-            <h3>Managing your team &amp; workflows</h3>
+            <Editable as="h3" defaultText="Managing your team & workflows" />
             <p className="hint">{name} · workspace overview</p>
           </div>
-          <button>+ New scenario</button>
+          <button>
+            <Editable as="span" defaultText="+ New scenario" />
+          </button>
         </header>
         <div className="dashboard-stats">
           <div className="stat-card">
-            <small>OPERATIONS</small>
-            <strong>780 / 1000</strong>
-            <span className="up">+12%</span>
+            <Editable as="small" defaultText="OPERATIONS" />
+            <Editable as="strong" defaultText="780 / 1000" />
+            <Editable as="span" className="up" defaultText="+12%" />
           </div>
           <div className="stat-card">
-            <small>DATA TRANSFER</small>
-            <strong>163 MB</strong>
-            <span>Stable</span>
+            <Editable as="small" defaultText="DATA TRANSFER" />
+            <Editable as="strong" defaultText="163 MB" />
+            <Editable as="span" defaultText="Stable" />
           </div>
           <div className="stat-card highlight">
-            <small>AI FEATURES</small>
-            <strong>Automate faster</strong>
-            <button className="ghost">Upgrade →</button>
+            <Editable as="small" defaultText="AI FEATURES" />
+            <Editable as="strong" defaultText="Automate faster" />
+            <button className="ghost">
+              <Editable as="span" defaultText="Upgrade →" />
+            </button>
           </div>
         </div>
         <div className="dashboard-chart">

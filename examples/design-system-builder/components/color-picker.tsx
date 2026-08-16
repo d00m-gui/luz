@@ -1,4 +1,5 @@
 import { Popover } from "@base-ui/react/popover";
+import { useDraggable } from "./use-draggable";
 
 /** hex "#rrggbb" → {h,s,l} (0-360, 0-100, 0-100). Returns null for non-hex values (e.g. `oklch(...)`). */
 function hexToHsl(hex: string): { h: number; s: number; l: number } | null {
@@ -55,6 +56,7 @@ export function ColorPicker({
   children: React.ReactNode;
 }) {
   const hsl = hexToHsl(value) ?? { h: 0, s: 0, l: 50 };
+  const drag = useDraggable();
 
   function set(patch: Partial<typeof hsl>) {
     const next = { ...hsl, ...patch };
@@ -63,13 +65,29 @@ export function ColorPicker({
 
   return (
     <Popover.Root>
-      <Popover.Trigger className="color-picker-trigger" aria-label={label}>
+      {/* render as a <div>, not the default <button>: a `display:contents`
+          trigger (or one wrapping block content like a swatch card) reports
+          a zero-size rect, so the popup anchored at the wrong spot */}
+      <Popover.Trigger
+        className="picker-trigger"
+        aria-label={label}
+        render={<div />}
+        nativeButton={false}
+      >
         {children}
       </Popover.Trigger>
       <Popover.Portal>
         <Popover.Positioner sideOffset={8}>
-          <Popover.Popup className="color-picker-popup">
-            <Popover.Title className="hint">{label}</Popover.Title>
+          <Popover.Popup
+            className="color-picker-popup"
+            ref={drag.targetRef as never}
+          >
+            <Popover.Title
+              className="picker-title"
+              onPointerDown={drag.onPointerDown}
+            >
+              {label}
+            </Popover.Title>
             <div className="color-picker-preview" style={{ backgroundColor: value }} />
             <label>
               Hue
