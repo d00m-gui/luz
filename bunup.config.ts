@@ -1,6 +1,6 @@
 import { defineConfig } from "bunup";
 import { exports, unused } from "bunup/plugins";
-import { minifyEmbeddedCss } from "./build/minify-embedded-css";
+import { minifyEmbeddedCss } from "./src/tools/minify-embedded-css";
 
 export default defineConfig({
   exports: true,
