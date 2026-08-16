@@ -1,0 +1,78 @@
+<!-- @dsCard group="Colors" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="./tokens.css" />
+<style>
+  body { padding: 2rem; display: grid; gap: 2.4rem; }
+  .ramp { display: grid; grid-template-columns: repeat(11, 1fr); gap: 0.4rem; }
+  .swatch { border-radius: var(--border-radius); height: 6rem; display: flex; align-items: flex-end; padding: 0.6rem; font-family: var(--font-monospace); font-size: 1.1rem; }
+  h2 { font-family: var(--font-headings); margin-bottom: 0.8rem; }
+</style>
+</head>
+<body>
+  <section>
+    <h2>Primary</h2>
+    <div class="ramp">
+      <div class="swatch" style="background:var(--primary-50);color:#000">50</div>
+      <div class="swatch" style="background:var(--primary-100);color:#000">100</div>
+      <div class="swatch" style="background:var(--primary-200);color:#000">200</div>
+      <div class="swatch" style="background:var(--primary-300);color:#000">300</div>
+      <div class="swatch" style="background:var(--primary-400);color:#000">400</div>
+      <div class="swatch" style="background:var(--primary-500);color:#fff">500</div>
+      <div class="swatch" style="background:var(--primary-600);color:#fff">600</div>
+      <div class="swatch" style="background:var(--primary-700);color:#fff">700</div>
+      <div class="swatch" style="background:var(--primary-800);color:#fff">800</div>
+      <div class="swatch" style="background:var(--primary-900);color:#fff">900</div>
+      <div class="swatch" style="background:var(--primary-950);color:#fff">950</div>
+    </div>
+  </section>
+  <section>
+    <h2>Secondary</h2>
+    <div class="ramp">
+      <div class="swatch" style="background:var(--secondary-50);color:#000">50</div>
+      <div class="swatch" style="background:var(--secondary-100);color:#000">100</div>
+      <div class="swatch" style="background:var(--secondary-200);color:#000">200</div>
+      <div class="swatch" style="background:var(--secondary-300);color:#000">300</div>
+      <div class="swatch" style="background:var(--secondary-400);color:#000">400</div>
+      <div class="swatch" style="background:var(--secondary-500);color:#fff">500</div>
+      <div class="swatch" style="background:var(--secondary-600);color:#fff">600</div>
+      <div class="swatch" style="background:var(--secondary-700);color:#fff">700</div>
+      <div class="swatch" style="background:var(--secondary-800);color:#fff">800</div>
+      <div class="swatch" style="background:var(--secondary-900);color:#fff">900</div>
+      <div class="swatch" style="background:var(--secondary-950);color:#fff">950</div>
+    </div>
+  </section>
+  <section>
+    <h2>Neutral</h2>
+    <div class="ramp">
+      <div class="swatch" style="background:var(--neutral-50);color:#000">50</div>
+      <div class="swatch" style="background:var(--neutral-100);color:#000">100</div>
+      <div class="swatch" style="background:var(--neutral-200);color:#000">200</div>
+      <div class="swatch" style="background:var(--neutral-300);color:#000">300</div>
+      <div class="swatch" style="background:var(--neutral-400);color:#000">400</div>
+      <div class="swatch" style="background:var(--neutral-500);color:#fff">500</div>
+      <div class="swatch" style="background:var(--neutral-600);color:#fff">600</div>
+      <div class="swatch" style="background:var(--neutral-700);color:#fff">700</div>
+      <div class="swatch" style="background:var(--neutral-800);color:#fff">800</div>
+      <div class="swatch" style="background:var(--neutral-900);color:#fff">900</div>
+      <div class="swatch" style="background:var(--neutral-950);color:#fff">950</div>
+    </div>
+  </section>
+  <section>
+    <h2>Hue wheel (derived from primary)</h2>
+    <div class="ramp" style="grid-template-columns: repeat(9, 1fr);">
+      <div class="swatch" style="background:var(--red)">red</div>
+      <div class="swatch" style="background:var(--copper)">copper</div>
+      <div class="swatch" style="background:var(--orange)">orange</div>
+      <div class="swatch" style="background:var(--yellow)">yellow</div>
+      <div class="swatch" style="background:var(--green)">green</div>
+      <div class="swatch" style="background:var(--emerald)">emerald</div>
+      <div class="swatch" style="background:var(--teal)">teal</div>
+      <div class="swatch" style="background:var(--cyan)">cyan</div>
+      <div class="swatch" style="background:var(--blue)">blue</div>
+    </div>
+  </section>
+</body>
+</html>

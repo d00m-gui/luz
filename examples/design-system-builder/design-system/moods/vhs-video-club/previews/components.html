@@ -1,0 +1,30 @@
+<!-- @dsCard group="Components" -->
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="./tokens.css" />
+<style>
+  body { padding: 2rem; background: var(--background); color: var(--foreground); display: grid; gap: 1.6rem; }
+  [role="group"] { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+  .comment { border: var(--border); border-radius: var(--border-radius); padding: var(--element-vertical) var(--element-horizontal); background: var(--element-background); font-family: var(--font-monospace); }
+</style>
+</head>
+<body>
+  <div role="group">
+    <button type="button">Start movie night</button>
+    <button type="button" class="success">RSVP'd</button>
+    <button type="button" class="danger">Cancel</button>
+    <button type="button" class="ghost">Maybe</button>
+  </div>
+  <form>
+    <label>Room name<input type="text" placeholder="Friday horror double-feature" /></label>
+    <label row->Autoplay next pick<input type="checkbox" role="switch" /></label>
+  </form>
+  <div class="comment">@jordan — 00:14:22 "wait rewind that part"</div>
+  <table>
+    <thead><tr><th>Token</th><th>Value</th></tr></thead>
+    <tbody><tr><td>--primary</td><td>#1F4FD8</td></tr><tr><td>--secondary</td><td>#FFC72C</td></tr></tbody>
+  </table>
+</body>
+</html>
