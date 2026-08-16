@@ -8,6 +8,7 @@ export const config: LuzAstroConfig = {
   secondary: "#A684E8",
   mode: "dark",
   background: "#0F0F1F",
+  sizeFluidRange: "fixed",
   path: "./src/styles/luz.css",
   minify: true,
 };

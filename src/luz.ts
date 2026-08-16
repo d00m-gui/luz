@@ -5,7 +5,11 @@
 import { luzShadesByHue } from "./tools/hue";
 import { luzProperty } from "./tools/props";
 import { reset } from "./tools/reset";
-import { luzSizes } from "./tools/sizes";
+import {
+  luzSizes,
+  type FluidRangeName,
+  type TypeScaleName,
+} from "./tools/sizes";
 import type { LuzSoundConfig } from "./tools/sound";
 import { luzWheel } from "./tools/wheel";
 import { withShadeFallback } from "./tools/base";
@@ -14,26 +18,64 @@ import { withShadeFallback } from "./tools/base";
  * Full configuration for the `luz()` function.
  */
 export interface LuzConfig {
+  /** Body font stack. Default `"sans-serif"`. */
   font?: string;
+  /** Default `"line-height"` for body text. Default `"130%"`. */
   "line-height"?: string;
+  /** `font-weight` used for `<strong>`/`<b>`. Default `800`. */
   "font-bold-weight"?: number;
+  /** Base `font-weight` for body text. Default `400`. */
   "font-weight"?: number;
+  /** Font stack for `<code>`/`<pre>`/`<kbd>`. Default `"monospace"`. */
   "font-monospace"?: string;
+  /** Font stack for `h1`–`h6`. Default `"sans-serif"`. */
   "font-headings"?: string;
+  /** Font stack for `<em>`/`<i>`. Default `"serif"`. */
   "font-emphasis"?: string;
+  /** Root font size in px, drives every size/spacing token. Default `16`. */
   base?: number;
-  power?: number;
+  /**
+   * Ratio for the exponential `size-N` scale, or a raw number for a custom ratio.
+   * @default "perfect-fourth"
+   * @param "minor-second" 1.067
+   * @param "major-second" 1.125
+   * @param "minor-third" 1.2
+   * @param "major-third" 1.25
+   * @param "perfect-fourth" 1.333
+   * @param "augmented-fourth" 1.414
+   * @param "perfect-fifth" 1.5
+   * @param "golden" 1.618
+   */
+  power?: TypeScaleName | number;
+  /** Base color for the primary palette (any CSS color). Required. */
   primary: string;
+  /** Custom-property name for the primary palette, e.g. `--{name}-500`. Default `"primary"`. */
   name?: string;
+  /** Base color for the secondary palette. Default: primary hue rotated 180°. */
   secondary?: string;
+  /**
+   * Color scheme the generated palette ships as.
+   * @default "dark"
+   * @param "light" fixed light palette
+   * @param "dark" fixed dark palette
+   * @param "auto" light palette in `:root`, dark override under `@media (prefers-color-scheme: dark)`
+   */
   mode?: "light" | "dark" | "auto";
+  /** Custom-property name for the neutral/gray palette. Default `"neutral"`. */
   neutrals?: string;
+  /** Prepended to every generated custom-property name (e.g. `"luz-"` → `--luz-primary-500`). Default `""`. */
   prefix?: string;
+  /** Default `transition` shorthand applied via setup rules. Default `"all ease 200ms"`. */
   transition?: string;
+  /** Default `box-shadow` token. Default `"none"`. */
   "box-shadow"?: string;
+  /** `--spacing` token override (page-level gutter). Default derived from `base`. */
   spacing?: string;
+  /** `--background` override. Default: `neutrals` 900/100 shade depending on `mode`. */
   background?: string;
+  /** `--foreground` override. Default: `neutrals` 100/900 shade depending on `mode`. */
   foreground?: string;
+  /** Minify the generated `style` string (hand-rolled, no CSS parser — see `minifyCss`). Default `false`. */
   minify?: boolean;
   /** Shade steps generated per color palette. Default `11` (50–950). */
   colorSteps?: number;
@@ -41,6 +83,16 @@ export interface LuzConfig {
   sizeSteps?: number;
   /** First `size-N` step that uses the fluid `clamp()` zone. Default `13`. */
   sizeDynamicFrom?: number;
+  /**
+   * How many scale rungs (see `power`) the fluid zone's viewport-max value
+   * reaches past its viewport-min value, or a raw number for a custom offset.
+   * @default "balanced"
+   * @param "fixed" 0 — locked, no reflow with viewport width (dense app UI)
+   * @param "tight" 0.35 — subtle reflow
+   * @param "balanced" 1 — one full scale rung
+   * @param "dramatic" 1.6 — large reflow (marketing hero text)
+   */
+  sizeFluidRange?: FluidRangeName | number;
   /** Scale the size ramp by `base / 16` instead of a fixed 16px assumption. Default `false`. */
   sizeRelativeToBase?: boolean;
   /** Synthesized UI sound effects (Web Audio API, no external files). Opt-in, disabled by default. */
@@ -49,17 +101,23 @@ export interface LuzConfig {
 
 /** Settings sub-object within tokens (metadata only). */
 export interface TokenSettings {
+  /** Resolved palette name (falls back to `"primary"` if `config.name` is empty). */
   name: string;
+  /** Resolved `config.prefix`, echoed back for consumers building var names. */
   prefix?: string;
+  /** Resolved `config.neutrals` palette name. */
   neutrals?: string;
 }
 
 /** Full token set used by all downstream consumers. */
 export interface LuzTokens {
+  /** Metadata about the resolved palette (name/prefix/neutrals). */
   settings: TokenSettings;
+  /** Generated color variable map (primary/secondary/neutral shades, wheel, semantic aliases). */
   colors: Record<string, string>;
   /** Generated size variable map (`--size-1` → `0.1rem`, etc.). */
   sizes: Record<string, string>;
+  /** Non-color, non-size config fields (fonts, weights, line-height, …), echoed back as tokens. */
   typography: Partial<LuzConfig>;
 }
 
@@ -85,7 +143,7 @@ const defaultConfig: LuzConfig = {
   "font-headings": "sans-serif",
   "font-emphasis": "serif",
   base: 16,
-  power: 1.33,
+  power: "perfect-fourth",
   primary: "#007dea",
   name: "primary",
   mode: "dark",
@@ -98,6 +156,7 @@ const defaultConfig: LuzConfig = {
   sizeSteps: 22,
   sizeDynamicFrom: 13,
   sizeRelativeToBase: false,
+  sizeFluidRange: "balanced",
 };
 
 /** Element-level style rules (buttons, inputs, tables, …) wired to theme tokens. */
@@ -132,6 +191,7 @@ export function luz(config?: LuzConfig): LuzResult {
     sizeSteps,
     sizeDynamicFrom,
     sizeRelativeToBase,
+    sizeFluidRange,
     sound: _sound,
     ...typography
   } = settings;
@@ -217,6 +277,7 @@ export function luz(config?: LuzConfig): LuzResult {
     sizeSteps,
     sizeDynamicFrom,
     sizeRelativeToBase,
+    sizeFluidRange,
   );
 
   //  Compose token set

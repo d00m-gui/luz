@@ -70,6 +70,7 @@ const initialConfig: LuzConfig = {
   "font-monospace": `"Datatype", monospace`,
   mode: "dark",
   neutrals: "neutral",
+  sizeFluidRange: "dramatic",
 };
 
 type FieldType = "text" | "number" | "color" | "select" | "switch";
