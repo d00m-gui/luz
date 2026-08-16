@@ -124,4 +124,3 @@ export interface SwitchComponentTypes {
 
 export type CardType = typeof Card;
 
-export type Lui = LuiComponents;

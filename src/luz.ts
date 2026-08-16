@@ -7,6 +7,7 @@ import { luzProperty } from "./tools/props";
 import { reset } from "./tools/reset";
 import { luzSizes } from "./tools/sizes";
 import { luzWheel } from "./tools/wheel";
+import { withShadeFallback } from "./tools/base";
 
 /**
  * Full configuration for the `luz()` function.
@@ -239,16 +240,6 @@ export function luz(config?: LuzConfig): LuzResult {
     return lines.join("\n");
   }
 
-  function withShadeFallback(css: string, names: string[]): string {
-    return names.reduce(
-      (acc, name) =>
-        acc.replace(
-          new RegExp(`var\\(--${name}-(\\d{2,3})\\)`, "g"),
-          `var(--${name}-$1, var(--${name}))`,
-        ),
-      css,
-    );
-  }
 
   const shadedNames = [primaryName, secondaryName, neutralsName];
 
