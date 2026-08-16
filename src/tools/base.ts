@@ -1,4 +1,4 @@
-const vars = { neutral: "", primary: "" };
+type Vars = { neutral: string; primary: string };
 
 const NEUTRAL_TOKEN = "__LUZ_NEUTRAL__";
 const PRIMARY_TOKEN = "__LUZ_PRIMARY__";
@@ -8,18 +8,22 @@ const PRIMARY_TOKEN = "__LUZ_PRIMARY__";
  * theme generated with fewer `colorSteps` (missing that weight) still
  * resolves to the base color instead of an undefined custom property.
  */
-function withShadeFallback(css: string, name: string): string {
-  return css.replace(
-    new RegExp(`var\\(--${name}-(\\d{2,3})\\)`, "g"),
-    `var(--${name}-$1, var(--${name}))`,
+export function withShadeFallback(css: string, names: string[]): string {
+  return names.reduce(
+    (acc, name) =>
+      acc.replace(
+        new RegExp(`var\\(--${name}-(\\d{2,3})\\)`, "g"),
+        `var(--${name}-$1, var(--${name}))`,
+      ),
+    css,
   );
 }
 
-function substitute(css: string, v: typeof vars): string {
+function substitute(css: string, v: Vars): string {
   const replaced = css
     .replaceAll(NEUTRAL_TOKEN, v.neutral)
     .replaceAll(PRIMARY_TOKEN, v.primary);
-  return withShadeFallback(withShadeFallback(replaced, v.primary), v.neutral);
+  return withShadeFallback(withShadeFallback(replaced, [v.primary]), [v.neutral]);
 }
 
 const cardCSS = `
@@ -530,10 +534,10 @@ const popupCSS = `
     }`;
 
 export const componentCSS = {
-  card: (v: typeof vars) => substitute(cardCSS, v),
-  tabs: (v: typeof vars) => substitute(tabsCSS, v),
-  avatar: (v: typeof vars) => substitute(avatarCSS, v),
-  menu: (v: typeof vars) =>
+  card: (v: Vars) => substitute(cardCSS, v),
+  tabs: (v: Vars) => substitute(tabsCSS, v),
+  avatar: (v: Vars) => substitute(avatarCSS, v),
+  menu: (v: Vars) =>
     substitute(
       presentationCSS +
         menuCSS +
@@ -543,13 +547,13 @@ export const componentCSS = {
         separatorCSS,
       v,
     ),
-  menubar: (v: typeof vars) => substitute(menubarCSS, v),
-  togglegroup: (v: typeof vars) => substitute(groupCSS, v),
-  meter: (v: typeof vars) => substitute(meterCSS, v),
+  menubar: (v: Vars) => substitute(menubarCSS, v),
+  togglegroup: (v: Vars) => substitute(groupCSS, v),
+  meter: (v: Vars) => substitute(meterCSS, v),
   form: () => formsCSS,
   field: () => inputsCSS,
-  toast: (v: typeof vars) => substitute(toastCSS, v) + regionCSS,
-  dialog: (v: typeof vars) => backdropCSS + substitute(popupCSS, v),
+  toast: (v: Vars) => substitute(toastCSS, v) + regionCSS,
+  dialog: (v: Vars) => backdropCSS + substitute(popupCSS, v),
 };
 
 

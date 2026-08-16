@@ -1,26 +1,24 @@
-export function luzWheel(color: string, prefix?: string) {
-  let initWheel: any = {
-    sky: luzHue(color, 270),
-    blue: luzHue(color, 240),
-    cyan: luzHue(color, 210),
-    teal: luzHue(color, 180),
-    emerald: luzHue(color, 150),
-    green: luzHue(color, 120),
-    yellow: luzHue(color, 90),
-    orange: luzHue(color, 60),
-    copper: luzHue(color, 30),
-    red: luzHue(color, 0),
-  };
-  let luzStep = {};
-  Object.entries(initWheel).map(([key, value]) => {
-    let keyp = prefix ? `${prefix}${key}` : key;
-    let item = { [keyp]: value };
-    luzStep = { ...item, ...luzStep };
-  });
+const WHEEL_HUES = {
+  sky: 270,
+  blue: 240,
+  cyan: 210,
+  teal: 180,
+  emerald: 150,
+  green: 120,
+  yellow: 90,
+  orange: 60,
+  copper: 30,
+  red: 0,
+} as const;
 
-  return luzStep;
-}
-
-function luzHue(color: string, rotation: number): string {
-  return `oklch(from ${color} l c ${rotation})`;
+export function luzWheel(
+  color: string,
+  prefix?: string,
+): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(WHEEL_HUES).map(([name, rotation]) => {
+      const key = prefix ? `${prefix}${name}` : name;
+      return [key, `oklch(from ${color} l c ${rotation})`];
+    }),
+  );
 }
