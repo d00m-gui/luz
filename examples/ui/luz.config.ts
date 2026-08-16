@@ -6,6 +6,7 @@ export const config: LuzConfig = {
   font: `"DM Sans", sans-serif`,
   "font-monospace": `"Datatype", monospace`,
   power: 1.1,
+  sizeFluidRange: "tight",
   sound: {
     enabled: false,
     volume: 0.3,

@@ -8,10 +8,14 @@ describe("luzSizes()", () => {
     expect(sizes["size-12"]).toBe("1.2rem");
   });
 
-  test("emits size-13 through size-22 as fluid cqi clamps", () => {
+  test("emits size-13 through size-22 as fluid cqi clamps, each step one full ratio rung", () => {
     const sizes = luzSizes(16);
-    expect(sizes["size-13"]).toBe("clamp(1.30rem, 1.16rem + 0.70cqi, 1.70rem)");
-    expect(sizes["size-22"]).toBe("clamp(2.20rem, 1.96rem + 1.19cqi, 2.88rem)");
+    expect(sizes["size-13"]).toBe(
+      "clamp(1.300rem, 1.149rem + 0.753cqi, 1.733rem)",
+    );
+    expect(sizes["size-22"]).toBe(
+      "clamp(17.275rem, 15.274rem + 10.004cqi, 23.027rem)",
+    );
   });
 
   test("includes all 22 numbered steps plus derived tokens", () => {
@@ -40,7 +44,7 @@ describe("luzSizes()", () => {
 
   describe("steps / dynamicFrom / relativeToBase", () => {
     test("default call is unaffected by the new params", () => {
-      const withDefaults = luzSizes(16, 1.31, 22, 13, false);
+      const withDefaults = luzSizes(16, "perfect-fourth", 22, 13, false);
       const omitted = luzSizes(16);
       expect(withDefaults).toEqual(omitted);
     });
@@ -69,6 +73,22 @@ describe("luzSizes()", () => {
       const base16 = luzSizes(16, 1.31, 22, 13, true);
       const base32 = luzSizes(32, 1.31, 22, 13, true);
       expect(base16["size-13"]).not.toBe(base32["size-13"]);
+    });
+  });
+
+  describe("named type scale presets", () => {
+    test("a preset name resolves to the same ratio as its numeric equivalent", () => {
+      const named = luzSizes(16, "golden");
+      const numeric = luzSizes(16, 1.618);
+      expect(named).toEqual(numeric);
+    });
+
+    test("each fluid step compounds one full ratio rung over the previous", () => {
+      const sizes = luzSizes(16, "major-third", 15, 13);
+      // size-13 max === size-14 min: steps chain min(n) -> max(n) = min(n+1).
+      const size13Max = sizes["size-13"]!.match(/, ([\d.]+)rem\)$/)?.[1];
+      const size14Min = sizes["size-14"]!.match(/^clamp\(([\d.]+)rem/)?.[1];
+      expect(size13Max).toBe(size14Min);
     });
   });
 });
