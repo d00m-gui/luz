@@ -15,6 +15,7 @@ import {
   Dialog,
 } from "@base-ui/react";
 import { Toast as ToastCore } from "@base-ui/react/toast";
+import type { Soundable } from "./with-sound";
 
 /**
  * Unified component namespace for Base UI components.
@@ -44,7 +45,7 @@ export interface AvatarTypes {
 
 export interface DialogType {
   root: typeof Dialog.Root;
-  trigger: typeof Dialog.Trigger;
+  trigger: Soundable<typeof Dialog.Trigger>;
   portal: typeof Dialog.Portal;
   backdrop: typeof Dialog.Backdrop;
   popup: typeof Dialog.Popup;
@@ -53,14 +54,14 @@ export interface DialogType {
   close: typeof Dialog.Close;
 }
 
-export type ButtonType = typeof Button;
+export type ButtonType = Soundable<typeof Button>;
 
 export interface MenuItemTypes {
   root: typeof Menu.Root;
   trigger: typeof Menu.Trigger;
   portal: typeof Menu.Portal;
   arrow: typeof Menu.Arrow;
-  item: typeof Menu.Item;
+  item: Soundable<typeof Menu.Item>;
   link: typeof Menu.LinkItem;
   separator: typeof Menu.Separator;
   popup: typeof Menu.Popup;
@@ -74,11 +75,11 @@ export interface MenuItemTypes {
 
 export type MenubarType = typeof Menubar;
 
-export type FormRoot = typeof Form;
+export type FormRoot = Soundable<typeof Form>;
 
 export interface TabsComponentTypes {
   root: typeof Tabs.Root;
-  tab: typeof Tabs.Tab;
+  tab: Soundable<typeof Tabs.Tab>;
   panel: typeof Tabs.Panel;
   list: typeof Tabs.List;
   indicator: typeof Tabs.Indicator;
@@ -95,12 +96,12 @@ export interface MeterComponentTypes {
 export interface FieldTypes {
   root: typeof Field.Root;
   label: typeof Field.Label;
-  control: typeof Field.Control;
+  control: Soundable<typeof Field.Control>;
   description: typeof Field.Description;
   error: typeof Field.Error;
 }
 
-export type ToggleRoot = typeof Toggle;
+export type ToggleRoot = Soundable<typeof Toggle>;
 
 export type ToggleGroupRoot = typeof ToggleGroup;
 
@@ -109,7 +110,7 @@ export interface ToastComponentTypes {
   provider: typeof Toast.Provider;
   portal: typeof Toast.Portal;
   viewport: typeof Toast.Viewport;
-  root: typeof Toast.Root;
+  root: Soundable<typeof Toast.Root>;
   content: typeof Toast.Content;
   title: typeof Toast.Title;
   description: typeof Toast.Description;
@@ -118,7 +119,7 @@ export interface ToastComponentTypes {
 }
 
 export interface SwitchComponentTypes {
-  root: typeof Switch.Root;
+  root: Soundable<typeof Switch.Root>;
   thumb: typeof Switch.Thumb;
 }
 
