@@ -25,12 +25,23 @@ export interface ConfigField {
   doc: ParsedDoc;
 }
 
+export interface PropField {
+  name: string;
+  type: string;
+  optional: boolean;
+}
+
 export interface AnnotationEntry {
   id: string;
   title: string;
   category: "Components" | "Hooks" | "Config" | "Astro";
   description: string;
   tags: { default?: string; params?: DocTag[] };
+  /** Member-by-member props table, when the entry resolves to a single
+   *  callable component. Compound namespaces (menu, toast, ...) have no
+   *  props of their own — undefined here, render their sub-parts instead. */
+  propsFields?: PropField[];
+  /** Fallback: full type text, only when propsFields couldn't be resolved. */
   propsTypeText?: string;
   /** Only populated for the "Config" (LuzConfig) entry. */
   fields?: ConfigField[];
@@ -98,6 +109,13 @@ function loc(sourceFile: ts.SourceFile, node: ts.Node): { file: string; line: nu
   }
 }
 
+/** Strips `import("/abs/disk/path").Name` down to just `Name` — the checker
+ *  fully-qualifies every type not in scope at the print site, which leaks
+ *  the local filesystem path and is unreadable. */
+function cleanTypeText(text: string): string {
+  return text.replace(/import\("[^"]*"\)\./g, "");
+}
+
 function typeTextFor(
   checker: ts.TypeChecker,
   node: ts.Node,
@@ -107,7 +125,50 @@ function typeTextFor(
   try {
     const type = checker.getTypeOfSymbolAtLocation(symbol, node);
     const text = checker.typeToString(type, node, ts.TypeFormatFlags.NoTruncation);
-    return text.length > 3000 ? `${text.slice(0, 3000)}…` : text;
+    const cleaned = cleanTypeText(text);
+    return cleaned.length > 3000 ? `${cleaned.slice(0, 3000)}…` : cleaned;
+  } catch {
+    return undefined;
+  }
+}
+
+/** Resolves a component's props member-by-member: name, type, optional.
+ *  Only works when the symbol's type has a call/construct signature (a
+ *  single component) — compound namespaces (menu, toast, ...) don't have
+ *  props of their own, so this returns undefined for those. */
+function propsFieldsFor(
+  checker: ts.TypeChecker,
+  node: ts.Node,
+  symbol: ts.Symbol | undefined,
+): PropField[] | undefined {
+  if (!symbol) return undefined;
+  try {
+    const type = checker.getTypeOfSymbolAtLocation(symbol, node);
+    const sigs = type.getCallSignatures().length
+      ? type.getCallSignatures()
+      : type.getConstructSignatures();
+    const params = sigs[0]?.getParameters();
+    if (!params?.length) return undefined;
+    const propsType = checker.getTypeOfSymbolAtLocation(params[0], node);
+    const members = checker.getPropertiesOfType(propsType);
+    if (!members.length) return undefined;
+    return members
+      .map((member) => {
+        const memberType = checker.getTypeOfSymbolAtLocation(member, node);
+        const optional =
+          (member.flags & ts.SymbolFlags.Optional) !== 0 ||
+          member.declarations?.some(
+            (d) => (ts.isPropertySignature(d) || ts.isParameter(d)) && !!d.questionToken,
+          ) === true;
+        return {
+          name: member.getName(),
+          type: cleanTypeText(
+            checker.typeToString(memberType, node, ts.TypeFormatFlags.NoTruncation),
+          ),
+          optional,
+        };
+      })
+      .sort((a, b) => a.name.localeCompare(b.name));
   } catch {
     return undefined;
   }
@@ -186,13 +247,15 @@ export function extractAnnotations(): AnnotationEntry[] {
         const doc = getDoc(prop);
         const symbol = checker.getSymbolAtLocation(prop.name);
         const { file, line } = loc(componentsSf, prop);
+        const propsFields = propsFieldsFor(checker, prop, symbol);
         entries.push({
           id: name,
           title: name,
           category: "Components",
           description: doc.description || "Sin documentar.",
           tags: { default: doc.default, params: doc.params.length ? doc.params : undefined },
-          propsTypeText: typeTextFor(checker, prop, symbol),
+          propsFields,
+          propsTypeText: propsFields ? undefined : typeTextFor(checker, prop, symbol),
           sourceFile: file,
           sourceLine: line,
         });

@@ -112,7 +112,30 @@ const playgroundCode =
           }
 
           {
-            data.propsTypeText && (
+            data.propsFields && data.propsFields.length > 0 && (
+              <div class="props-table-wrap">
+                <table class="props-table">
+                  <thead>
+                    <tr>
+                      <th>Prop</th>
+                      <th>Type</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.propsFields.map((f: { name: string; type: string; optional: boolean }) => (
+                      <tr>
+                        <td><code>{f.name}{f.optional && "?"}</code></td>
+                        <td><pre>{f.type}</pre></td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          }
+
+          {
+            !data.propsFields && data.propsTypeText && (
               <div class="props-table-wrap">
                 <table class="props-table">
                   <thead>
