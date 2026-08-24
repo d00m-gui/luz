@@ -1146,10 +1146,142 @@ a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-5
     initial-value: #000000;
   }
 
+@property --sky-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --sky-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(68% 0.11 270) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+  }
+
 @property --sky {
     syntax: "<color>";
     inherits: true;
     initial-value: #000000;
+  }
+
+@property --blue-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --blue-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.19 240) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
   }
 
 @property --blue {
@@ -1158,10 +1290,142 @@ a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-5
     initial-value: #000000;
   }
 
+@property --cyan-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --cyan-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(70% 0.1 210) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+  }
+
 @property --cyan {
     syntax: "<color>";
     inherits: true;
     initial-value: #000000;
+  }
+
+@property --teal-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --teal-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(65% 0.1 180) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
   }
 
 @property --teal {
@@ -1170,10 +1434,142 @@ a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-5
     initial-value: #000000;
   }
 
+@property --emerald-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --emerald-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(60% 0.15 150) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+  }
+
 @property --emerald {
     syntax: "<color>";
     inherits: true;
     initial-value: #000000;
+  }
+
+@property --green-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --green-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --green-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --green-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --green-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --green-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --green-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --green-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --green-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --green-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --green-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.18 120) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
   }
 
 @property --green {
@@ -1182,10 +1578,142 @@ a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-5
     initial-value: #000000;
   }
 
+@property --yellow-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --yellow-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(83% 0.16 90) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+  }
+
 @property --yellow {
     syntax: "<color>";
     inherits: true;
     initial-value: #000000;
+  }
+
+@property --orange-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --orange-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(62% 0.19 60) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
   }
 
 @property --orange {
@@ -1194,10 +1722,142 @@ a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-5
     initial-value: #000000;
   }
 
+@property --copper-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --copper-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(58% 0.14 30) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+  }
+
 @property --copper {
     syntax: "<color>";
     inherits: true;
     initial-value: #000000;
+  }
+
+@property --red-950 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+  }
+
+@property --red-900 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+  }
+
+@property --red-800 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+  }
+
+@property --red-700 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+  }
+
+@property --red-600 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+  }
+
+@property --red-500 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+  }
+
+@property --red-400 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+  }
+
+@property --red-300 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+  }
+
+@property --red-200 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+  }
+
+@property --red-100 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+  }
+
+@property --red-50 {
+    syntax: "<color>";
+    inherits: true;
+    initial-value: oklch(from oklch(55% 0.21 0) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
   }
 
 @property --red {
@@ -1354,31 +2014,141 @@ a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-5
 --secondary-50: oklch(from var(--secondary) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
 --secondary: oklch(from var(--primary) l c calc(h + 180));
 --neutral: oklch(from var(--primary) l 0 h);
---neutral-950: oklch(from var(--neutral) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
---neutral-900: oklch(from var(--neutral) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
---neutral-800: oklch(from var(--neutral) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
---neutral-700: oklch(from var(--neutral) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
---neutral-600: oklch(from var(--neutral) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
---neutral-500: oklch(from var(--neutral) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
---neutral-400: oklch(from var(--neutral) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
---neutral-300: oklch(from var(--neutral) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
---neutral-200: oklch(from var(--neutral) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
---neutral-100: oklch(from var(--neutral) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
---neutral-50: oklch(from var(--neutral) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--neutral-950: oklch(from var(--neutral) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * 0.02)), 0.4) h);
+--neutral-900: oklch(from var(--neutral) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * 0.02)), 0.4) h);
+--neutral-800: oklch(from var(--neutral) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * 0.02)), 0.4) h);
+--neutral-700: oklch(from var(--neutral) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * 0.02)), 0.4) h);
+--neutral-600: oklch(from var(--neutral) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * 0.02)), 0.4) h);
+--neutral-500: oklch(from var(--neutral) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * 0.02)), 0.4) h);
+--neutral-400: oklch(from var(--neutral) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * 0.02)), 0.4) h);
+--neutral-300: oklch(from var(--neutral) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * 0.02)), 0.4) h);
+--neutral-200: oklch(from var(--neutral) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * 0.02)), 0.4) h);
+--neutral-100: oklch(from var(--neutral) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * 0.02)), 0.4) h);
+--neutral-50: oklch(from var(--neutral) 98% clamp(0, calc(0.05 + (sin(0 * pi) * 0.02)), 0.4) h);
 --background: var(--neutral-900, var(--neutral));
 --foreground: var(--neutral-100, var(--neutral));
 --on-secondary: var(--secondary-100, var(--secondary));
 --on-primary: oklch(from var(--primary) 88% 0 h);
---sky: oklch(from var(--primary) l c 270);
---blue: oklch(from var(--primary) l c 240);
---cyan: oklch(from var(--primary) l c 210);
---teal: oklch(from var(--primary) l c 180);
---emerald: oklch(from var(--primary) l c 150);
---green: oklch(from var(--primary) l c 120);
---yellow: oklch(from var(--primary) l c 90);
---orange: oklch(from var(--primary) l c 60);
---copper: oklch(from var(--primary) l c 30);
---red: oklch(from var(--primary) l c 0);
+--sky-950: oklch(from oklch(68% 0.11 270) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--sky-900: oklch(from oklch(68% 0.11 270) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--sky-800: oklch(from oklch(68% 0.11 270) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--sky-700: oklch(from oklch(68% 0.11 270) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--sky-600: oklch(from oklch(68% 0.11 270) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--sky-500: oklch(from oklch(68% 0.11 270) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--sky-400: oklch(from oklch(68% 0.11 270) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--sky-300: oklch(from oklch(68% 0.11 270) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--sky-200: oklch(from oklch(68% 0.11 270) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--sky-100: oklch(from oklch(68% 0.11 270) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--sky-50: oklch(from oklch(68% 0.11 270) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--sky: var(--sky-500);
+--blue-950: oklch(from oklch(58% 0.19 240) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--blue-900: oklch(from oklch(58% 0.19 240) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--blue-800: oklch(from oklch(58% 0.19 240) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--blue-700: oklch(from oklch(58% 0.19 240) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--blue-600: oklch(from oklch(58% 0.19 240) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--blue-500: oklch(from oklch(58% 0.19 240) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--blue-400: oklch(from oklch(58% 0.19 240) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--blue-300: oklch(from oklch(58% 0.19 240) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--blue-200: oklch(from oklch(58% 0.19 240) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--blue-100: oklch(from oklch(58% 0.19 240) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--blue-50: oklch(from oklch(58% 0.19 240) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--blue: var(--blue-500);
+--cyan-950: oklch(from oklch(70% 0.1 210) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--cyan-900: oklch(from oklch(70% 0.1 210) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--cyan-800: oklch(from oklch(70% 0.1 210) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--cyan-700: oklch(from oklch(70% 0.1 210) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--cyan-600: oklch(from oklch(70% 0.1 210) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--cyan-500: oklch(from oklch(70% 0.1 210) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--cyan-400: oklch(from oklch(70% 0.1 210) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--cyan-300: oklch(from oklch(70% 0.1 210) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--cyan-200: oklch(from oklch(70% 0.1 210) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--cyan-100: oklch(from oklch(70% 0.1 210) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--cyan-50: oklch(from oklch(70% 0.1 210) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--cyan: var(--cyan-500);
+--teal-950: oklch(from oklch(65% 0.1 180) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--teal-900: oklch(from oklch(65% 0.1 180) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--teal-800: oklch(from oklch(65% 0.1 180) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--teal-700: oklch(from oklch(65% 0.1 180) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--teal-600: oklch(from oklch(65% 0.1 180) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--teal-500: oklch(from oklch(65% 0.1 180) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--teal-400: oklch(from oklch(65% 0.1 180) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--teal-300: oklch(from oklch(65% 0.1 180) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--teal-200: oklch(from oklch(65% 0.1 180) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--teal-100: oklch(from oklch(65% 0.1 180) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--teal-50: oklch(from oklch(65% 0.1 180) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--teal: var(--teal-500);
+--emerald-950: oklch(from oklch(60% 0.15 150) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--emerald-900: oklch(from oklch(60% 0.15 150) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--emerald-800: oklch(from oklch(60% 0.15 150) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--emerald-700: oklch(from oklch(60% 0.15 150) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--emerald-600: oklch(from oklch(60% 0.15 150) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--emerald-500: oklch(from oklch(60% 0.15 150) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--emerald-400: oklch(from oklch(60% 0.15 150) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--emerald-300: oklch(from oklch(60% 0.15 150) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--emerald-200: oklch(from oklch(60% 0.15 150) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--emerald-100: oklch(from oklch(60% 0.15 150) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--emerald-50: oklch(from oklch(60% 0.15 150) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--emerald: var(--emerald-500);
+--green-950: oklch(from oklch(58% 0.18 120) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--green-900: oklch(from oklch(58% 0.18 120) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--green-800: oklch(from oklch(58% 0.18 120) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--green-700: oklch(from oklch(58% 0.18 120) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--green-600: oklch(from oklch(58% 0.18 120) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--green-500: oklch(from oklch(58% 0.18 120) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--green-400: oklch(from oklch(58% 0.18 120) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--green-300: oklch(from oklch(58% 0.18 120) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--green-200: oklch(from oklch(58% 0.18 120) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--green-100: oklch(from oklch(58% 0.18 120) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--green-50: oklch(from oklch(58% 0.18 120) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--green: var(--green-500);
+--yellow-950: oklch(from oklch(83% 0.16 90) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--yellow-900: oklch(from oklch(83% 0.16 90) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--yellow-800: oklch(from oklch(83% 0.16 90) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--yellow-700: oklch(from oklch(83% 0.16 90) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--yellow-600: oklch(from oklch(83% 0.16 90) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--yellow-500: oklch(from oklch(83% 0.16 90) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--yellow-400: oklch(from oklch(83% 0.16 90) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--yellow-300: oklch(from oklch(83% 0.16 90) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--yellow-200: oklch(from oklch(83% 0.16 90) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--yellow-100: oklch(from oklch(83% 0.16 90) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--yellow-50: oklch(from oklch(83% 0.16 90) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--yellow: var(--yellow-500);
+--orange-950: oklch(from oklch(62% 0.19 60) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--orange-900: oklch(from oklch(62% 0.19 60) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--orange-800: oklch(from oklch(62% 0.19 60) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--orange-700: oklch(from oklch(62% 0.19 60) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--orange-600: oklch(from oklch(62% 0.19 60) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--orange-500: oklch(from oklch(62% 0.19 60) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--orange-400: oklch(from oklch(62% 0.19 60) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--orange-300: oklch(from oklch(62% 0.19 60) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--orange-200: oklch(from oklch(62% 0.19 60) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--orange-100: oklch(from oklch(62% 0.19 60) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--orange-50: oklch(from oklch(62% 0.19 60) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--orange: var(--orange-500);
+--copper-950: oklch(from oklch(58% 0.14 30) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--copper-900: oklch(from oklch(58% 0.14 30) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--copper-800: oklch(from oklch(58% 0.14 30) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--copper-700: oklch(from oklch(58% 0.14 30) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--copper-600: oklch(from oklch(58% 0.14 30) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--copper-500: oklch(from oklch(58% 0.14 30) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--copper-400: oklch(from oklch(58% 0.14 30) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--copper-300: oklch(from oklch(58% 0.14 30) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--copper-200: oklch(from oklch(58% 0.14 30) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--copper-100: oklch(from oklch(58% 0.14 30) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--copper-50: oklch(from oklch(58% 0.14 30) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--copper: var(--copper-500);
+--red-950: oklch(from oklch(55% 0.21 0) 14.5% clamp(0, calc(0.05 + (sin(1 * pi) * c)), 0.4) h);
+--red-900: oklch(from oklch(55% 0.21 0) 20.5% clamp(0, calc(0.05 + (sin(0.9 * pi) * c)), 0.4) h);
+--red-800: oklch(from oklch(55% 0.21 0) 26.9% clamp(0, calc(0.05 + (sin(0.8 * pi) * c)), 0.4) h);
+--red-700: oklch(from oklch(55% 0.21 0) 37.1% clamp(0, calc(0.05 + (sin(0.7 * pi) * c)), 0.4) h);
+--red-600: oklch(from oklch(55% 0.21 0) 43.9% clamp(0, calc(0.05 + (sin(0.6 * pi) * c)), 0.4) h);
+--red-500: oklch(from oklch(55% 0.21 0) 55.6% clamp(0, calc(0.05 + (sin(0.5 * pi) * c)), 0.4) h);
+--red-400: oklch(from oklch(55% 0.21 0) 88% clamp(0, calc(0.05 + (sin(0.4 * pi) * c)), 0.4) h);
+--red-300: oklch(from oklch(55% 0.21 0) 88.8% clamp(0, calc(0.05 + (sin(0.3 * pi) * c)), 0.4) h);
+--red-200: oklch(from oklch(55% 0.21 0) 92.2% clamp(0, calc(0.05 + (sin(0.2 * pi) * c)), 0.4) h);
+--red-100: oklch(from oklch(55% 0.21 0) 99.9% clamp(0, calc(0.05 + (sin(0.1 * pi) * c)), 0.4) h);
+--red-50: oklch(from oklch(55% 0.21 0) 98% clamp(0, calc(0.05 + (sin(0 * pi) * c)), 0.4) h);
+--red: var(--red-500);
 --border: var(--border-width) solid var(--element-border-color);
 --element-background: var(--neutral-950, var(--neutral));
 --element-border-color: oklch(from var(--neutral-600, var(--neutral)) l c h / 50%);

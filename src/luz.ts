@@ -221,12 +221,6 @@ export function luz(config?: LuzConfig): LuzResult {
   const neutralCSSVar: string = `var(--${neutralsName})`;
   const neutralColor: string = `oklch(from ${primaryCSSVar} l 0 h)`;
 
-  //  Hue wheel (rotated hues from primary) — mode-independent, computed once.
-  const wheel: Record<string, string> = luzWheel(
-    `var(--${primaryName})`,
-    prefix,
-  );
-
   /** Full `colors` token record for one shade direction (light or dark). */
   function buildColors(reverse: boolean): Record<string, string> {
     const primaryShades = luzShadesByHue({
@@ -241,13 +235,23 @@ export function luz(config?: LuzConfig): LuzResult {
       reverse,
       steps: colorSteps,
     });
+    // `neutralColor`'s chroma is a literal 0, so the sine curve's usual
+    // `* c` (read from the source color) would multiply by zero at every
+    // step — a silent no-op that flattens the whole ramp to `base`. Give it
+    // a small literal `amplitude` instead, for a subtle curve that still
+    // tracks primary's hue.
     const neutralShades = luzShadesByHue({
       color: neutralCSSVar,
       name: neutralsName,
       base: 0.05,
+      amplitude: 0.02,
       reverse,
       steps: colorSteps,
     });
+    // Semantic hue wheel (red/orange/.../sky) — hand-tuned l/c per hue, not
+    // inherited from primary (see wheel.ts); still needs `reverse` per mode
+    // like every other palette, so it's built once per `buildColors` call.
+    const wheel: Record<string, string> = luzWheel(reverse, prefix, colorSteps);
 
     return {
       primary,

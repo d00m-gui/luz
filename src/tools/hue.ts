@@ -34,6 +34,13 @@ function generateWeights(steps: number): number[] {
  * `steps` defaults to the tuned 11-point curve (`WEIGHTS`/`SHADES`); any
  * other count resamples that curve via linear interpolation instead of
  * using a new formula, so the palette's shape stays consistent at any size.
+ *
+ * `amplitude`, when provided, replaces the relative-color `c` keyword (the
+ * source `color`'s own chroma channel) with this literal number in the sine
+ * expression. Needed for chroma-0 sources (e.g. the neutral palette, built
+ * as `oklch(from ... l 0 h)`) where `c` always resolves to 0 and the sine
+ * curve would be a no-op; pass a small literal like 0.02 to get a real
+ * peaked curve that still tracks the source's hue with a subtle tint.
  */
 export function luzShadesByHue({
   color,
@@ -41,12 +48,14 @@ export function luzShadesByHue({
   base = 0.05,
   reverse = false,
   steps = WEIGHTS.length,
+  amplitude,
 }: {
   color: string;
   name: string;
   base?: number;
   reverse?: boolean;
   steps?: number;
+  amplitude?: number;
 }): Record<string, string> {
   const isDefaultSteps = steps === WEIGHTS.length;
   const weights = isDefaultSteps ? WEIGHTS : generateWeights(steps);
@@ -62,7 +71,8 @@ export function luzShadesByHue({
     // ran past 1 at the last step, giving a *negative* chroma multiplier
     // there while the lightest shade got nonzero tint instead of none.
     const perIndex = weights.length === 1 ? 0.5 : step / (weights.length - 1);
-    const sin = `clamp(0, calc(${base} + (sin(${perIndex} * pi) * c)), 0.4)`;
+    const chromaTerm = amplitude === undefined ? "c" : amplitude;
+    const sin = `clamp(0, calc(${base} + (sin(${perIndex} * pi) * ${chromaTerm})), 0.4)`;
     const percent = percents[step];
     const key = `${name}-${weights[step]}`;
     const value = `oklch(from ${color} ${percent}% ${sin} h)`;

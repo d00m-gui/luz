@@ -1,35 +1,44 @@
 import { describe, expect, test } from "bun:test";
 import { luzWheel } from "../src/tools/wheel";
+import { WEIGHTS } from "../src/tools/constants";
+
+const HUES = [
+  "sky",
+  "blue",
+  "cyan",
+  "teal",
+  "emerald",
+  "green",
+  "yellow",
+  "orange",
+  "copper",
+  "red",
+];
 
 describe("luzWheel()", () => {
-  test("generates the ten named hues", () => {
-    const wheel = luzWheel("var(--primary)");
-    for (const hue of [
-      "sky",
-      "blue",
-      "cyan",
-      "teal",
-      "emerald",
-      "green",
-      "yellow",
-      "orange",
-      "copper",
-      "red",
-    ]) {
+  test("generates a full shade scale plus a bare alias per named hue", () => {
+    const wheel = luzWheel(false);
+    for (const hue of HUES) {
       expect(wheel[hue]).toBeDefined();
+      for (const weight of WEIGHTS) {
+        expect(wheel[`${hue}-${weight}`]).toBeDefined();
+      }
     }
-    expect(Object.keys(wheel)).toHaveLength(10);
+    // 10 hues * (WEIGHTS.length shades + 1 bare alias)
+    expect(Object.keys(wheel)).toHaveLength(HUES.length * (WEIGHTS.length + 1));
   });
 
-  test("rotates hue in oklch from the source color", () => {
-    const wheel = luzWheel("var(--primary)");
-    expect(wheel.red).toBe("oklch(from var(--primary) l c 0)");
-    expect(wheel.sky).toBe("oklch(from var(--primary) l c 270)");
+  test("bare alias points at the -500 shade, hand-tuned l/c per hue (not inherited from primary)", () => {
+    const wheel = luzWheel(false);
+    expect(wheel.red).toBe("var(--red-500)");
+    expect(wheel["red-500"]).toContain(" 0)");
+    expect(wheel["sky-500"]).toContain(" 270)");
   });
 
   test("applies a prefix to every key", () => {
-    const wheel = luzWheel("var(--primary)", "lz-");
+    const wheel = luzWheel(false, "lz-");
     expect(wheel["lz-red"]).toBeDefined();
+    expect(wheel["lz-red-500"]).toBeDefined();
     expect(wheel.red).toBeUndefined();
   });
 });
