@@ -1,8 +1,7 @@
 ---
 import { getCollection, render } from "astro:content";
 import Sidebar from "../components/Sidebar.astro";
-import { Playground } from "../components/Playground";
-import { Toolbar } from "../components/Toolbar";
+import { DocsIsland } from "../components/DocsIsland";
 import "../styles/luz-min.css";
 import "../styles/zed.css";
 
@@ -44,11 +43,11 @@ const playgroundCode =
             <small>{data.sourceFile}:{data.sourceLine}</small>
           </p>
 
-          {
-            data.category === "Components" && (
-              <Playground client:load code={playgroundCode} />
-            )
-          }
+          <DocsIsland
+            client:load
+            playgroundCode={playgroundCode}
+            hasPlayground={data.category === "Components"}
+          />
           {
             data.tags?.default && (
               <p>
@@ -213,6 +212,5 @@ const playgroundCode =
         </div>
       </main>
     </div>
-    <Toolbar client:load />
   </body>
 </html>

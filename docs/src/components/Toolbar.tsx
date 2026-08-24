@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useState } from "react";
-import { LuzReact, useTheme } from "../../../src/react";
+import { useTheme } from "../../../src/react";
 import { docsRuntimeConfig } from "../lib/docs-runtime-config";
 
 const MODES = ["light", "dark"] as const;
@@ -46,7 +46,10 @@ function GearIcon() {
   );
 }
 
-function ToolbarInner() {
+/** Renders inside the page's shared `<LuzReact>` (see `DocsIsland`) — reads
+ *  and toggles the SAME `sound`/theme context that `lui.*` components (in
+ *  the Playground preview) use, so the toggle actually reaches them. */
+export function Toolbar() {
   const theme = useTheme();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [mode, setModeState] = useState<(typeof MODES)[number]>(
@@ -111,17 +114,5 @@ function ToolbarInner() {
         )}
       </div>
     </div>
-  );
-}
-
-/** Bottom statusbar for the docs site — sound toggle + live luz settings.
- *  Runs its own `<LuzReact>` so it works standalone anywhere on the page;
- *  `setPrimary`/`setMode` write `:root` CSS vars, which cascade to the
- *  whole document regardless of which island's context called them. */
-export function Toolbar() {
-  return (
-    <LuzReact config={docsRuntimeConfig}>
-      <ToolbarInner />
-    </LuzReact>
   );
 }

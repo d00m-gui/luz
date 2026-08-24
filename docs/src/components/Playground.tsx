@@ -1,9 +1,10 @@
 import * as React from "react";
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
-import { LuzReact } from "../../../src/react";
 import { lui } from "../../../src/components";
-import { docsRuntimeConfig } from "../lib/docs-runtime-config";
 
+/** Renders inside the page's shared `<LuzReact>` (see `DocsIsland`) — must
+ *  NOT bring its own, or `lui.*`'s sound would read a different context
+ *  than the Toolbar's toggle writes to. */
 export function Playground({ code }: { code?: string }) {
   if (!code) {
     return (
@@ -14,18 +15,16 @@ export function Playground({ code }: { code?: string }) {
   }
 
   return (
-    <LuzReact config={docsRuntimeConfig}>
-      <LiveProvider code={code} scope={{ React, lui, useState: React.useState }}>
-        <div className="playground">
-          <div className="playground-editor">
-            <LiveEditor />
-            <LiveError className="playground-error" />
-          </div>
-          <div className="playground-preview">
-            <LivePreview />
-          </div>
+    <LiveProvider code={code} scope={{ React, lui, useState: React.useState }}>
+      <div className="playground">
+        <div className="playground-editor">
+          <LiveEditor />
+          <LiveError className="playground-error" />
         </div>
-      </LiveProvider>
-    </LuzReact>
+        <div className="playground-preview">
+          <LivePreview />
+        </div>
+      </div>
+    </LiveProvider>
   );
 }
