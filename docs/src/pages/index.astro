@@ -1,0 +1,10 @@
+---
+import { getCollection } from "astro:content";
+
+const all = await getCollection("components");
+const first =
+  all.find((e) => e.id === "button") ??
+  all.sort((a, b) => a.data.title.localeCompare(b.data.title))[0];
+
+return Astro.redirect(first ? `/${first.id}/` : "/");
+---

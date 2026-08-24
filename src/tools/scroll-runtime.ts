@@ -50,6 +50,7 @@ function rectProgress(el: Element, axis: "block" | "inline"): number {
   return clamp01((viewportExtent - start) / (viewportExtent + elExtent));
 }
 
+/** Options for `bindScrollVideo`. */
 export interface ScrollVideoOptions {
   /** Scroll axis to track. Default `"block"` (vertical). */
   axis?: "block" | "inline";

@@ -1,0 +1,193 @@
+/* Zed-editor-style chrome for the docs site. Colors come from luz tokens
+   (see luz.config.mjs) — no hardcoded hex here. */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  background: var(--neutral-950);
+  color: var(--foreground);
+  font-family: var(--font);
+}
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* --- Sidebar --- */
+
+.sidebar {
+  width: 240px;
+  flex: 0 0 240px;
+  background: var(--neutral-900);
+  border-right: 1px solid var(--neutral-800);
+  font-family: var(--font-monospace);
+  font-size: 13px;
+  padding: var(--size-4) 0;
+  overflow-y: auto;
+}
+
+.sidebar-group {
+  margin-bottom: var(--size-4);
+}
+
+.sidebar-group-title {
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  color: var(--neutral-500);
+  padding: 0 var(--size-4);
+  margin-bottom: var(--size-2);
+}
+
+.sidebar-item {
+  display: block;
+  padding: var(--size-2) var(--size-4);
+  color: var(--neutral-300);
+  text-decoration: none;
+  border-left: 2px solid transparent;
+  border-radius: 0;
+}
+
+.sidebar-item:hover {
+  background: var(--neutral-800);
+  color: var(--foreground);
+}
+
+.sidebar-item.active {
+  border-left-color: var(--primary-500);
+  background: var(--neutral-800);
+  color: var(--foreground);
+}
+
+/* --- Main panel --- */
+
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.breadcrumb {
+  font-family: var(--font-monospace);
+  font-size: 13px;
+  color: var(--neutral-400);
+  padding: var(--size-3) var(--size-5);
+  border-bottom: 1px solid var(--neutral-800);
+  background: var(--neutral-900);
+}
+
+.content {
+  padding: var(--size-6) var(--size-5);
+  max-width: 900px;
+}
+
+.content h1 {
+  font-family: var(--font-monospace);
+  font-size: var(--size-6);
+  margin: 0 0 var(--size-3);
+}
+
+.content .description {
+  color: var(--neutral-300);
+  line-height: var(--line-height);
+  margin-bottom: var(--size-5);
+}
+
+/* --- Props table --- */
+
+.props-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--neutral-800);
+  border-radius: 4px;
+  margin-bottom: var(--size-5);
+}
+
+.props-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-monospace);
+  font-size: 12px;
+}
+
+.props-table th,
+.props-table td {
+  text-align: left;
+  padding: var(--size-2) var(--size-3);
+  border-bottom: 1px solid var(--neutral-800);
+  vertical-align: top;
+}
+
+.props-table th {
+  color: var(--neutral-500);
+  font-weight: var(--font-weight);
+  text-transform: uppercase;
+  font-size: 11px;
+}
+
+.props-table pre {
+  margin: 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* --- Playground --- */
+
+.playground {
+  border: 1px solid var(--neutral-800);
+  border-radius: 4px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+@media (max-width: 900px) {
+  .playground {
+    grid-template-columns: 1fr;
+  }
+}
+
+.playground-editor {
+  background: var(--neutral-900);
+  border-right: 1px solid var(--neutral-800);
+  font-family: var(--font-monospace);
+  font-size: 13px;
+  overflow: auto;
+  max-height: 480px;
+}
+
+.playground-editor textarea,
+.playground-editor pre {
+  font-family: var(--font-monospace) !important;
+}
+
+.playground-preview {
+  background: var(--background);
+  padding: var(--size-5);
+  overflow: auto;
+  max-height: 480px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.playground-error {
+  color: var(--danger, #e5484d);
+  font-family: var(--font-monospace);
+  font-size: 12px;
+  padding: var(--size-2) var(--size-3);
+  white-space: pre-wrap;
+}
+
+.playground-placeholder {
+  padding: var(--size-5);
+  color: var(--neutral-500);
+  font-family: var(--font-monospace);
+  font-size: 13px;
+}

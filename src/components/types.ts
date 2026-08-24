@@ -37,12 +37,14 @@ export interface LuiComponents {
   dialog: DialogType;
 }
 
+/** Prop types for `lui.avatar`. */
 export interface AvatarTypes {
   root: typeof Avatar.Root;
   image: typeof Avatar.Image;
   fallback: typeof Avatar.Fallback;
 }
 
+/** Prop types for `lui.dialog`. */
 export interface DialogType {
   root: typeof Dialog.Root;
   trigger: Soundable<typeof Dialog.Trigger>;
@@ -54,8 +56,10 @@ export interface DialogType {
   close: typeof Dialog.Close;
 }
 
+/** Prop types for `lui.button`. */
 export type ButtonType = Soundable<typeof Button>;
 
+/** Prop types for `lui.menu`. */
 export interface MenuItemTypes {
   root: typeof Menu.Root;
   trigger: typeof Menu.Trigger;
@@ -73,10 +77,13 @@ export interface MenuItemTypes {
   submenutrigger: typeof Menu.SubmenuTrigger;
 }
 
+/** Prop types for `lui.menubar`. */
 export type MenubarType = typeof Menubar;
 
+/** Prop types for `lui.form`. */
 export type FormRoot = Soundable<typeof Form>;
 
+/** Prop types for `lui.tabs`. */
 export interface TabsComponentTypes {
   root: typeof Tabs.Root;
   tab: Soundable<typeof Tabs.Tab>;
@@ -85,6 +92,7 @@ export interface TabsComponentTypes {
   indicator: typeof Tabs.Indicator;
 }
 
+/** Prop types for `lui.meter`. */
 export interface MeterComponentTypes {
   root: typeof Meter.Root;
   label: typeof Meter.Label;
@@ -93,6 +101,7 @@ export interface MeterComponentTypes {
   indicator: typeof Meter.Indicator;
 }
 
+/** Prop types for `lui.field`. */
 export interface FieldTypes {
   root: typeof Field.Root;
   label: typeof Field.Label;
@@ -101,10 +110,13 @@ export interface FieldTypes {
   error: typeof Field.Error;
 }
 
+/** Prop types for `lui.toggle`. */
 export type ToggleRoot = Soundable<typeof Toggle>;
 
+/** Prop types for `lui.togglegroup`. */
 export type ToggleGroupRoot = typeof ToggleGroup;
 
+/** Prop types for `lui.toast`. */
 export interface ToastComponentTypes {
   core: typeof ToastCore;
   provider: typeof Toast.Provider;
@@ -118,10 +130,12 @@ export interface ToastComponentTypes {
   close: typeof Toast.Close;
 }
 
+/** Prop types for `lui.switch`. */
 export interface SwitchComponentTypes {
   root: Soundable<typeof Switch.Root>;
   thumb: typeof Switch.Thumb;
 }
 
+/** Prop types for `lui.card`. */
 export type CardType = typeof Card;
 

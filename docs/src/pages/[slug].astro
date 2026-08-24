@@ -1,0 +1,142 @@
+---
+import { getCollection, render } from "astro:content";
+import Sidebar from "../components/Sidebar.astro";
+import { Playground } from "../components/Playground";
+import "../styles/luz-generated.css";
+import "../styles/zed.css";
+
+export async function getStaticPaths() {
+  const all = await getCollection("components");
+  return all.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const data = entry.data;
+
+const playgroundSources = import.meta.glob("../playgrounds/*.tsx", {
+  query: "?raw",
+  import: "default",
+  eager: true,
+}) as Record<string, string>;
+
+const playgroundCode =
+  data.category === "Components"
+    ? (playgroundSources[`../playgrounds/${entry.id}.tsx`] as string | undefined)
+    : undefined;
+---
+
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>{data.title} — luz docs</title>
+  </head>
+  <body>
+    <div class="layout">
+      <Sidebar activeId={entry.id} />
+      <main class="main">
+        <div class="breadcrumb">luz / {data.category} / {data.title}</div>
+        <div class="content">
+          <h1>{data.title}</h1>
+          <p class="description">
+            {data.description}
+          </p>
+
+          {
+            data.tags?.default && (
+              <p>
+                <strong>Default:</strong> <code>{data.tags.default}</code>
+              </p>
+            )
+          }
+
+          {
+            data.tags?.params && data.tags.params.length > 0 && (
+              <div class="props-table-wrap">
+                <table class="props-table">
+                  <thead>
+                    <tr>
+                      <th>Value</th>
+                      <th>Meaning</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.tags.params.map((p: { value: string; meaning: string }) => (
+                      <tr>
+                        <td><code>{p.value}</code></td>
+                        <td>{p.meaning}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          }
+
+          {
+            data.fields && data.fields.length > 0 && (
+              <div class="props-table-wrap">
+                <table class="props-table">
+                  <thead>
+                    <tr>
+                      <th>Field</th>
+                      <th>Description</th>
+                      <th>Default</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.fields.map((f: { name: string; doc: { description: string; default?: string; params: { value: string; meaning: string }[] } }) => (
+                      <tr>
+                        <td><code>{f.name}</code></td>
+                        <td>
+                          {f.doc.description || "Sin documentar."}
+                          {f.doc.params.length > 0 && (
+                            <ul>
+                              {f.doc.params.map((p) => (
+                                <li>
+                                  <code>{p.value}</code> {p.meaning}
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </td>
+                        <td>{f.doc.default ? <code>{f.doc.default}</code> : "—"}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )
+          }
+
+          {
+            data.propsTypeText && (
+              <div class="props-table-wrap">
+                <table class="props-table">
+                  <thead>
+                    <tr><th>Props type</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td><pre>{data.propsTypeText}</pre></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            )
+          }
+
+          <p class="description">
+            <small>{data.sourceFile}:{data.sourceLine}</small>
+          </p>
+
+          {
+            data.category === "Components" && (
+              <Playground client:load code={playgroundCode} />
+            )
+          }
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

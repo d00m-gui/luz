@@ -5,6 +5,11 @@
  * Opt-in: nothing plays unless `enabled` is explicitly true.
  */
 
+/**
+ * Names of the synthesized sound events `luz` can play — used by
+ * `LuzSoundConfig.events` (to override/add a preset per event) and by the
+ * `lui.*` components that trigger sounds on interaction.
+ */
 export type SoundEvent =
   | "click"
   | "hover"

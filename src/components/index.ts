@@ -71,13 +71,23 @@ function validitySounded<T extends React.ComponentType<never>>(
   return withValiditySound(Component as never) as unknown as T;
 }
 
+/**
+ * Component namespace re-exporting `@base-ui/react` with luz's injected
+ * `<style>` (via `styled`) and synthesized UI sound effects (via `sounded`).
+ */
 export const lui: LuiComponents = {
+  /** Avatar with fallback initials/image. `root` accepts an `"avatar"` className. */
   avatar: {
     root: styled("avatar", Avatar.Root),
     image: Avatar.Image,
     fallback: Avatar.Fallback,
   },
+  /**
+   * Button. Plays a "click" sound. Variant className modifiers: `success`,
+   * `contrast`, `over`, `danger`, `reset`, `pressed`, `warning`, `ghost`.
+   */
   button: sounded("click", Button),
+  /** Compound menu (trigger/popup/items/radio group). Item clicks play "click". */
   menu: {
     root: styled("menu", Menu.Root),
     trigger: Menu.Trigger,
@@ -94,7 +104,9 @@ export const lui: LuiComponents = {
     submenu: Menu.SubmenuRoot,
     submenutrigger: Menu.SubmenuTrigger,
   },
+  /** Horizontal bar of top-level `lui.menu.root`s (File/Edit/Help style). */
   menubar: styled("menubar", Menubar),
+  /** Compound tabs (list/tab/panel). Switching tabs plays "snap". */
   tabs: {
     root: styled("tabs", Tabs.Root),
     tab: sounded("snap", Tabs.Tab),
@@ -102,6 +114,7 @@ export const lui: LuiComponents = {
     list: Tabs.List,
     indicator: Tabs.Indicator,
   },
+  /** Compound meter (label/value/track/indicator) for a bounded numeric value. */
   meter: {
     root: styled("meter", Meter.Root),
     label: Meter.Label,
@@ -109,16 +122,23 @@ export const lui: LuiComponents = {
     track: Meter.Track,
     indicator: Meter.Indicator,
   },
+  /** Form wrapper; plays "success" on submit. */
   form: sounded("success", styled("form", Form), "onFormSubmit"),
+  /** Compound form field (label/control/description/error). */
   field: {
+    /** Plays "error"/"success" when validity flips (via `data-invalid`). */
     root: validitySounded(styled("field", Field.Root)),
     label: Field.Label,
+    /** Native input/textarea wrapper; plays "hover" on focus. */
     control: sounded("hover", Field.Control, "onFocus"),
     description: Field.Description,
     error: Field.Error,
   },
+  /** Single toggle button, typically inside `lui.togglegroup`. Plays "toggle". */
   toggle: sounded("toggle", Toggle),
+  /** Group of `lui.toggle`s with shared exclusive/multi selection state. */
   togglegroup: styled("togglegroup", ToggleGroup),
+  /** Compound toast (provider/portal/viewport/root). Root plays "pop" on open, "whoosh" on close. */
   toast: {
     core: ToastCore,
     provider: styled("toast", Toast.Provider),
@@ -131,11 +151,14 @@ export const lui: LuiComponents = {
     action: Toast.Action,
     close: Toast.Close,
   },
+  /** Compound switch (root/thumb). Root plays "toggle" on `onCheckedChange`. */
   switch: {
     root: sounded("toggle", Switch.Root, "onCheckedChange"),
     thumb: Switch.Thumb,
   },
+  /** Styled `<article>` container, used as the outer wrapper for most samples. */
   card: styled("card", Card),
+  /** Compound dialog (trigger/portal/backdrop/popup). Trigger plays "click". */
   dialog: {
     root: styled("dialog", Dialog.Root),
     trigger: sounded("click", Dialog.Trigger),

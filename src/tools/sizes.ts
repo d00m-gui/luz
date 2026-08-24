@@ -14,6 +14,7 @@ export const TYPE_SCALES = {
   golden: 1.618,
 } as const;
 
+/** Preset name for the exponential `size-N` scale ratio — see `TYPE_SCALES`. */
 export type TypeScaleName = keyof typeof TYPE_SCALES;
 
 /** Resolves a preset name or a raw ratio number to a numeric ratio. */
@@ -35,6 +36,7 @@ export const FLUID_RANGES = {
   dramatic: 1.6,
 } as const;
 
+/** Preset name for how far a fluid size step's viewport-max reaches past its viewport-min — see `FLUID_RANGES`. */
 export type FluidRangeName = keyof typeof FLUID_RANGES;
 
 /** Resolves a preset name or a raw exponent-offset number to a number. */

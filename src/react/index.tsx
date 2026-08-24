@@ -119,6 +119,12 @@ function useCheckboxRadioSound(sound: LuzTheme["sound"]): void {
   }, [sound]);
 }
 
+/**
+ * Root React provider. Injects the `<style>` computed by `luz(config)`,
+ * exposes `LuzTheme` via context (read with `useTheme()`), and wires global
+ * sound listeners for native inputs (typing, range drag, checkbox/radio)
+ * when `config.sound.enabled` is `true`.
+ */
 export function LuzReact({
   config,
   children,
