@@ -171,3 +171,6 @@ export function LuzReact({
 export { useTheme, type LuzTheme, type LuzThemeSound } from "./context";
 export { useLuzSound } from "./useSound";
 export type { LuzSoundConfig, SoundEvent } from "../tools/sound";
+export { useLuzScroll, useScrollVideo } from "./useScroll";
+export type { LuzScrollConfig } from "../tools/scroll";
+export type { ScrollVideoOptions } from "../tools/scroll-runtime";

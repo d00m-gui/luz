@@ -11,6 +11,7 @@ import {
   type TypeScaleName,
 } from "./tools/sizes";
 import type { LuzSoundConfig } from "./tools/sound";
+import { luzScrollCSS, type LuzScrollConfig } from "./tools/scroll";
 import { luzWheel } from "./tools/wheel";
 import { withShadeFallback } from "./tools/base";
 
@@ -97,6 +98,8 @@ export interface LuzConfig {
   sizeRelativeToBase?: boolean;
   /** Synthesized UI sound effects (Web Audio API, no external files). Opt-in, disabled by default. */
   sound?: LuzSoundConfig;
+  /** Scroll-driven animation archetypes (reveal/stagger/parallax/sticky-stack), native CSS. Opt-in, disabled by default. */
+  scroll?: LuzScrollConfig;
 }
 
 /** Settings sub-object within tokens (metadata only). */
@@ -193,6 +196,7 @@ export function luz(config?: LuzConfig): LuzResult {
     sizeRelativeToBase,
     sizeFluidRange,
     sound: _sound,
+    scroll,
     ...typography
   } = settings;
 
@@ -348,6 +352,7 @@ export function luz(config?: LuzConfig): LuzResult {
     ${variables}
   }
   ${darkOverrideBlock}
+  ${luzScrollCSS(scroll)}
   `;
 
   if (minify) {

@@ -1,8 +1,9 @@
 import { memo, useMemo, useRef, useState } from "react";
 import { luz, type LuzConfig } from "../../src/luz";
-import { LuzReact } from "../../src/react";
+import { LuzReact, useLuzScroll } from "../../src/react";
 import { lui } from "../../src/components";
 import logoUrl from "./luz-logo.svg";
+import ltvUrl from "./components/ltv.webm";
 import { PRESETS, type Preset } from "./presets";
 import { ColorPicker } from "./components/color-picker";
 import { FontPicker } from "./components/font-picker";
@@ -13,15 +14,18 @@ import { Editable } from "./components/editable";
 function Logo({
   size,
   className,
+  style,
 }: {
   size?: number;
   className?: string;
+  style?: React.CSSProperties;
 }) {
   return (
     <span
       className={`logo-mark${className ? ` ${className}` : ""}`}
       style={{
         ...(size ? { width: size, height: size } : {}),
+        ...style,
         maskImage: `url(${logoUrl})`,
         WebkitMaskImage: `url(${logoUrl})`,
       }}
@@ -71,6 +75,7 @@ const initialConfig: LuzConfig = {
   mode: "dark",
   neutrals: "neutral",
   sizeFluidRange: "dramatic",
+  scroll: { enabled: true },
 };
 
 type FieldType = "text" | "number" | "color" | "select" | "switch";
@@ -198,6 +203,8 @@ export function App() {
   const nextOverrideId = useRef(0);
   const [activePreset, setActivePreset] = useState<string | null>(null);
   const { tokens } = useMemo(() => luz(config), [config]);
+  const previewRef = useRef<HTMLElement>(null);
+  useLuzScroll(previewRef); // wires up [data-luz-text]/[data-luz-scroll-video] below
   const { name, prefix = "", neutrals = "neutral" } = tokens.settings;
   const primaryName = `${prefix}${name}`;
   const secondaryName = `${prefix}secondary`;
@@ -361,7 +368,7 @@ export function App() {
       </FloatingPanel>
 
       <div className="builder">
-        <main className="preview">
+        <main className="preview" ref={previewRef}>
           {/* 00 — Cover */}
           <section className="doc-section cover">
             <div className="eyebrow">
@@ -383,7 +390,7 @@ export function App() {
           <section className="doc-section">
             <SectionHeading index="01" title="Colors" badge="Core design system" />
 
-            <div className="panel">
+            <div className="panel luz-reveal">
               <div className="panel-grid">
                 <div className="panel-block">
                   <Editable as="h4" defaultText="Primary" />
@@ -449,7 +456,7 @@ export function App() {
                   className="hint"
                   defaultText="A rotated hue wheel, derived from the primary, used to communicate status and direction."
                 />
-                <div className="wheel">
+                <div className="wheel luz-stagger">
                   {WHEEL_HUES.map((hue) => (
                     <div key={hue} className="pair">
                       <div
@@ -475,7 +482,7 @@ export function App() {
           <section className="doc-section">
             <SectionHeading index="02" title="Typography" badge="Color & type style" />
 
-            <div className="panel type-panel">
+            <div className="panel type-panel luz-reveal">
               <div className="type-swatches">
                 <ColorPicker label="Primary" value={config.primary} onChange={(hex) => set("primary", hex)}>
                   <SwatchCard label="Primary" varName="primary-500" value={config.primary} light />
@@ -535,7 +542,7 @@ export function App() {
               </div>
             </div>
 
-            <div className="panel type-article">
+            <div className="panel type-article luz-reveal">
               <Editable as="h1" style={{ fontFamily: "var(--font-headings)" }} defaultText="Heading one" />
               <Editable as="h2" style={{ fontFamily: "var(--font-headings)" }} defaultText="Heading two" />
               <Editable as="h3" style={{ fontFamily: "var(--font-headings)" }} defaultText="Heading three" />
@@ -569,7 +576,7 @@ export function App() {
           {/* 03 — Sizing */}
           <section className="doc-section">
             <SectionHeading index="03" title="Sizing" badge="Fluid scale" />
-            <div className="panel">
+            <div className="panel luz-reveal">
               <div className="sizes">
                 {Object.entries(tokens.sizes)
                   .filter(([key]) => key.startsWith("size-"))
@@ -587,9 +594,11 @@ export function App() {
           {/* 04 — Applied UI */}
           <section className="doc-section">
             <SectionHeading index="04" title="Applied UI" badge="Product surface" />
-            <DashboardMock name={title} />
+            <div className="luz-reveal">
+              <DashboardMock name={title} />
+            </div>
 
-            <div className="grid">
+            <div className="grid luz-stagger">
               <lui.card>
                 <Editable as="h2" defaultText="buttons" />
                 <div className="card-content buttons">
@@ -634,6 +643,97 @@ export function App() {
                   <progress value={60} max={100} />
                 </div>
               </lui.card>
+            </div>
+          </section>
+
+          {/* 05 — Scroll */}
+          <section className="doc-section scroll-demo">
+            <SectionHeading index="05" title="Scroll" badge="Native scroll-driven animation" />
+
+            <div className="panel luz-reveal">
+              <h4 data-luz-text className="luz-reveal-text">
+                Words reveal in reading order as you scroll
+              </h4>
+              <p className="hint">
+                Every archetype below is plain CSS (
+                <code>animation-timeline: view()/scroll()</code>) — the
+                reveal-text words and the video are the only two that also
+                need a one-line <code>useLuzScroll(ref)</code> to split text
+                / scrub <code>currentTime</code>.
+              </p>
+            </div>
+
+            <div className="video-sticky-wrap">
+              <video
+                data-luz-scroll-video
+                data-luz-scroll-track="#scroll-over-track"
+                className="video-sticky"
+                src={ltvUrl}
+                playsInline
+                muted
+              />
+            </div>
+
+            <div className="scroll-over" id="scroll-over-track">
+              <div className="panel-block">
+                <Editable as="h4" defaultText="Scroll-scrubbed video" />
+                <Editable
+                  as="p"
+                  className="hint"
+                  defaultText="Pinned full-screen behind this content — currentTime scrubs with scroll instead of playing back."
+                />
+              </div>
+
+              <div className="panel-block">
+                <Editable as="h4" defaultText="Auto-stagger" />
+                <div className="grid luz-stagger">
+                  {["Reveal", "Stagger", "Parallax", "Sticky stack", "Video scrub", "Text reveal"].map(
+                    (label) => (
+                      <lui.card key={label}>
+                        <h2>{label}</h2>
+                        <div className="card-content">
+                          <p className="hint">
+                            No JS delay — each card owns a slice of the
+                            container's timeline via <code>--i</code>.
+                          </p>
+                        </div>
+                      </lui.card>
+                    ),
+                  )}
+                </div>
+              </div>
+
+              <div className="panel-block">
+                <Editable as="h4" defaultText="Parallax" />
+                <div className="parallax-banner">
+                  <Logo
+                    className="parallax-layer luz-parallax"
+                    style={{ "--luz-parallax-strength": "8%" } as React.CSSProperties}
+                  />
+                  <span
+                    className="parallax-layer parallax-word luz-parallax"
+                    style={{ "--luz-parallax-strength": "25%" } as React.CSSProperties}
+                  >
+                    scroll
+                  </span>
+                </div>
+              </div>
+
+              <div className="panel-block">
+                <Editable as="h4" defaultText="Sticky card stack" />
+                <div className="luz-stack stack-demo">
+                  {["One", "Two", "Three"].map((label) => (
+                    <div className="stack-card" key={label}>
+                      <Editable as="h3" defaultText={`Card ${label}`} />
+                      <Editable
+                        as="p"
+                        className="hint"
+                        defaultText="Each card recedes — scales down, dims — as the next one covers it."
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
         </main>

@@ -882,6 +882,86 @@ button.font-picker-item {
   gap: var(--size-8);
 }
 
+/* -- Scroll section (05) -- */
+
+.parallax-banner {
+  position: relative;
+  height: 12rem;
+  border-radius: var(--border-radius);
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--primary-900), var(--neutral-950));
+  display: grid;
+  place-items: center;
+}
+
+.parallax-layer {
+  position: relative;
+}
+
+.parallax-layer.logo-mark {
+  width: 3.5rem;
+  height: 3.5rem;
+  background-color: var(--primary-400);
+  opacity: 0.5;
+}
+
+.parallax-word {
+  font-family: var(--font-headings);
+  font-size: var(--size-20);
+  color: var(--foreground);
+}
+
+.stack-demo {
+  gap: 0;
+}
+
+.stack-card {
+  min-height: 14rem;
+  padding: var(--size-16);
+  border-radius: calc(var(--border-radius) * 2);
+  background: var(--neutral-900);
+  border: var(--border-width) solid var(--neutral-700);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--size-8);
+}
+
+.luz-scroll-video {
+  width: 100%;
+  max-height: 24rem;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+  background: var(--neutral-950);
+}
+
+/* Pinned full-screen video: sticky + negative margin-bottom keeps it in
+   place while `.scroll-over` (next sibling, opaque background) scrolls up
+   over it — classic sticky-background trick. */
+.video-sticky-wrap {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  margin: 0 calc(-1 * clamp(2rem, 6vw, 7rem)) calc(-100vh + var(--size-16));
+  z-index: 0;
+  overflow: hidden;
+}
+
+.video-sticky {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scroll-over {
+  position: relative;
+  z-index: 1;
+  background: var(--background);
+  border-radius: calc(var(--border-radius) * 2) calc(var(--border-radius) * 2) 0 0;
+  padding-top: var(--size-16);
+}
+
 @media (max-width: 900px) {
   .panel-grid,
   .type-panel {
