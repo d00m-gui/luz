@@ -189,8 +189,6 @@ bun run type-check   # tsc --noEmit
 bun run lint         # oxlint
 bun run format       # oxfmt
 bun run test         # run the Bun test suite
-bun run dev          # React component playground (examples/ui)
-bun run astro:dev    # Astro integration demo (examples/nimda)
 ```
 
 The `bunup` script always builds with `NODE_ENV=production` so published React entrypoints use `react/jsx-runtime`.
