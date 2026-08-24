@@ -61,6 +61,7 @@
   "scripts": {
     "bunup": "NODE_ENV=production bunup",
     "dev:watch": "bunup --watch",
+    "docs:dev": "bun run --cwd docs dev",
     "format": "oxfmt",
     "lint": "oxlint --ignore-pattern \"dist/**\" .",
     "prepare": "bun simple-git-hooks",

@@ -21,7 +21,7 @@ export function Playground({ code }: { code?: string }) {
     <LuzReact config={docsRuntimeConfig}>
       <LiveProvider
         code={code}
-        scope={{ ...React, lui, useState: React.useState }}
+        scope={{ React, lui, useState: React.useState }}
         noInline
       >
         <div className="playground">
