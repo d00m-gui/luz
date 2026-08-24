@@ -16,28 +16,36 @@ const HUES = [
 ];
 
 describe("luzWheel()", () => {
-  test("generates a full shade scale plus a bare alias per named hue", () => {
+  test("generates a full shade scale, a seed literal, and a bare alias per named hue", () => {
     const wheel = luzWheel(false);
     for (const hue of HUES) {
       expect(wheel[hue]).toBeDefined();
+      expect(wheel[`${hue}-seed`]).toBeDefined();
       for (const weight of WEIGHTS) {
         expect(wheel[`${hue}-${weight}`]).toBeDefined();
       }
     }
-    // 10 hues * (WEIGHTS.length shades + 1 bare alias)
-    expect(Object.keys(wheel)).toHaveLength(HUES.length * (WEIGHTS.length + 1));
+    // 10 hues * (WEIGHTS.length shades + 1 seed literal + 1 bare alias)
+    expect(Object.keys(wheel)).toHaveLength(
+      HUES.length * (WEIGHTS.length + 2),
+    );
   });
 
-  test("bare alias points at the -500 shade, hand-tuned l/c per hue (not inherited from primary)", () => {
+  test("bare alias points at the -500 shade; the seed is a hand-tuned literal (not inherited from primary)", () => {
     const wheel = luzWheel(false);
     expect(wheel.red).toBe("var(--red-500)");
-    expect(wheel["red-500"]).toContain(" 0)");
-    expect(wheel["sky-500"]).toContain(" 270)");
+    expect(wheel["red-seed"]).toContain(" 0)");
+    expect(wheel["sky-seed"]).toContain(" 270)");
+    // Shades read the seed via var() rather than nesting a literal
+    // oklch(...) as their `from` source — lightningcss's relative-color
+    // parser chokes on `oklch(from oklch(...) ...)`.
+    expect(wheel["red-500"]).toContain("var(--red-seed)");
   });
 
   test("applies a prefix to every key", () => {
     const wheel = luzWheel(false, "lz-");
     expect(wheel["lz-red"]).toBeDefined();
+    expect(wheel["lz-red-seed"]).toBeDefined();
     expect(wheel["lz-red-500"]).toBeDefined();
     expect(wheel.red).toBeUndefined();
   });

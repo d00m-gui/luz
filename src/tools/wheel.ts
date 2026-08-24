@@ -43,13 +43,26 @@ export function luzWheel(
   let wheel: Record<string, string> = {};
   for (const [name, { hue, l, c }] of Object.entries(WHEEL_HUES)) {
     const key = `${prefix ?? ""}${name}`;
+    // `luzShadesByHue` wraps its `color` arg in `oklch(from ${color} ...)`.
+    // A literal `oklch(L C H)` passed straight in would nest as
+    // `oklch(from oklch(...) ...)` — lightningcss's relative-color parser
+    // (used by the Astro build's CSS minifier) chokes on that shape, even
+    // though it's valid CSS. Emit the tuned literal as its own custom
+    // property first and reference it via `var()` instead, same as every
+    // other `from` source in this codebase.
+    const seedKey = `${key}-seed`;
     const shades = luzShadesByHue({
-      color: `oklch(${l}% ${c} ${hue})`,
+      color: `var(--${seedKey})`,
       name: key,
       reverse,
       steps,
     });
-    wheel = { ...wheel, ...shades, [key]: `var(--${key}-500)` };
+    wheel = {
+      ...wheel,
+      [seedKey]: `oklch(${l}% ${c} ${hue})`,
+      ...shades,
+      [key]: `var(--${key}-500)`,
+    };
   }
   return wheel;
 }

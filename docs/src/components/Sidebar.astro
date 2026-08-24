@@ -18,6 +18,15 @@ const grouped = order.map((category) => ({
 ---
 
 <nav class="sidebar">
+  <div class="sidebar-group">
+    <div class="sidebar-group-title">Docs</div>
+    <a
+      href="/kitchen-sink/"
+      class={`sidebar-item${activeId === "kitchen-sink" ? " active" : ""}`}
+    >
+      Kitchen Sink
+    </a>
+  </div>
   {
     grouped.map(({ category, items }) =>
       items.length ? (
