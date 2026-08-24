@@ -1,7 +1,11 @@
 import * as React from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "../../../src/react";
 import { docsRuntimeConfig } from "../lib/docs-runtime-config";
+import {
+  loadPersistedSettings,
+  savePersistedSettings,
+} from "../lib/persisted-settings";
 
 const MODES = ["light", "dark"] as const;
 
@@ -55,6 +59,28 @@ export function Toolbar() {
   const [mode, setModeState] = useState<(typeof MODES)[number]>(
     (docsRuntimeConfig.mode as (typeof MODES)[number]) ?? "dark",
   );
+  const [primary, setPrimaryState] = useState(
+    docsRuntimeConfig.primary ?? "#007dea",
+  );
+
+  // This page is a full reload away from the next component (static
+  // routes), so React state — and this island's `<LuzReact>` — starts
+  // fresh every time. Re-apply whatever was saved last, once, on mount.
+  useEffect(() => {
+    const saved = loadPersistedSettings();
+    if (saved.primary) {
+      theme.setPrimary(saved.primary);
+      setPrimaryState(saved.primary);
+    }
+    if (saved.mode) {
+      theme.setMode(saved.mode);
+      setModeState(saved.mode);
+    }
+    if (saved.soundEnabled !== undefined) {
+      theme.sound.setEnabled(saved.soundEnabled);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="toolbar">
@@ -63,7 +89,11 @@ export function Toolbar() {
         className="toolbar-btn"
         aria-pressed={theme.sound.enabled}
         aria-label={theme.sound.enabled ? "Silenciar sonidos de luz" : "Activar sonidos de luz"}
-        onClick={() => theme.sound.toggle()}
+        onClick={() => {
+          const next = !theme.sound.enabled;
+          theme.sound.setEnabled(next);
+          savePersistedSettings({ soundEnabled: next });
+        }}
       >
         <SoundIcon muted={!theme.sound.enabled} />
         {theme.sound.enabled ? "Sound on" : "Sound off"}
@@ -89,8 +119,13 @@ export function Toolbar() {
               Primary
               <input
                 type="color"
-                defaultValue={theme.tokens.colors.primary}
-                onChange={(event) => theme.setPrimary(event.target.value)}
+                value={primary}
+                onChange={(event) => {
+                  const next = event.target.value;
+                  setPrimaryState(next);
+                  theme.setPrimary(next);
+                  savePersistedSettings({ primary: next });
+                }}
               />
             </label>
             <label className="toolbar-field">
@@ -101,6 +136,7 @@ export function Toolbar() {
                   const next = event.target.value as (typeof MODES)[number];
                   setModeState(next);
                   theme.setMode(next);
+                  savePersistedSettings({ mode: next });
                 }}
               >
                 {MODES.map((m) => (
