@@ -2,6 +2,7 @@
 import { getCollection, render } from "astro:content";
 import Sidebar from "../components/Sidebar.astro";
 import { Playground } from "../components/Playground";
+import { Toolbar } from "../components/Toolbar";
 import "../styles/luz-min.css";
 import "../styles/zed.css";
 
@@ -18,8 +19,8 @@ const data = entry.data;
 
 const playgroundCode =
   data.category === "Components"
-    ? ((await getCollection("playgrounds")).find((p) => p.id === entry.id)
-        ?.data.code as string | undefined)
+    ? ((await getCollection("playgrounds")).find((p) => p.id === entry.id)?.data
+        .code as string | undefined)
     : undefined;
 ---
 
@@ -34,11 +35,20 @@ const playgroundCode =
       <main class="main">
         <div class="breadcrumb">luz / {data.category} / {data.title}</div>
         <div class="content">
-          <h1>{data.title}</h1>
-          <p class="description">
+          <h5>{data.title}</h5>
+          <h3 class="description">
             {data.description}
+          </h3>
+
+          <p class="description">
+            <small>{data.sourceFile}:{data.sourceLine}</small>
           </p>
 
+          {
+            data.category === "Components" && (
+              <Playground client:load code={playgroundCode} />
+            )
+          }
           {
             data.tags?.default && (
               <p>
@@ -200,18 +210,9 @@ const playgroundCode =
               </div>
             )
           }
-
-          <p class="description">
-            <small>{data.sourceFile}:{data.sourceLine}</small>
-          </p>
-
-          {
-            data.category === "Components" && (
-              <Playground client:load code={playgroundCode} />
-            )
-          }
         </div>
       </main>
     </div>
+    <Toolbar client:load />
   </body>
 </html>

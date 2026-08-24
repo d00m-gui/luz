@@ -2,11 +2,7 @@ import * as React from "react";
 import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
 import { LuzReact } from "../../../src/react";
 import { lui } from "../../../src/components";
-
-const docsRuntimeConfig = {
-  primary: "#007DEA",
-  mode: "dark" as const,
-};
+import { docsRuntimeConfig } from "../lib/docs-runtime-config";
 
 export function Playground({ code }: { code?: string }) {
   if (!code) {

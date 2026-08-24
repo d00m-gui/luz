@@ -17,6 +17,7 @@ body {
 .layout {
   display: flex;
   min-height: 100vh;
+  padding-bottom: var(--toolbar-height);
 }
 
 /* --- Sidebar --- */
@@ -96,6 +97,11 @@ body {
   margin: 0 0 var(--size-3);
 }
 
+.content h3 {
+  font-size: var(--size-16);
+  margin: 0 0 var(--size-3);
+}
+
 .content .description {
   color: var(--neutral-300);
   line-height: var(--line-height);
@@ -165,14 +171,8 @@ body {
   border: 1px solid var(--neutral-800);
   border-radius: 4px;
   overflow: hidden;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-}
-
-@media (max-width: 900px) {
-  .playground {
-    grid-template-columns: 1fr;
-  }
+  display: flex;
+  flex-direction: column-reverse;
 }
 
 .playground-editor {
@@ -190,10 +190,14 @@ body {
 }
 
 .playground-preview {
-  background: var(--background);
-  padding: var(--size-5);
+  background: var(--neutral-800);
+  display: grid;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing);
   overflow: auto;
   max-height: 480px;
+
 }
 
 /* react-live wraps the rendered result in an unstyled div — give it a
@@ -219,4 +223,79 @@ body {
   color: var(--neutral-500);
   font-family: var(--font-monospace);
 
+}
+
+/* --- Toolbar (statusbar) --- */
+
+:root {
+  --toolbar-height: 28px;
+}
+
+.toolbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--toolbar-height);
+  display: flex;
+  align-items: center;
+  gap: var(--size-1);
+  padding: 0 var(--size-3);
+  background: var(--neutral-800);
+  border-top: 1px solid var(--neutral-700);
+  font-family: var(--font-monospace);
+  z-index: 50;
+}
+
+.toolbar-spacer {
+  flex: 1;
+}
+
+.toolbar-btn {
+  display: flex;
+  align-items: center;
+  gap: var(--size-1);
+  height: 100%;
+  padding: 0 var(--size-2);
+  background: none;
+  border: 0;
+  color: var(--neutral-400);
+  cursor: pointer;
+}
+
+.toolbar-btn:hover {
+  background: var(--neutral-700);
+  color: var(--foreground);
+}
+
+.toolbar-btn[aria-pressed="true"] {
+  color: var(--primary-400);
+}
+
+.toolbar-settings {
+  position: relative;
+  height: 100%;
+}
+
+.toolbar-settings-panel {
+  position: absolute;
+  bottom: 100%;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-3);
+  min-width: 180px;
+  margin-bottom: var(--size-1);
+  padding: var(--size-3);
+  background: var(--neutral-900);
+  border: 1px solid var(--neutral-700);
+  border-radius: 4px;
+}
+
+.toolbar-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--size-3);
+  color: var(--neutral-400);
 }
