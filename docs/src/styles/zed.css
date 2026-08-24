@@ -137,6 +137,26 @@ body {
   word-break: break-word;
 }
 
+.props-native {
+  margin-bottom: var(--size-5);
+}
+
+.props-native summary {
+  cursor: pointer;
+  font-family: var(--font-monospace);
+  font-size: 12px;
+  color: var(--neutral-500);
+  padding: var(--size-2) 0;
+}
+
+.props-native summary:hover {
+  color: var(--neutral-300);
+}
+
+.props-native .props-table-wrap {
+  margin-bottom: 0;
+}
+
 /* --- Playground --- */
 
 .playground {

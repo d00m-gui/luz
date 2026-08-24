@@ -29,6 +29,9 @@ export interface PropField {
   name: string;
   type: string;
   optional: boolean;
+  /** True for props inherited from generic DOM/ARIA HTMLAttributes
+   *  (`@types/react`/`@types/react-dom`) — not specific to this component. */
+  native: boolean;
 }
 
 export interface AnnotationEntry {
@@ -109,6 +112,20 @@ function loc(sourceFile: ts.SourceFile, node: ts.Node): { file: string; line: nu
   }
 }
 
+/** A prop counts as "native" (generic DOM/ARIA, not specific to this
+ *  component) when every declaration site lives inside `@types/react` or
+ *  `@types/react-dom` — that's where `HTMLAttributes`/`AriaAttributes` are
+ *  defined. Anything declared by @base-ui/react itself or by luz counts as
+ *  the component's own prop. */
+function isNativeProp(member: ts.Symbol): boolean {
+  const decls = member.declarations;
+  if (!decls?.length) return false;
+  return decls.every((d) => {
+    const file = d.getSourceFile().fileName;
+    return file.includes("/node_modules/@types/react/") || file.includes("/node_modules/@types/react-dom/");
+  });
+}
+
 /** Strips `import("/abs/disk/path").Name` down to just `Name` — the checker
  *  fully-qualifies every type not in scope at the print site, which leaks
  *  the local filesystem path and is unreadable. */
@@ -166,6 +183,7 @@ function propsFieldsFor(
             checker.typeToString(memberType, node, ts.TypeFormatFlags.NoTruncation),
           ),
           optional,
+          native: isNativeProp(member),
         };
       })
       .sort((a, b) => a.name.localeCompare(b.name));
