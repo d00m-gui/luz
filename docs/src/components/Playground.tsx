@@ -19,11 +19,7 @@ export function Playground({ code }: { code?: string }) {
 
   return (
     <LuzReact config={docsRuntimeConfig}>
-      <LiveProvider
-        code={code}
-        scope={{ React, lui, useState: React.useState }}
-        noInline
-      >
+      <LiveProvider code={code} scope={{ React, lui, useState: React.useState }}>
         <div className="playground">
           <div className="playground-editor">
             <LiveEditor />

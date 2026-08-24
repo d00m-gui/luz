@@ -789,61 +789,61 @@ a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-5
 @property --size-13 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(1.300rem, 1.149rem + 0.753cqi, 1.733rem);
+    initial-value: clamp(1.300rem, 1.285rem + 0.077cqi, 1.344rem);
   }
 
 @property --size-14 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(1.733rem, 1.532rem + 1.004cqi, 2.310rem);
+    initial-value: clamp(1.430rem, 1.413rem + 0.084cqi, 1.479rem);
   }
 
 @property --size-15 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(2.310rem, 2.042rem + 1.338cqi, 3.079rem);
+    initial-value: clamp(1.573rem, 1.554rem + 0.093cqi, 1.626rem);
   }
 
 @property --size-16 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(3.079rem, 2.723rem + 1.783cqi, 4.105rem);
+    initial-value: clamp(1.730rem, 1.710rem + 0.102cqi, 1.789rem);
   }
 
 @property --size-17 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(4.105rem, 3.629rem + 2.377cqi, 5.471rem);
+    initial-value: clamp(1.903rem, 1.881rem + 0.112cqi, 1.968rem);
   }
 
 @property --size-18 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(5.471rem, 4.838rem + 3.169cqi, 7.293rem);
+    initial-value: clamp(2.094rem, 2.069rem + 0.124cqi, 2.165rem);
   }
 
 @property --size-19 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(7.293rem, 6.449rem + 4.224cqi, 9.722rem);
+    initial-value: clamp(2.303rem, 2.276rem + 0.136cqi, 2.381rem);
   }
 
 @property --size-20 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(9.722rem, 8.596rem + 5.630cqi, 12.959rem);
+    initial-value: clamp(2.533rem, 2.503rem + 0.149cqi, 2.619rem);
   }
 
 @property --size-21 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(12.959rem, 11.458rem + 7.505cqi, 17.275rem);
+    initial-value: clamp(2.787rem, 2.754rem + 0.164cqi, 2.881rem);
   }
 
 @property --size-22 {
     syntax: "<length>";
     inherits: true;
-    initial-value: clamp(17.275rem, 15.274rem + 10.004cqi, 23.027rem);
+    initial-value: clamp(3.065rem, 3.029rem + 0.181cqi, 3.169rem);
   }
 
 @property --border-radius {
@@ -1308,16 +1308,16 @@ a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-5
 --size-10: 1rem;
 --size-11: 1.1rem;
 --size-12: 1.2rem;
---size-13: clamp(1.300rem, 1.149rem + 0.753cqi, 1.733rem);
---size-14: clamp(1.733rem, 1.532rem + 1.004cqi, 2.310rem);
---size-15: clamp(2.310rem, 2.042rem + 1.338cqi, 3.079rem);
---size-16: clamp(3.079rem, 2.723rem + 1.783cqi, 4.105rem);
---size-17: clamp(4.105rem, 3.629rem + 2.377cqi, 5.471rem);
---size-18: clamp(5.471rem, 4.838rem + 3.169cqi, 7.293rem);
---size-19: clamp(7.293rem, 6.449rem + 4.224cqi, 9.722rem);
---size-20: clamp(9.722rem, 8.596rem + 5.630cqi, 12.959rem);
---size-21: clamp(12.959rem, 11.458rem + 7.505cqi, 17.275rem);
---size-22: clamp(17.275rem, 15.274rem + 10.004cqi, 23.027rem);
+--size-13: clamp(1.300rem, 1.285rem + 0.077cqi, 1.344rem);
+--size-14: clamp(1.430rem, 1.413rem + 0.084cqi, 1.479rem);
+--size-15: clamp(1.573rem, 1.554rem + 0.093cqi, 1.626rem);
+--size-16: clamp(1.730rem, 1.710rem + 0.102cqi, 1.789rem);
+--size-17: clamp(1.903rem, 1.881rem + 0.112cqi, 1.968rem);
+--size-18: clamp(2.094rem, 2.069rem + 0.124cqi, 2.165rem);
+--size-19: clamp(2.303rem, 2.276rem + 0.136cqi, 2.381rem);
+--size-20: clamp(2.533rem, 2.503rem + 0.149cqi, 2.619rem);
+--size-21: clamp(2.787rem, 2.754rem + 0.164cqi, 2.881rem);
+--size-22: clamp(3.065rem, 3.029rem + 0.181cqi, 3.169rem);
 --border-radius: 0.5rem;
 --border-width: 0.1rem;
 --spacing: 5vw;
@@ -1396,7 +1396,7 @@ a { color: var(--anchor, var(--blue)); &.secondary { --anchor: var(--secondary-5
 --font-emphasis: serif;
 --transition: all ease 200ms;
 --box-shadow: none;
---path: ./src/styles/luz-generated.css;
+--path: ./src/styles/luz-min.css;
   }
   
   

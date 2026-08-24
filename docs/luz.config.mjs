@@ -4,5 +4,11 @@ export const config = {
   font: "monospace",
   "font-headings": "monospace",
   "font-monospace": "monospace",
-  path: "./src/styles/luz-generated.css",
+  path: "./src/styles/luz-min.css",
+  power: 1.1,
+  sizeFluidRange: "tight",
+  sound: {
+    enabled: true,
+    volume: 0.3
+  },
 };

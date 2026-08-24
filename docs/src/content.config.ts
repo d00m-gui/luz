@@ -1,4 +1,5 @@
 import { defineCollection } from "astro:content";
+import { glob } from "astro/loaders";
 import type { Loader } from "astro/loaders";
 import { extractAnnotations } from "./lib/extract-annotations";
 
@@ -13,4 +14,8 @@ const annotationsLoader: Loader = {
 
 const components = defineCollection({ loader: annotationsLoader });
 
-export const collections = { components };
+const playgrounds = defineCollection({
+  loader: glob({ pattern: "*.mdx", base: "./src/playgrounds" }),
+});
+
+export const collections = { components, playgrounds };

@@ -126,6 +126,18 @@ function isNativeProp(member: ts.Symbol): boolean {
   });
 }
 
+/** Turns a raw compiler type string into a short plain-English fallback, used
+ *  only when a prop has no JSDoc description of its own. Not exhaustive —
+ *  just clearly better than a raw dumped TS type for the common shapes. */
+function humanizeType(typeText: string): string {
+  const t = typeText.trim();
+  if (t === "boolean") return "true or false";
+  if (/^\(.*\)\s*=>/.test(t)) return "function";
+  const literalValues = t.match(/^(?:"[^"]*"\s*\|\s*)*"[^"]*"$/) ? t.match(/"([^"]*)"/g) : null;
+  if (literalValues?.length) return `one of: ${literalValues.map((s) => s.slice(1, -1)).join(", ")}`;
+  return t;
+}
+
 /** Strips `import("/abs/disk/path").Name` down to just `Name` — the checker
  *  fully-qualifies every type not in scope at the print site, which leaks
  *  the local filesystem path and is unreadable. */
@@ -177,13 +189,22 @@ function propsFieldsFor(
           member.declarations?.some(
             (d) => (ts.isPropertySignature(d) || ts.isParameter(d)) && !!d.questionToken,
           ) === true;
+        const native = isNativeProp(member);
+        const cleanedType = cleanTypeText(
+          checker.typeToString(memberType, node, ts.TypeFormatFlags.NoTruncation),
+        );
+        // Native (HTMLAttributes/AriaAttributes) props keep the raw type text
+        // as-is. luz's own props get a human-readable description instead:
+        // prefer JSDoc on the member, fall back to a humanized type.
+        const type = native
+          ? cleanedType
+          : (member.declarations?.[0] && getDoc(member.declarations[0]).description) ||
+            humanizeType(cleanedType);
         return {
           name: member.getName(),
-          type: cleanTypeText(
-            checker.typeToString(memberType, node, ts.TypeFormatFlags.NoTruncation),
-          ),
+          type,
           optional,
-          native: isNativeProp(member),
+          native,
         };
       })
       .sort((a, b) => a.name.localeCompare(b.name));
