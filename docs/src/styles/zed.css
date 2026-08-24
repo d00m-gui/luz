@@ -172,9 +172,16 @@ body {
   padding: var(--size-5);
   overflow: auto;
   max-height: 480px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+}
+
+/* react-live wraps the rendered result in an unstyled div — give it a
+   definite width. Without this it's a shrink-to-fit flex/block child, and
+   luz's `.card` (container-type: inline-size, for its cqi-based fluid
+   tokens) depends on that same width to size itself — a circular
+   dependency Chrome resolves by collapsing to 0, making the preview
+   render but stay invisible. */
+.playground-preview > div {
+  width: 100%;
 }
 
 .playground-error {

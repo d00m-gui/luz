@@ -59,7 +59,7 @@ span {
   font-style: normal;
   font-weight: 400;
   line-height: var(--line-height);
-  font-size: var(--size-16);
+  font-size: 1.6rem;
   font-size-adjust: 0.482;
 }
 table {
@@ -139,7 +139,7 @@ body {
   color: var(--foreground);
   font-family: var(--font);
   font-weight: 400;
-  font-size: var(--size-16);
+  font-size: 1.6rem;
 }
 a {
   text-transform: none;
@@ -334,7 +334,7 @@ textarea {
   line-height: var(--line-height);
   letter-spacing: inherit;
   font-family: inherit;
-  font-size: var(--size-16);
+  font-size: 1.6rem;
   overflow: visible;
 }
 input,
@@ -381,7 +381,7 @@ label[for="file"],
     display: block;
     position: relative;
     &::file-selector-button {
-      font-size: var(--size-16);
+      font-size: 1.6rem;
       border-radius: 0 0 var(--border-radius) var(--border-radius);
       text-align: center;
       width: 100%;
@@ -558,7 +558,7 @@ button {
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   font-weight: var(--font-weight);
-  font-size: var(--size-16);
+  font-size: 1.6rem;
   line-height: var(--line-height);
   text-align: left;
   cursor: pointer;
