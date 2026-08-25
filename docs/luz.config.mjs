@@ -4,7 +4,6 @@ export const config = {
   font: "monospace",
   "font-headings": "monospace",
   "font-monospace": "monospace",
-  path: "./src/styles/luz-min.css",
   power: 1.1,
   sizeFluidRange: "tight",
   sound: {

@@ -1,6 +1,6 @@
 import { forwardRef, useCallback, useEffect, useRef } from "react";
 import { useTheme } from "../react/context";
-import type { SoundEvent } from "../tools/sound";
+import type { SoundEvent } from "./sound";
 
 // Reuses the same variant keywords `setup.ts` styles buttons/inputs with
 // (danger, success, ghost, …) so a click already "sounds" like its color

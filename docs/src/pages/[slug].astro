@@ -2,7 +2,6 @@
 import { getCollection, render } from "astro:content";
 import Sidebar from "../components/Sidebar.astro";
 import { DocsIsland } from "../components/DocsIsland";
-import "../styles/luz-min.css";
 import "../styles/zed.css";
 
 export async function getStaticPaths() {
@@ -27,6 +26,7 @@ const playgroundCode =
   <head>
     <meta charset="utf-8" />
     <title>{data.title} — luz docs</title>
+    <link rel="stylesheet" href="/luz.css" />
   </head>
   <body>
     <div class="layout">

@@ -112,107 +112,6 @@ function loc(sourceFile: ts.SourceFile, node: ts.Node): { file: string; line: nu
   }
 }
 
-/** A prop counts as "native" (generic DOM/ARIA, not specific to this
- *  component) when every declaration site lives inside `@types/react` or
- *  `@types/react-dom` — that's where `HTMLAttributes`/`AriaAttributes` are
- *  defined. Anything declared by @base-ui/react itself or by luz counts as
- *  the component's own prop. */
-function isNativeProp(member: ts.Symbol): boolean {
-  const decls = member.declarations;
-  if (!decls?.length) return false;
-  return decls.every((d) => {
-    const file = d.getSourceFile().fileName;
-    return file.includes("/node_modules/@types/react/") || file.includes("/node_modules/@types/react-dom/");
-  });
-}
-
-/** Turns a raw compiler type string into a short plain-English fallback, used
- *  only when a prop has no JSDoc description of its own. Not exhaustive —
- *  just clearly better than a raw dumped TS type for the common shapes. */
-function humanizeType(typeText: string): string {
-  const t = typeText.trim();
-  if (t === "boolean") return "true or false";
-  if (/^\(.*\)\s*=>/.test(t)) return "function";
-  const literalValues = t.match(/^(?:"[^"]*"\s*\|\s*)*"[^"]*"$/) ? t.match(/"([^"]*)"/g) : null;
-  if (literalValues?.length) return `one of: ${literalValues.map((s) => s.slice(1, -1)).join(", ")}`;
-  return t;
-}
-
-/** Strips `import("/abs/disk/path").Name` down to just `Name` — the checker
- *  fully-qualifies every type not in scope at the print site, which leaks
- *  the local filesystem path and is unreadable. */
-function cleanTypeText(text: string): string {
-  return text.replace(/import\("[^"]*"\)\./g, "");
-}
-
-function typeTextFor(
-  checker: ts.TypeChecker,
-  node: ts.Node,
-  symbol: ts.Symbol | undefined,
-): string | undefined {
-  if (!symbol) return undefined;
-  try {
-    const type = checker.getTypeOfSymbolAtLocation(symbol, node);
-    const text = checker.typeToString(type, node, ts.TypeFormatFlags.NoTruncation);
-    const cleaned = cleanTypeText(text);
-    return cleaned.length > 3000 ? `${cleaned.slice(0, 3000)}…` : cleaned;
-  } catch {
-    return undefined;
-  }
-}
-
-/** Resolves a component's props member-by-member: name, type, optional.
- *  Only works when the symbol's type has a call/construct signature (a
- *  single component) — compound namespaces (menu, toast, ...) don't have
- *  props of their own, so this returns undefined for those. */
-function propsFieldsFor(
-  checker: ts.TypeChecker,
-  node: ts.Node,
-  symbol: ts.Symbol | undefined,
-): PropField[] | undefined {
-  if (!symbol) return undefined;
-  try {
-    const type = checker.getTypeOfSymbolAtLocation(symbol, node);
-    const sigs = type.getCallSignatures().length
-      ? type.getCallSignatures()
-      : type.getConstructSignatures();
-    const params = sigs[0]?.getParameters();
-    if (!params?.length) return undefined;
-    const propsType = checker.getTypeOfSymbolAtLocation(params[0], node);
-    const members = checker.getPropertiesOfType(propsType);
-    if (!members.length) return undefined;
-    return members
-      .map((member) => {
-        const memberType = checker.getTypeOfSymbolAtLocation(member, node);
-        const optional =
-          (member.flags & ts.SymbolFlags.Optional) !== 0 ||
-          member.declarations?.some(
-            (d) => (ts.isPropertySignature(d) || ts.isParameter(d)) && !!d.questionToken,
-          ) === true;
-        const native = isNativeProp(member);
-        const cleanedType = cleanTypeText(
-          checker.typeToString(memberType, node, ts.TypeFormatFlags.NoTruncation),
-        );
-        // Native (HTMLAttributes/AriaAttributes) props keep the raw type text
-        // as-is. luz's own props get a human-readable description instead:
-        // prefer JSDoc on the member, fall back to a humanized type.
-        const type = native
-          ? cleanedType
-          : (member.declarations?.[0] && getDoc(member.declarations[0]).description) ||
-            humanizeType(cleanedType);
-        return {
-          name: member.getName(),
-          type,
-          optional,
-          native,
-        };
-      })
-      .sort((a, b) => a.name.localeCompare(b.name));
-  } catch {
-    return undefined;
-  }
-}
-
 function findTopLevel(sourceFile: ts.SourceFile, name: string) {
   let fn: ts.FunctionDeclaration | undefined;
   let varDecl: ts.VariableDeclaration | undefined;
@@ -243,8 +142,6 @@ export function extractAnnotations(): AnnotationEntry[] {
     "react/useSound.tsx",
     "react/useScroll.tsx",
     "astro/index.ts",
-    "components/index.ts",
-    "components/types.ts",
     "luz.ts",
   ].map((f) => path.join(SRC, f));
 
@@ -263,10 +160,8 @@ export function extractAnnotations(): AnnotationEntry[] {
   const entries: AnnotationEntry[] = [];
 
   let program: ts.Program;
-  let checker: ts.TypeChecker;
   try {
     program = ts.createProgram(rootNames, options);
-    checker = program.getTypeChecker();
   } catch {
     // Parent repo mid-refactor could make this unresolvable; return nothing
     // rather than crash the content loader.
@@ -274,33 +169,6 @@ export function extractAnnotations(): AnnotationEntry[] {
   }
 
   const getSf = (rel: string) => program.getSourceFile(path.join(SRC, rel));
-
-  // --- Components: walk `export const lui = { ... }` in components/index.ts
-  const componentsSf = getSf("components/index.ts");
-  if (componentsSf) {
-    const { varDecl } = findTopLevel(componentsSf, "lui");
-    if (varDecl && varDecl.initializer && ts.isObjectLiteralExpression(varDecl.initializer)) {
-      for (const prop of varDecl.initializer.properties) {
-        if (!ts.isPropertyAssignment(prop)) continue;
-        const name = prop.name.getText(componentsSf);
-        const doc = getDoc(prop);
-        const symbol = checker.getSymbolAtLocation(prop.name);
-        const { file, line } = loc(componentsSf, prop);
-        const propsFields = propsFieldsFor(checker, prop, symbol);
-        entries.push({
-          id: name,
-          title: name,
-          category: "Components",
-          description: doc.description || "Sin documentar.",
-          tags: { default: doc.default, params: doc.params.length ? doc.params : undefined },
-          propsFields,
-          propsTypeText: propsFields ? undefined : typeTextFor(checker, prop, symbol),
-          sourceFile: file,
-          sourceLine: line,
-        });
-      }
-    }
-  }
 
   // --- Hooks: useLuzSound, useLuzScroll
   const soundSf = getSf("react/useSound.tsx");

@@ -1,14 +1,14 @@
-import { lui, luz } from "@d00m-gui/luz";
+import { luz } from "@d00m-gui/luz";
+import { withComponentStyle } from "@d00m-gui/luz/react";
 
 if (typeof luz !== "function") {
   throw new TypeError("luz must be a function");
 }
 
-if (typeof lui !== "object" || lui === null) {
-  throw new TypeError("lui must be an object");
+if (typeof withComponentStyle !== "function") {
+  throw new TypeError("withComponentStyle must be a function");
 }
 
 globalThis.__luzConsumer = {
-  button: lui.button,
   variables: luz({ primary: "#007dea" }).variables,
 };

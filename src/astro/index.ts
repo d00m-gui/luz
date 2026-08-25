@@ -1,21 +1,56 @@
 import type { AstroIntegration, AstroIntegrationLogger } from "astro";
 import { writeFileSync } from "node:fs";
-import { luz, minifyCss, type LuzConfig } from "../luz";
+import { fileURLToPath } from "node:url";
+import { transform } from "lightningcss";
+import { luz, type LuzConfig } from "../luz";
 import { base } from "../tools/base";
+import { shadcnBridgeCSS } from "../tools/shadcn-bridge";
+import { scanAndEmitUtilities } from "../tools/utilities";
 
 /** `LuzConfig` with `path` required — only the Astro adapter writes a file. */
 export type LuzAstroConfig = LuzConfig & { path: string };
 
 /**
+ * Minifies a fully composed CSS string via `lightningcss`. Unlike `luz.ts`'s
+ * hand-rolled `minifyCss` (kept there because that file is also imported by
+ * browser bundles, where `lightningcss`'s native binding doesn't belong),
+ * this integration runs 100% in Node, so a real CSS-aware minifier is used
+ * for its own final output instead.
+ */
+const minifyWithLightningCss = (css: string): string =>
+  transform({
+    filename: "luz.css",
+    code: Buffer.from(css),
+    minify: true,
+  }).code.toString();
+
+/**
  * Astro integration: on both `astro:build:done` and `astro:server:start`,
- * calls `luz(config)`, composes reset + setup + `:root{variables}` + base
- * CSS, minifies with `lightningcss`, and writes the result to `config.path`
- * (required — throws via the Astro logger if it's missing).
+ * calls `luz(config)`, composes reset + setup + `:root{variables}` + shadcn
+ * bridge aliases + base CSS + scanned utility classes, minifies with
+ * `lightningcss`, and writes the result to `config.path` (required — throws
+ * via the Astro logger if it's missing).
  */
 export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
+  let srcDir: URL | undefined;
+
   const generateFile = (logger: AstroIntegrationLogger) => {
+    if (!srcDir) {
+      logger.error(
+        "luzAstro: `astro:config:setup` did not run before file generation — unable to determine the project's source root",
+      );
+      throw new Error(
+        "luzAstro: source root is unavailable (`astro:config:setup` did not fire)",
+      );
+    }
+
     const { style, tokens } = luz(config);
-    const cssContent = `${style}\n${base(tokens)}`;
+    const bridgeCss = shadcnBridgeCSS(tokens);
+    const utilityCss = scanAndEmitUtilities({
+      root: fileURLToPath(srcDir),
+      tokens,
+    });
+    const cssContent = `${style}\n${bridgeCss}\n${base(tokens)}\n${utilityCss}`;
     const outputPath = config.path;
     const isMinified = config.minify ?? false;
     if (!outputPath) {
@@ -25,7 +60,7 @@ export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
       throw new Error("luzAstro: `path` is required in config");
     }
 
-    const output = isMinified ? minifyCss(cssContent) : cssContent;
+    const output = isMinified ? minifyWithLightningCss(cssContent) : cssContent;
     writeFileSync(outputPath, output, {
       encoding: "utf-8",
     });
@@ -35,6 +70,9 @@ export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
   return {
     name: "luz",
     hooks: {
+      "astro:config:setup": ({ config: astroConfig }): void => {
+        srcDir = astroConfig.srcDir;
+      },
       "astro:build:done": ({ logger }): void | Promise<void> => {
         generateFile(logger);
       },

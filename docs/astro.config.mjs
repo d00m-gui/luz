@@ -1,14 +1,19 @@
 // @ts-check
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import react from "@astrojs/react";
-import { config } from "./luz.config.mjs";
 import { luzAstro } from "../src/astro/index.ts";
+import { config } from "./luz.config.mjs";
 
-// Playground sources (docs/src/playgrounds/*.mdx) are raw react-live code,
-// not real MDX prose — this registers `.mdx` as a data entry type that hands
-// back the file's untouched text as `data.code`, skipping the real MDX
-// compiler/render pipeline entirely (it would choke on the JS/JSX-as-code
-// these files hold, and we never render them — react-live evals the text).
+// Written to `public/` so Astro serves it as a plain static file — dogfoods
+// the same `luzAstro` other consumers get, generating the classless reset +
+// shadcn token bridge + scanned utility classes for the docs site itself.
+// Reuses the same `config` kitchen-sink.astro renders its token tables
+// from, rather than the separate, deliberately-reduced `docsRuntimeConfig`
+// (that one's for the React islands' live `setPrimary`/`setMode` overrides —
+// see its own doc comment — not the site's static baseline theme).
+const luzCssPath = fileURLToPath(new URL("./public/luz.css", import.meta.url));
+
 function rawMdxEntries() {
   return {
     name: "raw-mdx-entries",
@@ -27,5 +32,9 @@ function rawMdxEntries() {
 
 // https://astro.build/config
 export default defineConfig({
-  integrations: [react(), rawMdxEntries(), luzAstro(config)],
+  integrations: [
+    react(),
+    rawMdxEntries(),
+    luzAstro({ ...config, path: luzCssPath }),
+  ],
 });

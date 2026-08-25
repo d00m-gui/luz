@@ -1,0 +1,16 @@
+---
+// Minimal page whose markup gives the utility-class scanner real candidates
+// to pick up: `p-4`/`rounded` (scale/literal namespaces), `bg-primary-500`
+// (color namespace), `open:bg-primary-600` (variant), plus a shadcn-bridge
+// variable name (`bg-card`/`text-card-foreground`) that is NOT part of luz's
+// closed utility vocabulary — it's expected to be dropped by the scanner
+// while still being backed by the `--card`/`--card-foreground` aliases the
+// shadcn bridge emits unconditionally.
+---
+<html lang="en">
+  <body>
+    <div class="p-4 bg-primary-500 rounded open:bg-primary-600">
+      <p class="bg-card text-card-foreground">shadcn-bridged surface</p>
+    </div>
+  </body>
+</html>

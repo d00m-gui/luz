@@ -180,3 +180,11 @@ export type { LuzSoundConfig, SoundEvent } from "../tools/sound";
 export { useLuzScroll, useScrollVideo } from "./useScroll";
 export type { LuzScrollConfig } from "../tools/scroll";
 export type { ScrollVideoOptions } from "../tools/scroll-runtime";
+export { withComponentStyle } from "../tools/component-style";
+export {
+  withSound,
+  withLifecycleSound,
+  withValiditySound,
+  type Soundable,
+  type SoundOverride,
+} from "../tools/component-sound";
