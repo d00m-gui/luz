@@ -8,8 +8,26 @@
  *    igual que el original — pensado para la primera carga de la sesión.
  *  - "transition": recorta solo el tramo más glitchy de la escena "Tracking"
  *    (los primeros ~350ms de esa escena, donde uTrack/uSnow están en su pico)
- *    y le agrega un fade de salida corto — sin reveal de logo ni overlays de
- *    OSD ("▶ PLAY" / "TRACKING"), pensado para disparar en cada navegación.
+ *    y le agrega un fade de salida corto — logo sí (reusa el mismo
+ *    `logoAlpha` de la coreografía original, que en esta ventana de T ya
+ *    está cerca de su pico) + nombre de la sección destino, sin el OSD
+ *    clásico ("▶ PLAY"/timestamp/trackbar, que no dice nada útil acá),
+ *    pensado para disparar en cada navegación.
+ *
+ * El contenido real de la página (lo que hay debajo de este overlay) se
+ * distorsiona por su cuenta durante la misma ventana — ver los
+ * `::view-transition-old(root)`/`::view-transition-new(root)` en zed.css,
+ * que animan los snapshots que el propio browser ya captura para
+ * `<ClientRouter />`. No hace falta capturar/texturizar la página a mano:
+ * son los pixels reales, vía la View Transitions API nativa.
+ *
+ * El "negro" de la señal (fillRect base del canvas 2D) y los "claros" (logo,
+ * texto OSD) toman luz's `--background`/`--foreground` en vez de estar
+ * hardcodeados — resueltos una vez por mount vía `resolveColorVar`, ya que
+ * Canvas 2D no entiende `var(--x)` directamente en `fillStyle` como sí lo
+ * entiende CSS real (el overlay/vignette/hint sí son DOM, esos usan
+ * `var(--...)` normal). El tinte de fósforo (`PHOSPHOR`/`uTint`) se queda
+ * hardcodeado a propósito — es un efecto de color-grading, no "negro"/"claro".
  */
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
@@ -178,7 +196,7 @@ void main(){
 
   col *= mix(vec3(1.0), uTint, 0.55);
 
-  float snow = hash(floor(vUv*vec2(360.0,200.0)) + tick*3.7);
+  float snow = hash(floor(vUv*vec2(720.0,400.0)) + tick*3.7);
   col += (snow-0.5)*uSnow*(0.6 + b*0.9);
   col += (hash(vUv*vec2(1920.0,1080.0)+uT*13.0)-0.5)*uNoise*0.35;
 
@@ -208,6 +226,19 @@ interface GLState {
   sig: HTMLCanvasElement;
   sigCtx: CanvasRenderingContext2D;
   logo: HTMLImageElement | null;
+  /** Resolved once at mount from luz's own `--background`/`--foreground` —
+   *  Canvas 2D's `fillStyle` doesn't understand `var(--x)` the way real CSS
+   *  does, so these have to be read as actual computed color strings before
+   *  the 2D signal canvas can use them. */
+  bg: string;
+  fg: string;
+}
+
+/** Resolves a CSS custom property to its live computed value, for use as a
+ *  Canvas 2D `fillStyle` (which can't reference `var(--x)` directly). */
+function resolveColorVar(name: string, fallback: string): string {
+  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  return value || fallback;
 }
 
 function makeGL(canvas: HTMLCanvasElement): GLState | null {
@@ -251,7 +282,9 @@ function makeGL(canvas: HTMLCanvasElement): GLState | null {
   sig.width = 1280;
   sig.height = 720;
   const sigCtx = sig.getContext("2d")!;
-  return { gl, u, tex, sig, sigCtx, logo: null };
+  const bg = resolveColorVar("--background", "#04060a");
+  const fg = resolveColorVar("--foreground", "#eaf6ff");
+  return { gl, u, tex, sig, sigCtx, logo: null, bg, fg };
 }
 
 interface Params {
@@ -276,8 +309,15 @@ interface Params {
   stamp: string;
 }
 
-function drawSignal(g: CanvasRenderingContext2D, logo: HTMLImageElement | null, p: Params) {
-  g.fillStyle = "#000";
+function drawSignal(
+  g: CanvasRenderingContext2D,
+  logo: HTMLImageElement | null,
+  p: Params,
+  bg: string,
+  fg: string,
+  sectionName?: string,
+) {
+  g.fillStyle = bg;
   g.fillRect(0, 0, g.canvas.width, g.canvas.height);
   if (logo && logo.complete && logo.naturalWidth) {
     const h = 470 * p.logoScale;
@@ -292,7 +332,7 @@ function drawSignal(g: CanvasRenderingContext2D, logo: HTMLImageElement | null, 
   g.textBaseline = "top";
   if (p.osdPlay > 0) {
     g.globalAlpha = p.osdPlay;
-    g.fillStyle = "#eaf6ff";
+    g.fillStyle = fg;
     g.fillText("▶ PLAY", 62, 56);
     g.fillText("SP", 62, 92);
     g.textAlign = "right";
@@ -301,7 +341,7 @@ function drawSignal(g: CanvasRenderingContext2D, logo: HTMLImageElement | null, 
   }
   if (p.osdTrack > 0) {
     g.globalAlpha = p.osdTrack;
-    g.fillStyle = "#eaf6ff";
+    g.fillStyle = fg;
     g.fillText("TRACKING", 62, 600);
     const x0 = 62, y = 642, seg = 22, gap = 8, n = 12;
     for (let i = 0; i < n; i++) {
@@ -309,6 +349,16 @@ function drawSignal(g: CanvasRenderingContext2D, logo: HTMLImageElement | null, 
       g.globalAlpha = p.osdTrack * (on ? 1 : 0.22);
       g.fillRect(x0 + i * (seg + gap), y, seg, 16);
     }
+  }
+  if (sectionName && p.logoAlpha > 0) {
+    // Reusa logoAlpha (ya calibrado para esta ventana de T) en vez de una
+    // curva propia — el nombre entra/sale junto con el logo.
+    g.globalAlpha = p.logoAlpha;
+    g.fillStyle = fg;
+    g.font = "600 32px ui-monospace, 'SFMono-Regular', Menlo, monospace";
+    g.textAlign = "center";
+    g.fillText(sectionName, 640, 600);
+    g.textAlign = "left";
   }
   g.globalAlpha = 1;
 }
@@ -359,15 +409,20 @@ function params(T: number): Params {
   };
 }
 
-function drawFrame(s: GLState, canvas: HTMLCanvasElement, T: number, showOverlay: boolean) {
+function drawFrame(
+  s: GLState,
+  canvas: HTMLCanvasElement,
+  T: number,
+  timing: Pick<ModeTiming, "showLogo" | "showOsd">,
+  sectionName?: string,
+) {
   const P = params(T);
-  if (!showOverlay) {
-    // Modo "transition": solo el glitch de señal, sin reveal de logo ni OSD.
-    P.logoAlpha = 0;
+  if (!timing.showLogo) P.logoAlpha = 0;
+  if (!timing.showOsd) {
     P.osdPlay = 0;
     P.osdTrack = 0;
   }
-  drawSignal(s.sigCtx, s.logo, P);
+  drawSignal(s.sigCtx, s.logo, P, s.bg, s.fg, timing.showLogo ? sectionName : undefined);
   const { gl, u } = s;
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.bindTexture(gl.TEXTURE_2D, s.tex);
@@ -404,8 +459,10 @@ interface ModeTiming {
   triggerSeconds: number;
   /** Duración del fade de salida (debe matchear la transition CSS del overlay). */
   exitMs: number;
-  /** Si se dibuja el reveal de logo + OSD ("▶ PLAY" / "TRACKING") o solo el glitch de señal. */
-  showOverlay: boolean;
+  /** Si se dibuja el logo (con la curva de logoAlpha ya calculada por params()). */
+  showLogo: boolean;
+  /** Si se dibuja el OSD clásico ("▶ PLAY" / "TRACKING" / stamp / trackbar). */
+  showOsd: boolean;
 }
 
 const EXIT_MS = 900; // fade de salida del modo "intro" (original)
@@ -413,8 +470,10 @@ const END_TRIGGER = TOTAL + 0.4; // "intro": mantener negro antes de revelar, lu
 
 // "transition": solo el arranque de la escena Tracking (uTrack/uSnow en su pico,
 // ver params() arriba) — el tramo más "glitchy" y visualmente reconocible como
-// ruido de tracking, sin logo ni OSD. ~350ms de reproducción + ~150ms de fade
-// = ~500ms totales, dentro del rango de 400-600ms pedido.
+// ruido de tracking. ~350ms de reproducción + ~150ms de fade = ~500ms totales,
+// dentro del rango de 400-600ms pedido. logoAlpha en esta ventana de T ya está
+// cerca de su pico (~0.7-0.8) según la coreografía original — se reusa tal
+// cual, sin curva propia.
 const TRANSITION_PLAY_S = 0.35;
 const TRANSITION_EXIT_MS = 150;
 
@@ -425,7 +484,8 @@ function getModeTiming(mode: CrtIntroMode): ModeTiming {
       maxVirtualT: TOTAL,
       triggerSeconds: END_TRIGGER,
       exitMs: EXIT_MS,
-      showOverlay: true,
+      showLogo: true,
+      showOsd: true,
     };
   }
   return {
@@ -433,18 +493,21 @@ function getModeTiming(mode: CrtIntroMode): ModeTiming {
     maxVirtualT: CUES.Tracking + TRANSITION_PLAY_S,
     triggerSeconds: TRANSITION_PLAY_S,
     exitMs: TRANSITION_EXIT_MS,
-    showOverlay: false,
+    showLogo: true,
+    showOsd: false,
   };
 }
 
 export interface CrtIntroProps {
   /** "intro": secuencia completa (~12s). "transition": solo el glitch de Tracking (~500ms). */
   mode: CrtIntroMode;
+  /** Nombre de la sección/página destino — dibujado bajo el logo en modo "transition". */
+  sectionName?: string;
   /** Se llama una vez terminado el fade de salida, justo antes de desmontarse (retorna null). */
   onDone?: () => void;
 }
 
-export function CrtIntro({ mode, onDone }: CrtIntroProps) {
+export function CrtIntro({ mode, sectionName, onDone }: CrtIntroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GLState | null>(null);
   const finishRef = useRef(false);
@@ -453,17 +516,17 @@ export function CrtIntro({ mode, onDone }: CrtIntroProps) {
   const [gone, setGone] = useState(false);
 
   // Init GL + cargar logo (orden importa: logo va al estado GL ya creado).
-  // En "transition" no hace falta el logo — nunca se dibuja (showOverlay=false).
+  // Ambos modos cargan el logo ahora — "transition" también lo dibuja.
   useEffect(() => {
     const cv = canvasRef.current;
     if (!cv) return;
     const st = makeGL(cv);
     if (!st) return;
     stateRef.current = st;
-    if (timing.showOverlay) {
+    if (timing.showLogo) {
       const svg =
         `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${LUZ_WORDMARK.viewBox}" width="1024" height="1024">` +
-        `<g transform="${LUZ_WORDMARK.transform}"><path fill="#ffffff" d="${LUZ_WORDMARK.d}"/></g></svg>`;
+        `<g transform="${LUZ_WORDMARK.transform}"><path fill="${st.fg}" d="${LUZ_WORDMARK.d}"/></g></svg>`;
       const img = new Image();
       img.onload = () => {
         st.logo = img;
@@ -491,7 +554,7 @@ export function CrtIntro({ mode, onDone }: CrtIntroProps) {
     // Dibujar frame de apagado (o el último frame del segmento), luego salir.
     const s = stateRef.current;
     const cv = canvasRef.current;
-    if (s && cv) drawFrame(s, cv, timing.maxVirtualT, timing.showOverlay);
+    if (s && cv) drawFrame(s, cv, timing.maxVirtualT, timing, sectionName);
     finish();
   };
 
@@ -507,7 +570,7 @@ export function CrtIntro({ mode, onDone }: CrtIntroProps) {
       if (s && s.gl) {
         const el = (performance.now() - t0) / 1000;
         const T = Math.min(timing.virtualOffset + el, timing.maxVirtualT);
-        drawFrame(s, cv, T, timing.showOverlay);
+        drawFrame(s, cv, T, timing, sectionName);
         if (el >= timing.triggerSeconds) {
           finish();
           return;
@@ -526,7 +589,7 @@ export function CrtIntro({ mode, onDone }: CrtIntroProps) {
     position: "fixed",
     inset: 0,
     zIndex: 2147483000,
-    background: "var(--neutral-950)",
+    background: "var(--background)",
     cursor: "pointer",
     opacity: exiting ? 0 : 1,
     transition: `opacity ${timing.exitMs}ms ease`,
@@ -557,7 +620,7 @@ export function CrtIntro({ mode, onDone }: CrtIntroProps) {
             bottom: 18,
             font: "500 12px ui-monospace, 'SFMono-Regular', Menlo, monospace",
             letterSpacing: "0.08em",
-            color: "rgba(234,246,255,0.38)",
+            color: "oklch(from var(--foreground) l c h / 38%)",
             pointerEvents: "none",
             userSelect: "none",
           }}

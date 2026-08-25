@@ -37,9 +37,6 @@ export default defineConfig({
     rawMdxEntries(),
     luzAstro({ ...config, path: luzCssPath }),
   ],
-  // DM Sans (font/font-headings) + DM Mono (font-monospace) — the CSS
-  // variable names here must match luz.config.mjs's `var(--dm-sans)` /
-  // `var(--dm-mono)` and Layout.astro's <Font cssVariable> tags exactly.
   fonts: [
     {
       provider: fontProviders.google(),

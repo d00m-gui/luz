@@ -383,3 +383,51 @@ body {
   gap: var(--space-2);
   border: 1px solid var(--neutral-800);
 }
+
+/* --- Page transition glitch --- */
+
+/* `::view-transition-old/new(root)` are the browser's own snapshots of the
+   outgoing/incoming page (native View Transitions API, driven by <ClientRouter />
+   in Layout.astro) — real rendered pixels, not something we capture by hand.
+   Distorting them here is what makes the actual page content glitch between
+   views, in sync with CrtIntroMount's "transition" shader overlay running on
+   top (~500ms, see CrtIntro.tsx). This can't be scoped/moved into an Astro
+   `<style>` block — these pseudo-elements live outside normal component
+   boundaries, a plain imported .css file (already global) is the right home. */
+::view-transition-old(root) {
+  animation: luz-page-glitch-out 500ms ease-in both;
+}
+
+::view-transition-new(root) {
+  animation: luz-page-glitch-in 500ms ease-out both;
+}
+
+@keyframes luz-page-glitch-out {
+  0% {
+    filter: none;
+    opacity: 1;
+  }
+  30% {
+    filter: hue-rotate(8deg) saturate(2.4) contrast(1.3);
+    opacity: 0.85;
+  }
+  100% {
+    filter: hue-rotate(-6deg) saturate(0.3) blur(3px);
+    opacity: 0;
+  }
+}
+
+@keyframes luz-page-glitch-in {
+  0% {
+    filter: hue-rotate(-8deg) saturate(2.4) blur(3px);
+    opacity: 0;
+  }
+  60% {
+    filter: hue-rotate(6deg) saturate(1.6) contrast(1.15);
+    opacity: 0.9;
+  }
+  100% {
+    filter: none;
+    opacity: 1;
+  }
+}
