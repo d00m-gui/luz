@@ -40,16 +40,18 @@ function tokens(overrides: Partial<LuzTokens> = {}): LuzTokens {
 }
 
 describe("buildUtilityRegistry()", () => {
-  test("declares the font-size `text` (scale) namespace before the color `text` namespace", () => {
+  test("declares the font-size `text` (scale) namespace before the color and bridge-color `text` namespaces", () => {
     const registry = buildUtilityRegistry();
     const textIndexes = registry
       .map((ns, i) => ({ ns, i }))
       .filter(({ ns }) => "prefix" in ns && ns.prefix === "text")
       .map(({ ns, i }) => ({ kind: ns.kind, i }));
-    expect(textIndexes).toHaveLength(2);
+    expect(textIndexes).toHaveLength(3);
     const scaleIndex = textIndexes.find((t) => t.kind === "scale")!.i;
     const colorIndex = textIndexes.find((t) => t.kind === "color")!.i;
+    const bridgeIndex = textIndexes.find((t) => t.kind === "bridge-color")!.i;
     expect(scaleIndex).toBeLessThan(colorIndex);
+    expect(scaleIndex).toBeLessThan(bridgeIndex);
   });
 
   test("has no numbered rounded-N namespace — only the literal rounded/rounded-none", () => {
@@ -147,6 +149,87 @@ describe("resolveUtility() — color namespaces", () => {
   });
 });
 
+describe("resolveUtility() — bridge-color namespaces", () => {
+  test("bg resolves a shadcn bridge alias not present in tokens.colors", () => {
+    expect(resolveUtility("bg-card", tokens())?.css).toBe(
+      "background-color: var(--card);",
+    );
+  });
+
+  test("text resolves a bridge alias, no shade-fallback (it's a single named value, not a family)", () => {
+    expect(resolveUtility("text-muted-foreground", tokens())?.css).toBe(
+      "color: var(--muted-foreground);",
+    );
+  });
+
+  test("border resolves the bridge's input alias", () => {
+    expect(resolveUtility("border-input", tokens())?.css).toBe(
+      "border-color: var(--input);",
+    );
+  });
+
+  test("a bridge name not in BRIDGE_COLOR_NAMES is dropped silently (closed vocabulary, not open-ended pass-through)", () => {
+    expect(resolveUtility("bg-not-a-real-bridge-name", tokens())).toBeNull();
+  });
+});
+
+describe("resolveUtility() — opacity modifier", () => {
+  test("wraps a resolved family color in oklch relative-color syntax", () => {
+    expect(resolveUtility("bg-primary-600/50", tokens())?.css).toBe(
+      "background-color: oklch(from var(--primary-600, var(--primary)) l c h / 50%);",
+    );
+  });
+
+  test("wraps a resolved bridge alias the same way", () => {
+    expect(resolveUtility("bg-destructive/10", tokens())?.css).toBe(
+      "background-color: oklch(from var(--destructive) l c h / 10%);",
+    );
+  });
+
+  test("escapes the / in the emitted selector", () => {
+    expect(resolveUtility("bg-destructive/10", tokens())?.selector).toBe(
+      ".bg-destructive\\/10",
+    );
+  });
+
+  test("an opacity suffix over 100 is dropped, not clamped", () => {
+    expect(resolveUtility("bg-primary/150", tokens())).toBeNull();
+  });
+
+  test("an opacity suffix on a non-color utility never resolves", () => {
+    expect(resolveUtility("p-4/50", tokens())).toBeNull();
+    expect(resolveUtility("rounded/50", tokens())).toBeNull();
+  });
+
+  test("an opacity suffix combined with a variant still resolves", () => {
+    expect(resolveUtility("hover:bg-destructive/10", tokens())?.css).toBe(
+      "background-color: oklch(from var(--destructive) l c h / 10%);",
+    );
+  });
+});
+
+describe("resolveUtility() — layout literals", () => {
+  test("resolves a handful of display/flexbox/sizing/overflow utilities to fixed CSS", () => {
+    expect(resolveUtility("flex", tokens())?.css).toBe("display: flex;");
+    expect(resolveUtility("items-center", tokens())?.css).toBe(
+      "align-items: center;",
+    );
+    expect(resolveUtility("justify-between", tokens())?.css).toBe(
+      "justify-content: space-between;",
+    );
+    expect(resolveUtility("w-full", tokens())?.css).toBe("width: 100%;");
+    expect(resolveUtility("overflow-hidden", tokens())?.css).toBe(
+      "overflow: hidden;",
+    );
+    expect(resolveUtility("z-50", tokens())?.css).toBe("z-index: 50;");
+  });
+
+  test("an unknown layout-shaped class still doesn't resolve (closed vocabulary, not a generic display/position parser)", () => {
+    expect(resolveUtility("flex-99", tokens())).toBeNull();
+    expect(resolveUtility("z-999", tokens())).toBeNull();
+  });
+});
+
 describe("resolveUtility() — literal namespaces", () => {
   test("rounded maps to the scalar --border-radius token", () => {
     expect(resolveUtility("rounded", tokens())).toEqual({
@@ -164,6 +247,53 @@ describe("resolveUtility() — literal namespaces", () => {
 
   test("rounded-4 does not resolve — no numbered radius scale in v1", () => {
     expect(resolveUtility("rounded-4", tokens())).toBeNull();
+  });
+
+  test("border emits width + style as two separate declarations, distinct values", () => {
+    expect(resolveUtility("border", tokens())?.css).toBe(
+      "border-width: var(--border-width); border-style: solid;",
+    );
+  });
+
+  test("border composes with border-{color} on the same element without either clobbering the other (distinct longhands, never the shorthand)", () => {
+    expect(resolveUtility("border", tokens())?.css).not.toContain("border-color");
+    expect(resolveUtility("border-primary-600", tokens())?.css).toBe(
+      "border-color: var(--primary-600, var(--primary));",
+    );
+  });
+
+  test("font-normal and font-bold use luz's real typography tokens", () => {
+    expect(resolveUtility("font-normal", tokens())?.css).toBe(
+      "font-weight: var(--font-weight);",
+    );
+    expect(resolveUtility("font-bold", tokens())?.css).toBe(
+      "font-weight: var(--font-bold-weight);",
+    );
+  });
+
+  test("font-medium and font-semibold fall back to plain numbers — no matching luz token", () => {
+    expect(resolveUtility("font-medium", tokens())?.css).toBe("font-weight: 500;");
+    expect(resolveUtility("font-semibold", tokens())?.css).toBe("font-weight: 600;");
+  });
+
+  test("underline/no-underline resolve to text-decoration-line", () => {
+    expect(resolveUtility("underline", tokens())?.css).toBe(
+      "text-decoration-line: underline;",
+    );
+    expect(resolveUtility("no-underline", tokens())?.css).toBe(
+      "text-decoration-line: none;",
+    );
+  });
+
+  test("sr-only is the real visually-hidden-but-accessible pattern, not display:none", () => {
+    const css = resolveUtility("sr-only", tokens())?.css;
+    expect(css).toContain("position: absolute;");
+    expect(css).toContain("clip: rect(0, 0, 0, 0);");
+    expect(css).not.toContain("display: none");
+  });
+
+  test("not-sr-only reverses sr-only", () => {
+    expect(resolveUtility("not-sr-only", tokens())?.css).toContain("position: static;");
   });
 });
 

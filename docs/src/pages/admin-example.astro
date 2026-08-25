@@ -1,0 +1,35 @@
+---
+import Sidebar from "../components/Sidebar.astro";
+import { AdminIsland } from "../components/AdminIsland";
+import "../styles/zed.css";
+---
+
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>Admin Example — luz docs</title>
+    <link rel="stylesheet" href="/luz.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <Sidebar activeId="admin-example" />
+      <main class="main">
+        <div class="breadcrumb">luz / Admin Example</div>
+        <div class="content">
+          <h5>Admin Example</h5>
+          <h3 class="description">
+            A minimal admin-panel-style screen — sidebar nav, header bar,
+            stat cards and a table — composing luz's plain-HTML layout
+            utilities, the shared <code>.card</code> style, a classless
+            native <code>&lt;table&gt;</code>, and two of the real
+            shadcn-adapted components (<code>DropdownMenu</code> +{" "}
+            <code>Avatar</code> for the user menu, <code>Dialog</code> for
+            the "create new" action) into one composed layout.
+          </h3>
+
+          <AdminIsland client:load />
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

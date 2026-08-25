@@ -1,0 +1,65 @@
+---
+import Sidebar from "../components/Sidebar.astro";
+import { ComponentsIsland } from "../components/ComponentsIsland";
+import "../styles/zed.css";
+
+const NAV = [
+  ["avatar", "Avatar"],
+  ["dropdown-menu", "Dropdown Menu"],
+  ["menubar", "Menubar"],
+  ["tabs", "Tabs"],
+  ["field", "Field"],
+  ["toggle", "Toggle"],
+  ["toggle-group", "Toggle Group"],
+  ["toast", "Toast"],
+  ["dialog", "Dialog"],
+] as const;
+---
+
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>Components — luz docs</title>
+    <link rel="stylesheet" href="/luz.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <Sidebar activeId="components" />
+      <main class="main">
+        <div class="breadcrumb">luz / Components</div>
+        <div class="content">
+          <h5>Components</h5>
+          <h3 class="description">
+            Real shadcn/ui (Base UI variant) component source, brought in via
+            the shadcn CLI and adapted to use only luz's closed-vocabulary
+            utility classes — no Tailwind, no arbitrary values. Source lives
+            under <code>src/components/ui/*.tsx</code>; each file's top
+            comment notes what changed from upstream.
+          </h3>
+
+          <nav class="components-nav">
+            {
+              NAV.map(([id, label]) => (
+                <a href={`#${id}`}>{label}</a>
+              ))
+            }
+          </nav>
+
+          <ComponentsIsland client:load />
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
+
+<style>
+  .components-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--size-5);
+    margin-bottom: var(--size-10);
+  }
+  .components-nav a {
+    font-size: var(--size-9);
+  }
+</style>

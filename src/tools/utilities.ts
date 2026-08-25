@@ -31,17 +31,64 @@ interface ColorNamespace {
   cssProps: string[];
 }
 
-/** A namespace with no suffix/scale at all — the class name is the whole match. */
+/**
+ * A namespace with no suffix/scale at all — the class name is the whole
+ * match. Unlike `ScaleNamespace`/`ColorNamespace` (one resolved value shared
+ * across every prop in `cssProps`, e.g. `px-4`'s value going into both
+ * `padding-left`/`padding-right`), a literal can set several properties to
+ * *different* fixed values (`border` → width one value, style another;
+ * `sr-only` → eight) — so it carries its declarations directly as pairs.
+ */
 interface LiteralNamespace {
   kind: "literal";
   /** Exact class name, e.g. `"rounded-none"`. */
   className: string;
-  cssProps: string[];
-  /** Literal CSS value (not a token lookup). */
-  value: string;
+  /** `[property, value]` pairs, e.g. `[["border-style", "solid"]]`. */
+  declarations: readonly (readonly [string, string])[];
 }
 
-export type UtilityNamespace = ScaleNamespace | ColorNamespace | LiteralNamespace;
+/**
+ * A namespace backed by the shadcn token bridge's aliases (`--card`,
+ * `--muted`, `--destructive`, …) rather than `tokens.colors` — these are
+ * single named values, not a `{name}-{weight}` family, so the suffix is an
+ * exact match against `BRIDGE_COLOR_NAMES`, not a shade lookup.
+ */
+interface BridgeColorNamespace {
+  kind: "bridge-color";
+  prefix: string;
+  cssProps: string[];
+}
+
+export type UtilityNamespace =
+  | ScaleNamespace
+  | ColorNamespace
+  | LiteralNamespace
+  | BridgeColorNamespace;
+
+/**
+ * Names `shadcnBridgeCSS` (see `shadcn-bridge.ts`) emits as `:root` aliases.
+ * Kept as a literal list, not derived from `tokens.colors` (the bridge's
+ * output isn't part of `LuzTokens` — it's a separate composed block) — this
+ * list must stay in sync with `shadcn-bridge.ts`'s alias names by hand.
+ * `border` is deliberately excluded: it's already a real `tokens.colors`
+ * key with no bridge alias needed.
+ */
+const BRIDGE_COLOR_NAMES = new Set([
+  "card",
+  "card-foreground",
+  "popover",
+  "popover-foreground",
+  "primary-foreground",
+  "secondary-foreground",
+  "muted",
+  "muted-foreground",
+  "accent",
+  "accent-foreground",
+  "destructive",
+  "destructive-foreground",
+  "input",
+  "ring",
+]);
 
 /**
  * Declaration order doubles as emission order (see `emitUtilitiesCSS`), and
@@ -83,23 +130,185 @@ export function buildUtilityRegistry(): UtilityNamespace[] {
     { kind: "color", prefix: "bg", cssProps: ["background-color"] },
     { kind: "color", prefix: "text", cssProps: ["color"] },
     { kind: "color", prefix: "border", cssProps: ["border-color"] },
+    // Bridge names (`card`, `muted`, `destructive`, …) aren't part of
+    // `tokens.colors` — see `BridgeColorNamespace`'s doc comment. No naming
+    // collision with the `color` namespaces above (bridge names never match
+    // a real palette family), so declaration order between them doesn't
+    // matter functionally; grouped here for readability.
+    { kind: "bridge-color", prefix: "bg", cssProps: ["background-color"] },
+    { kind: "bridge-color", prefix: "text", cssProps: ["color"] },
+    { kind: "bridge-color", prefix: "border", cssProps: ["border-color"] },
     // No `--radius-N` scale exists today (only the single scalar
     // `--border-radius`) — `rounded`/`rounded-none` are the only two
     // border-radius utilities in v1, deliberately not a numbered namespace.
     {
       kind: "literal",
       className: "rounded",
-      cssProps: ["border-radius"],
-      value: "var(--border-radius)",
+      declarations: [["border-radius", "var(--border-radius)"]],
     },
     {
       kind: "literal",
       className: "rounded-none",
-      cssProps: ["border-radius"],
-      value: "0",
+      declarations: [["border-radius", "0"]],
     },
+    ...LAYOUT_LITERALS,
+    ...MULTI_DECL_LITERALS,
   ];
 }
+
+/**
+ * Literal utilities that need more than one differently-valued declaration —
+ * `LAYOUT_LITERALS` below can't express these (its builder shares one value
+ * across every prop, correct for something like `inset-0`'s single `0` but
+ * wrong for e.g. `border`, where width and style differ). Small enough to
+ * hand-write directly rather than invent a second builder shape.
+ */
+const MULTI_DECL_LITERALS: LiteralNamespace[] = [
+  // Bare `border` (no color suffix — `border-{color}` is the separate
+  // `color`/`bridge-color` namespace above) — sets width + style only, so it
+  // composes correctly with a `border-{color}` class on the same element
+  // regardless of which one appears later in the candidate set (both set
+  // different longhands, never the `border` shorthand, so neither can clobber
+  // the other's declaration the way re-declaring the shorthand would).
+  {
+    kind: "literal",
+    className: "border",
+    declarations: [
+      ["border-width", "var(--border-width)"],
+      ["border-style", "solid"],
+    ],
+  },
+  // Real luz tokens where they exist (400/800 — see `LuzConfig`'s
+  // `font-weight`/`font-bold-weight`); plain numbers for the two Tailwind
+  // conventionally uses in between, since luz has no `font-medium`/
+  // `font-semibold` token of its own.
+  {
+    kind: "literal",
+    className: "font-normal",
+    declarations: [["font-weight", "var(--font-weight)"]],
+  },
+  { kind: "literal", className: "font-medium", declarations: [["font-weight", "500"]] },
+  { kind: "literal", className: "font-semibold", declarations: [["font-weight", "600"]] },
+  {
+    kind: "literal",
+    className: "font-bold",
+    declarations: [["font-weight", "var(--font-bold-weight)"]],
+  },
+  {
+    kind: "literal",
+    className: "underline",
+    declarations: [["text-decoration-line", "underline"]],
+  },
+  {
+    kind: "literal",
+    className: "no-underline",
+    declarations: [["text-decoration-line", "none"]],
+  },
+  // Standard visually-hidden-but-accessible pattern — deliberately NOT
+  // `display: none` (that removes it from the accessibility tree too;
+  // `hidden` already covers the "actually hide it" case).
+  {
+    kind: "literal",
+    className: "sr-only",
+    declarations: [
+      ["position", "absolute"],
+      ["width", "1px"],
+      ["height", "1px"],
+      ["padding", "0"],
+      ["margin", "-1px"],
+      ["overflow", "hidden"],
+      ["clip", "rect(0, 0, 0, 0)"],
+      ["white-space", "nowrap"],
+      ["border-width", "0"],
+    ],
+  },
+  {
+    kind: "literal",
+    className: "not-sr-only",
+    declarations: [
+      ["position", "static"],
+      ["width", "auto"],
+      ["height", "auto"],
+      ["padding", "0"],
+      ["margin", "0"],
+      ["overflow", "visible"],
+      ["clip", "auto"],
+      ["white-space", "normal"],
+    ],
+  },
+];
+
+/**
+ * Fixed-value layout utilities: no token lookup, just a literal CSS
+ * declaration — the same closed-vocabulary spirit as `rounded`/`rounded-none`
+ * above, just covering `display`/`position`/flexbox/sizing/overflow
+ * primitives that almost every real component needs and that have no
+ * meaningful "token" to back them (there's no design-token scale for
+ * `display: flex`). Deliberately NOT a grid-template/arbitrary-value system
+ * — this is the same closed, hand-enumerated list approach as everything
+ * else in this file.
+ */
+const LAYOUT_LITERALS: LiteralNamespace[] = (
+  [
+    ["flex", "display", "flex"],
+    ["inline-flex", "display", "inline-flex"],
+    ["grid", "display", "grid"],
+    ["inline-grid", "display", "inline-grid"],
+    ["block", "display", "block"],
+    ["inline-block", "display", "inline-block"],
+    ["hidden", "display", "none"],
+    ["contents", "display", "contents"],
+    ["relative", "position", "relative"],
+    ["absolute", "position", "absolute"],
+    ["fixed", "position", "fixed"],
+    ["sticky", "position", "sticky"],
+    ["flex-row", "flex-direction", "row"],
+    ["flex-col", "flex-direction", "column"],
+    ["flex-wrap", "flex-wrap", "wrap"],
+    ["flex-nowrap", "flex-wrap", "nowrap"],
+    ["items-start", "align-items", "flex-start"],
+    ["items-end", "align-items", "flex-end"],
+    ["items-center", "align-items", "center"],
+    ["items-stretch", "align-items", "stretch"],
+    ["justify-start", "justify-content", "flex-start"],
+    ["justify-end", "justify-content", "flex-end"],
+    ["justify-center", "justify-content", "center"],
+    ["justify-between", "justify-content", "space-between"],
+    ["justify-around", "justify-content", "space-around"],
+    ["shrink-0", "flex-shrink", "0"],
+    ["grow", "flex-grow", "1"],
+    ["grow-0", "flex-grow", "0"],
+    ["flex-1", "flex", "1 1 0%"],
+    ["w-full", "width", "100%"],
+    ["w-fit", "width", "fit-content"],
+    ["w-auto", "width", "auto"],
+    ["h-full", "height", "100%"],
+    ["h-fit", "height", "fit-content"],
+    ["h-auto", "height", "auto"],
+    ["min-w-0", "min-width", "0"],
+    ["max-w-full", "max-width", "100%"],
+    ["inset-0", "inset", "0"],
+    ["overflow-hidden", "overflow", "hidden"],
+    ["overflow-auto", "overflow", "auto"],
+    ["overflow-visible", "overflow", "visible"],
+    // Real truncation also needs `overflow-hidden`/`whitespace-nowrap` — a
+    // single literal here can only carry one value across all its props
+    // (see `LiteralNamespace`), so pair `truncate` with those two rather
+    // than expecting it to behave like Tailwind's 3-declaration shorthand.
+    ["truncate", "text-overflow", "ellipsis"],
+    ["whitespace-nowrap", "white-space", "nowrap"],
+    ["select-none", "user-select", "none"],
+    ["pointer-events-none", "pointer-events", "none"],
+    ["z-0", "z-index", "0"],
+    ["z-10", "z-index", "10"],
+    ["z-20", "z-index", "20"],
+    ["z-50", "z-index", "50"],
+  ] as const
+).map(([className, prop, value]) => ({
+  kind: "literal" as const,
+  className,
+  declarations: [[prop, value]] as const,
+}));
 
 /** Positive integer, no leading zero — `size-N` keys never have one. */
 const SIZE_STEP_RE = /^[1-9]\d*$/;
@@ -140,42 +349,83 @@ function colorValue(key: string, tokens: LuzTokens): string {
 
 /** One resolved utility's CSS shape, before it's wrapped in a selector. */
 interface ResolvedBase {
-  cssProps: string[];
-  value: string;
+  /** `[property, value]` pairs to render as declarations, in order. */
+  declarations: readonly (readonly [string, string])[];
   /** Index into `buildUtilityRegistry()`'s array — used for emission order. */
   namespaceIndex: number;
 }
 
-/** Resolves the non-variant half of a candidate (`"bg-primary-600"`, `"rounded"`, …) against the namespace registry. */
+/** Builds a `ResolvedBase.declarations` array from a namespace's `cssProps` (all sharing one resolved `value`) — the `scale`/`color`/`bridge-color` case. */
+function sameValueDeclarations(cssProps: string[], value: string): [string, string][] {
+  return cssProps.map((prop) => [prop, value]);
+}
+
+/**
+ * Trailing `/N` opacity modifier on a color utility (`bg-destructive/10`).
+ * `N` is a closed 0–100 integer, not an arbitrary value — matches the
+ * project's closed-vocabulary rule the same way a `size-N` step does.
+ */
+const OPACITY_SUFFIX_RE = /^(.+)\/(\d{1,3})$/;
+
+/**
+ * Wraps a resolved color `var()` reference in oklch relative-color syntax to
+ * apply an alpha percentage — natural here since luz's whole palette is
+ * already oklch (see `tools/hue.ts`), unlike Tailwind's separate
+ * color-mix()-based opacity machinery. `value` may itself be a
+ * `var(--x, var(--y))` shade-fallback expression; `oklch(from …)` accepts
+ * any valid `<color>` there, `var()` fallbacks included.
+ */
+function withOpacity(value: string, percent: number): string {
+  return `oklch(from ${value} l c h / ${percent}%)`;
+}
+
+/** Resolves the non-variant half of a candidate (`"bg-primary-600"`, `"bg-destructive/10"`, `"rounded"`, …) against the namespace registry. */
 function resolveBaseUtility(base: string, tokens: LuzTokens): ResolvedBase | null {
+  const opacityMatch = base.match(OPACITY_SUFFIX_RE);
+  const opacityPercent = opacityMatch ? Number(opacityMatch[2]) : undefined;
+  // A malformed/out-of-range opacity suffix is a closed-vocabulary miss —
+  // fail the whole candidate rather than silently resolving the base color
+  // without it.
+  if (opacityPercent !== undefined && opacityPercent > 100) return null;
+  const target = opacityMatch ? opacityMatch[1]! : base;
+
   const registry = buildUtilityRegistry();
   for (let i = 0; i < registry.length; i++) {
     const ns = registry[i]!;
     if (ns.kind === "literal") {
-      if (base === ns.className) {
-        return { cssProps: ns.cssProps, value: ns.value, namespaceIndex: i };
+      // Opacity only makes sense on a color value — a literal utility
+      // (`flex`, `rounded`, …) with a `/N` suffix never resolves.
+      if (opacityPercent === undefined && target === ns.className) {
+        return { declarations: ns.declarations, namespaceIndex: i };
       }
       continue;
     }
     const marker = `${ns.prefix}-`;
-    if (!base.startsWith(marker)) continue;
-    const suffix = base.slice(marker.length);
+    if (!target.startsWith(marker)) continue;
+    const suffix = target.slice(marker.length);
+
     if (ns.kind === "scale") {
+      if (opacityPercent !== undefined) continue; // same reasoning as literal, above
       const resolved = resolveSizeSuffix(suffix, tokens);
       if (resolved !== undefined) {
         return {
-          cssProps: ns.cssProps,
-          value: `var(--size-${suffix})`,
+          declarations: sameValueDeclarations(ns.cssProps, `var(--size-${suffix})`),
           namespaceIndex: i,
         };
       }
-    } else {
+    } else if (ns.kind === "color") {
       if (isPublicColorKey(suffix, tokens)) {
-        return {
-          cssProps: ns.cssProps,
-          value: colorValue(suffix, tokens),
-          namespaceIndex: i,
-        };
+        let value = colorValue(suffix, tokens);
+        if (opacityPercent !== undefined) value = withOpacity(value, opacityPercent);
+        return { declarations: sameValueDeclarations(ns.cssProps, value), namespaceIndex: i };
+      }
+    } else {
+      // bridge-color: single named alias, not a `{family}-{weight}` shade —
+      // no `colorValue`/shade-fallback lookup needed, just an exact-name match.
+      if (BRIDGE_COLOR_NAMES.has(suffix)) {
+        let value = `var(--${suffix})`;
+        if (opacityPercent !== undefined) value = withOpacity(value, opacityPercent);
+        return { declarations: sameValueDeclarations(ns.cssProps, value), namespaceIndex: i };
       }
     }
   }
@@ -190,9 +440,9 @@ export interface ResolvedUtility {
   css: string;
 }
 
-/** Escapes the one special character a resolved candidate can contain (`:` from a variant prefix) for use in a class selector. */
+/** Escapes the special characters a resolved candidate can contain (`:` from a variant prefix, `/` from an opacity modifier) for use in a class selector. */
 function escapeClassSelector(candidate: string): string {
-  return candidate.replace(/:/g, "\\:");
+  return candidate.replace(/[:/]/g, "\\$&");
 }
 
 /**
@@ -225,7 +475,7 @@ export function resolveUtility(
   if (!resolved) return null;
 
   const selector = `.${escapeClassSelector(candidate)}${variantSelector}`;
-  const css = resolved.cssProps.map((prop) => `${prop}: ${resolved.value};`).join(" ");
+  const css = resolved.declarations.map(([prop, value]) => `${prop}: ${value};`).join(" ");
   return { selector, css };
 }
 

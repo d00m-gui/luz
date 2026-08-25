@@ -26,6 +26,24 @@ const grouped = order.map((category) => ({
     >
       Kitchen Sink
     </a>
+    <a
+      href="/components/"
+      class={`sidebar-item${activeId === "components" ? " active" : ""}`}
+    >
+      Components
+    </a>
+    <a
+      href="/classless/"
+      class={`sidebar-item${activeId === "classless" ? " active" : ""}`}
+    >
+      Classless HTML
+    </a>
+    <a
+      href="/admin-example/"
+      class={`sidebar-item${activeId === "admin-example" ? " active" : ""}`}
+    >
+      Admin Example
+    </a>
   </div>
   {
     grouped.map(({ category, items }) =>

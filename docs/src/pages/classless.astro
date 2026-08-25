@@ -1,0 +1,138 @@
+---
+import Sidebar from "../components/Sidebar.astro";
+import "../styles/zed.css";
+
+interface Sample {
+  id: string;
+  title: string;
+  note: string;
+  code: string;
+}
+
+const SAMPLES: Sample[] = [
+  {
+    id: "button",
+    title: "Button",
+    note: "A plain <button> — no className. luz's setup() rule targets button, [role=\"button\"], [type=\"submit\"]/[type=\"reset\"] and .btn/.button alike, so a bare native button already gets the filled, padded, hover/active look. Modifier classes like .secondary, .danger or .ghost exist for when you want a variant, but they're optional seasoning, not a requirement.",
+    code: `<button>Save changes</button>
+<button disabled>Disabled</button>`,
+  },
+  {
+    id: "switch",
+    title: "Switch",
+    note: 'A checkbox with role="switch" — an ARIA attribute, not a class. luz\'s reset gives [type="checkbox"][role="switch"] real toggle-pill dimensions and a sliding thumb via ::before, and setup() colors it with the primary palette on :checked. Drop the role and it renders as a plain (still fully styled) checkbox instead — either way, zero classes.',
+    code: `<label>
+  <input type="checkbox" role="switch" checked />
+  Enable notifications
+</label>`,
+  },
+  {
+    id: "meter",
+    title: "Meter",
+    note: "Worth a correction: the native <meter> element itself isn't covered by luz's reset today — no selector targets it. The native element that IS styled classlessly is <progress>: setup() gives it accent-color plus a background/box-shadow/border-radius/height treatment. (A separate, heavier [role=\"meter\"] pattern exists in luz's component layer for a labeled track+indicator — that one needs its own div structure and belongs with the /components tier, not here.) So: reach for <progress> when you want a classless meter-like bar.",
+    code: `<progress value="70" max="100"></progress>`,
+  },
+  {
+    id: "form",
+    title: "Basic form (no validation)",
+    note: "A <form> with <label>, <input> and a submit <button> — no aria-invalid, no error messaging, no classes anywhere. luz's reset lays the form out as a column via display: flex, gives fieldset a gap, and styles every input/select/textarea's border, radius, background and focus state automatically. Validation UI (aria-invalid=\"true\"/\"false\" styling, error text, the Field component) is real too — it's just the heavier /components tier, not needed for a simple form like this.",
+    code: `<form>
+  <label>
+    Name
+    <input type="text" placeholder="Ada Lovelace" />
+  </label>
+  <label>
+    Email
+    <input type="email" placeholder="ada@example.com" />
+  </label>
+  <button type="submit">Subscribe</button>
+</form>`,
+  },
+  {
+    id: "card",
+    title: "Card",
+    note: 'The one item on this page that does need a class: class="card" (plus a class="card-content" wrapper for the padded flex layout). There\'s no lui.Card component to import anymore — just those two classNames on plain elements, styled by the card rules in luz\'s base CSS.',
+    code: `<article class="card">
+  <div class="card-content">
+    <p>A card needs one class — everything else on this page needs none.</p>
+  </div>
+</article>`,
+  },
+];
+---
+
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>Classless HTML — luz docs</title>
+    <link rel="stylesheet" href="/luz.css" />
+  </head>
+  <body>
+    <div class="layout">
+      <Sidebar activeId="classless" />
+      <main class="main">
+        <div class="breadcrumb">luz / Classless HTML</div>
+        <div class="content classless">
+          <h5>Classless HTML</h5>
+          <h3 class="description">
+            These don't need a component — luz's own reset (<code
+              >src/tools/reset.ts</code
+            >) plus its element setup rules already style plain semantic
+            HTML the moment <code>luz.css</code> is linked. No classes, no
+            imports, no Base UI/shadcn wiring. This is the lighter
+            counterpart to <a href="/components/">/components</a>, which
+            documents nine real shadcn (Base UI) components adapted to
+            luz's utility engine for everything that genuinely needs
+            interactivity or composition — dropdown menus, dialogs, toasts.
+            Five things here don't: a button, a switch, a meter, a basic
+            form, and a card.
+          </h3>
+
+          {
+            SAMPLES.map((s) => (
+              <section id={s.id} class="classless-section">
+                <h4>{s.title}</h4>
+                <p class="description">{s.note}</p>
+                <pre class="code-block"><code>{s.code}</code></pre>
+                <div class="classless-render" set:html={s.code} />
+              </section>
+            ))
+          }
+        </div>
+      </main>
+    </div>
+  </body>
+</html>
+
+<style>
+  .classless-section {
+    margin-bottom: var(--size-10);
+  }
+
+  .code-block {
+    background: var(--neutral-900);
+    border: 1px solid var(--neutral-800);
+    border-radius: 4px;
+    padding: var(--size-3) var(--size-4);
+    overflow-x: auto;
+    margin-bottom: var(--size-4);
+  }
+
+  .code-block code {
+    font-family: var(--font-monospace);
+    font-size: var(--size-9);
+    color: var(--neutral-200);
+    white-space: pre;
+  }
+
+  .classless-render {
+    padding: var(--size-5);
+    border: 1px dashed var(--neutral-800);
+    border-radius: 4px;
+    background: var(--neutral-950);
+  }
+
+  .classless-render form {
+    max-width: 360px;
+  }
+</style>
