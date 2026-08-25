@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { luzSizes } from "../src/tools/sizes";
+import { luzSizes, luzSpace } from "../src/tools/sizes";
 
 describe("luzSizes()", () => {
   test("emits size-1 through size-12 as fixed rem steps", () => {
@@ -73,6 +73,45 @@ describe("luzSizes()", () => {
       const base16 = luzSizes(16, 1.31, 22, 13, true);
       const base32 = luzSizes(32, 1.31, 22, 13, true);
       expect(base16["size-13"]).not.toBe(base32["size-13"]);
+    });
+  });
+
+  describe("luzSpace() — linear scale, deliberately separate from luzSizes()'s typographic one", () => {
+    test("space-N is a plain linear ramp: N * base/64", () => {
+      const space = luzSpace(16);
+      expect(space["space-1"]).toBe("0.25rem"); // 1 * 16/64
+      expect(space["space-4"]).toBe("1rem"); // 4 * 16/64 — same ratio Tailwind's own p-4 uses
+      expect(space["space-16"]).toBe("4rem"); // 16 * 16/64
+    });
+
+    test("no exponential/fluid behavior — every step is a fixed rem value, not a clamp()", () => {
+      const space = luzSpace(16);
+      for (const value of Object.values(space)) {
+        expect(value).not.toContain("clamp(");
+      }
+    });
+
+    test("scales linearly with base, same ratio at every step", () => {
+      const base16 = luzSpace(16);
+      const base32 = luzSpace(32);
+      expect(base32["space-4"]).toBe("2rem"); // double base -> double every step
+      expect(base32["space-16"]).toBe("8rem");
+      expect(base16["space-8"]).toBe(base32["space-4"]); // 8 steps at base16 == 4 steps at base32
+    });
+
+    test("defaults to 24 steps; a custom step count changes only the count, not the per-step ratio", () => {
+      const defaultSteps = luzSpace(16);
+      expect(Object.keys(defaultSteps)).toHaveLength(24);
+      const customSteps = luzSpace(16, 10);
+      expect(Object.keys(customSteps)).toHaveLength(10);
+      expect(customSteps["space-11"]).toBeUndefined();
+      expect(customSteps["space-4"]).toBe(defaultSteps["space-4"]);
+    });
+
+    test("no derived scalars (border-radius, spacing, toast-*, …) — those stay on luzSizes()", () => {
+      const space = luzSpace(16);
+      expect(space["border-radius"]).toBeUndefined();
+      expect(space.spacing).toBeUndefined();
     });
   });
 

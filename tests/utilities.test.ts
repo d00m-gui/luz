@@ -21,9 +21,14 @@ function tokens(overrides: Partial<LuzTokens> = {}): LuzTokens {
   return {
     settings: { name: "primary", neutrals: "neutral" },
     sizes: {
+      // Typographic scale — only `text-N` (font-size) resolves against these.
       "size-1": "0.1rem",
       "size-4": "0.4rem",
       "size-16": "1.6rem",
+      // Linear spacing scale — p-/m-/gap-/w-/h- resolve against these instead.
+      "space-1": "0.25rem",
+      "space-4": "1rem",
+      "space-16": "4rem",
     },
     colors: {
       primary: "var(--primary-500)",
@@ -67,30 +72,41 @@ describe("buildUtilityRegistry()", () => {
 });
 
 describe("resolveUtility() — scale namespaces", () => {
-  test("single-property prefix (p) resolves to var(--size-N)", () => {
+  test("single-property prefix (p) resolves to var(--space-N), the linear scale, not var(--size-N)", () => {
     const result = resolveUtility("p-4", tokens());
     expect(result).toEqual({
       selector: ".p-4",
-      css: "padding: var(--size-4);",
+      css: "padding: var(--space-4);",
     });
   });
 
   test("multi-property prefix (px) expands to both physical properties", () => {
     const result = resolveUtility("px-4", tokens());
     expect(result?.css).toBe(
-      "padding-left: var(--size-4); padding-right: var(--size-4);",
+      "padding-left: var(--space-4); padding-right: var(--space-4);",
     );
   });
 
   test("gap-x/gap-y resolve to column-gap/row-gap, not the shared gap prefix", () => {
     expect(resolveUtility("gap-x-4", tokens())?.css).toBe(
-      "column-gap: var(--size-4);",
+      "column-gap: var(--space-4);",
     );
     expect(resolveUtility("gap-y-4", tokens())?.css).toBe(
-      "row-gap: var(--size-4);",
+      "row-gap: var(--space-4);",
     );
     // Bare "gap-4" still resolves against the plain gap namespace itself.
-    expect(resolveUtility("gap-4", tokens())?.css).toBe("gap: var(--size-4);");
+    expect(resolveUtility("gap-4", tokens())?.css).toBe("gap: var(--space-4);");
+  });
+
+  test("w/h resolve against the space scale too, same as padding/margin/gap", () => {
+    expect(resolveUtility("w-4", tokens())?.css).toBe("width: var(--space-4);");
+    expect(resolveUtility("h-4", tokens())?.css).toBe("height: var(--space-4);");
+  });
+
+  test("text-N (font-size) resolves against the typographic size-N scale, not space-N", () => {
+    expect(resolveUtility("text-4", tokens())?.css).toBe(
+      "font-size: var(--size-4);",
+    );
   });
 
   test("out-of-range step is dropped silently — no fallback, no arbitrary value", () => {
@@ -101,7 +117,7 @@ describe("resolveUtility() — scale namespaces", () => {
     expect(resolveUtility("p-huge", tokens())).toBeNull();
   });
 
-  test("leading-zero suffix does not match a canonical size-N key", () => {
+  test("leading-zero suffix does not match a canonical space-N key", () => {
     expect(resolveUtility("p-04", tokens())).toBeNull();
   });
 });
@@ -346,7 +362,7 @@ describe("emitUtilitiesCSS()", () => {
     );
     const rules = css.split("\n");
     expect(rules).toHaveLength(2); // one p-4 rule, one bg-red rule — bg-mystery dropped
-    expect(css).toContain(".p-4 { padding: var(--size-4); }");
+    expect(css).toContain(".p-4 { padding: var(--space-4); }");
     expect(css).toContain(".bg-red { background-color: var(--red); }");
   });
 
@@ -380,7 +396,7 @@ describe("scanAndEmitUtilities()", () => {
         `<div class="p-4 bg-red not-a-utility"></div>`,
       );
       const css = scanAndEmitUtilities({ root: dir, tokens: tokens() });
-      expect(css).toContain(".p-4 { padding: var(--size-4); }");
+      expect(css).toContain(".p-4 { padding: var(--space-4); }");
       expect(css).toContain(".bg-red { background-color: var(--red); }");
       expect(css).not.toContain("not-a-utility");
     } finally {

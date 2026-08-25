@@ -10,13 +10,11 @@
 // no coordinate-utility equivalent either — replaced with a closed
 // -vocabulary flex trick (`fixed inset-0 flex ... items-end justify-end`)
 // that pins the stack to the bottom-right using alignment instead of
-// offsets, a real substitution rather than a drop. Upstream also makes the
-// viewport `pointer-events-none` and each `Toast` `pointer-events-auto` so
-// the empty corner stays click-through; there is no `pointer-events-auto`
-// utility (only `pointer-events-none` exists) to re-enable it on the toast,
-// so the viewport is left with default (auto) pointer events instead —
-// toasts stay clickable, at the cost of the empty viewport area no longer
-// being click-through.
+// offsets, a real substitution rather than a drop. Matches upstream's
+// click-through behavior exactly: the full-screen `inset-0` viewport is
+// `pointer-events-none`, and each `Toast` re-enables `pointer-events-auto`
+// on itself — so the empty viewport area never blocks interaction with the
+// rest of the page, mounted or not.
 "use client";
 
 import * as React from "react";
@@ -51,7 +49,7 @@ function ToastViewport({
     <ToastPrimitive.Viewport
       data-slot="toast-viewport"
       className={cn(
-        "fixed inset-0 z-50 flex flex-col items-end justify-end gap-3 p-6",
+        "fixed inset-0 z-50 flex flex-col items-end justify-end gap-3 p-6 pointer-events-none",
         className,
       )}
       {...props}
@@ -64,7 +62,7 @@ function Toast({ className, ...props }: ToastPrimitive.Root.Props) {
     <ToastPrimitive.Root
       data-slot="toast"
       className={cn(
-        "w-fit max-w-full rounded border bg-popover text-popover-foreground select-none focus:border-ring",
+        "w-fit max-w-full rounded border bg-popover text-popover-foreground select-none pointer-events-auto focus:border-ring",
         className,
       )}
       {...props}

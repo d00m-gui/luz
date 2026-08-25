@@ -7,6 +7,7 @@ import { luzProperty } from "./tools/props";
 import { reset } from "./tools/reset";
 import {
   luzSizes,
+  luzSpace,
   type FluidRangeName,
   type TypeScaleName,
 } from "./tools/sizes";
@@ -96,6 +97,15 @@ export interface LuzConfig {
   sizeFluidRange?: FluidRangeName | number;
   /** Scale the size ramp by `base / 16` instead of a fixed 16px assumption. Default `false`. */
   sizeRelativeToBase?: boolean;
+  /**
+   * Total `space-N` tokens generated. Default `24`. Unlike `size-N` (an
+   * exponential type scale — see `power` — meant for font-size/typographic
+   * rhythm), `space-N` is linear and fixed (`N * base/64`, e.g. `space-4` =
+   * `1rem` at the default `base`): the scale the utility engine's
+   * `p-`/`m-`/`gap-`/`w-`/`h-` classes resolve against, where predictable,
+   * evenly-spaced steps matter more than typographic proportion.
+   */
+  spaceSteps?: number;
   /** Synthesized UI sound effects (Web Audio API, no external files). Opt-in, disabled by default. */
   sound?: LuzSoundConfig;
   /** Scroll-driven animation archetypes (reveal/stagger/parallax/sticky-stack), native CSS. Opt-in, disabled by default. */
@@ -160,6 +170,7 @@ const defaultConfig: LuzConfig = {
   sizeDynamicFrom: 13,
   sizeRelativeToBase: false,
   sizeFluidRange: "balanced",
+  spaceSteps: 24,
 };
 
 /** Element-level style rules (buttons, inputs, tables, …) wired to theme tokens. */
@@ -195,6 +206,7 @@ export function luz(config?: LuzConfig): LuzResult {
     sizeDynamicFrom,
     sizeRelativeToBase,
     sizeFluidRange,
+    spaceSteps,
     sound: _sound,
     scroll,
     ...typography
@@ -278,15 +290,21 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const colors = buildColors(isDark);
 
-  //  Size tokens + derived sizing variables
-  const sizeTokens: Record<string, string> = luzSizes(
-    normalBase,
-    power,
-    sizeSteps,
-    sizeDynamicFrom,
-    sizeRelativeToBase,
-    sizeFluidRange,
-  );
+  //  Size tokens (typographic scale) + derived sizing variables
+  const sizeTokens: Record<string, string> = {
+    ...luzSizes(
+      normalBase,
+      power,
+      sizeSteps,
+      sizeDynamicFrom,
+      sizeRelativeToBase,
+      sizeFluidRange,
+    ),
+    // Spacing tokens (linear scale) — see `spaceSteps`'s doc comment for why
+    // this is a separate function/scale from `luzSizes` rather than more
+    // `size-N` steps.
+    ...luzSpace(normalBase, spaceSteps),
+  };
 
   //  Compose token set
   const tokens: LuzTokens = {

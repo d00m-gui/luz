@@ -73,16 +73,25 @@ function DropdownMenuLabel({
 }: MenuPrimitive.GroupLabel.Props & {
   inset?: boolean;
 }) {
+  // `Menu.GroupLabel` requires a `Menu.Group`/`Menu.RadioGroup` ancestor for
+  // its context (Base UI throws `MenuGroupContext is missing` otherwise) —
+  // but a label is just as often used standalone, ungrouped, at the top of
+  // a menu (see `AdminExample.tsx`'s user menu: label, separator, then flat
+  // items, no `<DropdownMenuGroup>` around any of it). Providing the group
+  // here means callers never need to know about that Base UI requirement —
+  // wrapping an already-grouped label in a second `Menu.Group` is harmless.
   return (
-    <MenuPrimitive.GroupLabel
-      data-slot="dropdown-menu-label"
-      data-inset={inset}
-      className={cn(
-        "px-4 py-3 text-8 font-medium text-muted-foreground",
-        className,
-      )}
-      {...props}
-    />
+    <MenuPrimitive.Group>
+      <MenuPrimitive.GroupLabel
+        data-slot="dropdown-menu-label"
+        data-inset={inset}
+        className={cn(
+          "px-4 py-3 text-8 font-medium text-muted-foreground",
+          className,
+        )}
+        {...props}
+      />
+    </MenuPrimitive.Group>
   );
 }
 

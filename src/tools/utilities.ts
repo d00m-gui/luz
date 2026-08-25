@@ -14,12 +14,20 @@ import { withShadeFallback } from "./base";
 import { resolveVariant } from "./variants";
 import { scanCandidates } from "./scan";
 
-/** A namespace backed by the numbered `size-N` scale (`tokens.sizes`). */
+/**
+ * A namespace backed by one of the two numbered scales in `tokens.sizes`:
+ * `space-N` (linear, for padding/margin/gap/width/height) or `size-N`
+ * (the typographic scale, for font-size) — see `tools/sizes.ts`'s doc
+ * comment on `luzSpace` for why these are deliberately separate rather than
+ * one scale serving both.
+ */
 interface ScaleNamespace {
   kind: "scale";
   /** Class prefix, e.g. `"p"` for `p-4`. */
   prefix: string;
-  /** CSS properties the resolved `var(--size-N)` value is assigned to. */
+  /** Which numbered token family the suffix resolves against. */
+  scaleFamily: "space" | "size";
+  /** CSS properties the resolved `var(--{scaleFamily}-N)` value is assigned to. */
   cssProps: string[];
 }
 
@@ -105,28 +113,49 @@ const BRIDGE_COLOR_NAMES = new Set([
  */
 export function buildUtilityRegistry(): UtilityNamespace[] {
   return [
-    { kind: "scale", prefix: "p", cssProps: ["padding"] },
-    { kind: "scale", prefix: "px", cssProps: ["padding-left", "padding-right"] },
-    { kind: "scale", prefix: "py", cssProps: ["padding-top", "padding-bottom"] },
-    { kind: "scale", prefix: "pt", cssProps: ["padding-top"] },
-    { kind: "scale", prefix: "pr", cssProps: ["padding-right"] },
-    { kind: "scale", prefix: "pb", cssProps: ["padding-bottom"] },
-    { kind: "scale", prefix: "pl", cssProps: ["padding-left"] },
-    { kind: "scale", prefix: "m", cssProps: ["margin"] },
-    { kind: "scale", prefix: "mx", cssProps: ["margin-left", "margin-right"] },
-    { kind: "scale", prefix: "my", cssProps: ["margin-top", "margin-bottom"] },
-    { kind: "scale", prefix: "mt", cssProps: ["margin-top"] },
-    { kind: "scale", prefix: "mr", cssProps: ["margin-right"] },
-    { kind: "scale", prefix: "mb", cssProps: ["margin-bottom"] },
-    { kind: "scale", prefix: "ml", cssProps: ["margin-left"] },
-    { kind: "scale", prefix: "gap", cssProps: ["gap"] },
-    { kind: "scale", prefix: "gap-x", cssProps: ["column-gap"] },
-    { kind: "scale", prefix: "gap-y", cssProps: ["row-gap"] },
-    { kind: "scale", prefix: "w", cssProps: ["width"] },
-    { kind: "scale", prefix: "h", cssProps: ["height"] },
+    { kind: "scale", prefix: "p", scaleFamily: "space", cssProps: ["padding"] },
+    {
+      kind: "scale",
+      prefix: "px",
+      scaleFamily: "space",
+      cssProps: ["padding-left", "padding-right"],
+    },
+    {
+      kind: "scale",
+      prefix: "py",
+      scaleFamily: "space",
+      cssProps: ["padding-top", "padding-bottom"],
+    },
+    { kind: "scale", prefix: "pt", scaleFamily: "space", cssProps: ["padding-top"] },
+    { kind: "scale", prefix: "pr", scaleFamily: "space", cssProps: ["padding-right"] },
+    { kind: "scale", prefix: "pb", scaleFamily: "space", cssProps: ["padding-bottom"] },
+    { kind: "scale", prefix: "pl", scaleFamily: "space", cssProps: ["padding-left"] },
+    { kind: "scale", prefix: "m", scaleFamily: "space", cssProps: ["margin"] },
+    {
+      kind: "scale",
+      prefix: "mx",
+      scaleFamily: "space",
+      cssProps: ["margin-left", "margin-right"],
+    },
+    {
+      kind: "scale",
+      prefix: "my",
+      scaleFamily: "space",
+      cssProps: ["margin-top", "margin-bottom"],
+    },
+    { kind: "scale", prefix: "mt", scaleFamily: "space", cssProps: ["margin-top"] },
+    { kind: "scale", prefix: "mr", scaleFamily: "space", cssProps: ["margin-right"] },
+    { kind: "scale", prefix: "mb", scaleFamily: "space", cssProps: ["margin-bottom"] },
+    { kind: "scale", prefix: "ml", scaleFamily: "space", cssProps: ["margin-left"] },
+    { kind: "scale", prefix: "gap", scaleFamily: "space", cssProps: ["gap"] },
+    { kind: "scale", prefix: "gap-x", scaleFamily: "space", cssProps: ["column-gap"] },
+    { kind: "scale", prefix: "gap-y", scaleFamily: "space", cssProps: ["row-gap"] },
+    { kind: "scale", prefix: "w", scaleFamily: "space", cssProps: ["width"] },
+    { kind: "scale", prefix: "h", scaleFamily: "space", cssProps: ["height"] },
     // `text-16` (font size) is tried before the `text` color namespace below
-    // — see the ordering note on the function doc comment.
-    { kind: "scale", prefix: "text", cssProps: ["font-size"] },
+    // — see the ordering note on the function doc comment. Font-size is the
+    // one utility that stays on the `size-N` typographic scale, on purpose.
+    { kind: "scale", prefix: "text", scaleFamily: "size", cssProps: ["font-size"] },
     { kind: "color", prefix: "bg", cssProps: ["background-color"] },
     { kind: "color", prefix: "text", cssProps: ["color"] },
     { kind: "color", prefix: "border", cssProps: ["border-color"] },
@@ -299,6 +328,7 @@ const LAYOUT_LITERALS: LiteralNamespace[] = (
     ["whitespace-nowrap", "white-space", "nowrap"],
     ["select-none", "user-select", "none"],
     ["pointer-events-none", "pointer-events", "none"],
+    ["pointer-events-auto", "pointer-events", "auto"],
     ["z-0", "z-index", "0"],
     ["z-10", "z-index", "10"],
     ["z-20", "z-index", "20"],
@@ -310,17 +340,22 @@ const LAYOUT_LITERALS: LiteralNamespace[] = (
   declarations: [[prop, value]] as const,
 }));
 
-/** Positive integer, no leading zero — `size-N` keys never have one. */
+/** Positive integer, no leading zero — `space-N`/`size-N` keys never have one. */
 const SIZE_STEP_RE = /^[1-9]\d*$/;
 
 /**
- * Resolves a `size-N` suffix against `tokens.sizes`, or `undefined` if the
- * suffix isn't a valid step for this config's `sizeSteps` (closed
- * vocabulary — out-of-range steps don't fall back to anything).
+ * Resolves an `N` suffix against `tokens.sizes[\`${family}-${N}\`]`, or
+ * `undefined` if the suffix isn't a valid step for this config's
+ * `spaceSteps`/`sizeSteps` (closed vocabulary — out-of-range steps don't
+ * fall back to anything).
  */
-function resolveSizeSuffix(suffix: string, tokens: LuzTokens): string | undefined {
+function resolveSizeSuffix(
+  suffix: string,
+  family: "space" | "size",
+  tokens: LuzTokens,
+): string | undefined {
   if (!SIZE_STEP_RE.test(suffix)) return undefined;
-  return tokens.sizes[`size-${suffix}`];
+  return tokens.sizes[`${family}-${suffix}`];
 }
 
 /** Keys ending in `-seed` are the wheel's internal literal seed color, not a public token — excluded from the color namespaces' vocabulary. */
@@ -406,10 +441,13 @@ function resolveBaseUtility(base: string, tokens: LuzTokens): ResolvedBase | nul
 
     if (ns.kind === "scale") {
       if (opacityPercent !== undefined) continue; // same reasoning as literal, above
-      const resolved = resolveSizeSuffix(suffix, tokens);
+      const resolved = resolveSizeSuffix(suffix, ns.scaleFamily, tokens);
       if (resolved !== undefined) {
         return {
-          declarations: sameValueDeclarations(ns.cssProps, `var(--size-${suffix})`),
+          declarations: sameValueDeclarations(
+            ns.cssProps,
+            `var(--${ns.scaleFamily}-${suffix})`,
+          ),
           namespaceIndex: i,
         };
       }

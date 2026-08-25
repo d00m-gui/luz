@@ -1,14 +1,12 @@
-import { LuzReact } from "../../../src/react";
-import { docsRuntimeConfig } from "../lib/docs-runtime-config";
 import { Playground } from "./Playground";
-import { Toolbar } from "./Toolbar";
 
-/** One shared `<LuzReact>` for the whole page — Astro hydrates each
- *  `client:*` component as its own isolated React tree, so a separate
- *  `<LuzReact>` per island would give the Toolbar's sound toggle and the
- *  Playground's `lui.*` components different contexts, and the toggle
- *  would silently do nothing. The Toolbar's fixed positioning means it
- *  doesn't matter that both render from the same mount point in markup. */
+/** Toolbar (sound toggle + live theme override via `LuzReact`) was removed
+ *  from here — loading `LuzReact`'s dynamic `<style>` injection alongside
+ *  the statically-generated `luz.css` on the same page caused visible
+ *  conflicts (the two sources disagreeing on `:root` values). Fixing that
+ *  properly means reconciling `docsRuntimeConfig` against the static build's
+ *  config rather than running both blind; until then this island just
+ *  renders the Playground. */
 export function DocsIsland({
   playgroundCode,
   hasPlayground,
@@ -16,10 +14,5 @@ export function DocsIsland({
   playgroundCode?: string;
   hasPlayground: boolean;
 }) {
-  return (
-    <LuzReact config={docsRuntimeConfig}>
-      {hasPlayground && <Playground code={playgroundCode} />}
-      <Toolbar />
-    </LuzReact>
-  );
+  return <>{hasPlayground && <Playground code={playgroundCode} />}</>;
 }

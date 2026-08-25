@@ -82,7 +82,7 @@ function AvatarDemo() {
   return (
     <div className="flex items-center gap-8">
       <Avatar>
-        <AvatarImage src="https://i.pravatar.cc/64?img=12" alt="user" />
+        <AvatarImage src="/luz-logo.svg" alt="luz" />
         <AvatarFallback>CN</AvatarFallback>
       </Avatar>
       <Avatar size="sm">

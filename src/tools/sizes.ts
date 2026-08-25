@@ -98,3 +98,26 @@ export function luzSizes(
     "toast-height": `15.5rem`,
   };
 }
+
+/**
+ * `space-N` — a linear spacing scale, deliberately separate from `size-N`
+ * above. `size-N` is a typographic scale on purpose (fixed micro-steps
+ * below `dynamicFrom`, then a real exponential/fluid type-scale ramp) —
+ * correct for font-size/line-height, wrong for padding/margin/gap/width/
+ * height, where predictable, evenly-spaced steps matter more than
+ * typographic proportion. `space-N = N * base/64`, so at the default
+ * `base` (16), `space-4` lands on exactly `1rem` (16px) — the same ratio
+ * Tailwind's own spacing scale uses, deliberately, since this scale backs
+ * the utility engine's Tailwind-nomenclature-compatible `p-`/`m-`/`gap-`/
+ * `w-`/`h-` classes and predictability there matters more than novelty.
+ * No fluid/clamp zone — spacing shouldn't reflow with viewport width the
+ * way type does.
+ */
+export function luzSpace(base: number, steps: number = 24): Record<string, string> {
+  const unit = base / 64;
+  const spaceTokens: Record<string, string> = {};
+  for (let i = 1; i <= steps; i++) {
+    spaceTokens[`space-${i}`] = `${parseFloat((i * unit).toFixed(3))}rem`;
+  }
+  return spaceTokens;
+}
