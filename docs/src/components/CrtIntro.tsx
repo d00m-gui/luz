@@ -1,0 +1,570 @@
+/* CRT / VHS logo reveal — recreado del bundle luz-crt-reveal.html.
+ * Shader WebGL self-contained + coreografía por reloj rAF. Sin dependencias
+ * externas (sin dc-runtime / CompositionStage): easing, interpolate, params
+ * y el GLSL se portaron verbatim desde crt-intro.tsx.
+ *
+ * Dos modos, un mismo motor de reloj/params:
+ *  - "intro": corre la secuencia completa de SCENES (~11.6s + fade de salida),
+ *    igual que el original — pensado para la primera carga de la sesión.
+ *  - "transition": recorta solo el tramo más glitchy de la escena "Tracking"
+ *    (los primeros ~350ms de esa escena, donde uTrack/uSnow están en su pico)
+ *    y le agrega un fade de salida corto — sin reveal de logo ni overlays de
+ *    OSD ("▶ PLAY" / "TRACKING"), pensado para disparar en cada navegación.
+ */
+import { useEffect, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import { LUZ_WORDMARK } from "@/lib/luz-wordmark";
+
+/* ── Easing (verbatim de animations-v3.jsx) ── */
+const Easing = {
+  linear: (t: number) => t,
+  easeInQuad: (t: number) => t * t,
+  easeOutQuad: (t: number) => t * (2 - t),
+  easeInOutQuad: (t: number) => (t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t),
+  easeInCubic: (t: number) => t * t * t,
+  easeOutCubic: (t: number) => --t * t * t + 1,
+  easeInOutCubic: (t: number) =>
+    t < 0.5 ? 4 * t * t * t : (t - 1) * (2 * t - 2) * (2 * t - 2) + 1,
+  easeInQuart: (t: number) => t * t * t * t,
+  easeOutQuart: (t: number) => 1 - --t * t * t * t,
+  easeInOutQuart: (t: number) =>
+    t < 0.5 ? 8 * t * t * t * t : 1 - 8 * --t * t * t * t,
+  easeInExpo: (t: number) => (t === 0 ? 0 : Math.pow(2, 10 * (t - 1))),
+  easeOutExpo: (t: number) => (t === 1 ? 1 : 1 - Math.pow(2, -10 * t)),
+  easeInOutExpo: (t: number) => {
+    if (t === 0) return 0;
+    if (t === 1) return 1;
+    if (t < 0.5) return 0.5 * Math.pow(2, 20 * t - 10);
+    return 1 - 0.5 * Math.pow(2, -20 * t + 10);
+  },
+  easeInSine: (t: number) => 1 - Math.cos((t * Math.PI) / 2),
+  easeOutSine: (t: number) => Math.sin((t * Math.PI) / 2),
+  easeInOutSine: (t: number) => -(Math.cos(Math.PI * t) - 1) / 2,
+  easeOutBack: (t: number) => {
+    const c1 = 1.70158;
+    const c3 = c1 + 1;
+    return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);
+  },
+  easeInBack: (t: number) => {
+    const c1 = 1.70158;
+    const c3 = c1 + 1;
+    return c3 * t * t * t - c1 * t * t;
+  },
+  easeInOutBack: (t: number) => {
+    const c1 = 1.70158;
+    const c2 = c1 * 1.525;
+    return t < 0.5
+      ? (Math.pow(2 * t, 2) * ((c2 + 1) * 2 * t - c2)) / 2
+      : (Math.pow(2 * t - 2, 2) * ((c2 + 1) * (t * 2 - 2) + c2) + 2) / 2;
+  },
+  easeOutElastic: (t: number) => {
+    const c4 = (2 * Math.PI) / 3;
+    if (t === 0) return 0;
+    if (t === 1) return 1;
+    return Math.pow(2, -10 * t) * Math.sin((t * 10 - 0.75) * c4) + 1;
+  },
+};
+
+type EaseFn = (t: number) => number;
+
+function clamp(v: number, min: number, max: number): number {
+  return Math.max(min, Math.min(max, v));
+}
+
+function interpolate(
+  input: number[],
+  output: number[],
+  ease: EaseFn | EaseFn[] = Easing.linear,
+): (t: number) => number {
+  return (t: number) => {
+    if (t <= input[0]) return output[0];
+    if (t >= input[input.length - 1]) return output[output.length - 1];
+    for (let i = 0; i < input.length - 1; i++) {
+      if (t >= input[i] && t <= input[i + 1]) {
+        const span = input[i + 1] - input[i];
+        const local = span === 0 ? 0 : (t - input[i]) / span;
+        const easeFn = Array.isArray(ease) ? ease[i] || Easing.linear : ease;
+        const eased = easeFn(local);
+        return output[i] + (output[i + 1] - output[i]) * eased;
+      }
+    }
+    return output[output.length - 1];
+  };
+}
+
+/* ── Escenas (OM_SCENES del bundle). nat === dur → warp identidad. ── */
+const SCENES = [
+  { name: "Encendido", dur: 1.8 },
+  { name: "Estatica", dur: 2.6 },
+  { name: "Tracking", dur: 2.4 },
+  { name: "Enganche", dur: 2.2 },
+  { name: "Reposo", dur: 2.6 },
+];
+
+const CUES: Record<string, number> = {};
+{
+  let acc = 0;
+  for (const s of SCENES) {
+    if (!(s.name in CUES)) CUES[s.name] = acc;
+    acc += s.dur;
+  }
+}
+const TOTAL = SCENES.reduce((n, s) => n + s.dur, 0); // 11.6
+
+const OPT = { glitch: 1, osd: true, phosphor: "cian" } as const;
+const PHOSPHOR: Record<string, [number, number, number]> = {
+  cian: [0.62, 0.9, 1.0],
+  ambar: [1.0, 0.78, 0.42],
+  fosforo: [0.55, 1.0, 0.72],
+};
+
+/* ── GLSL (verbatim) ── */
+const VERT = `
+attribute vec2 aPos;
+varying vec2 vUv;
+void main(){ vUv = aPos*0.5+0.5; gl_Position = vec4(aPos,0.0,1.0); }`;
+
+const FRAG = `
+precision highp float;
+varying vec2 vUv;
+uniform sampler2D uTex;
+uniform vec3 uTint;
+uniform float uT, uTrack, uNoise, uChroma, uOpenX, uOpenY, uRoll,
+              uBandY, uBandH, uFlash, uBright, uGlow, uSnow;
+
+float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453123); }
+float nse(vec2 p){ return hash(floor(p)); }
+
+vec2 curve(vec2 uv){
+  vec2 c = uv*2.0-1.0;
+  vec2 off = abs(c.yx)/vec2(6.0,4.6);
+  c += c*off*off;
+  return c*0.5+0.5;
+}
+
+void main(){
+  vec2 uv = curve(vUv);
+  vec2 c = uv*2.0-1.0;
+
+  float tick = floor(uT*24.0);
+  float line = floor(uv.y*260.0);
+
+  vec2 suv = uv;
+  suv.y = fract(suv.y + uRoll);
+
+  float pick = step(0.62, hash(vec2(line*0.13, tick*0.7)));
+  suv.x += (nse(vec2(line, tick))-0.5)*0.075*uTrack*pick;
+
+  float dband = abs(fract(suv.y - uBandY + 0.5) - 0.5);
+  float b = 1.0 - smoothstep(0.0, max(uBandH, 0.0005), dband);
+  float bn = (nse(vec2(line*0.71, tick*1.3))-0.5)*2.0;
+  suv.x += b*(0.10*uTrack + 0.035)*bn;
+  suv.y += b*0.006*sin(uT*37.0);
+
+  float ca = uChroma + b*0.018;
+  vec3 col;
+  col.r = texture2D(uTex, clamp(suv + vec2(ca, 0.0), 0.001, 0.999)).r;
+  col.g = texture2D(uTex, clamp(suv, 0.001, 0.999)).g;
+  col.b = texture2D(uTex, clamp(suv - vec2(ca, 0.0), 0.001, 0.999)).b;
+
+  float g = 0.0;
+  for(int i=0;i<8;i++){
+    float a = float(i)*0.7853981;
+    vec2 o = vec2(cos(a), sin(a))*0.012;
+    g += texture2D(uTex, clamp(suv+o, 0.001, 0.999)).g;
+  }
+  g /= 8.0;
+  col += uTint*g*uGlow;
+
+  col *= mix(vec3(1.0), uTint, 0.55);
+
+  float snow = hash(floor(vUv*vec2(360.0,200.0)) + tick*3.7);
+  col += (snow-0.5)*uSnow*(0.6 + b*0.9);
+  col += (hash(vUv*vec2(1920.0,1080.0)+uT*13.0)-0.5)*uNoise*0.35;
+
+  float hs = 1.0 - smoothstep(0.0, 0.045, uv.y - 0.005);
+  col = mix(col, vec3(hash(vec2(floor(vUv.x*220.0), tick*5.0))*0.85), hs*clamp(uTrack*1.2+0.18,0.0,1.0));
+
+  col *= 0.72 + 0.28*abs(sin(uv.y*760.0));
+  col *= 0.93 + 0.07*sin(vUv.x*1900.0);
+
+  col += uFlash;
+
+  float ax = 1.0 - smoothstep(uOpenX-0.012, uOpenX+0.012, abs(c.x));
+  float ay = 1.0 - smoothstep(uOpenY-0.006, uOpenY+0.006, abs(c.y));
+  float vig = 1.0 - 0.55*dot(c*0.72, c*0.72);
+  float edge = (1.0 - smoothstep(0.985, 1.0, abs(c.x))) * (1.0 - smoothstep(0.985, 1.0, abs(c.y)));
+
+  col *= ax*ay*vig*edge*uBright;
+  col = max(col, vec3(0.0));
+  gl_FragColor = vec4(col, 1.0);
+}`;
+
+/* ── WebGL + señal ── */
+interface GLState {
+  gl: WebGLRenderingContext;
+  u: Record<string, WebGLUniformLocation | null>;
+  tex: WebGLTexture;
+  sig: HTMLCanvasElement;
+  sigCtx: CanvasRenderingContext2D;
+  logo: HTMLImageElement | null;
+}
+
+function makeGL(canvas: HTMLCanvasElement): GLState | null {
+  const gl = canvas.getContext("webgl", {
+    antialias: false,
+    preserveDrawingBuffer: true,
+  });
+  if (!gl) return null;
+  const sh = (type: number, src: string) => {
+    const s = gl.createShader(type);
+    if (!s) throw new Error("createShader");
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    return s;
+  };
+  const p = gl.createProgram();
+  if (!p) throw new Error("createProgram");
+  gl.attachShader(p, sh(gl.VERTEX_SHADER, VERT));
+  gl.attachShader(p, sh(gl.FRAGMENT_SHADER, FRAG));
+  gl.linkProgram(p);
+  gl.useProgram(p);
+  const buf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(p, "aPos");
+  gl.enableVertexAttribArray(loc);
+  gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  const tex = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, tex);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  const u: Record<string, WebGLUniformLocation | null> = {};
+  [
+    "uTex", "uT", "uTrack", "uNoise", "uChroma", "uOpenX", "uOpenY", "uRoll",
+    "uBandY", "uBandH", "uFlash", "uBright", "uGlow", "uSnow", "uTint",
+  ].forEach((n) => (u[n] = gl.getUniformLocation(p, n)));
+  gl.uniform1i(u.uTex, 0);
+  const sig = document.createElement("canvas");
+  sig.width = 1280;
+  sig.height = 720;
+  const sigCtx = sig.getContext("2d")!;
+  return { gl, u, tex, sig, sigCtx, logo: null };
+}
+
+interface Params {
+  track: number;
+  roll: number;
+  noise: number;
+  snow: number;
+  chroma: number;
+  openX: number;
+  openY: number;
+  flash: number;
+  bright: number;
+  glow: number;
+  bandY: number;
+  bandH: number;
+  logoAlpha: number;
+  logoScale: number;
+  logoDx: number;
+  osdPlay: number;
+  osdTrack: number;
+  trackBar: number;
+  stamp: string;
+}
+
+function drawSignal(g: CanvasRenderingContext2D, logo: HTMLImageElement | null, p: Params) {
+  g.fillStyle = "#000";
+  g.fillRect(0, 0, g.canvas.width, g.canvas.height);
+  if (logo && logo.complete && logo.naturalWidth) {
+    const h = 470 * p.logoScale;
+    const w = h;
+    g.save();
+    g.globalAlpha = p.logoAlpha;
+    g.translate(640 + p.logoDx, 348);
+    g.drawImage(logo, -w / 2, -h / 2, w, h);
+    g.restore();
+  }
+  g.font = "600 26px ui-monospace, 'SFMono-Regular', Menlo, monospace";
+  g.textBaseline = "top";
+  if (p.osdPlay > 0) {
+    g.globalAlpha = p.osdPlay;
+    g.fillStyle = "#eaf6ff";
+    g.fillText("▶ PLAY", 62, 56);
+    g.fillText("SP", 62, 92);
+    g.textAlign = "right";
+    g.fillText(p.stamp, 1218, 56);
+    g.textAlign = "left";
+  }
+  if (p.osdTrack > 0) {
+    g.globalAlpha = p.osdTrack;
+    g.fillStyle = "#eaf6ff";
+    g.fillText("TRACKING", 62, 600);
+    const x0 = 62, y = 642, seg = 22, gap = 8, n = 12;
+    for (let i = 0; i < n; i++) {
+      const on = i < Math.round(p.trackBar * n);
+      g.globalAlpha = p.osdTrack * (on ? 1 : 0.22);
+      g.fillRect(x0 + i * (seg + gap), y, seg, 16);
+    }
+  }
+  g.globalAlpha = 1;
+}
+
+const ip = (T: number, xs: number[], ys: number[], e?: EaseFn) =>
+  interpolate(xs, ys, e || Easing.easeInOutQuad)(T);
+
+/** Coreografía verbatim del original — puro función de T (tiempo virtual en
+ * segundos dentro de la línea de tiempo completa de SCENES). No sabe nada de
+ * "intro" vs "transition": eso lo decide qué rango de T se le pide dibujar. */
+function params(T: number): Params {
+  const C = CUES;
+  const off = TOTAL - 0.55; // apagado, seam negro del loop
+  const track = ip(T,
+    [C.Estatica, C.Tracking, C.Tracking + 1.4, C.Enganche + 0.5, C.Reposo + 0.8, C.Reposo + 1.0, C.Reposo + 1.25, off],
+    [1.0, 0.92, 0.45, 0.06, 0.03, 0.34, 0.02, 0.35]);
+  const roll = interpolate(
+    [0, C.Estatica, C.Estatica + 0.9, C.Tracking, C.Tracking + 0.8, C.Tracking + 1.6, C.Enganche, C.Enganche + 0.45, C.Enganche + 0.9, TOTAL],
+    [0, 0.55, 1.45, 2.05, 2.60, 2.93, 3.06, 3.13, 3.0, 3.0],
+    Easing.linear)(T);
+  const lock = clamp((T - C.Enganche) / 1.1, 0, 1);
+  const gx = OPT.glitch;
+  return {
+    track: track * gx,
+    roll,
+    noise: ip(T, [0, C.Estatica, C.Enganche, C.Reposo, off, off + 0.2], [0.4, 0.5, 0.12, 0.07, 0.07, 0.14]),
+    snow: gx * ip(T, [C.Encendido + 0.4, C.Estatica, C.Tracking + 1.2, C.Enganche + 0.7, off - 0.15, off + 0.1], [0.75, 0.6, 0.24, 0.035, 0.035, 0.12]),
+    chroma: ip(T, [C.Estatica, C.Enganche, C.Enganche + 1.0], [0.014, 0.010, 0.0018]) * (0.4 + 0.6 * gx),
+    openX: ip(T, [0.06, 0.3], [0.0, 1.0], Easing.easeOutQuart) * (T < off ? 1 : ip(T, [off + 0.28, TOTAL - 0.02], [1, 0.0], Easing.easeInQuart)),
+    openY: T < off
+      ? ip(T, [0.12, 0.3, 0.62, 1.35], [0.0, 0.010, 0.010, 1.0], Easing.easeOutCubic)
+      : ip(T, [off, off + 0.26], [1.0, 0.006], Easing.easeInQuart),
+    flash: ip(T, [0.08, 0.2, 0.5], [0.0, 0.5, 0.0], Easing.easeOutQuad)
+      + ip(T, [C.Enganche - 0.06, C.Enganche + 0.05, C.Enganche + 0.5], [0, 0.32, 0], Easing.easeOutQuad)
+      + (T > off ? ip(T, [off + 0.1, off + 0.28, off + 0.45], [0, 0.85, 0.0], Easing.easeOutQuad) : 0),
+    bright: ip(T, [0, 0.1, 0.6, C.Enganche, C.Enganche + 0.8], [0, 0.85, 1.0, 1.0, 1.12]),
+    glow: ip(T, [C.Estatica, C.Enganche, C.Enganche + 0.9, TOTAL], [0.12, 0.25, 0.85, 0.7])
+      + Math.sin(T * 1.7) * 0.03 * lock,
+    bandY: (((0.82 - T * 0.33) % 1) + 1) % 1,
+    bandH: ip(T, [C.Estatica, C.Tracking + 1.2, C.Enganche + 0.6], [0.17, 0.09, 0.004]),
+    logoAlpha: ip(T, [C.Estatica - 0.3, C.Estatica + 0.4, C.Tracking + 0.9, C.Enganche + 0.6], [0, 0.45, 0.8, 1]),
+    logoScale: 1 + 0.055 * (1 - lock) + 0.012 * Math.sin(T * 0.9),
+    logoDx: (1 - lock) * 26 * Math.sin(T * 2.3),
+    osdPlay: (OPT.osd ? 1 : 0) * ip(T, [C.Estatica - 0.4, C.Estatica + 0.2], [0, 1]) * (Math.floor(T * 2) % 8 === 7 ? 0.35 : 1),
+    osdTrack: (OPT.osd ? 1 : 0) * ip(T, [C.Tracking - 0.25, C.Tracking + 0.15, C.Enganche + 0.55, C.Enganche + 0.9], [0, 1, 1, 0]),
+    trackBar: clamp((T - C.Tracking) / (C.Enganche - C.Tracking), 0, 1),
+    stamp: "0:" + String(Math.floor(T + 12)).padStart(2, "0"),
+  };
+}
+
+function drawFrame(s: GLState, canvas: HTMLCanvasElement, T: number, showOverlay: boolean) {
+  const P = params(T);
+  if (!showOverlay) {
+    // Modo "transition": solo el glitch de señal, sin reveal de logo ni OSD.
+    P.logoAlpha = 0;
+    P.osdPlay = 0;
+    P.osdTrack = 0;
+  }
+  drawSignal(s.sigCtx, s.logo, P);
+  const { gl, u } = s;
+  gl.viewport(0, 0, canvas.width, canvas.height);
+  gl.bindTexture(gl.TEXTURE_2D, s.tex);
+  gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, s.sig);
+  const f = (v: number) => (Number.isFinite(v) ? v : 0);
+  gl.uniform1f(u.uT, f(T));
+  gl.uniform1f(u.uTrack, f(P.track));
+  gl.uniform1f(u.uNoise, f(P.noise));
+  gl.uniform1f(u.uChroma, f(P.chroma));
+  gl.uniform1f(u.uOpenX, f(P.openX));
+  gl.uniform1f(u.uOpenY, f(P.openY));
+  gl.uniform1f(u.uRoll, f(P.roll ?? 0));
+  gl.uniform1f(u.uBandY, f(P.bandY));
+  gl.uniform1f(u.uBandH, f(P.bandH));
+  gl.uniform1f(u.uFlash, f(P.flash));
+  gl.uniform1f(u.uBright, f(P.bright));
+  gl.uniform1f(u.uGlow, f(P.glow));
+  gl.uniform1f(u.uSnow, f(P.snow));
+  const tint = PHOSPHOR[OPT.phosphor] || PHOSPHOR.cian;
+  gl.uniform3f(u.uTint, tint[0], tint[1], tint[2]);
+  gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+/* ── Modos: cómo mapear tiempo real (rAF) a tiempo virtual T de la coreografía ── */
+export type CrtIntroMode = "intro" | "transition";
+
+interface ModeTiming {
+  /** T virtual (seg, dentro de la línea de tiempo de SCENES) al que corresponde elapsed=0. */
+  virtualOffset: number;
+  /** Tope de T virtual — una vez alcanzado, el frame se mantiene congelado ahí. */
+  maxVirtualT: number;
+  /** Segundos reales transcurridos a partir de los cuales se dispara finish(). */
+  triggerSeconds: number;
+  /** Duración del fade de salida (debe matchear la transition CSS del overlay). */
+  exitMs: number;
+  /** Si se dibuja el reveal de logo + OSD ("▶ PLAY" / "TRACKING") o solo el glitch de señal. */
+  showOverlay: boolean;
+}
+
+const EXIT_MS = 900; // fade de salida del modo "intro" (original)
+const END_TRIGGER = TOTAL + 0.4; // "intro": mantener negro antes de revelar, luego salir
+
+// "transition": solo el arranque de la escena Tracking (uTrack/uSnow en su pico,
+// ver params() arriba) — el tramo más "glitchy" y visualmente reconocible como
+// ruido de tracking, sin logo ni OSD. ~350ms de reproducción + ~150ms de fade
+// = ~500ms totales, dentro del rango de 400-600ms pedido.
+const TRANSITION_PLAY_S = 0.35;
+const TRANSITION_EXIT_MS = 150;
+
+function getModeTiming(mode: CrtIntroMode): ModeTiming {
+  if (mode === "intro") {
+    return {
+      virtualOffset: 0,
+      maxVirtualT: TOTAL,
+      triggerSeconds: END_TRIGGER,
+      exitMs: EXIT_MS,
+      showOverlay: true,
+    };
+  }
+  return {
+    virtualOffset: CUES.Tracking,
+    maxVirtualT: CUES.Tracking + TRANSITION_PLAY_S,
+    triggerSeconds: TRANSITION_PLAY_S,
+    exitMs: TRANSITION_EXIT_MS,
+    showOverlay: false,
+  };
+}
+
+export interface CrtIntroProps {
+  /** "intro": secuencia completa (~12s). "transition": solo el glitch de Tracking (~500ms). */
+  mode: CrtIntroMode;
+  /** Se llama una vez terminado el fade de salida, justo antes de desmontarse (retorna null). */
+  onDone?: () => void;
+}
+
+export function CrtIntro({ mode, onDone }: CrtIntroProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stateRef = useRef<GLState | null>(null);
+  const finishRef = useRef(false);
+  const timing = getModeTiming(mode);
+  const [exiting, setExiting] = useState(false);
+  const [gone, setGone] = useState(false);
+
+  // Init GL + cargar logo (orden importa: logo va al estado GL ya creado).
+  // En "transition" no hace falta el logo — nunca se dibuja (showOverlay=false).
+  useEffect(() => {
+    const cv = canvasRef.current;
+    if (!cv) return;
+    const st = makeGL(cv);
+    if (!st) return;
+    stateRef.current = st;
+    if (timing.showOverlay) {
+      const svg =
+        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${LUZ_WORDMARK.viewBox}" width="1024" height="1024">` +
+        `<g transform="${LUZ_WORDMARK.transform}"><path fill="#ffffff" d="${LUZ_WORDMARK.d}"/></g></svg>`;
+      const img = new Image();
+      img.onload = () => {
+        st.logo = img;
+      };
+      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+    }
+    return () => {
+      stateRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  const finish = () => {
+    if (finishRef.current) return;
+    finishRef.current = true;
+    setExiting(true);
+    window.setTimeout(() => {
+      setGone(true);
+      onDone?.();
+    }, timing.exitMs);
+  };
+
+  const skip = () => {
+    if (finishRef.current) return;
+    // Dibujar frame de apagado (o el último frame del segmento), luego salir.
+    const s = stateRef.current;
+    const cv = canvasRef.current;
+    if (s && cv) drawFrame(s, cv, timing.maxVirtualT, timing.showOverlay);
+    finish();
+  };
+
+  // Reloj rAF: dibuja cada frame, termina en triggerSeconds (real) del modo activo.
+  useEffect(() => {
+    const cv = canvasRef.current;
+    if (!cv) return;
+    const t0 = performance.now();
+    let raf = 0;
+    const loop = () => {
+      if (finishRef.current) return;
+      const s = stateRef.current;
+      if (s && s.gl) {
+        const el = (performance.now() - t0) / 1000;
+        const T = Math.min(timing.virtualOffset + el, timing.maxVirtualT);
+        drawFrame(s, cv, T, timing.showOverlay);
+        if (el >= timing.triggerSeconds) {
+          finish();
+          return;
+        }
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  if (gone) return null;
+
+  const overlayStyle: CSSProperties = {
+    position: "fixed",
+    inset: 0,
+    zIndex: 2147483000,
+    background: "var(--neutral-950)",
+    cursor: "pointer",
+    opacity: exiting ? 0 : 1,
+    transition: `opacity ${timing.exitMs}ms ease`,
+    pointerEvents: exiting ? "none" : "auto",
+  };
+
+  return (
+    <div style={overlayStyle} onClick={skip} aria-label="Intro luz">
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "radial-gradient(120% 90% at 50% 45%, rgba(30,90,140,0.10), rgba(0,0,0,0) 70%)",
+        }}
+      />
+      <canvas
+        ref={canvasRef}
+        width={1600}
+        height={900}
+        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}
+      />
+      {mode === "intro" && (
+        <div
+          style={{
+            position: "absolute",
+            right: 22,
+            bottom: 18,
+            font: "500 12px ui-monospace, 'SFMono-Regular', Menlo, monospace",
+            letterSpacing: "0.08em",
+            color: "rgba(234,246,255,0.38)",
+            pointerEvents: "none",
+            userSelect: "none",
+          }}
+        >
+          clic para entrar
+        </div>
+      )}
+    </div>
+  );
+}

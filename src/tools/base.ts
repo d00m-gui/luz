@@ -88,8 +88,8 @@ const tabsCSS = `
     top: 50%;
     translate: var(--active-tab-left) -50%;
     width: var(--active-tab-width);
-    height: 1.5rem;
-    border-radius: 0.5rem;
+    height: 15px;
+    border-radius: 5px;
     background-color: var(--__LUZ_NEUTRAL__-100);
     transition-property: translate, width;
     transition-duration: 200ms;
@@ -125,11 +125,11 @@ const avatarCSS = `
       font-weight: 500;
       color: var(--__LUZ_NEUTRAL__-900);
       background-color: var(--__LUZ_NEUTRAL__-100);
-      font-size: 1rem;
+      font-size: 0.625rem;
       line-height: 1;
       overflow: hidden;
-      height: 3rem;
-      width: 3rem;
+      height: 30px;
+      width: 30px;
       .image {
         object-fit: cover;
         height: 100%;
@@ -141,7 +141,7 @@ const avatarCSS = `
         justify-content: center;
         height: 100%;
         width: 100%;
-        font-size: 1rem;
+        font-size: 0.625rem;
       }
     }`;
 
@@ -180,19 +180,19 @@ const arrowCSS = `
     .arrow {
       display: flex;
       &[data-side="top"] {
-        bottom: -0.8rem;
+        bottom: -8px;
         rotate: 180deg;
       }
       &[data-side="bottom"] {
-        top: -0.8rem;
+        top: -8px;
         rotate: 0deg;
       }
       &[data-side="left"] {
-        right: -1.3rem;
+        right: -13px;
         rotate: 90deg;
       }
       &[data-side="right"] {
-        left: -1.3rem;
+        left: -13px;
         rotate: -90deg;
       }
     }`;
@@ -250,16 +250,16 @@ const menuitemCSS = `
       user-select: none;
       padding: var(--size-8);
       position: relative;
-      letter-spacing: 0.05rem;
+      letter-spacing: 0.5px;
       border-radius: calc(var(--border-radius) / 2);
-      font-size: 1.6rem;
+      font-size: 1rem;
       & > span {
-        font-size: 1.6rem;
+        font-size: 1rem;
       }
       .indicator {
         opacity: 0.6;
         left: var(--size-10);
-        margin-right: 1rem;
+        margin-right: 10px;
       }
       &[data-highlighted] {
         filter: brightness(1.2);
@@ -271,7 +271,7 @@ const meterCSS = `
     [role="meter"] {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      grid-row-gap: 0.5rem;
+      grid-row-gap: 5px;
       .label {
         font-weight: 500;
         text-align: left;
@@ -356,16 +356,16 @@ const toastCSS = `
       );
 
       position: absolute;
-      right: 1rem;
-      bottom: 1rem;
+      right: 10px;
+      bottom: 10px;
       margin: 0 auto;
       box-sizing: border-box;
       background: var(--__LUZ_NEUTRAL__-950);
       color: var(--__LUZ_NEUTRAL__-200);
       border: var(--border-width) solid var(--__LUZ_PRIMARY__-800);
-      padding: 2rem;
+      padding: 20px;
       width: 100%;
-      box-shadow: 0 0.2rem 1rem rgb(0 0 0 / 0.1);
+      box-shadow: 0 2px 10px rgb(0 0 0 / 0.1);
       background-clip: padding-box;
       border-radius: var(--border-radius);
       transform-origin: bottom center;
@@ -380,7 +380,7 @@ const toastCSS = `
       cursor: default;
       z-index: calc(1000 - var(--toast-index));
       height: var(--height);
-      max-width: 32rem;
+      max-width: 320px;
       transform: translateX(var(--toast-swipe-movement-x))
         translateY(
           calc(
@@ -447,15 +447,15 @@ const toastCSS = `
       }
       .close {
         position: absolute;
-        top: 1rem;
-        right: 1rem;
+        top: 10px;
+        right: 10px;
         padding: var(--size-5);
         border: none;
         background: transparent;
         display: flex;
         align-items: center;
         justify-content: center;
-        border-radius: 0.25rem;
+        border-radius: 2.5px;
         font-size: var(--size-12);
         &:hover {
           color: var(--__LUZ_PRIMARY__-500);
@@ -492,15 +492,15 @@ const popupCSS = `
     .popup {
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 10px;
       position: fixed;
       top: 50%;
       left: 50%;
       transform: translate3d(-50%, -50%, 0) scale(1);
       width: 50vw;
-      max-width: calc(100vw - 3rem);
+      max-width: calc(100vw - 30px);
       background-color: var(--__LUZ_NEUTRAL__-900);
-      box-shadow: 0.25rem 0.25rem 0.5ch var(--__LUZ_PRIMARY__-950);
+      box-shadow: 2.5px 2.5px 0.5ch var(--__LUZ_PRIMARY__-950);
       transition: all 100ms ease-out;
       container-type: inline-size;
       border-radius: var(--border-radius);

@@ -1,0 +1,39 @@
+---
+import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
+import Sidebar from "../components/Sidebar.astro";
+import { CrtIntroMount } from "../components/CrtIntroMount";
+import "../styles/zed.css";
+
+interface Props {
+  title: string;
+  activeId: string;
+  breadcrumb: string;
+  contentClass?: string;
+}
+
+const { title, activeId, breadcrumb, contentClass } = Astro.props;
+---
+
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <title>{title} — luz docs</title>
+    <link rel="stylesheet" href="/luz.css" />
+    <Font cssVariable="--dm-sans" preload />
+    <Font cssVariable="--dm-mono" preload />
+    <ClientRouter />
+  </head>
+  <body>
+    <div class="layout">
+      <Sidebar activeId={activeId} />
+      <main class="main">
+        <div class="breadcrumb">luz / {breadcrumb}</div>
+        <div class={["content", contentClass].filter(Boolean).join(" ")}>
+          <slot />
+        </div>
+      </main>
+    </div>
+    <CrtIntroMount client:load transition:persist />
+  </body>
+</html>

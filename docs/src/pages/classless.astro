@@ -1,6 +1,5 @@
 ---
-import Sidebar from "../components/Sidebar.astro";
-import "../styles/zed.css";
+import Layout from "../layouts/Layout.astro";
 
 interface Sample {
   id: string;
@@ -61,48 +60,33 @@ const SAMPLES: Sample[] = [
 ];
 ---
 
-<html lang="en" data-theme="dark">
-  <head>
-    <meta charset="utf-8" />
-    <title>Classless HTML — luz docs</title>
-    <link rel="stylesheet" href="/luz.css" />
-  </head>
-  <body>
-    <div class="layout">
-      <Sidebar activeId="classless" />
-      <main class="main">
-        <div class="breadcrumb">luz / Classless HTML</div>
-        <div class="content classless">
-          <h5>Classless HTML</h5>
-          <h3 class="description">
-            These don't need a component — luz's own reset (<code
-              >src/tools/reset.ts</code
-            >) plus its element setup rules already style plain semantic
-            HTML the moment <code>luz.css</code> is linked. No classes, no
-            imports, no Base UI/shadcn wiring. This is the lighter
-            counterpart to <a href="/components/">/components</a>, which
-            documents nine real shadcn (Base UI) components adapted to
-            luz's utility engine for everything that genuinely needs
-            interactivity or composition — dropdown menus, dialogs, toasts.
-            Five things here don't: a button, a switch, a meter, a basic
-            form, and a card.
-          </h3>
+<Layout title="Classless HTML" activeId="classless" breadcrumb="Classless HTML" contentClass="classless">
+  <h5>Classless HTML</h5>
+  <h3 class="description">
+    These don't need a component — luz's own reset (<code
+      >src/tools/reset.ts</code
+    >) plus its element setup rules already style plain semantic
+    HTML the moment <code>luz.css</code> is linked. No classes, no
+    imports, no Base UI/shadcn wiring. This is the lighter
+    counterpart to <a href="/components/">/components</a>, which
+    documents nine real shadcn (Base UI) components adapted to
+    luz's utility engine for everything that genuinely needs
+    interactivity or composition — dropdown menus, dialogs, toasts.
+    Five things here don't: a button, a switch, a meter, a basic
+    form, and a card.
+  </h3>
 
-          {
-            SAMPLES.map((s) => (
-              <section id={s.id} class="classless-section">
-                <h4>{s.title}</h4>
-                <p class="description">{s.note}</p>
-                <pre class="code-block"><code>{s.code}</code></pre>
-                <div class="classless-render" set:html={s.code} />
-              </section>
-            ))
-          }
-        </div>
-      </main>
-    </div>
-  </body>
-</html>
+  {
+    SAMPLES.map((s) => (
+      <section id={s.id} class="classless-section">
+        <h4>{s.title}</h4>
+        <p class="description">{s.note}</p>
+        <pre class="code-block"><code>{s.code}</code></pre>
+        <div class="classless-render" set:html={s.code} />
+      </section>
+    ))
+  }
+</Layout>
 
 <style>
   .classless-section {

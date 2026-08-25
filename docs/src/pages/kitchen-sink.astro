@@ -1,8 +1,7 @@
 ---
-import Sidebar from "../components/Sidebar.astro";
+import Layout from "../layouts/Layout.astro";
 import { luz } from "../../../src/luz";
 import { config } from "../../luz.config.mjs";
-import "../styles/zed.css";
 
 const { tokens } = luz(config);
 
@@ -26,188 +25,173 @@ const sizeSteps = Object.keys(tokens.sizes)
   .sort((a, b) => Number(a.split("-")[1]) - Number(b.split("-")[1]));
 ---
 
-<html lang="en" data-theme="dark">
-  <head>
-    <meta charset="utf-8" />
-    <title>Kitchen Sink — luz docs</title>
-    <link rel="stylesheet" href="/luz.css" />
-  </head>
-  <body>
-    <div class="layout">
-      <Sidebar activeId="kitchen-sink" />
-      <main class="main">
-        <div class="breadcrumb">luz / Kitchen Sink</div>
-        <div class="content kitchen-sink">
-          <h5>Kitchen Sink</h5>
-          <h3 class="description">
-            Todos los tokens de color y tamaño generados por la config actual,
-            más una muestra de elementos HTML nativos con el estilo de <code
-              >setup()</code
-            > aplicado.
-          </h3>
+<Layout title="Kitchen Sink" activeId="kitchen-sink" breadcrumb="Kitchen Sink" contentClass="kitchen-sink">
+  <h5>Kitchen Sink</h5>
+  <h3 class="description">
+    Todos los tokens de color y tamaño generados por la config actual,
+    más una muestra de elementos HTML nativos con el estilo de <code
+      >setup()</code
+    > aplicado.
+  </h3>
 
-          <h2>Colors</h2>
+  <h2>Colors</h2>
 
-          {
-            SHADE_SCALES.map((name) => (
-              <div class="swatch-row">
-                <div class="swatch-row-label">{name}</div>
-                <div class="swatch-list">
-                  {WEIGHTS.map((weight) => (
-                    <div
-                      class="swatch"
-                      style={`background: var(--${name}-${weight})`}
-                    >
-                      <span>{weight}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))
-          }
-
-          <h3>Wheel</h3>
-
-          {
-            WHEEL_HUES.map((name) => (
-              <div class="swatch-row">
-                <div class="swatch-row-label">{name}</div>
-                <div class="swatch-list">
-                  {WEIGHTS.map((weight) => (
-                    <div
-                      class="swatch"
-                      style={`background: var(--${name}-${weight})`}
-                    >
-                      <span>{weight}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))
-          }
-
-          <h2>Sizes</h2>
-
-          <div class="size-scale">
-            {
-              sizeSteps.map((step) => (
-                <div class="size-step">
-                  <div
-                    class="size-swatch"
-                    style={`width: var(--${step}); height: var(--${step})`}
-                  />
-                  <code>--{step}</code>
-                </div>
-              ))
-            }
-          </div>
-
-          <div class="size-scale">
-            {
-              ["border-radius", "border-width", "spacing"].map((name) => (
-                <div class="size-step">
-                  <div
-                    class="size-swatch size-swatch-flat"
-                    style={`width: var(--${name}); height: var(--size-6)`}
-                  />
-                  <code>--{name}</code>
-                </div>
-              ))
-            }
-          </div>
-
-          <h2>Typography</h2>
-          <h1>Heading 1</h1>
-          <h2>Heading 2</h2>
-          <h3>Heading 3</h3>
-          <h4>Heading 4</h4>
-          <h5>Heading 5</h5>
-          <h6>Heading 6</h6>
-          <p>
-            Body text with <strong>strong</strong>, <em>emphasis</em>, and{" "}
-            <mark>mark</mark>. A <a href="#">default link</a>,{" "}
-            <a href="#" class="secondary">secondary link</a>,{" "}
-            <a href="#" class="danger">danger link</a>, and{" "}
-            <a href="#" class="success">success link</a>.
-          </p>
-          <blockquote>
-            "A blockquote with a footer."
-            <footer>— someone</footer>
-          </blockquote>
-          <p><kbd>Ctrl</kbd> + <kbd>K</kbd></p>
-          <hr />
-
-          <h2>Buttons</h2>
-          <div role="group" class="kitchen-sink-row">
-            <button>Default</button>
-            <button class="success">Success</button>
-            <button class="contrast">Contrast</button>
-            <button class="danger">Danger</button>
-            <button class="warning">Warning</button>
-            <button class="ghost">Ghost</button>
-            <button class="reset">Reset</button>
-            <button disabled>Disabled</button>
-          </div>
-
-          <h2>Form</h2>
-          <form class="kitchen-sink-form">
-            <label>
-              Text input
-              <input type="text" placeholder="Type here" />
-            </label>
-            <label>
-              Valid input
-              <input type="text" aria-invalid="false" value="Looks good" />
-            </label>
-            <label>
-              Invalid input
-              <input type="text" aria-invalid="true" value="Something's off" />
-            </label>
-            <label>
-              Range
-              <input type="range" />
-            </label>
-            <fieldset>
-              <label><input type="checkbox" checked /> Checkbox</label>
-              <label
-                ><input type="checkbox" role="switch" checked /> Switch</label
-              >
-              <label
-                ><input type="radio" name="ks-radio" checked /> Radio A</label
-              >
-              <label><input type="radio" name="ks-radio" /> Radio B</label>
-            </fieldset>
-            <label>
-              File
-              <input type="file" />
-            </label>
-            <progress value="60" max="100"></progress>
-          </form>
-
-          <h2>Table</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Ada</td>
-                <td>Admin</td>
-                <td>Active</td>
-              </tr>
-              <tr>
-                <td>Grace</td>
-                <td>Editor</td>
-                <td>Pending</td>
-              </tr>
-            </tbody>
-          </table>
+  {
+    SHADE_SCALES.map((name) => (
+      <div class="swatch-row">
+        <div class="swatch-row-label">{name}</div>
+        <div class="swatch-list">
+          {WEIGHTS.map((weight) => (
+            <div
+              class="swatch"
+              style={`background: var(--${name}-${weight})`}
+            >
+              <span>{weight}</span>
+            </div>
+          ))}
         </div>
-      </main>
-    </div>
-  </body>
-</html>
+      </div>
+    ))
+  }
+
+  <h3>Wheel</h3>
+
+  {
+    WHEEL_HUES.map((name) => (
+      <div class="swatch-row">
+        <div class="swatch-row-label">{name}</div>
+        <div class="swatch-list">
+          {WEIGHTS.map((weight) => (
+            <div
+              class="swatch"
+              style={`background: var(--${name}-${weight})`}
+            >
+              <span>{weight}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+
+  <h2>Sizes</h2>
+
+  <div class="size-scale">
+    {
+      sizeSteps.map((step) => (
+        <div class="size-step">
+          <div
+            class="size-swatch"
+            style={`width: var(--${step}); height: var(--${step})`}
+          />
+          <code>--{step}</code>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="size-scale">
+    {
+      ["border-radius", "border-width", "spacing"].map((name) => (
+        <div class="size-step">
+          <div
+            class="size-swatch size-swatch-flat"
+            style={`width: var(--${name}); height: var(--size-6)`}
+          />
+          <code>--{name}</code>
+        </div>
+      ))
+    }
+  </div>
+
+  <h2>Typography</h2>
+  <h1>Heading 1</h1>
+  <h2>Heading 2</h2>
+  <h3>Heading 3</h3>
+  <h4>Heading 4</h4>
+  <h5>Heading 5</h5>
+  <h6>Heading 6</h6>
+  <p>
+    Body text with <strong>strong</strong>, <em>emphasis</em>, and{" "}
+    <mark>mark</mark>. A <a href="#">default link</a>,{" "}
+    <a href="#" class="secondary">secondary link</a>,{" "}
+    <a href="#" class="danger">danger link</a>, and{" "}
+    <a href="#" class="success">success link</a>.
+  </p>
+  <blockquote>
+    "A blockquote with a footer."
+    <footer>— someone</footer>
+  </blockquote>
+  <p><kbd>Ctrl</kbd> + <kbd>K</kbd></p>
+  <hr />
+
+  <h2>Buttons</h2>
+  <div role="group" class="kitchen-sink-row">
+    <button>Default</button>
+    <button class="success">Success</button>
+    <button class="contrast">Contrast</button>
+    <button class="danger">Danger</button>
+    <button class="warning">Warning</button>
+    <button class="ghost">Ghost</button>
+    <button class="reset">Reset</button>
+    <button disabled>Disabled</button>
+  </div>
+
+  <h2>Form</h2>
+  <form class="kitchen-sink-form">
+    <label>
+      Text input
+      <input type="text" placeholder="Type here" />
+    </label>
+    <label>
+      Valid input
+      <input type="text" aria-invalid="false" value="Looks good" />
+    </label>
+    <label>
+      Invalid input
+      <input type="text" aria-invalid="true" value="Something's off" />
+    </label>
+    <label>
+      Range
+      <input type="range" />
+    </label>
+    <fieldset>
+      <label><input type="checkbox" checked /> Checkbox</label>
+      <label
+        ><input type="checkbox" role="switch" checked /> Switch</label
+      >
+      <label
+        ><input type="radio" name="ks-radio" checked /> Radio A</label
+      >
+      <label><input type="radio" name="ks-radio" /> Radio B</label>
+    </fieldset>
+    <label>
+      File
+      <input type="file" />
+    </label>
+    <progress value="60" max="100"></progress>
+  </form>
+
+  <h2>Table</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Ada</td>
+        <td>Admin</td>
+        <td>Active</td>
+      </tr>
+      <tr>
+        <td>Grace</td>
+        <td>Editor</td>
+        <td>Pending</td>
+      </tr>
+    </tbody>
+  </table>
+</Layout>

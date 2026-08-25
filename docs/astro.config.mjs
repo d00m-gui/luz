@@ -1,6 +1,6 @@
 // @ts-check
 import { fileURLToPath } from "node:url";
-import { defineConfig } from "astro/config";
+import { defineConfig, fontProviders } from "astro/config";
 import react from "@astrojs/react";
 import { luzAstro } from "../src/astro/index.ts";
 import { config } from "./luz.config.mjs";
@@ -36,5 +36,22 @@ export default defineConfig({
     react(),
     rawMdxEntries(),
     luzAstro({ ...config, path: luzCssPath }),
+  ],
+  // DM Sans (font/font-headings) + DM Mono (font-monospace) — the CSS
+  // variable names here must match luz.config.mjs's `var(--dm-sans)` /
+  // `var(--dm-mono)` and Layout.astro's <Font cssVariable> tags exactly.
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: "DM Sans",
+      cssVariable: "--dm-sans",
+      weights: [400, 500, 600, 700],
+    },
+    {
+      provider: fontProviders.google(),
+      name: "DM Mono",
+      cssVariable: "--dm-mono",
+      weights: [400, 500],
+    },
   ],
 });

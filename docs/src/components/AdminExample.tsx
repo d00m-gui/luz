@@ -90,8 +90,13 @@ function NewUserDialog() {
 }
 
 function StatCard({ label, value }: { label: string; value: string }) {
+  // `.card` uses `container-type: inline-size` for its cqi-based fluid
+  // tokens — as a flex child with no explicit width, that creates a
+  // circular sizing dependency Chrome resolves by collapsing to 0 width
+  // (same root cause as the `.playground-preview > div` fix in zed.css).
+  // `flex-1` gives it a real flex-basis, breaking the cycle.
   return (
-    <div className="card">
+    <div className="card flex-1">
       <div className="card-content">
         <div className="flex flex-col gap-3">
           <span className="text-8 text-muted-foreground">{label}</span>
@@ -118,7 +123,7 @@ export function AdminExample() {
             <li key={item}>
               <a
                 href="#"
-                className="flex p-5 rounded text-9 hover:bg-accent hover:text-accent-foreground"
+                className="flex p-5 rounded text-9 no-underline hover:bg-accent hover:text-accent-foreground"
               >
                 {item}
               </a>

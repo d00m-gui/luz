@@ -29,6 +29,30 @@ describe("luz()", () => {
     expect(tokens.colors.primary).toBe("#D44541");
   });
 
+  describe("spacing", () => {
+    // Regression: `spacing` used to fall into the `...typography` catch-all
+    // (never destructured out of `settings`), and since `typography` spreads
+    // last into the merged variable set, `defaultConfig`'s old `"5vw"`
+    // default always won over the real, base-derived computed value —
+    // every consumer got a viewport-relative page gutter whether they asked
+    // for it or not, and no explicit override was even needed to trigger it.
+    test("defaults to the base-derived value, not a leftover viewport-relative one", () => {
+      const { tokens } = luz({ primary: "#D44541", base: 16 });
+      expect(tokens.sizes.spacing).toBe("5rem"); // (16/10)*3, rounded — luzSizes()'s formula
+      expect(tokens.sizes.spacing).not.toContain("vw");
+    });
+
+    test("an explicit spacing override is honored", () => {
+      const { tokens } = luz({ primary: "#D44541", spacing: "3vw" });
+      expect(tokens.sizes.spacing).toBe("3vw");
+    });
+
+    test("spacing never leaks into the typography bucket", () => {
+      const { tokens } = luz({ primary: "#D44541", spacing: "3vw" });
+      expect(tokens.typography).not.toHaveProperty("spacing");
+    });
+  });
+
   test("keeps the raw primary color untouched", () => {
     const { tokens } = luz({ primary: "rebeccapurple" });
     expect(tokens.colors.primary).toBe("rebeccapurple");

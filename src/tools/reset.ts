@@ -1,8 +1,4 @@
 export const reset = `
-html,
-body {
-  font-size: 62.5%;
-}
 h1,
 h2,
 h3,
@@ -59,7 +55,7 @@ span {
   font-style: normal;
   font-weight: 400;
   line-height: var(--line-height);
-  font-size: 1.6rem;
+  font-size: 1rem;
   font-size-adjust: 0.482;
 }
 table {
@@ -139,7 +135,7 @@ body {
   color: var(--foreground);
   font-family: var(--font);
   font-weight: 400;
-  font-size: 1.6rem;
+  font-size: 1rem;
 }
 a {
   text-transform: none;
@@ -225,14 +221,14 @@ hr {
   margin: var(--size-16) 0;
   border: none;
   width: 100%;
-  height: 0.1rem;
+  height: 1px;
 }
 br {
   float: none;
   clear: both;
   width: 100%;
   height: 0;
-  margin: 0.5rem 0;
+  margin: 5px 0;
   display: block;
   overflow: hidden;
 }
@@ -334,7 +330,7 @@ textarea {
   line-height: var(--line-height);
   letter-spacing: inherit;
   font-family: inherit;
-  font-size: 1.6rem;
+  font-size: 1rem;
   overflow: visible;
 }
 input,
@@ -381,7 +377,7 @@ label[for="file"],
     display: block;
     position: relative;
     &::file-selector-button {
-      font-size: 1.6rem;
+      font-size: 1rem;
       border-radius: 0 0 var(--border-radius) var(--border-radius);
       text-align: center;
       width: 100%;
@@ -468,15 +464,15 @@ textarea::placeholder {
   &:before {
     content: "";
     transform-origin: 50%;
-    border-bottom: 0.2rem solid var(--element-active-color);
-    border-right: 0.2rem solid var(--element-active-color);
-    width: 0.7rem;
-    height: 1.2rem;
+    border-bottom: 2px solid var(--element-active-color);
+    border-right: 2px solid var(--element-active-color);
+    width: 7px;
+    height: 12px;
     transition: all 0.12s ease-in-out;
     display: block;
     position: absolute;
     top: 45%;
-    left: calc(50% - 0.5rem);
+    left: calc(50% - 5px);
     transform: rotate(0) translate(-50%) translateY(-50%) scale(0);
   }
   &:checked:before {
@@ -558,7 +554,7 @@ button {
   border-radius: var(--border-radius);
   box-shadow: var(--box-shadow);
   font-weight: var(--font-weight);
-  font-size: 1.6rem;
+  font-size: 1rem;
   line-height: var(--line-height);
   text-align: left;
   cursor: pointer;
@@ -621,20 +617,20 @@ section {
     bottom: 100%;
     left: 50%;
     overflow: hidden;
-    transform: translate(-50%, -0.5rem);
+    transform: translate(-50%, -5px);
   }
   &[data-placement="bottom"]:before {
     top: 100%;
     bottom: auto;
-    transform: translate(-50%, 0.25rem);
+    transform: translate(-50%, 2.5px);
   }
   &[data-placement="left"]:before {
     inset: 50% 100% auto auto;
-    transform: translate(-0.25rem, -50%);
+    transform: translate(-2.5px, -50%);
   }
   &[data-placement="right"]:before {
     inset: 50% auto auto 100%;
-    transform: translate(0.25rem, -50%);
+    transform: translate(2.5px, -50%);
   }
   &:focus:before,
   &:hover:before {
