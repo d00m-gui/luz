@@ -1,6 +1,6 @@
 ---
+import { ComponentsShowcase } from "@/components/ComponentsShowcase";
 import Layout from "../layouts/Layout.astro";
-import { ComponentsIsland } from "../components/ComponentsIsland";
 
 const NAV = [
   ["avatar", "Avatar"],
@@ -18,22 +18,18 @@ const NAV = [
 <Layout title="Components" activeId="components" breadcrumb="Components">
   <h5>Components</h5>
   <h3 class="description">
-    Real shadcn/ui (Base UI variant) component source, brought in via
-    the shadcn CLI and adapted to use only luz's closed-vocabulary
-    utility classes — no Tailwind, no arbitrary values. Source lives
-    under <code>src/components/ui/*.tsx</code>; each file's top
-    comment notes what changed from upstream.
+    Real shadcn/ui (Base UI variant) component source, brought in via the shadcn
+    CLI and adapted to use only luz's closed-vocabulary utility classes — no
+    Tailwind, no arbitrary values. Source lives under <code
+      >src/components/ui/*.tsx</code
+    >; each file's top comment notes what changed from upstream.
   </h3>
 
   <nav class="components-nav">
-    {
-      NAV.map(([id, label]) => (
-        <a href={`#${id}`}>{label}</a>
-      ))
-    }
+    {NAV.map(([id, label]) => <a href={`#${id}`}>{label}</a>)}
   </nav>
 
-  <ComponentsIsland client:load />
+  <ComponentsShowcase client:load />
 </Layout>
 
 <style>

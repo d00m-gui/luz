@@ -4,7 +4,7 @@
 // site), `aria-invalid:`/`aria-expanded:`/`dark:` combinator variants (not
 // in the closed variant registry), the `active:not-aria-[haspopup]:` press
 // translate, `disabled:opacity-50` (no generic `opacity-N` utility exists),
-// per-size arbitrary radius overrides (`rounded-[min(var(--radius-md),10px)]`),
+// per-size arbitrary radius overrides (`rounded-[min(var(--radius),10px)]`),
 // and the `focus-visible:ring-3 ring-ring/50` box-shadow ring (no `ring`/
 // box-shadow utility exists) — replaced with a `focus:border-ring` color
 // change on the existing border instead.

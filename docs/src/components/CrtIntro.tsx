@@ -1,34 +1,3 @@
-/* CRT / VHS logo reveal — recreado del bundle luz-crt-reveal.html.
- * Shader WebGL self-contained + coreografía por reloj rAF. Sin dependencias
- * externas (sin dc-runtime / CompositionStage): easing, interpolate, params
- * y el GLSL se portaron verbatim desde crt-intro.tsx.
- *
- * Dos modos, un mismo motor de reloj/params:
- *  - "intro": corre la secuencia completa de SCENES (~11.6s + fade de salida),
- *    igual que el original — pensado para la primera carga de la sesión.
- *  - "transition": recorta solo el tramo más glitchy de la escena "Tracking"
- *    (los primeros ~350ms de esa escena, donde uTrack/uSnow están en su pico)
- *    y le agrega un fade de salida corto — logo sí (reusa el mismo
- *    `logoAlpha` de la coreografía original, que en esta ventana de T ya
- *    está cerca de su pico) + nombre de la sección destino, sin el OSD
- *    clásico ("▶ PLAY"/timestamp/trackbar, que no dice nada útil acá),
- *    pensado para disparar en cada navegación.
- *
- * El contenido real de la página (lo que hay debajo de este overlay) se
- * distorsiona por su cuenta durante la misma ventana — ver los
- * `::view-transition-old(root)`/`::view-transition-new(root)` en zed.css,
- * que animan los snapshots que el propio browser ya captura para
- * `<ClientRouter />`. No hace falta capturar/texturizar la página a mano:
- * son los pixels reales, vía la View Transitions API nativa.
- *
- * El "negro" de la señal (fillRect base del canvas 2D) y los "claros" (logo,
- * texto OSD) toman luz's `--background`/`--foreground` en vez de estar
- * hardcodeados — resueltos una vez por mount vía `resolveColorVar`, ya que
- * Canvas 2D no entiende `var(--x)` directamente en `fillStyle` como sí lo
- * entiende CSS real (el overlay/vignette/hint sí son DOM, esos usan
- * `var(--...)` normal). El tinte de fósforo (`PHOSPHOR`/`uTint`) se queda
- * hardcodeado a propósito — es un efecto de color-grading, no "negro"/"claro".
- */
 import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { LUZ_WORDMARK } from "@/lib/luz-wordmark";
@@ -226,16 +195,10 @@ interface GLState {
   sig: HTMLCanvasElement;
   sigCtx: CanvasRenderingContext2D;
   logo: HTMLImageElement | null;
-  /** Resolved once at mount from luz's own `--background`/`--foreground` —
-   *  Canvas 2D's `fillStyle` doesn't understand `var(--x)` the way real CSS
-   *  does, so these have to be read as actual computed color strings before
-   *  the 2D signal canvas can use them. */
   bg: string;
   fg: string;
 }
 
-/** Resolves a CSS custom property to its live computed value, for use as a
- *  Canvas 2D `fillStyle` (which can't reference `var(--x)` directly). */
 function resolveColorVar(name: string, fallback: string): string {
   const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
   return value || fallback;
@@ -366,9 +329,6 @@ function drawSignal(
 const ip = (T: number, xs: number[], ys: number[], e?: EaseFn) =>
   interpolate(xs, ys, e || Easing.easeInOutQuad)(T);
 
-/** Coreografía verbatim del original — puro función de T (tiempo virtual en
- * segundos dentro de la línea de tiempo completa de SCENES). No sabe nada de
- * "intro" vs "transition": eso lo decide qué rango de T se le pide dibujar. */
 function params(T: number): Params {
   const C = CUES;
   const off = TOTAL - 0.55; // apagado, seam negro del loop
@@ -468,12 +428,6 @@ interface ModeTiming {
 const EXIT_MS = 900; // fade de salida del modo "intro" (original)
 const END_TRIGGER = TOTAL + 0.4; // "intro": mantener negro antes de revelar, luego salir
 
-// "transition": solo el arranque de la escena Tracking (uTrack/uSnow en su pico,
-// ver params() arriba) — el tramo más "glitchy" y visualmente reconocible como
-// ruido de tracking. ~350ms de reproducción + ~150ms de fade = ~500ms totales,
-// dentro del rango de 400-600ms pedido. logoAlpha en esta ventana de T ya está
-// cerca de su pico (~0.7-0.8) según la coreografía original — se reusa tal
-// cual, sin curva propia.
 const TRANSITION_PLAY_S = 0.35;
 const TRANSITION_EXIT_MS = 150;
 

@@ -1,14 +1,5 @@
 import type { ReactNode, SVGProps } from "react";
 
-/**
- * Minimal stroke-based icon set — replaces the `lucide-react` dependency.
- * Same visual language lucide/Feather icons use (24x24 grid, `currentColor`
- * stroke, round caps/joins), so every call site keeps working unchanged
- * (`className="w-9 h-9"`, `text-destructive`, `aria-hidden`, …  all still
- * apply — props just spread onto the `<svg>` like lucide's components do).
- * Only the handful of icons the adapted shadcn components actually use.
- */
-
 function IconBase({
   children,
   ...props

@@ -1,25 +1,20 @@
 ---
-import { getCollection } from "astro:content";
-
 interface Props {
   activeId: string;
 }
 
 const { activeId } = Astro.props;
-const all = await getCollection("components");
-
-const order = ["Components", "Config", "Astro"] as const;
-const grouped = order.map((category) => ({
-  category,
-  items: all
-    .filter((e) => e.data.category === category)
-    .sort((a, b) => a.data.title.localeCompare(b.data.title)),
-}));
 ---
 
 <nav class="sidebar">
   <div class="sidebar-group">
     <div class="sidebar-group-title">Docs</div>
+    <a
+      href="/"
+      class={`sidebar-item${activeId === "classless" ? " active" : ""}`}
+    >
+      Luz
+    </a>
     <a
       href="/kitchen-sink/"
       class={`sidebar-item${activeId === "kitchen-sink" ? " active" : ""}`}
@@ -33,33 +28,10 @@ const grouped = order.map((category) => ({
       Components
     </a>
     <a
-      href="/classless/"
-      class={`sidebar-item${activeId === "classless" ? " active" : ""}`}
-    >
-      Classless HTML
-    </a>
-    <a
       href="/admin-example/"
       class={`sidebar-item${activeId === "admin-example" ? " active" : ""}`}
     >
       Admin Example
     </a>
   </div>
-  {
-    grouped.map(({ category, items }) =>
-      items.length ? (
-        <div class="sidebar-group">
-          <div class="sidebar-group-title">{category}</div>
-          {items.map((item) => (
-            <a
-              href={`/${item.id}/`}
-              class={`sidebar-item${item.id === activeId ? " active" : ""}`}
-            >
-              {item.data.title}
-            </a>
-          ))}
-        </div>
-      ) : null,
-    )
-  }
 </nav>
