@@ -166,12 +166,70 @@ const defaultConfig: LuzConfig = {
   spaceSteps: 24,
 };
 
-/** Element-level style rules (buttons, inputs, tables, …) wired to theme tokens. */
-function setup(tokens: LuzTokens): string {
+/**
+ * Theme-color custom properties consumed by reset.ts's element-level rules
+ * (buttons, inputs, tables, …). This used to be a second CSS pass —
+ * `setup()` — that reopened the same selectors reset.ts already declared
+ * just to layer color on top, duplicating every selector list between the
+ * two files (e.g. the full 6-selector "what counts as a button" chain).
+ * Now that luz never does runtime/dynamic theming (see `LuzResult`'s
+ * docs) there's no reason for two passes: reset.ts owns every selector —
+ * structure *and* color — referencing these fixed, prefix-agnostic names
+ * (`--btn-bg`, not `--${prefix}${name}-500`), and this function just
+ * resolves them to the actual configured palette once, as flat
+ * `:root` declarations. `reset.ts` can't do that resolution itself since
+ * it's a static string shared by every config, with no way to know a
+ * given build's `prefix`/`name`/`neutrals`.
+ */
+function themeVariables(tokens: LuzTokens): Record<string, string> {
   const { name, prefix, neutrals } = { ...tokens.settings };
-  return `
-a { color: var(--anchor, var(--${prefix}blue)); &.secondary { --anchor: var(--${prefix}secondary-500); } &.contrast { --anchor: var(--${prefix}${neutrals}-500); } &.danger { --anchor: var(--${prefix}red); } &.success { --anchor: var(--${prefix}emerald); } &.warning { --anchor: var(--${prefix}yellow); } } hr { background: var(--${prefix}${name}); color: var(--${prefix}${name}); } kbd { border: var(--border-width) solid var(--${prefix}${name}-900); background-color: var(--${prefix}${name}-500); color: var(--on-${prefix}${name}); box-shadow: inset 0 0 var(--size-3) var(--size-3) var(--${prefix}${name}-300), inset 0 -10px var(--size-5) var(--size-2) var(--${prefix}${name}-600), 0 0 0 var(--size-1) var(--${prefix}${name}-600); } table { tr:hover { background-color: var(--${prefix}${name}-800); color: var(--${prefix}${name}-300); } th { background-color: var(--element-background); } } mark, ::selection { background-color: var(--${prefix}${name}-500); color: var(--on-${prefix}${name}); } label[for="file"], [role="file"], [file-] { input[type="file"] { &::file-selector-button { border-top: var(--border-width) solid var(--${prefix}${name}-200); } } } input[type="range"] { background-color: var(--${prefix}${neutrals}-900); box-shadow: inset 0 0 0 var(--border-width) var(--${prefix}${neutrals}-600); &:active { &::-webkit-slider-thumb, &::-moz-range-thumb { background: var(--${prefix}${name}-500); } } } [type="checkbox"], [type="radio"], [type="range"], progress { accent-color: var(--${prefix}${name}-500); } progress { background-color: var(--background); border: none; box-shadow: 0 0 var(--size-1) var(--${prefix}${name}-500) inset; border-radius: var(--border-radius); height: var(--size-12); } [type="checkbox"], [type="radio"] { color: var(--${prefix}${name}-100); &:checked { background-color: var(--${prefix}${name}-500); border-color: var(--${prefix}${name}-200); } } [type="checkbox"][role="switch"] { &::before { background-color: var(--${prefix}${name}-500); } &:checked { background-color: var(--${prefix}${name}-500); } } [type="radio"] { &::before { background-color: var(--${prefix}green); } &:checked { background-color: var(--${prefix}${name}-500); border-color: var(--${prefix}${name}-500); } } blockquote { border-left: 2.5px solid var(--${prefix}${name}-200); border-inline-start: 2.5px solid var(--${prefix}${name}-200); footer { color: var(--${prefix}${name}-500); } } [type="file"]::file-selector-button { background-color: var(--${prefix}${name}-500); color: var(--on-${prefix}${name}); text-shadow: 0 0 0.2ch var(--${prefix}${name}-700); } .btn, .button, button[type="submit"], [role="button"], [type="button"], [type="reset"], [type="submit"], button { background-color: var(--${prefix}${name}-500); color: var(--on-${prefix}${name}); text-shadow: 0 0 0.2ch var(--${prefix}${name}-700); &[role="secondary"], &[role="alternative"] { background-color: var(--${prefix}secondary-500); color: var(--on-${prefix}secondary); } &[type="reset"], &[role="cancel"], &.cancel, &.reset { background-color: var(--${prefix}${neutrals}-500); } &[role="apply"], &.apply, &.success { background-color: var(--${prefix}green); } &[role="contrast"], &.contrast { background-color: var(--foreground); color: var(--background); } &.danger { background-color: var(--${prefix}red); } &.warning { background-color: var(--${prefix}yellow); } &.ghost { background-color: transparent; color: var(--${prefix}${name}-400); } &:hover, &.over { filter: brightness(1.1); } &:active, &.pressed { filter: brightness(1.3); transform: scale(0.98); } } input[aria-invalid="false"] { border-color: var(--${prefix}green); color: var(--${prefix}green); &::placeholder { color: var(--${prefix}green); } } input[aria-invalid="true"] { border-color: var(--${prefix}red); color: var(--${prefix}red); &::placeholder { color: var(--${prefix}red); } } [data-tooltip] { &[data-placement="top"]::before, &::before { background: var(--${prefix}${name}-900); color: var(--${prefix}${name}-100); border-color: transparent; } }
-  `;
+  return {
+    anchor: `var(--${prefix}blue)`,
+    "anchor-secondary": `var(--${prefix}secondary-500)`,
+    "anchor-contrast": `var(--${prefix}${neutrals}-500)`,
+    "anchor-danger": `var(--${prefix}red)`,
+    "anchor-success": `var(--${prefix}emerald)`,
+    "anchor-warning": `var(--${prefix}yellow)`,
+    "hr-color": `var(--${prefix}${name})`,
+    "kbd-border-color": `var(--${prefix}${name}-900)`,
+    "kbd-bg": `var(--${prefix}${name}-500)`,
+    "kbd-color": `var(--on-${prefix}${name})`,
+    "kbd-shadow-1": `var(--${prefix}${name}-300)`,
+    "kbd-shadow-2": `var(--${prefix}${name}-600)`,
+    "table-hover-bg": `var(--${prefix}${name}-800)`,
+    "table-hover-color": `var(--${prefix}${name}-300)`,
+    "selection-bg": `var(--${prefix}${name}-500)`,
+    "selection-color": `var(--on-${prefix}${name})`,
+    "file-input-border-top": `var(--${prefix}${name}-200)`,
+    "range-track-bg": `var(--${prefix}${neutrals}-900)`,
+    "range-track-shadow": `var(--${prefix}${neutrals}-600)`,
+    "range-thumb-active-bg": `var(--${prefix}${name}-500)`,
+    accent: `var(--${prefix}${name}-500)`,
+    "progress-shadow": `var(--${prefix}${name}-500)`,
+    "checkbox-color": `var(--${prefix}${name}-100)`,
+    "checkbox-checked-bg": `var(--${prefix}${name}-500)`,
+    "checkbox-checked-border": `var(--${prefix}${name}-200)`,
+    "switch-bg": `var(--${prefix}${name}-500)`,
+    "radio-dot-bg": `var(--${prefix}green)`,
+    "radio-checked-bg": `var(--${prefix}${name}-500)`,
+    "radio-checked-border": `var(--${prefix}${name}-500)`,
+    "blockquote-border": `var(--${prefix}${name}-200)`,
+    "blockquote-footer-color": `var(--${prefix}${name}-500)`,
+    "btn-bg": `var(--${prefix}${name}-500)`,
+    "btn-color": `var(--on-${prefix}${name})`,
+    "btn-shadow-color": `var(--${prefix}${name}-700)`,
+    "btn-bg-secondary": `var(--${prefix}secondary-500)`,
+    "btn-color-secondary": `var(--on-${prefix}secondary)`,
+    "btn-bg-neutral": `var(--${prefix}${neutrals}-500)`,
+    "btn-bg-success": `var(--${prefix}green)`,
+    "btn-bg-danger": `var(--${prefix}red)`,
+    "btn-bg-warning": `var(--${prefix}yellow)`,
+    "btn-color-ghost": `var(--${prefix}${name}-400)`,
+    "input-valid": `var(--${prefix}green)`,
+    "input-invalid": `var(--${prefix}red)`,
+    "tooltip-bg": `var(--${prefix}${name}-900)`,
+    "tooltip-color": `var(--${prefix}${name}-100)`,
+  };
 }
 
 /**
@@ -340,6 +398,7 @@ export function luz(config?: LuzConfig): LuzResult {
       ...tokens.sizes,
       ...tokens.colors,
       ...tokens.typography,
+      ...themeVariables(tokens),
     }),
     shadedNames,
   );
@@ -369,7 +428,6 @@ export function luz(config?: LuzConfig): LuzResult {
 
   let style = `
   ${reset}
-  ${withShadeFallback(setup(tokens), shadedNames)}
   ${properties}
   :root {
     ${variables}
