@@ -44,7 +44,15 @@ export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
       );
     }
 
-    const { style, tokens } = luz(config);
+    // `path` is astro-only (see `LuzAstroConfig`) — `luz()` takes plain
+    // `LuzConfig`. Structural typing lets the superset object through
+    // silently (no excess-property error on a variable, only on a literal),
+    // so without stripping it here it falls into `luz()`'s `...typography`
+    // catch-all and gets serialized straight into the generated CSS as
+    // `--path: <the absolute filesystem path>;` — a real path disclosure
+    // into whatever consumes the stylesheet.
+    const { path: _path, ...luzConfig } = config;
+    const { style, tokens } = luz(luzConfig);
     const bridgeCss = shadcnBridgeCSS(tokens);
     const utilityCss = scanAndEmitUtilities({
       root: fileURLToPath(srcDir),

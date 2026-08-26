@@ -26,7 +26,15 @@ export const luzVite = (config: LuzViteConfig): Plugin => {
   let root: string | undefined;
 
   const generateFile = () => {
-    const { style, tokens } = luz(config);
+    // `path` is vite-only (see `LuzViteConfig`) — `luz()` takes plain
+    // `LuzConfig`. Structural typing lets the superset object through
+    // silently (no excess-property error on a variable, only on a literal),
+    // so without stripping it here it falls into `luz()`'s `...typography`
+    // catch-all and gets serialized straight into the generated CSS as
+    // `--path: <the absolute filesystem path>;` — a real path disclosure
+    // into whatever consumes the stylesheet.
+    const { path: _path, ...luzConfig } = config;
+    const { style, tokens } = luz(luzConfig);
     const bridgeCss = shadcnBridgeCSS(tokens);
     const utilityCss = scanAndEmitUtilities({ root: root!, tokens });
     const cssContent = `${style}\n${bridgeCss}\n${base(tokens)}\n${utilityCss}`;
