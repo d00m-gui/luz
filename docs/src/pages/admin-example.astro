@@ -1,19 +1,25 @@
 ---
+import { AdminExample } from "@/components/AdminExample";
 import Layout from "../layouts/Layout.astro";
-import { AdminIsland } from "../components/AdminIsland";
 ---
 
-<Layout title="Admin Example" activeId="admin-example" breadcrumb="Admin Example">
+<Layout
+  title="Admin Example"
+  activeId="admin-example"
+  breadcrumb="Admin Example"
+>
   <h5>Admin Example</h5>
   <h3 class="description">
-    A minimal admin-panel-style screen — sidebar nav, header bar,
-    stat cards and a table — composing luz's plain-HTML layout
-    utilities, the shared <code>.card</code> style, a classless
-    native <code>&lt;table&gt;</code>, and two of the real
-    shadcn-adapted components (<code>DropdownMenu</code> +{" "}
-    <code>Avatar</code> for the user menu, <code>Dialog</code> for
-    the "create new" action) into one composed layout.
+    A minimal admin-panel-style screen — sidebar nav, header bar, stat cards and
+    a table — composing luz's plain-HTML layout utilities, <code
+      >bg-card</code
+    >-styled utility-class cards, a classless native <code>&lt;table&gt;</code
+    >, and two of the real shadcn-adapted components (<code
+      >DropdownMenu</code
+    > +{" "}
+    <code>Avatar</code> for the user menu, <code>Dialog</code> for the "create new"
+    action) into one composed layout.
   </h3>
 
-  <AdminIsland client:load />
+  <AdminExample client:load />
 </Layout>

@@ -5,7 +5,7 @@ export function minifyEmbeddedCss(): BunPlugin {
   return {
     name: "minify-embedded-css",
     setup(build) {
-      build.onLoad({ filter: /tools[\\/](reset|base)\.ts$/ }, async (args) => {
+      build.onLoad({ filter: /tools[\\/]reset\.ts$/ }, async (args) => {
         const source = await Bun.file(args.path).text();
         const contents = source.replace(
           TEMPLATE_CONST,

@@ -90,29 +90,16 @@ function NewUserDialog() {
 }
 
 function StatCard({ label, value }: { label: string; value: string }) {
-  // `.card` uses `container-type: inline-size` for its cqi-based fluid
-  // tokens — as a flex child with no explicit width, that creates a
-  // circular sizing dependency Chrome resolves by collapsing to 0 width
-  // (same root cause as the `.playground-preview > div` fix in zed.css).
-  // `flex-1` gives it a real flex-basis, breaking the cycle.
   return (
-    <div className="card flex-1">
-      <div className="card-content">
-        <div className="flex flex-col gap-3">
-          <span className="text-8 text-muted-foreground">{label}</span>
-          <span className="text-16 font-semibold">{value}</span>
-        </div>
+    <div className="flex-1 rounded border bg-card p-8">
+      <div className="flex flex-col gap-3">
+        <span className="text-8 text-muted-foreground">{label}</span>
+        <span className="text-16 font-semibold">{value}</span>
       </div>
     </div>
   );
 }
 
-/** A minimal admin-panel-style screen composed from luz's plain-HTML layout
- *  utilities (sidebar nav, header bar), the shared `.card` styling (stat
- *  row), a classless native `<table>` (already styled by luz's reset), and
- *  two of the real shadcn-adapted components (`DropdownMenu` + `Avatar` for
- *  the user menu, `Dialog` for the "create new" action) — showing the
- *  primitives compose into a real screen, not just render in isolation. */
 export function AdminExample() {
   return (
     <div className="flex rounded border" style={{ minHeight: "26rem" }}>

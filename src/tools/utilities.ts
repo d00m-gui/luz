@@ -10,7 +10,7 @@
  */
 
 import type { LuzTokens } from "../luz";
-import { withShadeFallback } from "./base";
+import { withShadeFallback } from "./shade-fallback";
 import { resolveVariant } from "./variants";
 import { scanCandidates } from "./scan";
 
@@ -364,7 +364,7 @@ function isPublicColorKey(key: string, tokens: LuzTokens): boolean {
 }
 
 /**
- * Builds the `var(--key)` reference for a resolved color suffix, adding a
+ * Builds the `var(--name)` reference for a resolved color suffix, adding a
  * shade fallback (`var(--key, var(--family))`) when `key` is itself a
  * numbered shade of a family that also has a bare alias in `tokens.colors`
  * (e.g. `primary-600` falls back to `primary`) — so utility classes stay
