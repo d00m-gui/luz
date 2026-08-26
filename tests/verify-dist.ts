@@ -104,9 +104,9 @@ function assertCssContains(css: string, needle: string, context: string): void {
 
 /**
  * Asserts `needle` does NOT appear in `css` — used to confirm the utility
- * engine's closed vocabulary actually drops an unresolvable candidate
- * (`bg-card`, a shadcn bridge variable name, isn't a luz color token) rather
- * than silently emitting garbage.
+ * engine's closed vocabulary actually drops a genuinely unresolvable
+ * candidate (bracket/arbitrary values like `w-[137px]` are never supported)
+ * rather than silently emitting garbage.
  */
 function assertCssExcludes(css: string, needle: string, context: string): void {
   if (css.includes(needle)) {
@@ -153,7 +153,7 @@ function assertCssExcludes(css: string, needle: string, context: string): void {
     const css = await readFile(generatedCssPath, "utf8");
     const context = "Astro consumer fixture";
 
-    assertCssContains(css, ".p-4 { padding: var(--size-4); }", context);
+    assertCssContains(css, ".p-4 { padding: var(--space-4); }", context);
     assertCssContains(
       css,
       ".rounded { border-radius: var(--border-radius); }",
@@ -167,9 +167,22 @@ function assertCssExcludes(css: string, needle: string, context: string): void {
     assertCssContains(css, "--card: var(--element-background);", context);
     assertCssContains(css, "--card-foreground: var(--foreground);", context);
     // `bg-card`/`text-card-foreground` are shadcn bridge variable names, not
-    // luz color tokens — the closed-vocabulary utility engine must drop them.
-    assertCssExcludes(css, ".bg-card {", context);
-    assertCssExcludes(css, ".text-card-foreground {", context);
+    // a `{family}-{weight}` palette shade — the `bridge-color` namespace
+    // resolves them against the aliases above instead of dropping them.
+    assertCssContains(
+      css,
+      ".bg-card { background-color: var(--card); }",
+      context,
+    );
+    assertCssContains(
+      css,
+      ".text-card-foreground { color: var(--card-foreground); }",
+      context,
+    );
+    // `w-[137px]` is genuinely outside the closed vocabulary — bracket
+    // syntax stays unsupported (see README's "Utility classes" section) —
+    // so it must be dropped silently rather than emitted as garbage.
+    assertCssExcludes(css, "137px", context);
   } finally {
     await rm(join(astroFixtureDir, "dist"), { recursive: true, force: true });
     await rm(join(astroFixtureDir, ".astro"), { recursive: true, force: true });
@@ -215,7 +228,7 @@ function assertCssExcludes(css: string, needle: string, context: string): void {
     const css = await readFile(generatedCssPath, "utf8");
     const context = "Vite consumer fixture";
 
-    assertCssContains(css, ".p-4 { padding: var(--size-4); }", context);
+    assertCssContains(css, ".p-4 { padding: var(--space-4); }", context);
     assertCssContains(
       css,
       ".rounded { border-radius: var(--border-radius); }",
@@ -228,8 +241,17 @@ function assertCssExcludes(css: string, needle: string, context: string): void {
     );
     assertCssContains(css, "--card: var(--element-background);", context);
     assertCssContains(css, "--card-foreground: var(--foreground);", context);
-    assertCssExcludes(css, ".bg-card {", context);
-    assertCssExcludes(css, ".text-card-foreground {", context);
+    assertCssContains(
+      css,
+      ".bg-card { background-color: var(--card); }",
+      context,
+    );
+    assertCssContains(
+      css,
+      ".text-card-foreground { color: var(--card-foreground); }",
+      context,
+    );
+    assertCssExcludes(css, "137px", context);
   } finally {
     await rm(join(viteFixtureDir, "dist"), { recursive: true, force: true });
     await rm(generatedCssPath, { force: true });
