@@ -158,6 +158,8 @@ bunx shadcn@latest add dialog
 
 Base UI has been shadcn's default primitive library since July 2026 (Radix is still supported) — and `@base-ui/react` is already a luz peer dependency, so the component's own imports need nothing extra. This drops real, unmodified component source into your project (`src/components/ui/dialog.tsx` by default).
 
+The shadcn CLI's `components.json` requires a `tailwind` block even in a project with no Tailwind at all — its schema won't validate without one — but `tailwind.css` doesn't need to point at a real file; an empty string (`"css": ""`) resolves fine for both `shadcn add` and `shadcn info`, so there's no placeholder stylesheet to maintain. The CLI also defaults `iconLibrary` to `lucide` regardless of this repo's actual dependencies — every component you pull in will import from `lucide-react`, which isn't installed. Step 3 below covers swapping those out too.
+
 ### 3. Adapt the className strings
 
 Real shadcn source leans on Tailwind's full feature set — arbitrary values (`w-[137px]`), `has-*`/`in-*`/`aria-*` variants, `animate-in`/`fade-in-*` classes — none of which luz's closed-vocabulary engine resolves (see [Utility classes](#utility-classes)). Bringing a component in means rewriting its `className` strings once: swap arbitrary values for the nearest `space-N`/`size-N` step or a plain layout literal, replace `data-[state=open]:`-style variants with luz's own (`open:`, `checked:`, …), drop or reimplement animation classes, and replace any `lucide-react` icon imports with plain inline SVGs (see [`docs/src/components/icons.tsx`](docs/src/components/icons.tsx) for the small stroke-based set backing this repo's own adapted components).
