@@ -202,7 +202,7 @@ export default defineConfig({
 @import url("./luz.css");
 ```
 
-> `path` is required — the integration throws (after logging) if it is missing, so a broken config fails the build instead of shipping unthemed output. Make sure the target directory (e.g. `./src/styles`) exists. Set `minify: true` in the config to emit minified CSS (via [`lightningcss`](https://lightningcss.dev)). Utility-class scanning covers `.astro`/`.tsx`/`.jsx`/`.ts` files under your project's `srcDir` by default.
+> `path` is required — the integration throws (after logging) if it is missing, so a broken config fails the build instead of shipping unthemed output. Make sure the target directory (e.g. `./src/styles`) exists. The generated file is always written unminified — `minify` has no effect through `luzAstro`/`luzVite`; it's imported as a normal `.css` file (see step 3 above), so Astro's own build already minifies it. `minify` still works if you call `luz()` directly (see [Core usage](#core-usage)). Utility-class scanning covers `.astro`/`.tsx`/`.jsx`/`.ts` files under your project's `srcDir` by default.
 
 ## Vite usage
 
