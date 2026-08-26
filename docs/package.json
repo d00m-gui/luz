@@ -15,7 +15,6 @@
     "class-variance-authority": "^0.7.1",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
-    "react-live": "^4.1.8",
     "typescript": "^5.9.3"
   },
   "devDependencies": {

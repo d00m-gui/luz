@@ -1,6 +1,6 @@
-import type { LuzConfig } from "../src/luz";
+import type { LuzAstroConfig } from "../src/astro";
 
-export const config:LuzConfig = {
+export const config:LuzAstroConfig = {
   primary: "#007DEA",
   mode: "dark",
   font: "var(--dm-sans)",
@@ -8,4 +8,5 @@ export const config:LuzConfig = {
   "font-monospace": "var(--dm-mono)",
   power: 1.1,
   sizeFluidRange: "fixed",
+  path: "./public/luz.css"
 };

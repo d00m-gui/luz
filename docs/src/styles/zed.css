@@ -169,66 +169,6 @@ body {
   margin-bottom: 0;
 }
 
-/* --- Playground --- */
-
-.playground {
-  border: 1px solid var(--neutral-800);
-  border-radius: 4px;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column-reverse;
-}
-
-.playground-editor {
-  background: var(--neutral-900);
-  border-right: 1px solid var(--neutral-800);
-  font-family: var(--font-monospace);
-
-  overflow: auto;
-  max-height: 480px;
-}
-
-.playground-editor textarea,
-.playground-editor pre {
-  font-family: var(--font-monospace) !important;
-}
-
-.playground-preview {
-  background: var(--neutral-800);
-  display: grid;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing);
-  overflow: auto;
-  max-height: 480px;
-
-}
-
-/* react-live wraps the rendered result in an unstyled div — give it a
-   definite width. Without this it's a shrink-to-fit flex/block child, and
-   luz's `.card` (container-type: inline-size, for its cqi-based fluid
-   tokens) depends on that same width to size itself — a circular
-   dependency Chrome resolves by collapsing to 0, making the preview
-   render but stay invisible. */
-.playground-preview > div {
-  width: 100%;
-}
-
-.playground-error {
-  color: var(--danger, #e5484d);
-  font-family: var(--font-monospace);
-
-  padding: var(--space-2) var(--space-3);
-  white-space: pre-wrap;
-}
-
-.playground-placeholder {
-  padding: var(--space-8);
-  color: var(--neutral-500);
-  font-family: var(--font-monospace);
-
-}
-
 /* --- Toolbar (statusbar) --- */
 
 :root {
