@@ -26,10 +26,10 @@ const minifyWithLightningCss = (css: string): string =>
 
 /**
  * Astro integration: on both `astro:build:done` and `astro:server:start`,
- * calls `luz(config)`, composes reset + setup + `:root{variables}` + shadcn
- * bridge aliases + base CSS + scanned utility classes, minifies with
- * `lightningcss`, and writes the result to `config.path` (required — throws
- * via the Astro logger if it's missing).
+ * strips `path` and calls `luz(luzConfig)`, composes reset + setup +
+ * `:root{variables}` + shadcn bridge aliases + base CSS + scanned utility
+ * classes, minifies with `lightningcss`, and writes the result to
+ * `config.path` (required — throws via the Astro logger if it's missing).
  */
 export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
   let srcDir: URL | undefined;
