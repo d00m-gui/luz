@@ -3,16 +3,15 @@ import { LiveProvider, LiveEditor, LiveError, LivePreview } from "react-live";
 import { Card } from "../../../src/components/card";
 import { withComponentStyle } from "../../../src/react";
 
-/** Renders inside the page's shared `<LuzReact>` (see `DocsIsland`) — must
- *  NOT bring its own, so a live-previewed component reads the same theme
- *  context the Toolbar's sound toggle writes to. `lui` is gone (retired
- *  along with its whole catalog) — the scope now offers the pieces of the
- *  new system a component sample would actually reach for: the utility
- *  classNames the build-time scanner resolves (`p-4`, `bg-primary-600`,
- *  `rounded`, ...), the shadcn token bridge (`bg-card`,
- *  `text-card-foreground`, `border-input`, ...), and luz's own
- *  `Card`/`withComponentStyle` primitives for anything that needs actual
- *  component-scoped CSS rather than a className. */
+/** Theme comes from the page's own statically-generated `luz.css` — no
+ *  `<LuzReact>`/theme context involved (it's been retired from luz
+ *  entirely). `lui` is gone too (retired along with its whole catalog) —
+ *  the scope now offers the pieces of the new system a component sample
+ *  would actually reach for: the utility classNames the build-time scanner
+ *  resolves (`p-4`, `bg-primary-600`, `rounded`, ...), the shadcn token
+ *  bridge (`bg-card`, `text-card-foreground`, `border-input`, ...), and
+ *  luz's own `Card`/`withComponentStyle` primitives for anything that
+ *  needs actual component-scoped CSS rather than a className. */
 export function Playground({ code }: { code?: string }) {
   if (!code) {
     return (

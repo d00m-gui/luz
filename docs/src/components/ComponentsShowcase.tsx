@@ -318,11 +318,12 @@ function DialogDemo() {
   );
 }
 
-/** Renders inside the page's shared `<LuzReact>` — see `DocsIsland`. All
- *  nine adapted shadcn (Base UI) registry components, live and interactive,
- *  styled entirely through luz's closed-vocabulary utility classes (see
- *  `src/components/ui/*.tsx` for the adapted source, each with a top-of
- *  -file comment on what changed from upstream). */
+/** Rendered by `ComponentsIsland`. All nine adapted shadcn (Base UI) registry
+ *  components, live and interactive, styled entirely through luz's
+ *  closed-vocabulary utility classes (see `src/components/ui/*.tsx` for the
+ *  adapted source, each with a top-of-file comment on what changed from
+ *  upstream). No `<LuzReact>`/theme context needed — the theme is the
+ *  page's own statically-generated `luz.css`. */
 export function ComponentsShowcase() {
   return (
     <div className="flex flex-col gap-12">

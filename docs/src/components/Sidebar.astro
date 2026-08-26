@@ -8,7 +8,7 @@ interface Props {
 const { activeId } = Astro.props;
 const all = await getCollection("components");
 
-const order = ["Components", "Hooks", "Config", "Astro"] as const;
+const order = ["Components", "Config", "Astro"] as const;
 const grouped = order.map((category) => ({
   category,
   items: all

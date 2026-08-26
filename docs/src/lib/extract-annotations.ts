@@ -37,7 +37,7 @@ export interface PropField {
 export interface AnnotationEntry {
   id: string;
   title: string;
-  category: "Components" | "Hooks" | "Config" | "Astro";
+  category: "Components" | "Config" | "Astro";
   description: string;
   tags: { default?: string; params?: DocTag[] };
   /** Member-by-member props table, when the entry resolves to a single
@@ -139,8 +139,6 @@ export function extractAnnotations(): AnnotationEntry[] {
   const rootNames = [
     "index.ts",
     "react/index.tsx",
-    "react/useSound.tsx",
-    "react/useScroll.tsx",
     "astro/index.ts",
     "luz.ts",
   ].map((f) => path.join(SRC, f));
@@ -169,28 +167,6 @@ export function extractAnnotations(): AnnotationEntry[] {
   }
 
   const getSf = (rel: string) => program.getSourceFile(path.join(SRC, rel));
-
-  // --- Hooks: useLuzSound, useLuzScroll
-  const soundSf = getSf("react/useSound.tsx");
-  const scrollSf = getSf("react/useScroll.tsx");
-  for (const [sf, name] of [
-    [soundSf, "useLuzSound"],
-    [scrollSf, "useLuzScroll"],
-  ] as const) {
-    if (!sf) continue;
-    const { fn } = findTopLevel(sf, name);
-    const doc = fn ? getDoc(fn) : NO_DOC;
-    const { file, line } = fn ? loc(sf, fn) : { file: sf.fileName, line: 0 };
-    entries.push({
-      id: name,
-      title: name,
-      category: "Hooks",
-      description: doc.description || "Sin documentar.",
-      tags: { default: doc.default, params: doc.params.length ? doc.params : undefined },
-      sourceFile: file,
-      sourceLine: line,
-    });
-  }
 
   // --- Config: LuzConfig interface + every field
   const luzSf = getSf("luz.ts");

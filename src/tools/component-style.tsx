@@ -1,6 +1,4 @@
-import { forwardRef, useMemo } from "react";
-import { useTheme } from "../react/context";
-import type { LuzTokens } from "../luz";
+import { forwardRef } from "react";
 
 /**
  * Wraps a component so it lazily mounts its own
@@ -18,34 +16,30 @@ import type { LuzTokens } from "../luz";
  * and mount it lazily, deduped across instances by React 19's
  * `<style href precedence>` Resource treatment.
  *
- * `css` can be a static string, or a function of the current `LuzTokens`
- * (read live via `useTheme()`, so it stays correct as theme settings
- * change) for CSS that needs to branch on theme state — e.g. the current
- * primary/neutral color names.
+ * `css` is a plain string — luz has no live/runtime theme context (there's
+ * no `<LuzReact>`-style provider; a theme is a fixed set of CSS variables
+ * generated once at build time by `luzAstro`/`luzVite`), so there's nothing
+ * for a "css as a function of the current tokens" variant to read live. If
+ * your CSS needs to branch on theme state, resolve it once yourself against
+ * `luz(config).tokens` before calling `withComponentStyle`.
  *
  * @param name - Unique `href` for the mounted `<style>` tag; also used to
  *   dedupe instances of the same styled component across a page.
- * @param css - CSS text, or a function producing it from `LuzTokens`.
+ * @param css - CSS text to mount alongside the component.
  * @param Component - The component to wrap.
  */
 export function withComponentStyle<P extends object, R = unknown>(
   name: string,
-  css: string | ((tokens: LuzTokens) => string),
+  css: string,
   Component: React.ComponentType<P>,
 ): React.ForwardRefExoticComponent<
   React.PropsWithoutRef<P> & React.RefAttributes<R>
 > {
   const Styled = forwardRef<R, P>(function StyledComponent(props, ref) {
-    const { tokens } = useTheme();
-    const resolved = useMemo(
-      () => (typeof css === "function" ? css(tokens) : css),
-      [css, tokens],
-    );
-
     return (
       <>
         <style href={name} precedence="luz-component">
-          {resolved}
+          {css}
         </style>
         <Component {...(props as P)} ref={ref as never} />
       </>

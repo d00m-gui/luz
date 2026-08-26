@@ -1,6 +1,6 @@
 import { createElement } from "react";
 import { renderToString } from "react-dom/server";
-import { LuzReact, withComponentStyle } from "@d00m-gui/luz/react";
+import { withComponentStyle } from "@d00m-gui/luz/react";
 
 function PlainDiv(props) {
   return createElement("div", props, props.children);
@@ -13,15 +13,11 @@ const StyledDiv = withComponentStyle(
 );
 
 const html = renderToString(
-  createElement(
-    LuzReact,
-    { config: { primary: "#007dea" } },
-    createElement(StyledDiv, null, "Production runtime"),
-  ),
+  createElement(StyledDiv, null, "Production runtime"),
 );
 
 if (!html.includes("Production runtime")) {
-  throw new Error("LuzReact production render did not include its children");
+  throw new Error("withComponentStyle production render did not include its children");
 }
 
 // React 19's Resource treatment for `<style href precedence>` serializes

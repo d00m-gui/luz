@@ -226,37 +226,23 @@ Generation runs once on `buildStart` (before Vite resolves/transforms modules, s
 
 ## React usage
 
-The React entry point (`luz/react`) is for live/dynamic theming and for authoring your own token-aware components — it does **not** ship a component library (see [Using shadcn components](#using-shadcn-components) for that).
+The React entry point (`luz/react`) is for authoring your own token-aware components — it does **not** ship a component library (see [Using shadcn components](#using-shadcn-components) for that) and it does **not** do live/dynamic theming: a luz theme is a fixed set of CSS variables generated once, by the Astro or Vite integration, at build time.
 
 ```tsx
-import { LuzReact, useTheme } from "@d00m-gui/luz/react";
+import { withComponentStyle } from "@d00m-gui/luz/react";
 
-const config = { primary: "#D44541", secondary: "#94F6D8" };
-
-export function App() {
-  return (
-    <LuzReact config={config}>
-      <Toolbar />
-    </LuzReact>
-  );
-}
-
-function Toolbar() {
-  const theme = useTheme(); // live access to the current config/tokens
-  return <div style={{ color: "var(--foreground)" }}>{/* … */}</div>;
-}
+const Badge = withComponentStyle(
+  "my-badge",
+  `.my-badge { background: var(--primary-500); color: var(--on-primary); border-radius: var(--border-radius); }`,
+  (props: React.ComponentProps<"span">) => <span className="my-badge" {...props} />,
+);
 ```
-
-`LuzReact` renders a plain (non-`precedence`) `<style>` from `luz(config).style` that re-renders live as `config` changes — deliberately dynamic, for cases like a settings panel that live-edits the theme. For a static site, prefer the Astro or Vite integration instead; mixing both on the same page means two independent sources fighting over the same `:root` variables.
-
-Also exported from `luz/react`:
 
 | Export | For |
 | --- | --- |
-| `useTheme()` | Live access to the current config/tokens from within `LuzReact`. |
 | `withComponentStyle(name, css, Component)` | Wraps a component with a self-contained `<style href precedence="luz-component">` — for npm-*packaged* component authors whose CSS the static build-time scanner can't see (it only scans your own repo, not `node_modules`). Deduped and hoisted by React itself. |
-| `withSound`, `withLifecycleSound`, `withValiditySound` | Synthesized UI sound effects (Web Audio API, no external files) — opt-in wrappers, same audience as `withComponentStyle`. |
-| `useLuzSound`, `useLuzScroll`, `useScrollVideo` | Hooks for the sound and scroll-driven-animation config blocks (`sound`/`scroll` in `LuzConfig`). |
+
+`luz/react` used to also ship `LuzReact`/`useTheme` (a live theme provider) plus sound and scroll-driven-interaction helpers (`withSound`, `useLuzSound`, `useLuzScroll`, `useScrollVideo`, …). Both were retired: live/dynamic theming doesn't fit a library whose whole model is a theme fixed at build time (it's real runtime JS reacting to state, and it visibly conflicted with the static CSS the Astro/Vite integrations generate on the same page), and sound/scroll are runtime JS in a codebase that's otherwise zero-runtime-JS by design. That code now lives in [`@d00m-gui/vsfx`](https://github.com/d00m-gui/vsfx), a standalone package with no dependency on luz.
 
 ## Development
 
