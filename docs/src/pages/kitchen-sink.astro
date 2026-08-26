@@ -1,7 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { luz } from "../../../src/luz";
-import { config } from "../../luz.config.mjs";
+import { config } from "../../luz.config.ts";
 
 const { tokens } = luz(config);
 
@@ -25,13 +25,16 @@ const sizeSteps = Object.keys(tokens.sizes)
   .sort((a, b) => Number(a.split("-")[1]) - Number(b.split("-")[1]));
 ---
 
-<Layout title="Kitchen Sink" activeId="kitchen-sink" breadcrumb="Kitchen Sink" contentClass="kitchen-sink">
+<Layout
+  title="Kitchen Sink"
+  activeId="kitchen-sink"
+  breadcrumb="Kitchen Sink"
+  contentClass="kitchen-sink"
+>
   <h5>Kitchen Sink</h5>
   <h3 class="description">
-    Todos los tokens de color y tamaño generados por la config actual,
-    más una muestra de elementos HTML nativos con el estilo de <code
-      >setup()</code
-    > aplicado.
+    Todos los tokens de color y tamaño generados por la config actual, más una
+    muestra de elementos HTML nativos con el estilo de <code>setup()</code> aplicado.
   </h3>
 
   <h2>Colors</h2>
@@ -42,10 +45,7 @@ const sizeSteps = Object.keys(tokens.sizes)
         <div class="swatch-row-label">{name}</div>
         <div class="swatch-list">
           {WEIGHTS.map((weight) => (
-            <div
-              class="swatch"
-              style={`background: var(--${name}-${weight})`}
-            >
+            <div class="swatch" style={`background: var(--${name}-${weight})`}>
               <span>{weight}</span>
             </div>
           ))}
@@ -62,10 +62,7 @@ const sizeSteps = Object.keys(tokens.sizes)
         <div class="swatch-row-label">{name}</div>
         <div class="swatch-list">
           {WEIGHTS.map((weight) => (
-            <div
-              class="swatch"
-              style={`background: var(--${name}-${weight})`}
-            >
+            <div class="swatch" style={`background: var(--${name}-${weight})`}>
               <span>{weight}</span>
             </div>
           ))}
@@ -157,12 +154,8 @@ const sizeSteps = Object.keys(tokens.sizes)
     </label>
     <fieldset>
       <label><input type="checkbox" checked /> Checkbox</label>
-      <label
-        ><input type="checkbox" role="switch" checked /> Switch</label
-      >
-      <label
-        ><input type="radio" name="ks-radio" checked /> Radio A</label
-      >
+      <label><input type="checkbox" role="switch" checked /> Switch</label>
+      <label><input type="radio" name="ks-radio" checked /> Radio A</label>
       <label><input type="radio" name="ks-radio" /> Radio B</label>
     </fieldset>
     <label>

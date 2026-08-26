@@ -23,8 +23,8 @@ body {
 /* --- Sidebar --- */
 
 .sidebar {
-  width: 240px;
-  flex: 0 0 240px;
+  width: 15rem;
+  flex: 0 0 15rem;
   background: var(--neutral-900);
   border-right: 1px solid var(--neutral-800);
   padding: var(--space-4) 0;
@@ -38,6 +38,10 @@ body {
 
 .sidebar-group {
   margin-bottom: var(--space-2);
+  display: grid;
+  width: 100%;
+  flex: 0 0 auto;
+  align-self: flex-start;
 }
 
 .sidebar-group-title {

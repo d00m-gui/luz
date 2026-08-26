@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig, fontProviders } from "astro/config";
 import react from "@astrojs/react";
 import { luzAstro } from "../src/astro/index.ts";
-import { config } from "./luz.config.mjs";
+import { config } from "./luz.config.ts";
 
 // Written to `public/` so Astro serves it as a plain static file — dogfoods
 // the same `luzAstro` other consumers get, generating the classless reset +
