@@ -153,7 +153,7 @@ Both `luzAstro` and `luzVite` emit a `:root` block aliasing luz's tokens to the 
 ### 2. Bring in a component
 
 ```bash
-npx shadcn@latest add dialog
+bunx shadcn@latest add dialog
 ```
 
 Base UI has been shadcn's default primitive library since July 2026 (Radix is still supported) — and `@base-ui/react` is already a luz peer dependency, so the component's own imports need nothing extra. This drops real, unmodified component source into your project (`src/components/ui/dialog.tsx` by default).
