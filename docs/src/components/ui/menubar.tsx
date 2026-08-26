@@ -4,7 +4,9 @@
 // and `group-focus/*:*` combinator selectors, `[&_svg:not([class*='size-'])]:*`
 // descendant icon sizing (sized directly at the call site instead), and the
 // `!` important-modifier on a destructive icon color. Builds on the already
-// -adapted `dropdown-menu` primitives, same as upstream.
+// -adapted `dropdown-menu` primitives, same as upstream. Upstream's
+// `lucide-react` icon import is replaced with a plain inline SVG
+// (`../icons`) — see that file's doc comment.
 import * as React from "react";
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 import { Menubar as MenubarPrimitive } from "@base-ui/react/menubar";
@@ -25,7 +27,7 @@ import {
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CheckIcon } from "lucide-react";
+import { CheckIcon } from "@/components/icons";
 
 function Menubar({ className, ...props }: MenubarPrimitive.Props) {
   return (

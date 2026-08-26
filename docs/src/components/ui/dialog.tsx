@@ -15,12 +15,14 @@
 // to the corner. Its accessible label now uses the engine's real `sr-only`
 // utility (added after this file was first adapted) — visually hidden but
 // still in the accessibility tree, matching upstream's behavior exactly.
+// Upstream's `lucide-react` icon import is replaced with a plain inline SVG
+// (`../icons`) — see that file's doc comment.
 import * as React from "react";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { XIcon } from "lucide-react";
+import { XIcon } from "@/components/icons";
 
 function Dialog({ ...props }: DialogPrimitive.Root.Props) {
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;

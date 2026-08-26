@@ -7,14 +7,16 @@
 // support), and the `w-(--anchor-width)`/`max-h-(--available-height)`
 // Base-UI-supplied CSS-variable sizing (Tailwind arbitrary-property syntax
 // — replaced with the closed-vocabulary `w-fit`, content just sizes
-// naturally instead of matching the trigger's width exactly).
+// naturally instead of matching the trigger's width exactly). Upstream's
+// `lucide-react` icon imports are replaced with plain inline SVGs
+// (`../icons`) — see that file's doc comment.
 "use client";
 
 import * as React from "react";
 import { Menu as MenuPrimitive } from "@base-ui/react/menu";
 
 import { cn } from "@/lib/utils";
-import { ChevronRightIcon, CheckIcon } from "lucide-react";
+import { ChevronRightIcon, CheckIcon } from "@/components/icons";
 
 function DropdownMenu({ ...props }: MenuPrimitive.Root.Props) {
   return <MenuPrimitive.Root data-slot="dropdown-menu" {...props} />;

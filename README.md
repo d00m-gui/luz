@@ -160,7 +160,7 @@ Base UI has been shadcn's default primitive library since July 2026 (Radix is st
 
 ### 3. Adapt the className strings
 
-Real shadcn source leans on Tailwind's full feature set — arbitrary values (`w-[137px]`), `has-*`/`in-*`/`aria-*` variants, `animate-in`/`fade-in-*` classes — none of which luz's closed-vocabulary engine resolves (see [Utility classes](#utility-classes)). Bringing a component in means rewriting its `className` strings once: swap arbitrary values for the nearest `space-N`/`size-N` step or a plain layout literal, replace `data-[state=open]:`-style variants with luz's own (`open:`, `checked:`, …), and drop or reimplement animation classes.
+Real shadcn source leans on Tailwind's full feature set — arbitrary values (`w-[137px]`), `has-*`/`in-*`/`aria-*` variants, `animate-in`/`fade-in-*` classes — none of which luz's closed-vocabulary engine resolves (see [Utility classes](#utility-classes)). Bringing a component in means rewriting its `className` strings once: swap arbitrary values for the nearest `space-N`/`size-N` step or a plain layout literal, replace `data-[state=open]:`-style variants with luz's own (`open:`, `checked:`, …), drop or reimplement animation classes, and replace any `lucide-react` icon imports with plain inline SVGs (see [`docs/src/components/icons.tsx`](docs/src/components/icons.tsx) for the small stroke-based set backing this repo's own adapted components).
 
 This repo's own docs site does exactly this for 9 real components (avatar, dialog, dropdown-menu, field, menubar, tabs, toast, toggle, toggle-group) — see [`docs/src/components/ui/`](docs/src/components/ui) for worked examples; each file's top comment documents exactly what was adapted from upstream and why.
 

@@ -14,7 +14,9 @@
 // click-through behavior exactly: the full-screen `inset-0` viewport is
 // `pointer-events-none`, and each `Toast` re-enables `pointer-events-auto`
 // on itself — so the empty viewport area never blocks interaction with the
-// rest of the page, mounted or not.
+// rest of the page, mounted or not. Upstream's `lucide-react` icon imports
+// are replaced with plain inline SVGs (`../icons`) — see that file's doc
+// comment.
 "use client";
 
 import * as React from "react";
@@ -29,7 +31,7 @@ import {
   TriangleAlertIcon,
   OctagonXIcon,
   Loader2Icon,
-} from "lucide-react";
+} from "@/components/icons";
 
 const toast = ToastPrimitive.createToastManager();
 
