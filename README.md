@@ -204,6 +204,17 @@ export default defineConfig({
 
 > `path` is required — the integration throws (after logging) if it is missing, so a broken config fails the build instead of shipping unthemed output. Make sure the target directory (e.g. `./src/styles`) exists. The generated file is always written unminified — `minify` has no effect through `luzAstro`/`luzVite`; it's imported as a normal `.css` file (see step 3 above), so Astro's own build already minifies it. `minify` still works if you call `luz()` directly (see [Core usage](#core-usage)). Utility-class scanning covers `.astro`/`.tsx`/`.jsx`/`.ts` files under your project's `srcDir` by default.
 
+**`splitCss: true`** writes `theme`/`bridge`/`utilities` as separate sibling files instead of one flat one — `luz.theme.css`, `luz.bridge.css`, `luz.utilities.css` next to `path`, with `path` itself reduced to a plain `@import` aggregator:
+
+```css
+/* luz.css, when splitCss is set */
+@import url("./luz.theme.css");
+@import url("./luz.bridge.css");
+@import url("./luz.utilities.css");
+```
+
+Nothing else about your setup changes — you still just `@import url("./luz.css")` once. Default `false` (one file, as above).
+
 ## Vite usage
 
 For plain React apps (or anything else on Vite) without Astro, `luzVite` does the same static generation — same composition, same file — as a Vite plugin instead of an Astro integration.

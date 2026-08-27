@@ -1,11 +1,20 @@
 import type { Plugin } from "vite";
-import { writeFileSync } from "node:fs";
 import { luz, type LuzConfig } from "../luz";
 import { shadcnBridgeCSS } from "../tools/shadcn-bridge";
 import { scanAndEmitUtilities } from "../tools/utilities";
+import { writeCss } from "../tools/write-css";
 
 /** `LuzConfig` with `path` required — only the Vite plugin writes a file. */
-export type LuzViteConfig = LuzConfig & { path: string };
+export type LuzViteConfig = LuzConfig & {
+  path: string;
+  /**
+   * Write `theme`/`bridge`/`utilities` as separate sibling files next to
+   * `path`, with `path` itself reduced to an `@import` aggregator, instead
+   * of one flat concatenated file. Default `false`. See `writeCss` in
+   * `tools/write-css.ts` for the exact file names.
+   */
+  splitCss?: boolean;
+};
 
 /**
  * Vite plugin: generates the static CSS file (`style` + shadcn bridge +
@@ -39,21 +48,23 @@ export const luzVite = (config: LuzViteConfig): Plugin => {
     // `luz()` would just collapse whitespace in the `style` block while
     // leaving the rest of the file untouched, a half-minified result that
     // means nothing here now that whole-file minification isn't this
-    // plugin's job.
-    const { path: _path, minify: _minify, ...luzConfig } = config;
+    // plugin's job. `splitCss` isn't a `luz()` field either — it only
+    // controls how *this* plugin writes what `luz()` returns.
+    const { path: _path, minify: _minify, splitCss, ...luzConfig } = config;
     const { style, tokens } = luz(luzConfig);
     const bridgeCss = shadcnBridgeCSS(tokens);
     const utilityCss = scanAndEmitUtilities({ root: root!, tokens });
-    const cssContent = `${style}\n${bridgeCss}\n${utilityCss}`;
     const outputPath = config.path;
 
     if (!outputPath) {
       throw new Error("luzVite: `path` is required in config");
     }
 
-    writeFileSync(outputPath, cssContent, {
-      encoding: "utf-8",
-    });
+    writeCss(
+      outputPath,
+      { theme: style, bridge: bridgeCss, utilities: utilityCss },
+      splitCss ?? false,
+    );
   };
 
   return {
