@@ -1,53 +1,5 @@
 export const reset = `
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  p,
-  blockquote,
-  pre,
-  a,
-  abbr,
-  address,
-  cite,
-  code,
-  del,
-  dfn,
-  em,
-  img,
-  q,
-  s,
-  samp,
-  small,
-  strike,
-  strong,
-  sub,
-  sup,
-  tt,
-  var,
-  dd,
-  dl,
-  dt,
-  li,
-  ol,
-  ul,
-  fieldset,
-  form,
-  label,
-  legend,
-  button,
-  table,
-  caption,
-  tbody,
-  tfoot,
-  thead,
-  tr,
-  th,
-  td,
-  figure,
-  span {
+*, *::before, *::after {
     border: 0;
     margin: 0;
     padding: 0;
@@ -437,7 +389,7 @@ export const reset = `
       writing-mode: sideways-lr;
     }
   }
-  input:where(select, textarea):not([readonly]):is(:active, :focus),
+  :is(select, textarea):not([readonly]):is(:active, :focus),
   input:not(
       [type="submit"],
       [type="button"],
@@ -590,7 +542,6 @@ export const reset = `
   }
   .btn,
   .button,
-  button[type="submit"],
   [role="button"],
   [type="button"],
   [type="file"]::file-selector-button,

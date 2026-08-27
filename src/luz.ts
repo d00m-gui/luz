@@ -190,7 +190,15 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "anchor-danger": `var(--${prefix}red)`,
     "anchor-success": `var(--${prefix}emerald)`,
     "anchor-warning": `var(--${prefix}yellow)`,
-    "hr-color": `var(--${prefix}${name})`,
+    // Fixed to a real shaded token — `var(--${prefix}${name})` (no shade
+    // suffix) only ever resolved by coincidence: buildColors() never emits
+    // a bare, un-shaded `--${prefix}${name}` entry for a customized
+    // name/prefix, only the `-50`…`-950` ramp (plus the always-fixed,
+    // unprefixed `--primary` key holding the raw input color — which is
+    // why the default config, where `${prefix}${name}` happens to spell
+    // "primary", looked fine). `-500` matches the base shade every other
+    // theme variable here already uses.
+    "hr-color": `var(--${prefix}${name}-500)`,
     "kbd-border-color": `var(--${prefix}${name}-900)`,
     "kbd-bg": `var(--${prefix}${name}-500)`,
     "kbd-color": `var(--on-${prefix}${name})`,
