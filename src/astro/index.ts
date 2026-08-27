@@ -11,15 +11,21 @@ import {
   writeCss,
 } from "../tools/write-css";
 
-/** `LuzConfig` with `path` required — only the Astro adapter writes a file. */
+/** `LuzConfig` with `path` optional — only the Astro adapter writes a file. */
 export type LuzAstroConfig = LuzConfig & {
-  path: string;
+  /**
+   * Where the composed CSS is written (or, for `output: "virtual"`, just
+   * the basename used to name the virtual module — nothing is written to
+   * disk in that mode). Defaults to `styles/luz.css` under the project's
+   * `srcDir` (i.e. `src/styles/luz.css` for a default Astro layout) —
+   * Astro's own conventional home for a hand-written global stylesheet —
+   * when omitted.
+   */
+  path?: string;
   /**
    * How the composed CSS is delivered — `"file"` (default), `"split"`, or
    * `"virtual"`. See `LuzCssOutput` in `tools/write-css.ts` for what each
-   * one does; in `"virtual"` mode `path` is still required (used only to
-   * name the virtual module, via its basename) but nothing is written to
-   * disk under it.
+   * one does.
    */
   output?: LuzCssOutput;
 };
@@ -28,12 +34,19 @@ export type LuzAstroConfig = LuzConfig & {
  * Astro integration: on both `astro:build:start` and `astro:server:start`,
  * strips `path` and calls `luz(luzConfig)`, composes reset + setup +
  * `:root{variables}` + shadcn bridge aliases + scanned utility classes, and
- * delivers the result per `config.output` — written to `config.path` for
- * `"file"`/`"split"` (required — throws via the Astro logger if it's
- * missing), or exposed as a Vite virtual module for `"virtual"` (registered
- * as a raw Vite plugin via `updateConfig` in `astro:config:setup`, since
- * Astro runs on Vite and integrations can inject Vite plugins directly —
- * see `vite.plugins` in Astro's own config docs).
+ * delivers the result per `config.output` — written to `config.path`
+ * (defaulting to `src/styles/luz.css`, creating that directory if it
+ * doesn't exist yet) for `"file"`/`"split"`, or exposed as a Vite virtual
+ * module for `"virtual"` (registered as a raw Vite plugin via
+ * `updateConfig` in `astro:config:setup`, since Astro runs on Vite and
+ * integrations can inject Vite plugins directly — see `vite.plugins` in
+ * Astro's own config docs).
+ *
+ * The default path (and the virtual module id, in `"virtual"` mode) can
+ * only be resolved once `srcDir` is known, so — unlike `mode`, which
+ * doesn't depend on anything Astro provides — `outputPath`/`virtualId`/
+ * `resolvedVirtualId` are computed inside `astro:config:setup`, not at
+ * `luzAstro(config)` call time.
  *
  * Deliberately `astro:build:start`, not `astro:build:done`: Astro/Vite
  * copies `publicDir` into `outDir` as part of the Vite build it runs
@@ -63,12 +76,12 @@ export type LuzAstroConfig = LuzConfig & {
  */
 export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
   let srcDir: URL | undefined;
+  let outputPath: string | undefined;
+  let virtualId: string | undefined;
+  let resolvedVirtualId: string | undefined;
   let cached: CssSections | undefined;
 
   const mode: LuzCssOutput = config.output ?? "file";
-  const { id: virtualId, resolvedId: resolvedVirtualId } = virtualCssIds(
-    config.path,
-  );
 
   const generate = (logger: AstroIntegrationLogger): CssSections => {
     if (!srcDir) {
@@ -109,12 +122,11 @@ export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
     cached = generate(logger);
     if (mode === "virtual") return;
 
-    const outputPath = config.path;
     if (!outputPath) {
       logger.error(
-        "A path in config luz must be provided for the static generation",
+        "luzAstro: no output path resolved — this shouldn't happen (astro:config:setup always sets one, defaulting to src/styles/luz.css)",
       );
-      throw new Error("luzAstro: `path` is required in config");
+      throw new Error("luzAstro: `path` could not be resolved");
     }
     writeCss(outputPath, cached, mode);
     logger.info(`Static CSS generated @ ${outputPath}`);
@@ -125,6 +137,11 @@ export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
     hooks: {
       "astro:config:setup": ({ config: astroConfig, updateConfig }): void => {
         srcDir = astroConfig.srcDir;
+        outputPath =
+          config.path ?? fileURLToPath(new URL("styles/luz.css", srcDir));
+        ({ id: virtualId, resolvedId: resolvedVirtualId } =
+          virtualCssIds(outputPath));
+
         if (mode !== "virtual") return;
         updateConfig({
           vite: {

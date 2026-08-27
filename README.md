@@ -179,7 +179,7 @@ export const config: LuzAstroConfig = {
   primary: "#D44541",
   secondary: "#94F6D8",
   font: '"DM Sans", sans-serif',
-  path: "./src/styles/luz.css", // required — where the CSS is written
+  // path: "./src/styles/luz.css" — optional, this is the default
 };
 ```
 
@@ -202,7 +202,7 @@ export default defineConfig({
 @import url("./luz.css");
 ```
 
-> `path` is required — the integration throws (after logging) if it is missing, so a broken config fails the build instead of shipping unthemed output. Make sure the target directory (e.g. `./src/styles`) exists. The generated file is always written unminified — `minify` has no effect through `luzAstro`/`luzVite`; it's imported as a normal `.css` file (see step 3 above), so Astro's own build already minifies it. `minify` still works if you call `luz()` directly (see [Core usage](#core-usage)). Utility-class scanning covers `.astro`/`.tsx`/`.jsx`/`.ts` files under your project's `srcDir` by default.
+> `path` is optional — it defaults to `src/styles/luz.css` under your project's `srcDir`, Astro's own conventional home for a hand-written global stylesheet; the target directory is created automatically if it doesn't exist yet. Pass your own `path` to write somewhere else. The generated file is always written unminified — `minify` has no effect through `luzAstro`/`luzVite`; it's imported as a normal `.css` file (see step 3 above), so Astro's own build already minifies it. `minify` still works if you call `luz()` directly (see [Core usage](#core-usage)). Utility-class scanning covers `.astro`/`.tsx`/`.jsx`/`.ts` files under your project's `srcDir` by default.
 
 **`output`** controls how the composed CSS is delivered — `"file"` (default, as above), `"split"`, or `"virtual"`:
 

@@ -1,4 +1,4 @@
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join } from "node:path";
 
 /** The three top-level pieces `luzAstro`/`luzVite` compose into one file. */
@@ -57,12 +57,19 @@ export function virtualCssIds(path: string): {
   return { id, resolvedId: `\0${id}` };
 }
 
-/** Writes the composed CSS to `outputPath` for `"file"`/`"split"` output. */
+/**
+ * Writes the composed CSS to `outputPath` for `"file"`/`"split"` output.
+ * Creates `outputPath`'s directory first (recursively) if it doesn't
+ * exist yet — a fresh project's `src/styles/` (the default `path` in
+ * `LuzAstroConfig`) usually doesn't, until something else creates it.
+ */
 export function writeCss(
   outputPath: string,
   sections: CssSections,
   output: Extract<LuzCssOutput, "file" | "split">,
 ): void {
+  mkdirSync(dirname(outputPath), { recursive: true });
+
   if (output === "file") {
     writeFileSync(outputPath, composeCss(sections), { encoding: "utf-8" });
     return;
