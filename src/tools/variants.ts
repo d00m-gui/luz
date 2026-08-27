@@ -1,15 +1,3 @@
-/**
- * Closed registry of utility-class variant prefixes (`open:`, `hover:`, …)
- * mapped to real CSS selector fragments. The `data-*` names come straight
- * from `@base-ui/react`'s own components (grepped from
- * `node_modules/@base-ui/react/**\/*.js` — not guessed), so a variant class
- * like `open:bg-primary-600` lines up with the attribute Base UI actually
- * sets on an open popover/dialog/etc.
- *
- * Closed vocabulary: there is no fallback or arbitrary-variant escape hatch
- * (no `data-[state=open]:` support) — an unknown variant name simply has no
- * entry here, and callers must treat that as unresolved.
- */
 export const VARIANTS: Record<string, string> = {
   open: "[data-open]",
   closed: "[data-closed]",
@@ -28,17 +16,19 @@ export const VARIANTS: Record<string, string> = {
   readonly: "[data-readonly]",
   starting: "[data-starting-style]",
   ending: "[data-ending-style]",
-  // Plain pseudo-classes, not Base UI data attributes — `:focus-visible`
-  // (not `:focus`) so keyboard-only focus styling matches Base UI's own
-  // focus-ring conventions instead of firing on every mouse click too.
   hover: ":hover",
   focus: ":focus-visible",
 };
 
-/**
- * Resolves a variant name to its selector fragment, or `undefined` if it's
- * not in the closed registry — closed vocabulary, no fallback.
- */
+const ARBITRARY_ATTR_RE =
+  /^(data|aria)-\[([a-zA-Z0-9_-]+)(?:=['"]?([a-zA-Z0-9_-]+)['"]?)?\]$/;
+
 export function resolveVariant(name: string): string | undefined {
-  return VARIANTS[name];
+  const fixed = VARIANTS[name];
+  if (fixed !== undefined) return fixed;
+
+  const match = name.match(ARBITRARY_ATTR_RE);
+  if (!match) return undefined;
+  const [, prefix, attr, value] = match;
+  return value === undefined ? `[${prefix}-${attr}]` : `[${prefix}-${attr}="${value}"]`;
 }

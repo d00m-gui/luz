@@ -1,19 +1,12 @@
-/* Zed-editor-style chrome for the docs site. Colors come from luz tokens
-   (see luz.config.mjs) — no hardcoded hex here. */
-
 .layout {
   display: flex;
   min-height: 100vh;
   padding-bottom: var(--toolbar-height);
 }
 
-/* --- Sidebar --- */
-
 .sidebar {
   width: 15rem;
   flex: 0 0 15rem;
-  background: var(--neutral-900);
-  border-right: 1px solid var(--neutral-800);
   padding: var(--space-4) 0;
   overflow-y: auto;
   display: flex;
@@ -34,7 +27,6 @@
 .sidebar-group-title {
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--neutral-500);
   padding: 0 var(--space-4);
   margin-bottom: var(--space-2);
 }
@@ -42,24 +34,10 @@
 .sidebar-item {
   display: block;
   padding: var(--space-2) var(--space-4);
-  color: var(--neutral-300);
   text-decoration: none;
   border-left: 2px solid transparent;
   border-radius: 0;
 }
-
-.sidebar-item:hover {
-  background: var(--neutral-800);
-  color: var(--foreground);
-}
-
-.sidebar-item.active {
-  border-left-color: var(--primary-500);
-  background: var(--neutral-800);
-  color: var(--foreground);
-}
-
-/* --- Main panel --- */
 
 .main {
   flex: 1;
@@ -70,11 +48,7 @@
 
 .breadcrumb {
   font-family: var(--font-monospace);
-
-  color: var(--neutral-400);
   padding: var(--space-3) var(--space-8);
-  border-bottom: 1px solid var(--neutral-800);
-  background: var(--neutral-900);
 }
 
 .content {
@@ -83,16 +57,12 @@
 }
 
 .content .description {
-  color: var(--neutral-300);
   line-height: var(--line-height);
   margin-bottom: var(--space-6);
 }
 
-/* --- Props table --- */
-
 .props-table-wrap {
   overflow-x: auto;
-  border: 1px solid var(--neutral-800);
   border-radius: 4px;
   margin-bottom: var(--space-6);
 }
@@ -101,22 +71,18 @@
   width: 100%;
   border-collapse: collapse;
   font-family: var(--font-monospace);
-
 }
 
 .props-table th,
 .props-table td {
   text-align: left;
   padding: var(--space-2) var(--space-3);
-  border-bottom: 1px solid var(--neutral-800);
   vertical-align: top;
 }
 
 .props-table th {
-  color: var(--neutral-500);
   font-weight: var(--font-weight);
   text-transform: uppercase;
-
 }
 
 .props-table pre {
@@ -132,20 +98,12 @@
 .props-native summary {
   cursor: pointer;
   font-family: var(--font-monospace);
-
-  color: var(--neutral-500);
   padding: var(--space-2) 0;
-}
-
-.props-native summary:hover {
-  color: var(--neutral-300);
 }
 
 .props-native .props-table-wrap {
   margin-bottom: 0;
 }
-
-/* --- Toolbar (statusbar) --- */
 
 :root {
   --toolbar-height: 28px;
@@ -161,8 +119,6 @@
   align-items: center;
   gap: var(--space-1);
   padding: 0 var(--space-3);
-  background: var(--neutral-800);
-  border-top: 1px solid var(--neutral-700);
   font-family: var(--font-monospace);
   z-index: 50;
 }
@@ -179,17 +135,7 @@
   padding: 0 var(--space-2);
   background: none;
   border: 0;
-  color: var(--neutral-400);
   cursor: pointer;
-}
-
-.toolbar-btn:hover {
-  background: var(--neutral-700);
-  color: var(--foreground);
-}
-
-.toolbar-btn[aria-pressed="true"] {
-  color: var(--primary-400);
 }
 
 .toolbar-settings {
@@ -207,8 +153,6 @@
   min-width: 180px;
   margin-bottom: var(--space-2);
   padding: var(--space-4);
-  background: var(--neutral-900);
-  border: 1px solid var(--neutral-700);
   border-radius: 4px;
 }
 
@@ -217,10 +161,7 @@
   align-items: center;
   justify-content: space-between;
   gap: var(--space-3);
-  color: var(--neutral-400);
 }
-
-/* --- Kitchen sink --- */
 
 .swatch-row {
   display: flex;
@@ -232,7 +173,6 @@
 .swatch-row-label {
   width: 80px;
   flex: 0 0 80px;
-  color: var(--neutral-400);
   font-family: var(--font-monospace);
 }
 
@@ -250,11 +190,9 @@
   align-items: flex-end;
   justify-content: center;
   height: var(--space-12);
-  color: var(--neutral-950);
   font-family: var(--font-monospace);
   font-size: var(--size-10);
   padding-bottom: var(--space-1);
-  mix-blend-mode: difference;
 }
 
 .size-scale {
@@ -270,7 +208,6 @@
   flex-direction: column;
   align-items: center;
   gap: var(--space-1);
-  color: var(--neutral-400);
 }
 
 .size-swatch {
@@ -301,53 +238,4 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
-  border: 1px solid var(--neutral-800);
-}
-
-/* --- Page transition glitch --- */
-
-/* `::view-transition-old/new(root)` are the browser's own snapshots of the
-   outgoing/incoming page (native View Transitions API, driven by <ClientRouter />
-   in Layout.astro) — real rendered pixels, not something we capture by hand.
-   Distorting them here is what makes the actual page content glitch between
-   views, in sync with CrtIntroMount's "transition" shader overlay running on
-   top (~500ms, see CrtIntro.tsx). This can't be scoped/moved into an Astro
-   `<style>` block — these pseudo-elements live outside normal component
-   boundaries, a plain imported .css file (already global) is the right home. */
-::view-transition-old(root) {
-  animation: luz-page-glitch-out 500ms ease-in both;
-}
-
-::view-transition-new(root) {
-  animation: luz-page-glitch-in 500ms ease-out both;
-}
-
-@keyframes luz-page-glitch-out {
-  0% {
-    filter: none;
-    opacity: 1;
-  }
-  30% {
-    filter: hue-rotate(8deg) saturate(2.4) contrast(1.3);
-    opacity: 0.85;
-  }
-  100% {
-    filter: hue-rotate(-6deg) saturate(0.3) blur(3px);
-    opacity: 0;
-  }
-}
-
-@keyframes luz-page-glitch-in {
-  0% {
-    filter: hue-rotate(-8deg) saturate(2.4) blur(3px);
-    opacity: 0;
-  }
-  60% {
-    filter: hue-rotate(6deg) saturate(1.6) contrast(1.15);
-    opacity: 0.9;
-  }
-  100% {
-    filter: none;
-    opacity: 1;
-  }
 }

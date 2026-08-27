@@ -48,3 +48,10 @@ ds-bundle/
 .design-sync/.cache/
 .design-sync/learnings/
 .design-sync/node_modules
+*.old
+
+# working notes for Claude, not part of the repo's public docs
+CLAUDE.md
+CHANGELOG.md
+TODO.md
+DOCS.md

@@ -1,6 +1,5 @@
 import { SHADES, SHADES_REVERSE, WEIGHTS } from "./constants";
 
-/** Linearly interpolates `curve` (fixed control points) to `steps` samples. */
 function resampleCurve(curve: number[], steps: number): number[] {
   const lastIndex = curve.length - 1;
   const result: number[] = [];
@@ -25,23 +24,20 @@ function generateWeights(steps: number): number[] {
   return result;
 }
 
-/**
- * Generate a palette of oklch shades from a base hue.
- *
- * When `reverse` is true the shade order (50 → 950) is flipped so that
- * dark-mode palettes map light steps to high values and vice-versa.
- *
- * `steps` defaults to the tuned 11-point curve (`WEIGHTS`/`SHADES`); any
- * other count resamples that curve via linear interpolation instead of
- * using a new formula, so the palette's shape stays consistent at any size.
- *
- * `amplitude`, when provided, replaces the relative-color `c` keyword (the
- * source `color`'s own chroma channel) with this literal number in the sine
- * expression. Needed for chroma-0 sources (e.g. the neutral palette, built
- * as `oklch(from ... l 0 h)`) where `c` always resolves to 0 and the sine
- * curve would be a no-op; pass a small literal like 0.02 to get a real
- * peaked curve that still tracks the source's hue with a subtle tint.
- */
+function shadeEntry(
+  color: string,
+  name: string,
+  weight: number,
+  percent: number,
+  perIndex: number,
+  base: number,
+  amplitude: number | undefined,
+): [key: string, value: string] {
+  const chromaTerm = amplitude === undefined ? "c" : amplitude;
+  const chroma = `clamp(0, calc(${base} + (sin(${perIndex} * pi) * ${chromaTerm})), 0.4)`;
+  return [`${name}-${weight}`, `oklch(from ${color} ${percent}% ${chroma} h)`];
+}
+
 export function luzShadesByHue({
   color,
   name,
@@ -57,27 +53,39 @@ export function luzShadesByHue({
   steps?: number;
   amplitude?: number;
 }): Record<string, string> {
-  const isDefaultSteps = steps === WEIGHTS.length;
-  const weights = isDefaultSteps ? WEIGHTS : generateWeights(steps);
   const curve = reverse ? SHADES_REVERSE : SHADES;
-  const percents = isDefaultSteps ? curve : resampleCurve(curve, steps);
+  const shades: Record<string, string> = {};
 
-  let shades = {};
-  for (let step = 0; step < weights.length; step++) {
-    // 0 at the first weight, 1 at the last — symmetric, so both palette
-    // extremes land at sin(0)=0 (minimal chroma) and the true midpoint
-    // weight hits sin(π/2)=1 (peak chroma). `(step + 1) / steps` (the old
-    // formula) was shifted by one step: it skipped perIndex=0 entirely and
-    // ran past 1 at the last step, giving a *negative* chroma multiplier
-    // there while the lightest shade got nonzero tint instead of none.
-    const perIndex = weights.length === 1 ? 0.5 : step / (weights.length - 1);
-    const chromaTerm = amplitude === undefined ? "c" : amplitude;
-    const sin = `clamp(0, calc(${base} + (sin(${perIndex} * pi) * ${chromaTerm})), 0.4)`;
-    const percent = percents[step];
-    const key = `${name}-${weights[step]}`;
-    const value = `oklch(from ${color} ${percent}% ${sin} h)`;
-    const pair = { [key]: value };
-    shades = { ...pair, ...shades };
+  if (steps !== WEIGHTS.length) {
+    const weights = generateWeights(steps);
+    const percents = resampleCurve(curve, steps);
+    for (let i = weights.length - 1; i >= 0; i--) {
+      const perIndex = weights.length === 1 ? 0.5 : i / (weights.length - 1);
+      const [key, value] = shadeEntry(
+        color,
+        name,
+        weights[i]!,
+        percents[i]!,
+        perIndex,
+        base,
+        amplitude,
+      );
+      shades[key] = value;
+    }
+  }
+
+  for (let i = WEIGHTS.length - 1; i >= 0; i--) {
+    const perIndex = i / (WEIGHTS.length - 1);
+    const [key, value] = shadeEntry(
+      color,
+      name,
+      WEIGHTS[i]!,
+      curve[i]!,
+      perIndex,
+      base,
+      amplitude,
+    );
+    shades[key] = value;
   }
 
   return shades;

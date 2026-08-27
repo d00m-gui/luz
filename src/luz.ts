@@ -4,20 +4,19 @@
 
 import { luzShadesByHue } from "./tools/hue";
 import { luzProperty } from "./tools/props";
-import { reset } from "./tools/reset";
+import { buildReset } from "./tools/reset";
 import {
   luzSizes,
   luzSpace,
+  luzTypeLandmarks,
   type FluidRangeName,
   type TypeScaleName,
 } from "./tools/sizes";
-import { luzWheel } from "./tools/wheel";
+import { luzWheel, WHEEL_HUE_NAMES, type WheelHueName } from "./tools/wheel";
 import { withShadeFallback } from "./tools/shade-fallback";
 
-/**
- * Full configuration for the `luz()` function.
- */
-export interface LuzConfig {
+/** Also accepts any of luz's 10 wheel hue names (`sky`, `blue`, `cyan`, `teal`, `emerald`, `green`, `yellow`, `orange`, `copper`, `red`) as a raw CSS color. */
+export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   /** Body font stack. Default `"sans-serif"`. */
   font?: string;
   /** Default `"line-height"` for body text. Default `"130%"`. */
@@ -30,7 +29,7 @@ export interface LuzConfig {
   "font-monospace"?: string;
   /** Font stack for `h1`–`h6`. Default `"sans-serif"`. */
   "font-headings"?: string;
-  /** Font stack for `<em>`/`<i>`. Default `"serif"`. */
+  /** Font stack for `<em>`/`<i>`. Default `"cursive"`. */
   "font-emphasis"?: string;
   /** Root font size in px, drives every size/spacing token. Default `16`. */
   base?: number;
@@ -75,8 +74,8 @@ export interface LuzConfig {
   background?: string;
   /** `--foreground` override. Default: `neutrals` 100/900 shade depending on `mode`. */
   foreground?: string;
-  /** Minify the generated `style` string (hand-rolled, no CSS parser — see `minifyCss`). Default `false`. */
-  minify?: boolean;
+  /** Generate `@property` declarations for every token. Default `false`. */
+  properties?: boolean;
   /** Shade steps generated per color palette. Default `11` (50–950). */
   colorSteps?: number;
   /** Total `size-N` tokens generated. Default `22`. */
@@ -93,6 +92,8 @@ export interface LuzConfig {
    * @param "dramatic" 1.6 — large reflow (marketing hero text)
    */
   sizeFluidRange?: FluidRangeName | number;
+  /** Sets `sizeFluidRange` (`"app"` → `"fixed"`, `"landing"` → steeper than `"dramatic"`). An explicit `sizeFluidRange` overrides this. */
+  preset?: "app" | "landing";
   /** Scale the size ramp by `base / 16` instead of a fixed 16px assumption. Default `false`. */
   sizeRelativeToBase?: boolean;
   /**
@@ -104,6 +105,8 @@ export interface LuzConfig {
    * evenly-spaced steps matter more than typographic proportion.
    */
   spaceSteps?: number;
+  /** Raw CSS custom properties, merged last — overrides an existing token by name or adds a new one. */
+  vars?: Record<string, string | number>;
 }
 
 /** Settings sub-object within tokens (metadata only). */
@@ -140,7 +143,11 @@ export interface LuzResult {
   style: string;
 }
 
-//  Internal Default Config
+const PRESET_FLUID_RANGE: Record<NonNullable<LuzConfig["preset"]>, FluidRangeName | number> = {
+  app: "fixed",
+  landing: 2.4,
+};
+
 const defaultConfig: LuzConfig = {
   font: "sans-serif",
   "line-height": "130%",
@@ -148,7 +155,7 @@ const defaultConfig: LuzConfig = {
   "font-weight": 400,
   "font-monospace": "monospace",
   "font-headings": "sans-serif",
-  "font-emphasis": "serif",
+  "font-emphasis": "cursive",
   base: 16,
   power: "perfect-fourth",
   primary: "#007dea",
@@ -162,63 +169,40 @@ const defaultConfig: LuzConfig = {
   sizeSteps: 22,
   sizeDynamicFrom: 13,
   sizeRelativeToBase: false,
-  sizeFluidRange: "balanced",
+  sizeFluidRange: "fixed",
   spaceSteps: 24,
 };
 
-/**
- * Theme-color custom properties consumed by reset.ts's element-level rules
- * (buttons, inputs, tables, …). This used to be a second CSS pass —
- * `setup()` — that reopened the same selectors reset.ts already declared
- * just to layer color on top, duplicating every selector list between the
- * two files (e.g. the full 6-selector "what counts as a button" chain).
- * Now that luz never does runtime/dynamic theming (see `LuzResult`'s
- * docs) there's no reason for two passes: reset.ts owns every selector —
- * structure *and* color — referencing these fixed, prefix-agnostic names
- * (`--btn-bg`, not `--${prefix}${name}-500`), and this function just
- * resolves them to the actual configured palette once, as flat
- * `:root` declarations. `reset.ts` can't do that resolution itself since
- * it's a static string shared by every config, with no way to know a
- * given build's `prefix`/`name`/`neutrals`.
- */
 function themeVariables(tokens: LuzTokens): Record<string, string> {
   const { name, prefix, neutrals } = { ...tokens.settings };
   return {
-    anchor: `var(--${prefix}blue)`,
+    anchor: `var(--${prefix}blue-500)`,
     "anchor-secondary": `var(--${prefix}secondary-500)`,
     "anchor-contrast": `var(--${prefix}${neutrals}-500)`,
-    "anchor-danger": `var(--${prefix}red)`,
-    "anchor-success": `var(--${prefix}emerald)`,
-    "anchor-warning": `var(--${prefix}yellow)`,
-    // Fixed to a real shaded token — `var(--${prefix}${name})` (no shade
-    // suffix) only ever resolved by coincidence: buildColors() never emits
-    // a bare, un-shaded `--${prefix}${name}` entry for a customized
-    // name/prefix, only the `-50`…`-950` ramp (plus the always-fixed,
-    // unprefixed `--primary` key holding the raw input color — which is
-    // why the default config, where `${prefix}${name}` happens to spell
-    // "primary", looked fine). `-500` matches the base shade every other
-    // theme variable here already uses.
+    "anchor-danger": `var(--${prefix}red-500)`,
+    "anchor-success": `var(--${prefix}emerald-500)`,
+    "anchor-warning": `var(--${prefix}yellow-500)`,
     "hr-color": `var(--${prefix}${name}-500)`,
     "kbd-border-color": `var(--${prefix}${name}-900)`,
-    "kbd-bg": `var(--${prefix}${name}-500)`,
+    "kbd-bg": `var(--${prefix}${name}-900)`,
     "kbd-color": `var(--on-${prefix}${name})`,
-    "kbd-shadow-1": `var(--${prefix}${name}-300)`,
-    "kbd-shadow-2": `var(--${prefix}${name}-600)`,
+    "kbd-shadow": `var(--${prefix}${name}-500)`,
     "table-hover-bg": `var(--${prefix}${name}-800)`,
     "table-hover-color": `var(--${prefix}${name}-300)`,
     "selection-bg": `var(--${prefix}${name}-500)`,
     "selection-color": `var(--on-${prefix}${name})`,
     "file-input-border-top": `var(--${prefix}${name}-200)`,
     "range-track-bg": `var(--${prefix}${neutrals}-900)`,
-    "range-track-shadow": `var(--${prefix}${neutrals}-600)`,
+    "range-track-shadow": `var(--${prefix}${name}-500)`,
     "range-thumb-active-bg": `var(--${prefix}${name}-500)`,
     accent: `var(--${prefix}${name}-500)`,
     "progress-shadow": `var(--${prefix}${name}-500)`,
+    "progress-fill": `var(--${prefix}${name}-500)`,
     "checkbox-color": `var(--${prefix}${name}-100)`,
     "checkbox-checked-bg": `var(--${prefix}${name}-500)`,
-    "checkbox-checked-border": `var(--${prefix}${name}-200)`,
+    "checkbox-checked-border": `transparent`,
     "switch-bg": `var(--${prefix}${name}-500)`,
-    "radio-dot-bg": `var(--${prefix}green)`,
+    "radio-dot-bg": `var(--${prefix}green-500)`,
     "radio-checked-bg": `var(--${prefix}${name}-500)`,
     "radio-checked-border": `var(--${prefix}${name}-500)`,
     "blockquote-border": `var(--${prefix}${name}-200)`,
@@ -229,14 +213,44 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "btn-bg-secondary": `var(--${prefix}secondary-500)`,
     "btn-color-secondary": `var(--on-${prefix}secondary)`,
     "btn-bg-neutral": `var(--${prefix}${neutrals}-500)`,
-    "btn-bg-success": `var(--${prefix}green)`,
-    "btn-bg-danger": `var(--${prefix}red)`,
-    "btn-bg-warning": `var(--${prefix}yellow)`,
+    "btn-bg-success": `var(--${prefix}green-500)`,
+    "btn-bg-danger": `var(--${prefix}red-500)`,
+    "btn-bg-warning": `var(--${prefix}yellow-500)`,
     "btn-color-ghost": `var(--${prefix}${name}-400)`,
-    "input-valid": `var(--${prefix}green)`,
-    "input-invalid": `var(--${prefix}red)`,
+    "input-valid": `var(--${prefix}green-500)`,
+    "input-invalid": `var(--${prefix}red-500)`,
     "tooltip-bg": `var(--${prefix}${name}-900)`,
     "tooltip-color": `var(--${prefix}${name}-100)`,
+    "badge-bg": `var(--${prefix}${name}-500)`,
+    "badge-color": `var(--on-${prefix}${name})`,
+    "badge-bg-success": `var(--${prefix}green-500)`,
+    "badge-bg-danger": `var(--${prefix}red-500)`,
+    "badge-bg-warning": `var(--${prefix}yellow-500)`,
+    "badge-bg-neutral": `var(--${prefix}${neutrals}-500)`,
+    "badge-color-ghost": `var(--${prefix}${name}-400)`,
+    "alert-bg": `oklch(from var(--${prefix}${neutrals}-600) l c h / 12%)`,
+    "alert-border": `var(--${prefix}${neutrals}-600)`,
+    "alert-color": `var(--foreground)`,
+    "alert-bg-success": `oklch(from var(--${prefix}green-500) l c h / 12%)`,
+    "alert-border-success": `var(--${prefix}green-500)`,
+    "alert-color-success": `var(--${prefix}green-300)`,
+    "alert-bg-danger": `oklch(from var(--${prefix}red-500) l c h / 12%)`,
+    "alert-border-danger": `var(--${prefix}red-500)`,
+    "alert-color-danger": `var(--${prefix}red-300)`,
+    "alert-bg-warning": `oklch(from var(--${prefix}yellow-500) l c h / 12%)`,
+    "alert-border-warning": `var(--${prefix}yellow-500)`,
+    "alert-color-warning": `var(--${prefix}yellow-300)`,
+    "alert-bg-info": `oklch(from var(--${prefix}blue-500) l c h / 12%)`,
+    "alert-border-info": `var(--${prefix}blue-500)`,
+    "alert-color-info": `var(--${prefix}blue-300)`,
+    "tab-color": `var(--${prefix}${neutrals}-400)`,
+    "tab-color-active": `var(--foreground)`,
+    "tab-border-active": `var(--${prefix}${name}-500)`,
+    "modal-backdrop": `oklch(from var(--${prefix}${neutrals}-950) l c h / 60%)`,
+    "breadcrumb-color": `var(--${prefix}${neutrals}-400)`,
+    "breadcrumb-separator": `var(--${prefix}${neutrals}-600)`,
+    "skeleton-bg": `var(--${prefix}${neutrals}-800)`,
+    "skeleton-shine": `var(--${prefix}${neutrals}-700)`,
   };
 }
 
@@ -248,8 +262,16 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
  */
 export function luz(config?: LuzConfig): LuzResult {
   const settings: LuzConfig = { ...defaultConfig, ...config };
+  if (config?.preset !== undefined && config?.sizeFluidRange === undefined) {
+    settings.sizeFluidRange = PRESET_FLUID_RANGE[config.preset];
+  }
 
-  // Destructure top-level config fields (all optional after spread)
+  const wheelOverrides: Partial<Record<WheelHueName, string>> = {};
+  for (const hueName of WHEEL_HUE_NAMES) {
+    const value = settings[hueName];
+    if (value !== undefined) wheelOverrides[hueName] = value;
+  }
+
   const {
     primary,
     name,
@@ -259,7 +281,8 @@ export function luz(config?: LuzConfig): LuzResult {
     neutrals,
     power,
     secondary,
-    minify,
+    properties: generateProperties,
+    preset: _preset,
     colorSteps,
     sizeSteps,
     sizeDynamicFrom,
@@ -267,14 +290,13 @@ export function luz(config?: LuzConfig): LuzResult {
     sizeFluidRange,
     spaceSteps,
     spacing,
+    vars,
     ...typography
   } = settings;
+  for (const hueName of WHEEL_HUE_NAMES) delete typography[hueName];
 
-  // `base` is always defined here — `defaultConfig` guarantees it via the spread above.
   const normalBase = base as number;
   const isAuto = mode === "auto";
-  // "auto" ships a light baseline in `:root`, overridden by a
-  // `@media (prefers-color-scheme: dark)` block built from `buildColors(true)`.
   const isDark: boolean = isAuto ? false : mode === "dark";
 
   const normalName: string = name && name.length > 0 ? name : "primary";
@@ -305,11 +327,7 @@ export function luz(config?: LuzConfig): LuzResult {
       reverse,
       steps: colorSteps,
     });
-    // `neutralColor`'s chroma is a literal 0, so the sine curve's usual
-    // `* c` (read from the source color) would multiply by zero at every
-    // step — a silent no-op that flattens the whole ramp to `base`. Give it
-    // a small literal `amplitude` instead, for a subtle curve that still
-    // tracks primary's hue.
+
     const neutralShades = luzShadesByHue({
       color: neutralCSSVar,
       name: neutralsName,
@@ -318,10 +336,13 @@ export function luz(config?: LuzConfig): LuzResult {
       reverse,
       steps: colorSteps,
     });
-    // Semantic hue wheel (red/orange/.../sky) — hand-tuned l/c per hue, not
-    // inherited from primary (see wheel.ts); still needs `reverse` per mode
-    // like every other palette, so it's built once per `buildColors` call.
-    const wheel: Record<string, string> = luzWheel(reverse, prefix, colorSteps);
+
+    const wheel: Record<string, string> = luzWheel(
+      reverse,
+      prefix,
+      colorSteps,
+      wheelOverrides,
+    );
 
     return {
       primary,
@@ -341,14 +362,13 @@ export function luz(config?: LuzConfig): LuzResult {
       "border-color": `oklch(from var(--${neutralsName}-600) l c h / 50%)`,
       "element-active-border-color": `oklch(from var(--${primaryName}-200) l c h / 50%)`,
       "element-color": `var(--${primaryName}-100)`,
-      "element-active-color": `var(--${primaryName}-900)`,
+      "element-active-color": `var(--${primaryName}-50)`,
       "element-placeholder-color": `oklch(from var(--foreground) l c h / 50%)`,
     };
   }
 
   const colors = buildColors(isDark);
 
-  //  Size tokens (typographic scale) + derived sizing variables
   const sizeTokens: Record<string, string> = {
     ...luzSizes(
       normalBase,
@@ -358,22 +378,12 @@ export function luz(config?: LuzConfig): LuzResult {
       sizeRelativeToBase,
       sizeFluidRange,
     ),
-    // Spacing tokens (linear scale) — see `spaceSteps`'s doc comment for why
-    // this is a separate function/scale from `luzSizes` rather than more
-    // `size-N` steps.
+    ...luzTypeLandmarks(normalBase, power, sizeRelativeToBase, sizeFluidRange),
     ...luzSpace(normalBase, spaceSteps),
   };
-  // `spacing` (the single page-gutter scalar, distinct from the `space-N`
-  // family above) is computed by `luzSizes` from `base` by default — only
-  // overwrite it when the caller explicitly passed one. Previously this
-  // field wasn't destructured out of `settings` at all, so `defaultConfig`'s
-  // `spacing: "5vw"` silently leaked through `...typography` and always won
-  // over the computed value (spread last in the `variables` merge below) —
-  // every consumer got a viewport-relative page gutter instead of the
-  // intended `base`-derived one, regardless of whether they asked for it.
+
   if (spacing !== undefined) sizeTokens.spacing = spacing;
 
-  //  Compose token set
   const tokens: LuzTokens = {
     settings: {
       name: normalName,
@@ -385,7 +395,7 @@ export function luz(config?: LuzConfig): LuzResult {
     typography: { ...typography } as Partial<LuzConfig>,
   };
 
-  const properties = luzProperty(tokens);
+  const properties = generateProperties ? luzProperty(tokens) : "";
 
   /** Renders a flat `--name: value;` line per entry, skipping nullish values. */
   function toVariableLines(record: Record<string, unknown>): string {
@@ -407,12 +417,11 @@ export function luz(config?: LuzConfig): LuzResult {
       ...tokens.colors,
       ...tokens.typography,
       ...themeVariables(tokens),
+      ...vars,
     }),
     shadedNames,
   );
 
-  // In "auto" mode, only the entries that actually differ from the light
-  // baseline need to ship inside the dark media override.
   let darkOverrideBlock = "";
   if (isAuto) {
     const darkColors = buildColors(true);
@@ -435,7 +444,7 @@ export function luz(config?: LuzConfig): LuzResult {
   }
 
   let style = `
-  ${reset}
+  ${buildReset()}
   ${properties}
   :root {
     ${variables}
@@ -443,27 +452,5 @@ export function luz(config?: LuzConfig): LuzResult {
   ${darkOverrideBlock}
   `;
 
-  if (minify) {
-    style = minifyCss(style);
-  }
-
   return { tokens, variables, style, properties };
-}
-
-/**
- * Strips comments and collapses whitespace in a CSS string.
- *
- * Deliberately hand-rolled instead of using a CSS parser like `lightningcss`:
- * this file is imported by browser bundles (React) as well as Node (Astro),
- * and `lightningcss`'s native binding pulls in Node-only modules
- * (`child_process` via `detect-libc`) that break in the browser. The Astro
- * adapter reuses this same function for its own output — no runtime CSS
- * dependency needed.
- */
-export function minifyCss(css: string): string {
-  return css
-    .replace(/\/\*[\s\S]*?\*\//g, "")
-    .replace(/\n+/g, "")
-    .replace(/\s{2,}/g, " ")
-    .trim();
 }

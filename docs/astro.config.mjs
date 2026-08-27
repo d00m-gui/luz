@@ -4,14 +4,9 @@ import react from "@astrojs/react";
 import { luzAstro } from "../src/astro/index.ts";
 import { config } from "./luz.config.ts";
 
-
-
 // https://astro.build/config
 export default defineConfig({
-  integrations: [
-    react(),
-    luzAstro({ ...config }),
-  ],
+  integrations: [react(), luzAstro({ ...config })],
   fonts: [
     {
       provider: fontProviders.google(),
@@ -26,4 +21,11 @@ export default defineConfig({
       weights: [400, 500],
     },
   ],
+  vite: {
+    server: {
+      fs: {
+        allow: [".."],
+      },
+    },
+  },
 });

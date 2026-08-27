@@ -1,4 +1,3 @@
-// Fluid sizes interpolate linearly between these two container inline-sizes.
 const MIN_CONTAINER_REM = 20; // 320px
 const MAX_CONTAINER_REM = 77.5; // 1240px
 
@@ -22,13 +21,6 @@ export function resolveScale(scale: TypeScaleName | number): number {
   return typeof scale === "number" ? scale : TYPE_SCALES[scale];
 }
 
-/**
- * How far each fluid step's viewport-max value reaches past its viewport-min
- * value, in scale rungs. `1` = a full rung (marketing-site drama). Dense app
- * UIs usually want less viewport-driven reflow: `"tight"` keeps growth
- * subtle, `"fixed"` locks the size so it doesn't change with viewport width
- * at all (only the step-to-step scale ratio still applies).
- */
 export const FLUID_RANGES = {
   fixed: 0,
   tight: 0.35,
@@ -49,6 +41,38 @@ function generateFluidTagSize(minSize: number, maxSize: number): string {
   const yIntercept = minSize - slope * MIN_CONTAINER_REM;
 
   return `clamp(${minSize.toFixed(3)}rem, ${yIntercept.toFixed(3)}rem + ${(slope * 100).toFixed(3)}cqi, ${maxSize.toFixed(3)}rem)`;
+}
+
+/** Consecutive rungs — `small` is the anchor (rung 0), `h1` six steps up. */
+const TYPE_LANDMARK_RUNGS = [
+  ["small", 0],
+  ["h6", 1],
+  ["h5", 2],
+  ["h4", 3],
+  ["h3", 4],
+  ["h2", 5],
+  ["h1", 6],
+] as const;
+
+/** Returns `font-size-small`..`font-size-h1`, independent of `sizeSteps`/`sizeDynamicFrom`. */
+export function luzTypeLandmarks(
+  base: number,
+  scale: TypeScaleName | number = "perfect-fourth",
+  relativeToBase: boolean = false,
+  fluidRange: FluidRangeName | number = "balanced",
+): Record<string, string> {
+  const ratio = resolveScale(scale);
+  const range = resolveFluidRange(fluidRange);
+  const unit = relativeToBase ? base / 16 : 1;
+  const anchorRem = 0.75 * unit;
+
+  const landmarks: Record<string, string> = {};
+  for (const [name, n] of TYPE_LANDMARK_RUNGS) {
+    const minSize = anchorRem * ratio ** n;
+    const maxSize = anchorRem * ratio ** (n + range);
+    landmarks[`font-size-${name}`] = generateFluidTagSize(minSize, maxSize);
+  }
+  return landmarks;
 }
 
 export function luzSizes(
@@ -73,10 +97,6 @@ export function luzSizes(
         : `${i / 10}rem`;
       continue;
     }
-    // The viewport-min value sits at ratio^n; the viewport-max value reaches
-    // `fluidRange` rungs further (1 = a full rung, 0 = locked/no fluid
-    // growth) — a real compounding exponential scale, not a flat multiplier
-    // reapplied at every step.
     const n = i - dynamicFrom;
     const minSize = anchorRem * ratio ** n;
     const maxSize = anchorRem * ratio ** (n + range);
@@ -85,11 +105,14 @@ export function luzSizes(
 
   return {
     ...computedSizes,
-    "border-radius": `${(base / 32).toFixed(1)}rem`,
+    "size-unit": relativeToBase
+      ? `${parseFloat((0.1 * unit).toFixed(3))}rem`
+      : "0.1rem",
+    "border-radius": `${(base / 64).toFixed(1)}rem`,
     "border-width": `${(base / 128).toFixed(1)}rem`,
     spacing: `${((base / 10) * 3).toFixed(0)}rem`,
-    "element-vertical": `${(base / 20).toFixed(1)}rem`,
-    "element-horizontal": `${(base / 10).toFixed(1)}rem`,
+    "element-vertical": `${(base / 64).toFixed(1)}rem`,
+    "element-horizontal": `${(base / 24).toFixed(1)}rem`,
     "transform-origin": `50% 50%`,
     "toast-index": `0`,
     "toast-offset-y": `0`,
@@ -99,20 +122,6 @@ export function luzSizes(
   };
 }
 
-/**
- * `space-N` — a linear spacing scale, deliberately separate from `size-N`
- * above. `size-N` is a typographic scale on purpose (fixed micro-steps
- * below `dynamicFrom`, then a real exponential/fluid type-scale ramp) —
- * correct for font-size/line-height, wrong for padding/margin/gap/width/
- * height, where predictable, evenly-spaced steps matter more than
- * typographic proportion. `space-N = N * base/64`, so at the default
- * `base` (16), `space-4` lands on exactly `1rem` (16px) — the same ratio
- * Tailwind's own spacing scale uses, deliberately, since this scale backs
- * the utility engine's Tailwind-nomenclature-compatible `p-`/`m-`/`gap-`/
- * `w-`/`h-` classes and predictability there matters more than novelty.
- * No fluid/clamp zone — spacing shouldn't reflow with viewport width the
- * way type does.
- */
 export function luzSpace(base: number, steps: number = 24): Record<string, string> {
   const unit = base / 64;
   const spaceTokens: Record<string, string> = {};

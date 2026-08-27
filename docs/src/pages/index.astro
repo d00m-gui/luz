@@ -1,88 +1,225 @@
 ---
 import Layout from "../layouts/Layout.astro";
+import { luz } from "../../../src/luz";
+import { config } from "../../luz.config.ts";
 
-interface Sample {
-  id: string;
-  title: string;
-  note: string;
-  code: string;
-}
+const { tokens } = luz(config);
 
-const SAMPLES: Sample[] = [
-  {
-    id: "button",
-    title: "Button",
-    note: "A plain <button> — no className. luz's setup() rule targets button, [role=\"button\"], [type=\"submit\"]/[type=\"reset\"] and .btn/.button alike, so a bare native button already gets the filled, padded, hover/active look. Modifier classes like .secondary, .danger or .ghost exist for when you want a variant, but they're optional seasoning, not a requirement.",
-    code: `<button>Save changes</button>
-<button disabled>Disabled</button>`,
-  },
-  {
-    id: "switch",
-    title: "Switch",
-    note: 'A checkbox with role="switch" — an ARIA attribute, not a class. luz\'s reset gives [type="checkbox"][role="switch"] real toggle-pill dimensions and a sliding thumb via ::before, and setup() colors it with the primary palette on :checked. Drop the role and it renders as a plain (still fully styled) checkbox instead — either way, zero classes.',
-    code: `<label>
-  <input type="checkbox" role="switch" checked />
-  Enable notifications
-</label>`,
-  },
-  {
-    id: "meter",
-    title: "Meter",
-    note: "Worth a correction: the native <meter> element itself isn't covered by luz's reset today — no selector targets it. The native element that IS styled classlessly is <progress>: setup() gives it accent-color plus a background/box-shadow/border-radius/height treatment. A labeled track+indicator meter needs its own div structure and real markup — reach for <progress> when you want a classless meter-like bar instead.",
-    code: `<progress value="70" max="100"></progress>`,
-  },
-  {
-    id: "form",
-    title: "Basic form (no validation)",
-    note: "A <form> with <label>, <input> and a submit <button> — no aria-invalid, no error messaging, no classes anywhere. luz's reset lays the form out as a column via display: flex, gives fieldset a gap, and styles every input/select/textarea's border, radius, background and focus state automatically. Validation UI (aria-invalid=\"true\"/\"false\" styling, error text, the Field component) is real too — it's just the heavier /components tier, not needed for a simple form like this.",
-    code: `<form>
-  <label>
-    Name
-    <input type="text" placeholder="Ada Lovelace" />
-  </label>
-  <label>
-    Email
-    <input type="email" placeholder="ada@example.com" />
-  </label>
-  <button type="submit">Subscribe</button>
-</form>`,
-  },
+const WEIGHTS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+const SHADE_SCALES = ["primary", "secondary", "neutral"];
+const WHEEL_HUES = [
+  "red",
+  "orange",
+  "copper",
+  "yellow",
+  "green",
+  "emerald",
+  "teal",
+  "cyan",
+  "blue",
+  "sky",
 ];
+
+const sizeSteps = Object.keys(tokens.sizes)
+  .filter((k) => /^size-\d+$/.test(k))
+  .sort((a, b) => Number(a.split("-")[1]) - Number(b.split("-")[1]));
 ---
 
-<Layout title="Classless HTML" activeId="classless" breadcrumb="Classless HTML" contentClass="classless">
-  <h5>Classless HTML</h5>
-  <h3 class="description">
-    These don't need a component — luz's own reset (<code
-      >src/tools/reset.ts</code
-    >) plus its element setup rules already style plain semantic
-    HTML the moment <code>luz.css</code> is linked. No classes, no
-    imports, no Base UI/shadcn wiring. This is the lighter
-    counterpart to <a href="/components/">/components</a>, which
-    documents nine real shadcn (Base UI) components adapted to
-    luz's utility engine for everything that genuinely needs
-    interactivity or composition — dropdown menus, dialogs, toasts.
-    Four things here don't: a button, a switch, a meter, and a
-    basic form. Anything that needs a real layout — a card, a
-    grid — reaches for the utility engine's classes instead (see
-    <a href="/admin-example/">/admin-example</a> for one built with
-    <code>bg-card</code>).
-  </h3>
+<Layout
+  title="Luz"
+  activeId="luz-defaults"
+  breadcrumb="luz"
+  contentClass="luz-defaults"
+>
+  <h5>Design Tokens</h5>
+  <h3 class="description">Todos los tokens de color y tamaño generados</h3>
+
+  <h2>Colors</h2>
 
   {
-    SAMPLES.map((s) => (
-      <section id={s.id} class="classless-section">
-        <h4>{s.title}</h4>
-        <p class="description">{s.note}</p>
-        <pre class="code-block"><code>{s.code}</code></pre>
-        <div class="classless-render" set:html={s.code} />
-      </section>
+    SHADE_SCALES.map((name) => (
+      <div class="swatch-row">
+        <div class="swatch-row-label">{name}</div>
+        <div class="swatch-list">
+          {WEIGHTS.map((weight) => (
+            <div class="swatch" style={`background: var(--${name}-${weight})`}>
+              <span>{weight}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     ))
   }
+
+  {
+    WHEEL_HUES.map((name) => (
+      <div class="swatch-row">
+        <div class="swatch-row-label">{name}</div>
+        <div class="swatch-list">
+          {WEIGHTS.map((weight) => (
+            <div class="swatch" style={`background: var(--${name}-${weight})`}>
+              <span>{weight}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))
+  }
+
+  <h2>Sizes</h2>
+
+  <div class="size-scale">
+    {
+      sizeSteps.map((step) => (
+        <div class="size-step">
+          <div
+            class="size-swatch"
+            style={`width: var(--${step}); height: var(--${step})`}
+          />
+          <code>--{step}</code>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="size-scale">
+    {
+      ["border-radius", "border-width", "spacing"].map((name) => (
+        <div class="size-step">
+          <div
+            class="size-swatch size-swatch-flat"
+            style={`width: var(--${name}); height: var(--size-6)`}
+          />
+          <code>--{name}</code>
+        </div>
+      ))
+    }
+  </div>
+
+  <h2>Typography</h2>
+  <div class="html">
+    <h1>Make it easy to read</h1>
+    <h2>Make it easy to read</h2>
+    <h3>Make it easy to read</h3>
+    <h4>Make it easy to read</h4>
+    <h5>Make it easy to read</h5>
+    <h6>Make it easy to read</h6>
+    <h1>Heading 1</h1>
+    <p>
+      Quisque nec mauris sit amet mi <strong>strong</strong> dictum varius. Aenean
+      ultricies dui et dictum <a href="#">link</a> molestie. Maecenas in augue ex.
+      Nam diam eros, gravida id euismod elementum, euismod quis ante. Nunc{" "}
+      <a href="#" class="secondary">secondary link</a> tincidunt iaculis tempus. Phasellus
+      sed dapibus enim. Pellentesque auctor orci non ligula aliquam, sed rhoncus nisi
+      malesuada. Vestibulum tincidunt et est ut fringilla. Suspendisse ut dolor vitae
+      sem feugiat porttitor sit amet ut nisl. Integer vitae ante <em
+        >emphasis</em
+      > odio. Quisque congue maximus metus, vel facilisis arcu blandit ac. Vestibulum
+      nec urna laoreet, vestibulum neque sagittis, blandit nibh. Nullam a enim sit
+      amet tellus commodo dapibus quis nec sem. Ut cursus, eros quis sollicitudin
+      dapibus, erat purus sodales eros, in imperdiet libero leo nec dui. Integer pretium
+      scelerisque ipsum, vitae congue felis.
+    </p>
+    <h3>Heading 3</h3>
+    <p>
+      Aenean rutrum sollicitudin lectus, vitae fringilla felis viverra nec.
+      Donec congue posuere nulla egestas molestie. Interdum et malesuada fames
+      ac ante ipsum primis in faucibus. Curabitur <mark
+        >mark bibendum, turpis at vehicula vulputate</mark
+      >, nulla lorem luctus ante, nec tincidunt lorem lectus et risus. Praesent
+      nulla ligula, ultrices id rhoncus quis, interdum in ante. Cras faucibus
+      neque odio, vel congue nulla scelerisque non. Pellentesque porttitor sed
+      eros <a href="#" class="danger">danger link</a> ut scelerisque. Nam urna nunc,
+      dictum ut aliquet in, feugiat at arcu. Aenean in maximus felis. Mauris fermentum
+      dolor iaculis, molestie augue id, molestie mauris. Aliquam in euismod lorem,
+      sed feugiat ex. Pellentesque hendrerit enim vel orci viverra ultrices. Fusce
+      auctor mollis fermentum. Nunc <a href="#" class="success">success link</a> elementum
+      vel lacus eu feugiat. Aliquam id congue nisi. Duis non malesuada est, at feugiat
+      leo.
+    </p>
+    <blockquote>
+      "A blockquote with a cite."
+      <cite>— someone</cite>
+    </blockquote>
+    <p><kbd>Ctrl</kbd> + <kbd>K</kbd></p>
+    <hr />
+  </div>
+
+  <h2>Buttons</h2>
+  <div role="group" class="kitchen-sink-row">
+    <button>Default</button>
+    <button class="success">Success</button>
+    <button class="contrast">Contrast</button>
+    <button class="danger">Danger</button>
+    <button class="warning">Warning</button>
+    <button class="ghost">Ghost</button>
+    <button class="reset">Reset</button>
+    <button disabled>Disabled</button>
+  </div>
+
+  <h2>Form</h2>
+  <form class="kitchen-sink-form">
+    <label>
+      Text input
+      <input type="text" placeholder="Type here" />
+    </label>
+    <label>
+      Valid input
+      <input type="text" aria-invalid="false" value="Looks good" />
+    </label>
+    <label>
+      Invalid input
+      <input type="text" aria-invalid="true" value="Something's off" />
+    </label>
+    <label>
+      Textarea
+      <textarea placeholder="Type something..."></textarea>
+    </label>
+
+    <label>
+      Range
+      <input type="range" />
+    </label>
+    <label><input type="checkbox" checked /> Checkbox</label>
+    <label><input type="checkbox" role="switch" checked /> Switch</label>
+    <label><input type="radio" name="ks-radio" checked /> Radio A</label>
+    <label><input type="radio" name="ks-radio" /> Radio B</label>
+    <label>
+      File
+      <input type="file" />
+    </label>
+    <label>
+      Progress
+      <progress value="60" max="100"></progress>
+    </label>
+  </form>
+
+  <h2>Table</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>Role</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Ada</td>
+        <td>Admin</td>
+        <td>Active</td>
+      </tr>
+      <tr>
+        <td>Grace</td>
+        <td>Editor</td>
+        <td>Pending</td>
+      </tr>
+    </tbody>
+  </table>
 </Layout>
 
 <style>
-  .classless-section {
+  .luz-defaults-section {
     margin-bottom: var(--size-10);
   }
 
@@ -102,14 +239,14 @@ const SAMPLES: Sample[] = [
     white-space: pre;
   }
 
-  .classless-render {
+  .luz-defaults-render {
     padding: var(--size-5);
     border: 1px dashed var(--neutral-800);
     border-radius: 4px;
     background: var(--neutral-950);
   }
 
-  .classless-render form {
+  .luz-defaults-render form {
     max-width: 360px;
   }
 </style>
