@@ -2,39 +2,57 @@ import type { Plugin } from "vite";
 import { luz, type LuzConfig } from "../luz";
 import { shadcnBridgeCSS } from "../tools/shadcn-bridge";
 import { scanAndEmitUtilities } from "../tools/utilities";
-import { writeCss } from "../tools/write-css";
+import {
+  composeCss,
+  type CssSections,
+  type LuzCssOutput,
+  virtualCssIds,
+  writeCss,
+} from "../tools/write-css";
 
 /** `LuzConfig` with `path` required — only the Vite plugin writes a file. */
 export type LuzViteConfig = LuzConfig & {
   path: string;
   /**
-   * Write `theme`/`bridge`/`utilities` as separate sibling files next to
-   * `path`, with `path` itself reduced to an `@import` aggregator, instead
-   * of one flat concatenated file. Default `false`. See `writeCss` in
-   * `tools/write-css.ts` for the exact file names.
+   * How the composed CSS is delivered — `"file"` (default), `"split"`, or
+   * `"virtual"`. See `LuzCssOutput` in `tools/write-css.ts` for what each
+   * one does; in `"virtual"` mode `path` is still required (used only to
+   * name the virtual module, via its basename) but nothing is written to
+   * disk under it.
    */
-  splitCss?: boolean;
+  output?: LuzCssOutput;
 };
 
 /**
- * Vite plugin: generates the static CSS file (`style` + shadcn bridge +
- * scanned utility classes) and writes it to `config.path`.
+ * Vite plugin: generates the composed CSS (`style` + shadcn bridge +
+ * scanned utility classes) and delivers it per `config.output` — written
+ * to `config.path` for `"file"`/`"split"` (see `writeCss`), or exposed as
+ * a Vite virtual module for `"virtual"` (see `virtualCssIds`).
  *
  * Generation is one-shot — on `buildStart` (before Vite resolves/transforms
  * modules, so a plain `import "./luz.css"` in app code sees the file) and
  * again on `configureServer` (mirrors Astro's `astro:server:start`). There's
  * no file watcher / incremental re-scan in v1, matching `luzAstro`.
  *
- * The file is always written unminified — `config.minify` is dropped
- * before calling `luz()` (see the destructure below) rather than forwarded,
- * so it has no effect through this plugin. `config.path` is imported as a
- * normal `.css` file (see README), so Vite's own CSS pipeline already
- * minifies it on build — minifying it again here just duplicated that work.
+ * `"file"`/`"split"` output is always written unminified — `config.minify`
+ * is dropped before calling `luz()` (see the destructure below) rather
+ * than forwarded, so it has no effect through this plugin. `config.path`
+ * is imported as a normal `.css` file (see README), so Vite's own CSS
+ * pipeline already minifies it on build — minifying it again here just
+ * duplicated that work. `"virtual"` output goes through that same Vite
+ * CSS pipeline natively (see `LuzCssOutput`'s doc comment), which is the
+ * whole point of that mode.
  */
 export const luzVite = (config: LuzViteConfig): Plugin => {
   let root: string | undefined;
+  let cached: CssSections | undefined;
 
-  const generateFile = () => {
+  const mode: LuzCssOutput = config.output ?? "file";
+  const { id: virtualId, resolvedId: resolvedVirtualId } = virtualCssIds(
+    config.path,
+  );
+
+  const generate = (): CssSections => {
     // `path` is vite-only (see `LuzViteConfig`) — `luz()` takes plain
     // `LuzConfig`. Structural typing lets the superset object through
     // silently (no excess-property error on a variable, only on a literal),
@@ -43,28 +61,28 @@ export const luzVite = (config: LuzViteConfig): Plugin => {
     // `--path: <the absolute filesystem path>;` — a real path disclosure
     // into whatever consumes the stylesheet.
     //
-    // `minify` is dropped too — this plugin always writes the composed
-    // file unminified (see the doc comment above), so forwarding it to
-    // `luz()` would just collapse whitespace in the `style` block while
-    // leaving the rest of the file untouched, a half-minified result that
-    // means nothing here now that whole-file minification isn't this
-    // plugin's job. `splitCss` isn't a `luz()` field either — it only
-    // controls how *this* plugin writes what `luz()` returns.
-    const { path: _path, minify: _minify, splitCss, ...luzConfig } = config;
+    // `minify` is dropped too — file/split output is always written
+    // unminified (see the doc comment above), so forwarding it to `luz()`
+    // would just collapse whitespace in the `style` block while leaving
+    // the rest untouched, a half-minified result that means nothing here.
+    // `output` isn't a `luz()` field either — it only controls how *this*
+    // plugin delivers what `luz()` returns.
+    const { path: _path, minify: _minify, output: _output, ...luzConfig } =
+      config;
     const { style, tokens } = luz(luzConfig);
     const bridgeCss = shadcnBridgeCSS(tokens);
     const utilityCss = scanAndEmitUtilities({ root: root!, tokens });
-    const outputPath = config.path;
+    return { theme: style, bridge: bridgeCss, utilities: utilityCss };
+  };
 
-    if (!outputPath) {
+  const generateFile = () => {
+    if (!config.path) {
       throw new Error("luzVite: `path` is required in config");
     }
-
-    writeCss(
-      outputPath,
-      { theme: style, bridge: bridgeCss, utilities: utilityCss },
-      splitCss ?? false,
-    );
+    cached = generate();
+    if (mode !== "virtual") {
+      writeCss(config.path, cached, mode);
+    }
   };
 
   return {
@@ -77,6 +95,27 @@ export const luzVite = (config: LuzViteConfig): Plugin => {
     },
     configureServer(_server) {
       generateFile();
+    },
+    resolveId(id) {
+      if (mode === "virtual" && id === virtualId) return resolvedVirtualId;
+    },
+    load(id) {
+      if (mode === "virtual" && id === resolvedVirtualId) {
+        // `cached` is always populated by this point — `resolveId`/`load`
+        // only fire once Vite starts resolving/transforming modules, which
+        // happens after `buildStart` (or `configureServer` in dev) already
+        // ran `generateFile()`.
+        //
+        // `moduleType: "css"` is required, not cosmetic: without it, Vite's
+        // CSS detection (`isCSSRequest`) only recognizes a module as CSS by
+        // matching the id's extension against a fixed set of suffixes —
+        // fine for the client build (our id ends in `.css`, so it matches),
+        // but SSR/prerender module handling doesn't apply that same
+        // extension check the same way, and treats a plain string `load()`
+        // result as JS source to execute. Declaring the type explicitly
+        // sidesteps that guesswork entirely and works in both.
+        return { code: composeCss(cached!), moduleType: "css" };
+      }
     },
   };
 };
