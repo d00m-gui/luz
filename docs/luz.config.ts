@@ -8,5 +8,4 @@ export const config:LuzAstroConfig = {
   "font-monospace": "var(--dm-mono)",
   power: 1.1,
   sizeFluidRange: "fixed",
-  path: "./public/luz.css"
 };
