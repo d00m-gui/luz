@@ -1,13 +1,14 @@
 .layout {
+  padding: var(--spacing);
+  position: absolute;
+  inset: 0;
   display: flex;
-  min-height: 100vh;
-  padding-bottom: var(--toolbar-height);
+  flex-direction: row;
 }
 
 .sidebar {
   width: 15rem;
   flex: 0 0 15rem;
-  padding: var(--space-4) 0;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -35,8 +36,22 @@
   display: block;
   padding: var(--space-2) var(--space-4);
   text-decoration: none;
-  border-left: 2px solid transparent;
   border-radius: 0;
+  font-size: var(--font-size-base-fluid);
+}
+
+.sidebar-item.active {
+  border-left-color: var(--element-active-border-color);
+  color: var(--element-active-color);
+}
+
+.sidebar-dot {
+  display: inline-block;
+  width: calc(var(--size-unit) * 6);
+  height: calc(var(--size-unit) * 6);
+  border-radius: 50%;
+  margin-right: var(--space-2);
+  vertical-align: middle;
 }
 
 .main {
@@ -52,8 +67,9 @@
 }
 
 .content {
-  padding: var(--space-8) var(--space-8);
-  max-width: 1200px;
+  padding: var(--space-8);
+  position: relative;
+  padding-top: var(--space-20);
 }
 
 .content .description {
@@ -195,6 +211,21 @@
   padding-bottom: var(--space-1);
 }
 
+.text-scale {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-6);
+  margin-bottom: var(--space-6);
+}
+
+.text-scale-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+}
+
 .size-scale {
   display: flex;
   align-items: flex-end;
@@ -238,4 +269,20 @@
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+}
+
+.docs-sections {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.api-field + .api-field {
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: var(--border-width) solid var(--element-border-color);
+}
+
+.api-example + .api-example {
+  margin-top: var(--space-4);
 }

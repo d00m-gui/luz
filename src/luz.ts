@@ -8,6 +8,7 @@ import { buildReset } from "./tools/reset";
 import {
   luzSizes,
   luzSpace,
+  luzTextScale,
   luzTypeLandmarks,
   type FluidRangeName,
   type TypeScaleName,
@@ -34,7 +35,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   /** Root font size in px, drives every size/spacing token. Default `16`. */
   base?: number;
   /**
-   * Ratio for the exponential `size-N` scale, or a raw number for a custom ratio.
+   * Ratio for the exponential `text-*`/heading type scale, or a raw number for a custom ratio.
    * @default "perfect-fourth"
    * @param "minor-second" 1.067
    * @param "major-second" 1.125
@@ -78,10 +79,6 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   properties?: boolean;
   /** Shade steps generated per color palette. Default `11` (50–950). */
   colorSteps?: number;
-  /** Total `size-N` tokens generated. Default `22`. */
-  sizeSteps?: number;
-  /** First `size-N` step that uses the fluid `clamp()` zone. Default `13`. */
-  sizeDynamicFrom?: number;
   /**
    * How many scale rungs (see `power`) the fluid zone's viewport-max value
    * reaches past its viewport-min value, or a raw number for a custom offset.
@@ -92,17 +89,18 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
    * @param "dramatic" 1.6 — large reflow (marketing hero text)
    */
   sizeFluidRange?: FluidRangeName | number;
-  /** Sets `sizeFluidRange` (`"app"` → `"fixed"`, `"landing"` → steeper than `"dramatic"`). An explicit `sizeFluidRange` overrides this. */
-  preset?: "app" | "landing";
-  /** Scale the size ramp by `base / 16` instead of a fixed 16px assumption. Default `false`. */
+  /** Sets `sizeFluidRange` (`"app"` → `"fixed"`, `"content"` → `"balanced"`, `"landing"` → steeper than `"dramatic"`). An explicit `sizeFluidRange` overrides this. */
+  preset?: "app" | "content" | "landing";
+  /** Scale `size-unit` and the `text-*`/heading type scale by `base / 16` instead of a fixed 16px assumption. Default `false`. */
   sizeRelativeToBase?: boolean;
   /**
-   * Total `space-N` tokens generated. Default `24`. Unlike `size-N` (an
-   * exponential type scale — see `power` — meant for font-size/typographic
-   * rhythm), `space-N` is linear and fixed (`N * base/64`, e.g. `space-4` =
-   * `1rem` at the default `base`): the scale the utility engine's
-   * `p-`/`m-`/`gap-`/`w-`/`h-` classes resolve against, where predictable,
-   * evenly-spaced steps matter more than typographic proportion.
+   * Total `space-N` tokens generated. Default `24`. Unlike the `text-*`/
+   * heading type scale (exponential — see `power` — meant for font-size/
+   * typographic rhythm), `space-N` is linear and fixed (`N * base/64`, e.g.
+   * `space-4` = `1rem` at the default `base`): the scale the utility
+   * engine's `p-`/`m-`/`gap-`/`w-`/`h-` classes resolve against, where
+   * predictable, evenly-spaced steps matter more than typographic
+   * proportion.
    */
   spaceSteps?: number;
   /** Raw CSS custom properties, merged last — overrides an existing token by name or adds a new one. */
@@ -145,6 +143,7 @@ export interface LuzResult {
 
 const PRESET_FLUID_RANGE: Record<NonNullable<LuzConfig["preset"]>, FluidRangeName | number> = {
   app: "fixed",
+  content: "balanced",
   landing: 2.4,
 };
 
@@ -166,22 +165,25 @@ const defaultConfig: LuzConfig = {
   transition: "all ease 200ms",
   "box-shadow": "none",
   colorSteps: 11,
-  sizeSteps: 22,
-  sizeDynamicFrom: 13,
   sizeRelativeToBase: false,
   sizeFluidRange: "fixed",
   spaceSteps: 24,
 };
 
+/** Tones down a shade's chroma — inline text (links) reads calmer than the raw peak-chroma shade. */
+function muted(cssVar: string): string {
+  return `oklch(from ${cssVar} l calc(c * 0.6) h)`;
+}
+
 function themeVariables(tokens: LuzTokens): Record<string, string> {
   const { name, prefix, neutrals } = { ...tokens.settings };
   return {
-    anchor: `var(--${prefix}blue-500)`,
-    "anchor-secondary": `var(--${prefix}secondary-500)`,
+    anchor: muted(`var(--${prefix}blue-500)`),
+    "anchor-secondary": muted(`var(--${prefix}secondary-500)`),
     "anchor-contrast": `var(--${prefix}${neutrals}-500)`,
-    "anchor-danger": `var(--${prefix}red-500)`,
-    "anchor-success": `var(--${prefix}emerald-500)`,
-    "anchor-warning": `var(--${prefix}yellow-500)`,
+    "anchor-danger": muted(`var(--${prefix}red-500)`),
+    "anchor-success": muted(`var(--${prefix}emerald-500)`),
+    "anchor-warning": muted(`var(--${prefix}yellow-500)`),
     "hr-color": `var(--${prefix}${name}-500)`,
     "kbd-border-color": `var(--${prefix}${name}-900)`,
     "kbd-bg": `var(--${prefix}${name}-900)`,
@@ -284,8 +286,6 @@ export function luz(config?: LuzConfig): LuzResult {
     properties: generateProperties,
     preset: _preset,
     colorSteps,
-    sizeSteps,
-    sizeDynamicFrom,
     sizeRelativeToBase,
     sizeFluidRange,
     spaceSteps,
@@ -339,22 +339,27 @@ export function luz(config?: LuzConfig): LuzResult {
 
     const wheel: Record<string, string> = luzWheel(
       reverse,
+      primaryCSSVar,
       prefix,
       colorSteps,
       wheelOverrides,
     );
 
     return {
-      primary,
+      [primaryName]: primary,
       ...primaryShades,
       ...secondaryShades,
-      secondary: secondaryColor,
+      [secondaryName]: secondaryColor,
       [neutralsName]: neutralColor,
       ...neutralShades,
       background: `var(--${neutralsName}-900)`,
       foreground: `var(--${neutralsName}-100)`,
-      [`on-${secondaryName}`]: `var(--${secondaryName}-100)`,
+      [`on-${secondaryName}`]: `oklch(from ${secondaryCSSVar} 88% 0 h)`,
+      [`on-${secondaryName}-inverse`]: `oklch(from ${secondaryCSSVar} 20% 0 h)`,
       [`on-${primaryName}`]: `oklch(from var(--${primaryName}) 88% 0 h)`,
+      [`on-${primaryName}-inverse`]: `oklch(from var(--${primaryName}) 20% 0 h)`,
+      [`on-${neutralsName}`]: `oklch(from ${neutralCSSVar} 88% 0 h)`,
+      [`on-${neutralsName}-inverse`]: `oklch(from ${neutralCSSVar} 20% 0 h)`,
       ...wheel,
       border: `var(--border-width) solid var(--element-border-color)`,
       "element-background": `var(--${neutralsName}-950)`,
@@ -370,14 +375,8 @@ export function luz(config?: LuzConfig): LuzResult {
   const colors = buildColors(isDark);
 
   const sizeTokens: Record<string, string> = {
-    ...luzSizes(
-      normalBase,
-      power,
-      sizeSteps,
-      sizeDynamicFrom,
-      sizeRelativeToBase,
-      sizeFluidRange,
-    ),
+    ...luzSizes(normalBase, sizeRelativeToBase),
+    ...luzTextScale(normalBase, power, sizeRelativeToBase, sizeFluidRange),
     ...luzTypeLandmarks(normalBase, power, sizeRelativeToBase, sizeFluidRange),
     ...luzSpace(normalBase, spaceSteps),
   };

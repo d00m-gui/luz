@@ -20,233 +20,219 @@ const WHEEL_HUES = [
   "sky",
 ];
 
-const sizeSteps = Object.keys(tokens.sizes)
-  .filter((k) => /^size-\d+$/.test(k))
-  .sort((a, b) => Number(a.split("-")[1]) - Number(b.split("-")[1]));
+const TEXT_SCALE_NAMES = ["xs", "sm", "base", "lg", "xl", "2xl", "3xl"];
+
+function swatchStyle(name: string, weight: number) {
+  const raw = tokens.colors[`${name}-${weight}`];
+  const lightnessMatch = raw?.match(/oklch\(from \S+ ([\d.]+)%/);
+  const lightness = lightnessMatch
+    ? Number(lightnessMatch[1])
+    : weight <= 400
+      ? 80
+      : 20;
+  const onColor = lightness >= 50 ? `on-${name}-inverse` : `on-${name}`;
+  return `background: var(--${name}-${weight}); color: var(--${onColor})`;
+}
 ---
 
 <Layout
   title="Luz"
   activeId="luz-defaults"
-  breadcrumb="luz"
+  breadcrumb="Tokens"
   contentClass="luz-defaults"
 >
-  <h5>Design Tokens</h5>
-  <h3 class="description">Todos los tokens de color y tamaño generados</h3>
-
-  <h2>Colors</h2>
-
-  {
-    SHADE_SCALES.map((name) => (
-      <div class="swatch-row">
-        <div class="swatch-row-label">{name}</div>
-        <div class="swatch-list">
-          {WEIGHTS.map((weight) => (
-            <div class="swatch" style={`background: var(--${name}-${weight})`}>
-              <span>{weight}</span>
+  <h2>Tokens</h2>
+  <div class="docs-sections">
+    <section class="card">
+      {
+        SHADE_SCALES.map((name) => (
+          <div class="swatch-row">
+            <div class="swatch-row-label">{name}</div>
+            <div class="swatch-list">
+              {WEIGHTS.map((weight) => (
+                <div class="swatch" style={swatchStyle(name, weight)}>
+                  <span>{weight}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-      </div>
-    ))
-  }
+          </div>
+        ))
+      }
 
-  {
-    WHEEL_HUES.map((name) => (
-      <div class="swatch-row">
-        <div class="swatch-row-label">{name}</div>
-        <div class="swatch-list">
-          {WEIGHTS.map((weight) => (
-            <div class="swatch" style={`background: var(--${name}-${weight})`}>
-              <span>{weight}</span>
+      {
+        WHEEL_HUES.map((name) => (
+          <div class="swatch-row">
+            <div class="swatch-row-label">{name}</div>
+            <div class="swatch-list">
+              {WEIGHTS.map((weight) => (
+                <div class="swatch" style={swatchStyle(name, weight)}>
+                  <span>{weight}</span>
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
+          </div>
+        ))
+      }
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Sizes</h2>
+
+      <div class="text-scale">
+        {
+          TEXT_SCALE_NAMES.map((name) => (
+            <div class="text-scale-step">
+              <span style={`font-size: var(--font-size-${name})`}>Aa</span>
+              <code>--font-size-{name}</code>
+            </div>
+          ))
+        }
       </div>
-    ))
-  }
 
-  <h2>Sizes</h2>
+      <div class="size-scale">
+        {
+          ["border-radius", "border-width", "spacing"].map((name) => (
+            <div class="size-step">
+              <div
+                class="size-swatch size-swatch-flat"
+                style={`width: var(--${name}); height: calc(var(--size-unit) * 6)`}
+              />
+              <code>--{name}</code>
+            </div>
+          ))
+        }
+      </div>
+    </section>
 
-  <div class="size-scale">
-    {
-      sizeSteps.map((step) => (
-        <div class="size-step">
-          <div
-            class="size-swatch"
-            style={`width: var(--${step}); height: var(--${step})`}
-          />
-          <code>--{step}</code>
-        </div>
-      ))
-    }
+    <section class="card">
+      <h2 class="card-title">Typography</h2>
+      <div class="html fluid">
+        <h1>Make it easy to read</h1>
+        <h2>Make it easy to read</h2>
+        <h3>Make it easy to read</h3>
+        <h4>Make it easy to read</h4>
+        <h5>Make it easy to read</h5>
+        <h6>Make it easy to read</h6>
+        <h1>Heading 1</h1>
+        <p>
+          Quisque nec mauris sit amet mi <strong>strong</strong> dictum varius. Aenean
+          ultricies dui et dictum <a href="#">link</a> molestie. Maecenas in augue
+          ex. Nam diam eros, gravida id euismod elementum, euismod quis ante. Nunc{
+            " "
+          }
+          <a href="#" class="secondary">secondary link</a> tincidunt iaculis tempus.
+          Phasellus sed dapibus enim. Pellentesque auctor orci non ligula aliquam,
+          sed rhoncus nisi malesuada. Vestibulum tincidunt et est ut fringilla. Suspendisse
+          ut dolor vitae sem feugiat porttitor sit amet ut nisl. Integer vitae ante
+          <em>emphasis</em> odio. Quisque congue maximus metus, vel facilisis arcu
+          blandit ac. Vestibulum nec urna laoreet, vestibulum neque sagittis, blandit
+          nibh. Nullam a enim sit amet tellus commodo dapibus quis nec sem. Ut cursus,
+          eros quis sollicitudin dapibus, erat purus sodales eros, in imperdiet libero
+          leo nec dui. Integer pretium scelerisque ipsum, vitae congue felis.
+        </p>
+        <h3>Heading 3</h3>
+        <p>
+          Aenean rutrum sollicitudin lectus, vitae fringilla felis viverra nec.
+          Donec congue posuere nulla egestas molestie. Interdum et malesuada
+          fames ac ante ipsum primis in faucibus. Curabitur <mark
+            >mark bibendum, turpis at vehicula vulputate</mark
+          >, nulla lorem luctus ante, nec tincidunt lorem lectus et risus.
+          Praesent nulla ligula, ultrices id rhoncus quis, interdum in ante.
+          Cras faucibus neque odio, vel congue nulla scelerisque non.
+          Pellentesque porttitor sed eros <a href="#" class="danger"
+            >danger link</a
+          > ut scelerisque. Nam urna nunc, dictum ut aliquet in, feugiat at arcu.
+          Aenean in maximus felis. Mauris fermentum dolor iaculis, molestie augue
+          id, molestie mauris. Aliquam in euismod lorem, sed feugiat ex. Pellentesque
+          hendrerit enim vel orci viverra ultrices. Fusce auctor mollis fermentum.
+          Nunc <a href="#" class="success">success link</a> elementum vel lacus eu
+          feugiat. Aliquam id congue nisi. Duis non malesuada est, at feugiat leo.
+        </p>
+        <blockquote>
+          "A blockquote with a cite."
+          <cite>— someone</cite>
+        </blockquote>
+        <p><kbd>Ctrl</kbd> + <kbd>K</kbd></p>
+        <hr />
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Buttons</h2>
+      <div role="group" class="kitchen-sink-row">
+        <button>Default</button>
+        <button class="success">Success</button>
+        <button class="contrast">Contrast</button>
+        <button class="danger">Danger</button>
+        <button class="warning">Warning</button>
+        <button class="ghost">Ghost</button>
+        <button class="reset">Reset</button>
+        <button disabled>Disabled</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Form</h2>
+      <form class="kitchen-sink-form">
+        <label>
+          Text input
+          <input type="text" placeholder="Type here" />
+        </label>
+        <label>
+          Valid input
+          <input type="text" aria-invalid="false" value="Looks good" />
+        </label>
+        <label>
+          Invalid input
+          <input type="text" aria-invalid="true" value="Something's off" />
+        </label>
+        <label>
+          Textarea
+          <textarea placeholder="Type something..."></textarea>
+        </label>
+
+        <label>
+          Range
+          <input type="range" />
+        </label>
+        <label><input type="checkbox" checked /> Checkbox</label>
+        <label><input type="checkbox" role="switch" checked /> Switch</label>
+        <label><input type="radio" name="ks-radio" checked /> Radio A</label>
+        <label><input type="radio" name="ks-radio" /> Radio B</label>
+        <label>
+          File
+          <input type="file" />
+        </label>
+        <label>
+          Progress
+          <progress value="60" max="100"></progress>
+        </label>
+      </form>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Table</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Ada</td>
+            <td>Admin</td>
+            <td>Active</td>
+          </tr>
+          <tr>
+            <td>Grace</td>
+            <td>Editor</td>
+            <td>Pending</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
   </div>
-
-  <div class="size-scale">
-    {
-      ["border-radius", "border-width", "spacing"].map((name) => (
-        <div class="size-step">
-          <div
-            class="size-swatch size-swatch-flat"
-            style={`width: var(--${name}); height: var(--size-6)`}
-          />
-          <code>--{name}</code>
-        </div>
-      ))
-    }
-  </div>
-
-  <h2>Typography</h2>
-  <div class="html">
-    <h1>Make it easy to read</h1>
-    <h2>Make it easy to read</h2>
-    <h3>Make it easy to read</h3>
-    <h4>Make it easy to read</h4>
-    <h5>Make it easy to read</h5>
-    <h6>Make it easy to read</h6>
-    <h1>Heading 1</h1>
-    <p>
-      Quisque nec mauris sit amet mi <strong>strong</strong> dictum varius. Aenean
-      ultricies dui et dictum <a href="#">link</a> molestie. Maecenas in augue ex.
-      Nam diam eros, gravida id euismod elementum, euismod quis ante. Nunc{" "}
-      <a href="#" class="secondary">secondary link</a> tincidunt iaculis tempus. Phasellus
-      sed dapibus enim. Pellentesque auctor orci non ligula aliquam, sed rhoncus nisi
-      malesuada. Vestibulum tincidunt et est ut fringilla. Suspendisse ut dolor vitae
-      sem feugiat porttitor sit amet ut nisl. Integer vitae ante <em
-        >emphasis</em
-      > odio. Quisque congue maximus metus, vel facilisis arcu blandit ac. Vestibulum
-      nec urna laoreet, vestibulum neque sagittis, blandit nibh. Nullam a enim sit
-      amet tellus commodo dapibus quis nec sem. Ut cursus, eros quis sollicitudin
-      dapibus, erat purus sodales eros, in imperdiet libero leo nec dui. Integer pretium
-      scelerisque ipsum, vitae congue felis.
-    </p>
-    <h3>Heading 3</h3>
-    <p>
-      Aenean rutrum sollicitudin lectus, vitae fringilla felis viverra nec.
-      Donec congue posuere nulla egestas molestie. Interdum et malesuada fames
-      ac ante ipsum primis in faucibus. Curabitur <mark
-        >mark bibendum, turpis at vehicula vulputate</mark
-      >, nulla lorem luctus ante, nec tincidunt lorem lectus et risus. Praesent
-      nulla ligula, ultrices id rhoncus quis, interdum in ante. Cras faucibus
-      neque odio, vel congue nulla scelerisque non. Pellentesque porttitor sed
-      eros <a href="#" class="danger">danger link</a> ut scelerisque. Nam urna nunc,
-      dictum ut aliquet in, feugiat at arcu. Aenean in maximus felis. Mauris fermentum
-      dolor iaculis, molestie augue id, molestie mauris. Aliquam in euismod lorem,
-      sed feugiat ex. Pellentesque hendrerit enim vel orci viverra ultrices. Fusce
-      auctor mollis fermentum. Nunc <a href="#" class="success">success link</a> elementum
-      vel lacus eu feugiat. Aliquam id congue nisi. Duis non malesuada est, at feugiat
-      leo.
-    </p>
-    <blockquote>
-      "A blockquote with a cite."
-      <cite>— someone</cite>
-    </blockquote>
-    <p><kbd>Ctrl</kbd> + <kbd>K</kbd></p>
-    <hr />
-  </div>
-
-  <h2>Buttons</h2>
-  <div role="group" class="kitchen-sink-row">
-    <button>Default</button>
-    <button class="success">Success</button>
-    <button class="contrast">Contrast</button>
-    <button class="danger">Danger</button>
-    <button class="warning">Warning</button>
-    <button class="ghost">Ghost</button>
-    <button class="reset">Reset</button>
-    <button disabled>Disabled</button>
-  </div>
-
-  <h2>Form</h2>
-  <form class="kitchen-sink-form">
-    <label>
-      Text input
-      <input type="text" placeholder="Type here" />
-    </label>
-    <label>
-      Valid input
-      <input type="text" aria-invalid="false" value="Looks good" />
-    </label>
-    <label>
-      Invalid input
-      <input type="text" aria-invalid="true" value="Something's off" />
-    </label>
-    <label>
-      Textarea
-      <textarea placeholder="Type something..."></textarea>
-    </label>
-
-    <label>
-      Range
-      <input type="range" />
-    </label>
-    <label><input type="checkbox" checked /> Checkbox</label>
-    <label><input type="checkbox" role="switch" checked /> Switch</label>
-    <label><input type="radio" name="ks-radio" checked /> Radio A</label>
-    <label><input type="radio" name="ks-radio" /> Radio B</label>
-    <label>
-      File
-      <input type="file" />
-    </label>
-    <label>
-      Progress
-      <progress value="60" max="100"></progress>
-    </label>
-  </form>
-
-  <h2>Table</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Name</th>
-        <th>Role</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td>Ada</td>
-        <td>Admin</td>
-        <td>Active</td>
-      </tr>
-      <tr>
-        <td>Grace</td>
-        <td>Editor</td>
-        <td>Pending</td>
-      </tr>
-    </tbody>
-  </table>
 </Layout>
-
-<style>
-  .luz-defaults-section {
-    margin-bottom: var(--size-10);
-  }
-
-  .code-block {
-    background: var(--neutral-900);
-    border: 1px solid var(--neutral-800);
-    border-radius: 4px;
-    padding: var(--size-3) var(--size-4);
-    overflow-x: auto;
-    margin-bottom: var(--size-4);
-  }
-
-  .code-block code {
-    font-family: var(--font-monospace);
-    font-size: var(--size-9);
-    color: var(--neutral-200);
-    white-space: pre;
-  }
-
-  .luz-defaults-render {
-    padding: var(--size-5);
-    border: 1px dashed var(--neutral-800);
-    border-radius: 4px;
-    background: var(--neutral-950);
-  }
-
-  .luz-defaults-render form {
-    max-width: 360px;
-  }
-</style>

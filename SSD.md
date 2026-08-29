@@ -28,7 +28,7 @@ src/
     constants.ts        curvas de shade (WEIGHTS/SHADES/SHADES_REVERSE) — datos puros
     reset.css/structure.css/design.css   las 3 capas del reset, CSS real
     hue.ts               luzShadesByHue: 1 hue base → N shades oklch (50–950 garantizados + steps custom)
-    wheel.ts             luzWheel: 10 hues (red…sky), seed overrideable, vía luzShadesByHue
+    wheel.ts             luzWheel: 10 hues (red…sky), l heredada de primary (armonía), seed overrideable, vía luzShadesByHue
     sizes.ts             luzSizes/luzSpace/luzTypeLandmarks: size-N, space-N, font-size-h1..h6/small fijos
     props.ts             luzProperty: infiere @property por token (syntax/initial-value) — opt-in
     reset.ts             buildReset(): importa los 3 .css como texto (`with { type: "text" }`) y compone
@@ -146,13 +146,119 @@ la mayoría de esos tokens desaparecía. `docs/luz.config.ts` con
   declaraciones contra el output default (multiset idéntico salvo 2 fixes
   de bugs, ver sección de `reset.ts` más abajo).
 - `size-N`/`space-N` públicos (para `text-N`/`p-N`/etc. del motor de
-  utilities) no cambiaron — `sizeSteps`/`sizeDynamicFrom`/`spaceSteps`
-  siguen controlando exactamente lo mismo que antes para esas clases.
+  utilities) no cambiaron en este batch — `sizeSteps`/`sizeDynamicFrom`/
+  `spaceSteps` seguían controlando exactamente lo mismo que antes para
+  esas clases. **`size-N`/`text-N` fueron retirados en una sesión
+  posterior** — ver "Escala de texto con nombre" más abajo, esta nota
+  queda como historial de esta sesión puntual.
 
 **No reactividad rota:** el mecanismo elegido para colores mantiene todo
 como `var(--{name}-N)` (indirección CSS), no valores literales — el modo
 `mode: "auto"` sigue funcionando porque el diffing light/dark ya existente
 en `luz()` sigue operando sobre estas mismas variables, sin cambios.
+
+## Escala de texto con nombre — `size-N`/`text-N` retirados
+
+`size-N` (22 pasos, `size-1`..`size-22`) generaba `text-N` sin ningún
+techo — con el default (`base=16`, `power="perfect-fourth"`,
+`sizeDynamicFrom=13`), `text-22` daba un `font-size` de ~276-368px.
+Verificado que `size-N` no tenía ningún otro consumidor (`reset.ts` usa
+`--size-unit` vía `calc()`, no `size-N` directo, desde el batch anterior)
+— solo servía a `text-N`, así que se pudo retirar sin tocar nada
+estructural.
+
+**Reemplazo**: `luzTextScale()` (`tools/sizes.ts`) genera 7 niveles
+nombrados estilo Tailwind (`font-size-xs`/`sm`/`base`/`lg`/`xl`/`2xl`/
+`3xl`), mismo mecanismo que `luzTypeLandmarks()` (rungs fijos alrededor
+de un anchor, `clamp()` con `cqi`) pero anclado en `base`=rung 0 en vez
+de en `font-size-small`. Rungs `[-2, -1, 0, 1, 2, 3, 4]` — acotados, no
+un rango abierto — con `power="perfect-fourth"` da valores reales de
+9px a 51px, sin absurdos. La utility class `text-{name}` pasó de
+`ScaleNamespace` (resolución numérica genérica) a 7 entradas
+`LiteralNamespace` fijas en `utilities.ts` — coherente con el
+"vocabulario cerrado" que ya describe el motor de utilities, no una
+regresión de flexibilidad real (nadie generaba clases `text-N`
+arbitrarias con sentido más allá de ese rango calibrado).
+
+**Campos de `LuzConfig` retirados**: `sizeSteps`, `sizeDynamicFrom` — sin
+otro uso. `sizeRelativeToBase` **se mantuvo** (no se retiró) porque
+también escala `size-unit` y el propio `luzTypeLandmarks()` — retirarlo
+hubiera cambiado el comportamiento de los headings `h1`-`h6`, fuera de
+alcance de este cambio.
+
+Investigado antes de implementar: [moderncss.dev — fluid typography con
+container query units](https://moderncss.dev/container-query-units-and-fluid-typography/)
+(Mixin 3, ratio de escala tipográfica). Conclusión: el mecanismo de luz
+(`clamp()` + `cqi`, spread min→max como proporción constante vía
+`ratio^range`) ya es conceptualmente equivalente — no hacía falta
+adoptar una fórmula distinta. La causa real del techo era tener 22 pasos
+exponenciales sin límite (mismo patrón que tenían `h1`-`h6` antes de
+recalibrarse), no la fórmula del fluid range en sí. El propio Mixin 3
+del artículo solo define 4 niveles compuestos, no una escala numérica
+abierta — reforzó la decisión de ir a niveles nombrados y acotados en
+vez de bajar el default de `sizeSteps` nada más.
+
+## Tipografía fluida como opt-in — clase `.fluid`
+
+Hallazgo posterior al cambio anterior: `font-size-h1..h6`/`small`/
+`xs..3xl` eran **siempre** `clamp()` con `cqi`, incluso con
+`sizeFluidRange: "fixed"` (default) — colapsaban a `clamp(X, X + 0cqi,
+X)`, matemáticamente correcto pero (a) generaba CSS inerte para el caso
+más común (sin fluidez) y (b) mezclaba dos decisiones independientes:
+"cuánto crece cada paso entre sí" (`power`, sin relación con fluidez) y
+"cuánto crece un paso individual con el viewport" (`sizeFluidRange`) —
+confundibles al leer el output.
+
+**Solución — dos capas**:
+- `luzTypeLandmarks()`/`luzTextScale()` (`tools/sizes.ts`) ahora emiten
+  **dos** tokens por nivel: `font-size-{name}` (`rem` plano, el valor
+  nominal — lo que usa `<h1>`-`<h6>` en `structure.css` por default, sin
+  cambios ahí) y `font-size-{name}-fluid` (el `clamp()`/`cqi` de antes).
+- Clase nueva `.fluid` (`structure.css`, gateada
+  `@supports (font-size: 1cqi)`): setea `container-type: inline-size` en
+  sí misma y, para sus descendientes `:is(h1, .h1)`.. `:is(h6, .h6)` +
+  `.text-xs`..`.text-3xl`, pisa `font-size` con la variante `-fluid`.
+  Mismo patrón que el Mixin 3 de moderncss.dev (`:is(h1, .h1, ...)`
+  gateado), adaptado al vocabulario de luz.
+- `sizeFluidRange`/`preset` sin cambios de superficie — siguen
+  controlando la magnitud de la variante `-fluid`, pero ahora solo
+  importan si `.fluid` está presente en algún ancestro.
+- **Nuevo `preset: "content"`** → `sizeFluidRange: "balanced"` (1) — punto
+  medio entre `"app"` (`"fixed"`, 0, sin reflow) y `"landing"` (2.4,
+  reflow grande). Pensado para sitios de contenido/documentación (como
+  `docs/` mismo), que quieren algo de reflow sin llegar a "dramatic".
+
+`docs/luz.config.ts` usa `preset: "content"` + `.fluid` en la sección de
+Typography — primer uso real de la capa fluida en el sitio, verificado
+con `astro build` real y captura en Chrome (headings se ven igual a
+como se veían antes del cambio, sin regresión visual).
+
+## Armonía de la rueda de colores — `l` heredada de `primary`
+
+Comportamiento histórico restaurado (default, sin flag en `LuzConfig`) —
+da nombre a la librería. Los 10 hues de `luzWheel` (`tools/wheel.ts`) ya
+no tienen una `l` fija por hue — su seed pasa de
+`oklch(${l}% ${c} ${hue})` a `oklch(from ${primaryCSSVar} l ${c} ${hue})`:
+heredan la luminosidad de `primary` en vivo (CSS relative color syntax,
+sin JS, reactivo a `mode: "auto"` igual que `secondary`), pero mantienen
+su propio `c`/`hue` ya calibrados — no se aplanan a la saturación de
+`primary`.
+
+**Por qué no hace falta escalar el chroma a mano:** cada hue conservaba
+antes una `l` propia (`yellow: l=83`, `blue: l=58`, …) porque el chroma
+máximo desplegable en OKLCH depende de la combinación hue+lightness — no
+es un cubo. Al forzar una `l` distinta (la de `primary`), el `c` pedido
+puede quedar fuera de gamut. CSS Color 4 exige gamut mapping automático
+(reduce `C`, mantiene `L`/`H` fijos, diseñado por el mismo autor de
+OKLCH) — el navegador ya hace la reducción perceptualmente correcta sin
+ninguna fórmula propia. Heredar también el `c` de `primary` (en vez de
+dejarlo literal) sería el error: aplanaría los 10 hues a la misma
+magnitud de saturación absoluta, perdiendo el calibrado individual.
+Verificado visualmente con `primary` en `l` muy oscura/media/muy clara —
+los 10 hues siguen diferenciándose entre sí, sin romperse.
+
+`wheelOverrides` (ya existente) sigue pisando por completo cualquier hue
+individual — un override explícito ignora `primary` para ese hue.
 
 ## `LuzConfig.preset` — app vs. landing
 
@@ -397,9 +503,33 @@ al proyecto) matchea sin que luz conozca esa librería específica.
 - `withShadeFallback` reescribe `var(--x-500)` → `var(--x-500, var(--x))`
   para los tres nombres "shaded" (`primary`/`secondary`/`neutrals`) — cubre
   paletas custom que no generaron todos los steps.
-- `size-N` es exponencial (tipografía, ver `power`), `space-N` es lineal
-  (spacing) — son escalas distintas a propósito, no una consolidación
-  pendiente (ver doc del campo `spaceSteps` en `LuzConfig`).
+- El type scale (`text-*`/headings) es exponencial (ver `power`), `space-N`
+  es lineal (spacing) — son escalas distintas a propósito, no una
+  consolidación pendiente (ver doc del campo `spaceSteps` en `LuzConfig`).
+
+## Colores semánticos atenuados (`anchor*`) — `muted()`
+
+`themeVariables()` (`luz.ts`) tenía ~25 tokens apuntando directo a
+`var(--{hue}-500)` — el weight 500 es el pico de chroma de toda la
+rampa (curva sin-wave en `hue.ts`), así que cualquier token semántico
+ahí es la versión más saturada posible del hue, siempre. Para
+`anchor`/`anchor-secondary`/`anchor-danger`/`anchor-success`/
+`anchor-warning` (colores de link — el único caso que renderiza *inline
+dentro de párrafos*, compitiendo directo con texto de body ya atenuado)
+esto se sentía "gritado"/poco armonioso. Nuevo helper `muted(cssVar)` →
+`oklch(from ${cssVar} l calc(c * 0.6) h)` — reduce el chroma un 40%,
+mantiene `l`/`h` intactos. Factor `0.6` elegido comparando visualmente
+`x1/0.75/0.6/0.45/0.3` — `0.6` es el punto donde cada hue sigue
+identificable sin gritar; `0.45` ya arriesgaba perder identidad (yellow
+se acerca a neutral).
+
+**Escopeado a `anchor*` únicamente** — botones (`btn-bg-success/danger/
+warning`), badges (`badge-bg-*`), alerts (`alert-border-*`) y form
+validation (`input-valid`/`input-invalid`) siguen en `-500` crudo sin
+atenuar: son call-to-action/señales de estado donde la saturación alta
+es la convención esperada (daisyUI, shadcn, etc.), no el mismo problema
+que un link inline. No extender `muted()` a esos sin evaluar cada caso
+por separado.
 
 ## Testing
 

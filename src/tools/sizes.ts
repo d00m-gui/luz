@@ -1,7 +1,7 @@
 const MIN_CONTAINER_REM = 20; // 320px
 const MAX_CONTAINER_REM = 77.5; // 1240px
 
-/** Named ratios for the exponential `size-N` scale — common typographic scale steps. */
+/** Named ratios for luz's exponential type scales (`text-*`, headings) — common typographic scale steps. */
 export const TYPE_SCALES = {
   "minor-second": 1.067,
   "major-second": 1.125,
@@ -13,7 +13,7 @@ export const TYPE_SCALES = {
   golden: 1.618,
 } as const;
 
-/** Preset name for the exponential `size-N` scale ratio — see `TYPE_SCALES`. */
+/** Preset name for the exponential type scale ratio — see `TYPE_SCALES`. */
 export type TypeScaleName = keyof typeof TYPE_SCALES;
 
 /** Resolves a preset name or a raw ratio number to a numeric ratio. */
@@ -54,7 +54,11 @@ const TYPE_LANDMARK_RUNGS = [
   ["h1", 6],
 ] as const;
 
-/** Returns `font-size-small`..`font-size-h1`, independent of `sizeSteps`/`sizeDynamicFrom`. */
+/**
+ * Returns `font-size-small`..`font-size-h1` (static rem, no `clamp()`) plus
+ * `font-size-{name}-fluid` (the `clamp()`/`cqi` variant, consumed by `.fluid`).
+ * Its own rungs, independent of `luzTextScale`.
+ */
 export function luzTypeLandmarks(
   base: number,
   scale: TypeScaleName | number = "perfect-fourth",
@@ -70,49 +74,63 @@ export function luzTypeLandmarks(
   for (const [name, n] of TYPE_LANDMARK_RUNGS) {
     const minSize = anchorRem * ratio ** n;
     const maxSize = anchorRem * ratio ** (n + range);
-    landmarks[`font-size-${name}`] = generateFluidTagSize(minSize, maxSize);
+    landmarks[`font-size-${name}`] = `${minSize.toFixed(3)}rem`;
+    landmarks[`font-size-${name}-fluid`] = generateFluidTagSize(minSize, maxSize);
   }
   return landmarks;
 }
 
-export function luzSizes(
+/** Consecutive rungs for the `text-*` utility scale — `base` is the anchor (rung 0). */
+const TEXT_SCALE_RUNGS = [
+  ["xs", -2],
+  ["sm", -1],
+  ["base", 0],
+  ["lg", 1],
+  ["xl", 2],
+  ["2xl", 3],
+  ["3xl", 4],
+] as const;
+
+/**
+ * Named type scale backing the `text-xs`..`text-3xl` utility classes —
+ * static rem by default, plus `font-size-{name}-fluid` for `.fluid`.
+ */
+export function luzTextScale(
   base: number,
   scale: TypeScaleName | number = "perfect-fourth",
-  steps: number = 22,
-  dynamicFrom: number = 13,
   relativeToBase: boolean = false,
   fluidRange: FluidRangeName | number = "balanced",
 ): Record<string, string> {
   const ratio = resolveScale(scale);
   const range = resolveFluidRange(fluidRange);
   const unit = relativeToBase ? base / 16 : 1;
-  const anchorRem = (dynamicFrom / 10) * unit;
+  const anchorRem = 1 * unit;
 
-  const computedSizes: Record<string, string> = {};
-  for (let i = 1; i <= steps; i++) {
-    if (i < dynamicFrom) {
-      const refRem = (i / 10) * unit;
-      computedSizes[`size-${i}`] = relativeToBase
-        ? `${parseFloat(refRem.toFixed(3))}rem`
-        : `${i / 10}rem`;
-      continue;
-    }
-    const n = i - dynamicFrom;
+  const textSizes: Record<string, string> = {};
+  for (const [name, n] of TEXT_SCALE_RUNGS) {
     const minSize = anchorRem * ratio ** n;
     const maxSize = anchorRem * ratio ** (n + range);
-    computedSizes[`size-${i}`] = generateFluidTagSize(minSize, maxSize);
+    textSizes[`font-size-${name}`] = `${minSize.toFixed(3)}rem`;
+    textSizes[`font-size-${name}-fluid`] = generateFluidTagSize(minSize, maxSize);
   }
+  return textSizes;
+}
+
+export function luzSizes(
+  base: number,
+  relativeToBase: boolean = false,
+): Record<string, string> {
+  const unit = relativeToBase ? base / 16 : 1;
 
   return {
-    ...computedSizes,
     "size-unit": relativeToBase
       ? `${parseFloat((0.1 * unit).toFixed(3))}rem`
       : "0.1rem",
-    "border-radius": `${(base / 64).toFixed(1)}rem`,
-    "border-width": `${(base / 128).toFixed(1)}rem`,
-    spacing: `${((base / 10) * 3).toFixed(0)}rem`,
-    "element-vertical": `${(base / 64).toFixed(1)}rem`,
-    "element-horizontal": `${(base / 24).toFixed(1)}rem`,
+    "border-radius": `${(base / 64).toFixed(1)}cqi`,
+    "border-width": `${(base / 128).toFixed(1)}cqi`,
+    spacing: `${((base / 10) * 3).toFixed(0)}vw`,
+    "element-vertical": `${(base / 64).toFixed(1)}cqi`,
+    "element-horizontal": `${(base / 24).toFixed(1)}cqi`,
     "transform-origin": `50% 50%`,
     "toast-index": `0`,
     "toast-offset-y": `0`,

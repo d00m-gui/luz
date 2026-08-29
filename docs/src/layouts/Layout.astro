@@ -3,6 +3,7 @@ import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 import Sidebar from "../components/Sidebar.astro";
 import { CrtIntroMount } from "../components/CrtIntroMount";
+import { DEFAULT_CATEGORY_HUE } from "../lib/category-colors";
 import "../styles/luz.css";
 import "../styles/structure.css";
 
@@ -11,12 +12,19 @@ interface Props {
   activeId: string;
   breadcrumb: string;
   contentClass?: string;
+  hue?: string;
 }
 
-const { title, activeId, breadcrumb, contentClass } = Astro.props;
+const {
+  title,
+  activeId,
+  breadcrumb,
+  contentClass,
+  hue = DEFAULT_CATEGORY_HUE,
+} = Astro.props;
 ---
 
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="dark" data-hue={hue}>
   <head>
     <meta charset="utf-8" />
     <title>{title} — luz docs</title>
@@ -26,14 +34,13 @@ const { title, activeId, breadcrumb, contentClass } = Astro.props;
   </head>
   <body>
     <div class="layout">
-      <Sidebar activeId={activeId} />
+      <Sidebar activeId={activeId} breadcrumb={breadcrumb} />
       <main class="main">
-        <div class="breadcrumb">luz / {breadcrumb}</div>
         <div class={["content", contentClass].filter(Boolean).join(" ")}>
           <slot />
+          <!-- <CrtIntroMount client:load transition:persist /> -->
         </div>
       </main>
     </div>
-    <CrtIntroMount client:load transition:persist />
   </body>
 </html>

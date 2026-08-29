@@ -9,7 +9,7 @@ interface ScaleNamespace {
   /** Class prefix, e.g. `"p"` for `p-4`. */
   prefix: string;
   /** Which numbered token family the suffix resolves against. */
-  scaleFamily: "space" | "size";
+  scaleFamily: "space";
   /** CSS properties the resolved `var(--{scaleFamily}-N)` value is assigned to. */
   cssProps: string[];
 }
@@ -26,6 +26,8 @@ interface LiteralNamespace {
   kind: "literal";
   className: string;
   declarations: readonly (readonly [string, string])[];
+  /** Overrides `declarations` when a value depends on `settings.name`/`prefix`, resolved against `tokens`. */
+  dynamic?: (tokens: LuzTokens) => readonly (readonly [string, string])[];
 }
 
 
@@ -101,7 +103,7 @@ export function buildUtilityRegistry(): UtilityNamespace[] {
     { kind: "scale", prefix: "gap-y", scaleFamily: "space", cssProps: ["row-gap"] },
     { kind: "scale", prefix: "w", scaleFamily: "space", cssProps: ["width"] },
     { kind: "scale", prefix: "h", scaleFamily: "space", cssProps: ["height"] },
-    { kind: "scale", prefix: "text", scaleFamily: "size", cssProps: ["font-size"] },
+    ...TEXT_SCALE_LITERALS,
     { kind: "color", prefix: "bg", cssProps: ["background-color"] },
     { kind: "color", prefix: "text", cssProps: ["color"] },
     { kind: "color", prefix: "border", cssProps: ["border-color"] },
@@ -131,8 +133,15 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
     declarations: [
       ["border-width", "var(--border-width)"],
       ["border-style", "solid"],
-      ["border-color", "oklch(from var(--primary-500) l c h / 50%)"],
     ],
+    dynamic: (tokens) => {
+      const primaryFamily = `${tokens.settings.prefix ?? ""}${tokens.settings.name}`;
+      return [
+        ["border-width", "var(--border-width)"],
+        ["border-style", "solid"],
+        ["border-color", withOpacity(colorValue(`${primaryFamily}-500`, tokens), 50)],
+      ];
+    },
   },
   {
     kind: "literal",
@@ -186,6 +195,14 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
     ],
   },
 ];
+
+const TEXT_SCALE_LITERALS: LiteralNamespace[] = (
+  ["xs", "sm", "base", "lg", "xl", "2xl", "3xl"] as const
+).map((name) => ({
+  kind: "literal" as const,
+  className: `text-${name}`,
+  declarations: [["font-size", `var(--font-size-${name})`]] as const,
+}));
 
 const LAYOUT_LITERALS: LiteralNamespace[] = (
   [
@@ -251,7 +268,7 @@ const SIZE_STEP_RE = /^[1-9]\d*$/;
 
 function resolveSizeSuffix(
   suffix: string,
-  family: "space" | "size",
+  family: "space",
   tokens: LuzTokens,
 ): string | undefined {
   if (!SIZE_STEP_RE.test(suffix)) return undefined;
@@ -299,7 +316,7 @@ function resolveBaseUtility(base: string, tokens: LuzTokens): ResolvedBase | nul
     const ns = registry[i]!;
     if (ns.kind === "literal") {
       if (opacityPercent === undefined && target === ns.className) {
-        return { declarations: ns.declarations, namespaceIndex: i };
+        return { declarations: ns.dynamic?.(tokens) ?? ns.declarations, namespaceIndex: i };
       }
       continue;
     }

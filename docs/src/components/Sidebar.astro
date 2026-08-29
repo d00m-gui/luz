@@ -1,19 +1,49 @@
 ---
+import { getCollection } from "astro:content";
+import { CATEGORY_HUES, DEFAULT_CATEGORY_HUE } from "../lib/category-colors";
+
 interface Props {
   activeId: string;
+  breadcrumb: string;
 }
 
-const { activeId } = Astro.props;
+const { activeId, breadcrumb } = Astro.props;
+const features = (await getCollection("features")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
 ---
 
 <nav class="sidebar">
+  <code>{breadcrumb}</code>
   <div class="sidebar-group">
     <div class="sidebar-group-title">Docs</div>
     <a
       href="/"
-      class={`sidebar-item${activeId === "classless" ? " active" : ""}`}
+      class={`sidebar-item${activeId === "luz-defaults" ? " active" : ""}`}
     >
-      Luz
+      Tokens
     </a>
   </div>
+  {
+    features.length > 0 && (
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">API</div>
+        {features.map((entry) => {
+          const hue = CATEGORY_HUES[entry.id] ?? DEFAULT_CATEGORY_HUE;
+          return (
+            <a
+              href={`/api/${entry.id}`}
+              class={`sidebar-item${activeId === `api-${entry.id}` ? " active" : ""}`}
+            >
+              <span
+                class="sidebar-dot"
+                style={`background: var(--${hue}-500)`}
+              />
+              {entry.data.title}
+            </a>
+          );
+        })}
+      </div>
+    )
+  }
 </nav>

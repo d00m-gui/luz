@@ -58,6 +58,15 @@ function clamp(v: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, v));
 }
 
+function hslToRgb(h: number, s: number, l: number): [number, number, number] {
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    return l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+  };
+  return [f(0), f(8), f(4)];
+}
+
 function interpolate(
   input: number[],
   output: number[],
@@ -105,6 +114,49 @@ const PHOSPHOR: Record<string, [number, number, number]> = {
   fosforo: [0.55, 1.0, 0.72],
 };
 
+/** Resuelve un valor CSS (`var(--x)`, `oklch(...)`) a RGB 0-1 vía el motor de color del navegador. */
+function resolveRGB(cssValue: string): [number, number, number] {
+  const el = document.createElement("div");
+  el.style.color = cssValue;
+  document.body.appendChild(el);
+  // Chromium devuelve el computed color en el mismo color space que se
+  // especificó (ej. "oklch(...)"), no siempre "rgb(...)" — se resuelve a
+  // sRGB real pintando 1px en un canvas y leyendo el pixel de vuelta.
+  const resolved = getComputedStyle(el).color;
+  document.body.removeChild(el);
+  const canvas = document.createElement("canvas");
+  canvas.width = 1;
+  canvas.height = 1;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return [1, 1, 1];
+  ctx.fillStyle = resolved;
+  ctx.fillRect(0, 0, 1, 1);
+  const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+  return [r / 255, g / 255, b / 255];
+}
+
+const rgbCache = new Map<string, [number, number, number]>();
+function getRGB(cssVar: string): [number, number, number] {
+  let v = rgbCache.get(cssVar);
+  if (!v) {
+    v = resolveRGB(`var(${cssVar})`);
+    rgbCache.set(cssVar, v);
+  }
+  return v;
+}
+
+/** Gris neutro emergiendo hacia el color de la sección destino (`CATEGORY_HUES`) a medida que `t` avanza. */
+function sampleSectionTint(hue: string, t: number): [number, number, number] {
+  const from = getRGB("--neutral-500");
+  const to = getRGB(`--${hue}-500`);
+  const f = tp(t, [0, 0.3, 0.6], [0, 0.3, 1]);
+  return [
+    from[0] + (to[0] - from[0]) * f,
+    from[1] + (to[1] - from[1]) * f,
+    from[2] + (to[2] - from[2]) * f,
+  ];
+}
+
 /* ── GLSL (verbatim) ── */
 const VERT = `
 attribute vec2 aPos;
@@ -117,7 +169,7 @@ varying vec2 vUv;
 uniform sampler2D uTex;
 uniform vec3 uTint;
 uniform float uT, uTrack, uNoise, uChroma, uOpenX, uOpenY, uRoll,
-              uBandY, uBandH, uFlash, uBright, uGlow, uSnow;
+              uBandY, uBandH, uFlash, uBright, uGlow, uSnow, uCurve;
 
 float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1,311.7)))*43758.5453123); }
 float nse(vec2 p){ return hash(floor(p)); }
@@ -130,7 +182,7 @@ vec2 curve(vec2 uv){
 }
 
 void main(){
-  vec2 uv = curve(vUv);
+  vec2 uv = mix(vUv, curve(vUv), uCurve);
   vec2 c = uv*2.0-1.0;
 
   float tick = floor(uT*24.0);
@@ -225,10 +277,12 @@ function makeGL(canvas: HTMLCanvasElement): GLState | null {
   gl.useProgram(p);
   const buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+  // Triángulo único que cubre el viewport (-1..3), sin quad de 2 triángulos.
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
   const loc = gl.getAttribLocation(p, "aPos");
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+  // Textura de la señal: se sube cada frame desde el canvas 2D `sig`.
   const tex = gl.createTexture();
   gl.bindTexture(gl.TEXTURE_2D, tex);
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
@@ -238,7 +292,7 @@ function makeGL(canvas: HTMLCanvasElement): GLState | null {
   const u: Record<string, WebGLUniformLocation | null> = {};
   [
     "uTex", "uT", "uTrack", "uNoise", "uChroma", "uOpenX", "uOpenY", "uRoll",
-    "uBandY", "uBandH", "uFlash", "uBright", "uGlow", "uSnow", "uTint",
+    "uBandY", "uBandH", "uFlash", "uBright", "uGlow", "uSnow", "uTint", "uCurve",
   ].forEach((n) => (u[n] = gl.getUniformLocation(p, n)));
   gl.uniform1i(u.uTex, 0);
   const sig = document.createElement("canvas");
@@ -266,6 +320,9 @@ interface Params {
   logoAlpha: number;
   logoScale: number;
   logoDx: number;
+  logoDy: number;
+  /** Fracción 0..1 del logo revelada de izquierda a derecha (1 = completo). */
+  logoReveal: number;
   osdPlay: number;
   osdTrack: number;
   trackBar: number;
@@ -287,7 +344,12 @@ function drawSignal(
     const w = h;
     g.save();
     g.globalAlpha = p.logoAlpha;
-    g.translate(640 + p.logoDx, 348);
+    g.translate(640 + p.logoDx, 348 + p.logoDy);
+    if (p.logoReveal < 1) {
+      g.beginPath();
+      g.rect(-w / 2, -h / 2, w * clamp(p.logoReveal, 0, 1), h);
+      g.clip();
+    }
     g.drawImage(logo, -w / 2, -h / 2, w, h);
     g.restore();
   }
@@ -314,14 +376,12 @@ function drawSignal(
     }
   }
   if (sectionName && p.logoAlpha > 0) {
-    // Reusa logoAlpha (ya calibrado para esta ventana de T) en vez de una
-    // curva propia — el nombre entra/sale junto con el logo.
+    // Reusa logoAlpha — el nombre entra/sale junto con el logo.
     g.globalAlpha = p.logoAlpha;
     g.fillStyle = fg;
-    g.font = "600 32px ui-monospace, 'SFMono-Regular', Menlo, monospace";
-    g.textAlign = "center";
-    g.fillText(sectionName, 640, 600);
+    g.font = "700 32px ui-monospace, 'SFMono-Regular', Menlo, monospace";
     g.textAlign = "left";
+    g.fillText(`${sectionName}`, 62, 56);
   }
   g.globalAlpha = 1;
 }
@@ -362,6 +422,8 @@ function params(T: number): Params {
     logoAlpha: ip(T, [C.Estatica - 0.3, C.Estatica + 0.4, C.Tracking + 0.9, C.Enganche + 0.6], [0, 0.45, 0.8, 1]),
     logoScale: 1 + 0.055 * (1 - lock) + 0.012 * Math.sin(T * 0.9),
     logoDx: (1 - lock) * 26 * Math.sin(T * 2.3),
+    logoDy: 0,
+    logoReveal: 1,
     osdPlay: (OPT.osd ? 1 : 0) * ip(T, [C.Estatica - 0.4, C.Estatica + 0.2], [0, 1]) * (Math.floor(T * 2) % 8 === 7 ? 0.35 : 1),
     osdTrack: (OPT.osd ? 1 : 0) * ip(T, [C.Tracking - 0.25, C.Tracking + 0.15, C.Enganche + 0.55, C.Enganche + 0.9], [0, 1, 1, 0]),
     trackBar: clamp((T - C.Tracking) / (C.Enganche - C.Tracking), 0, 1),
@@ -369,25 +431,105 @@ function params(T: number): Params {
   };
 }
 
+const tp = (t: number, xs: number[], ys: number[], e?: EaseFn) =>
+  interpolate(xs, ys, e || Easing.easeInOutQuad)(t);
+
+/** Posición/escala de reposo del logo dentro del canvas grande — esquina superior derecha, badge permanente. */
+const DOCK_SCALE = 0.17;
+const DOCK_X = 1170;
+const DOCK_Y = 60;
+
+/**
+ * Timeline propia del modo "transition" — `t` 0..1 recorre toda la duración,
+ * independiente de las escenas de `params()` (usadas solo por "intro").
+ * Burst corto de estática/tracking (look "cambio de canal"), sin dibujar el
+ * logo hasta que empieza a resolver — antes quedaba ilegible mezclado con
+ * el caos. Logo queda centrado y grande todo el burst — el badge chico de
+ * `dockedParams()` es un elemento aparte que aparece después.
+ */
+function transitionParams(t: number): Params {
+  return {
+    track: tp(t, [0, 0.28, 0.55, 1], [0.85, 0.5, 0.05, 0.02], Easing.easeOutQuad),
+    roll: 0, // logo/texto quietos — sin barrido vertical
+    noise: tp(t, [0, 0.3, 0.6, 1], [0.35, 0.22, 0.06, 0.02]),
+    snow: tp(t, [0, 0.25, 0.55, 1], [0.45, 0.28, 0.04, 0.02]),
+    chroma: tp(t, [0, 0.3, 0.6, 1], [0.02, 0.014, 0.003, 0.0015]),
+    openX: 1,
+    openY: 1,
+    flash:
+      tp(t, [0, 0.14, 0.28], [0, 0.16, 0], Easing.easeOutQuad) +
+      tp(t, [0.3, 0.42, 0.58], [0, 0.2, 0], Easing.easeOutQuad),
+    bright: tp(t, [0, 0.15, 0.4], [0.75, 0.92, 1.05]),
+    glow: tp(t, [0, 0.3, 0.45, 0.65, 1], [0.15, 0.35, 0.6, 0.4, 0.55]),
+    bandY: 0.75 - t * 0.9,
+    bandH: tp(t, [0, 0.25, 0.55], [0.22, 0.12, 0.005]),
+    logoAlpha: tp(t, [0, 0.22, 0.42, 0.6], [0, 0, 0.85, 1]),
+    logoScale: 1,
+    logoDx: 0,
+    logoDy: 0,
+    logoReveal: 1,
+    osdPlay: 0,
+    osdTrack: 0,
+    trackBar: 0,
+    stamp: "",
+  };
+}
+
+/**
+ * Estado de reposo del badge permanente — logo chico en la esquina del
+ * canvas grande (mismo tamaño que el burst, para que la viñeta se vea en
+ * toda `.content`). `reveal` anima el logo escribiéndose de izquierda a
+ * derecha al aparecer.
+ */
+function dockedParams(reveal: number): Params {
+  return {
+    track: 0,
+    roll: 0,
+    noise: 0.02,
+    snow: 0.02,
+    chroma: 0.0015,
+    openX: 1,
+    openY: 1,
+    flash: 0,
+    bright: 0.7,
+    glow: 0.22,
+    bandY: 0,
+    bandH: 0,
+    logoAlpha: 1,
+    logoScale: DOCK_SCALE,
+    logoDx: DOCK_X - 640,
+    logoDy: DOCK_Y - 348,
+    logoReveal: reveal,
+    osdPlay: 0,
+    osdTrack: 0,
+    trackBar: 0,
+    stamp: "",
+  };
+}
+
 function drawFrame(
   s: GLState,
   canvas: HTMLCanvasElement,
+  P: Params,
   T: number,
+  tint: readonly [number, number, number],
   timing: Pick<ModeTiming, "showLogo" | "showOsd">,
+  curveAmount: number,
   sectionName?: string,
 ) {
-  const P = params(T);
   if (!timing.showLogo) P.logoAlpha = 0;
   if (!timing.showOsd) {
     P.osdPlay = 0;
     P.osdTrack = 0;
   }
+  // Redibuja la señal en el canvas 2D y la sube como textura del frame actual.
   drawSignal(s.sigCtx, s.logo, P, s.bg, s.fg, timing.showLogo ? sectionName : undefined);
   const { gl, u } = s;
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.bindTexture(gl.TEXTURE_2D, s.tex);
   gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
   gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, s.sig);
+  // NaN/Infinity haría que WebGL ignore el uniform entero — se sanea antes de subir.
   const f = (v: number) => (Number.isFinite(v) ? v : 0);
   gl.uniform1f(u.uT, f(T));
   gl.uniform1f(u.uTrack, f(P.track));
@@ -402,9 +544,22 @@ function drawFrame(
   gl.uniform1f(u.uBright, f(P.bright));
   gl.uniform1f(u.uGlow, f(P.glow));
   gl.uniform1f(u.uSnow, f(P.snow));
-  const tint = PHOSPHOR[OPT.phosphor] || PHOSPHOR.cian;
+  gl.uniform1f(u.uCurve, f(curveAmount));
   gl.uniform3f(u.uTint, tint[0], tint[1], tint[2]);
   gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
+/** Renderiza el wordmark de luz a un data URL SVG y lo carga en `st.logo`. */
+function loadLogo(st: GLState, onReady?: () => void) {
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${LUZ_WORDMARK.viewBox}" width="1024" height="1024">` +
+    `<g transform="${LUZ_WORDMARK.transform}"><path fill="${st.fg}" d="${LUZ_WORDMARK.d}"/></g></svg>`;
+  const img = new Image();
+  img.onload = () => {
+    st.logo = img;
+    onReady?.();
+  };
+  img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
 }
 
 /* ── Modos: cómo mapear tiempo real (rAF) a tiempo virtual T de la coreografía ── */
@@ -428,8 +583,8 @@ interface ModeTiming {
 const EXIT_MS = 900; // fade de salida del modo "intro" (original)
 const END_TRIGGER = TOTAL + 0.4; // "intro": mantener negro antes de revelar, luego salir
 
-const TRANSITION_PLAY_S = 0.35;
-const TRANSITION_EXIT_MS = 150;
+const TRANSITION_DURATION_S = 1.0;
+const TRANSITION_EXIT_MS = 220;
 
 function getModeTiming(mode: CrtIntroMode): ModeTiming {
   if (mode === "intro") {
@@ -443,9 +598,9 @@ function getModeTiming(mode: CrtIntroMode): ModeTiming {
     };
   }
   return {
-    virtualOffset: CUES.Tracking,
-    maxVirtualT: CUES.Tracking + TRANSITION_PLAY_S,
-    triggerSeconds: TRANSITION_PLAY_S,
+    virtualOffset: 0,
+    maxVirtualT: TRANSITION_DURATION_S,
+    triggerSeconds: TRANSITION_DURATION_S,
     exitMs: TRANSITION_EXIT_MS,
     showLogo: true,
     showOsd: false,
@@ -453,16 +608,19 @@ function getModeTiming(mode: CrtIntroMode): ModeTiming {
 }
 
 export interface CrtIntroProps {
-  /** "intro": secuencia completa (~12s). "transition": solo el glitch de Tracking (~500ms). */
+  /** "intro": secuencia completa (~12s). "transition": burst corto (~600ms). */
   mode: CrtIntroMode;
-  /** Nombre de la sección/página destino — dibujado bajo el logo en modo "transition". */
+  /** Nombre de la sección/página destino — "CH {sectionName}", esquina superior izquierda en modo "transition". */
   sectionName?: string;
+  /** Hue (`CATEGORY_HUES`) de la sección destino — tiñe el color-shift en modo "transition". */
+  hue?: string;
   /** Se llama una vez terminado el fade de salida, justo antes de desmontarse (retorna null). */
   onDone?: () => void;
 }
 
-export function CrtIntro({ mode, sectionName, onDone }: CrtIntroProps) {
+export function CrtIntro({ mode, sectionName, hue = "neutral", onDone }: CrtIntroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const overlayRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<GLState | null>(null);
   const finishRef = useRef(false);
   const timing = getModeTiming(mode);
@@ -477,16 +635,7 @@ export function CrtIntro({ mode, sectionName, onDone }: CrtIntroProps) {
     const st = makeGL(cv);
     if (!st) return;
     stateRef.current = st;
-    if (timing.showLogo) {
-      const svg =
-        `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${LUZ_WORDMARK.viewBox}" width="1024" height="1024">` +
-        `<g transform="${LUZ_WORDMARK.transform}"><path fill="${st.fg}" d="${LUZ_WORDMARK.d}"/></g></svg>`;
-      const img = new Image();
-      img.onload = () => {
-        st.logo = img;
-      };
-      img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
-    }
+    if (timing.showLogo) loadLogo(st);
     return () => {
       stateRef.current = null;
     };
@@ -503,12 +652,24 @@ export function CrtIntro({ mode, sectionName, onDone }: CrtIntroProps) {
     }, timing.exitMs);
   };
 
+  const frameAt = (T: number, t01: number): [Params, readonly [number, number, number]] =>
+    mode === "intro"
+      ? [params(T), PHOSPHOR[OPT.phosphor] || PHOSPHOR.cian]
+      : [transitionParams(t01), sampleSectionTint(hue, t01)];
+  // "intro": curvatura completa (look CRT clásico, sin cambios). "transition":
+  // atenuada — el overlay va escopeado a .content (no 16:9), la curva completa
+  // satura/aplasta el eje vertical contra el borde a esa proporción.
+  const curveAmount = mode === "intro" ? 1 : 0.35;
+
   const skip = () => {
     if (finishRef.current) return;
     // Dibujar frame de apagado (o el último frame del segmento), luego salir.
     const s = stateRef.current;
     const cv = canvasRef.current;
-    if (s && cv) drawFrame(s, cv, timing.maxVirtualT, timing, sectionName);
+    if (s && cv) {
+      const [P, tint] = frameAt(timing.maxVirtualT, 1);
+      drawFrame(s, cv, P, timing.maxVirtualT, tint, timing, curveAmount, sectionName);
+    }
     finish();
   };
 
@@ -523,8 +684,18 @@ export function CrtIntro({ mode, sectionName, onDone }: CrtIntroProps) {
       const s = stateRef.current;
       if (s && s.gl) {
         const el = (performance.now() - t0) / 1000;
-        const T = Math.min(timing.virtualOffset + el, timing.maxVirtualT);
-        drawFrame(s, cv, T, timing, sectionName);
+        const T =
+          mode === "intro" ? Math.min(timing.virtualOffset + el, timing.maxVirtualT) : el;
+        const t01 = mode === "intro" ? 0 : clamp(el / TRANSITION_DURATION_S, 0, 1);
+        const [P, tint] = frameAt(T, t01);
+        drawFrame(s, cv, P, T, tint, timing, curveAmount, sectionName);
+        // "transition": crossfade progresivo — la página real (ya swapeada
+        // detrás del overlay) empieza a verse desde que el "lock" arranca,
+        // no recién en el fade final. Mutación directa del DOM, no React
+        // state — evita re-render por frame.
+        if (mode === "transition" && overlayRef.current) {
+          overlayRef.current.style.opacity = String(tp(t01, [0, 0.35, 1], [1, 1, 0]));
+        }
         if (el >= timing.triggerSeconds) {
           finish();
           return;
@@ -541,30 +712,41 @@ export function CrtIntro({ mode, sectionName, onDone }: CrtIntroProps) {
 
   const overlayStyle: CSSProperties = {
     position: "fixed",
-    inset: 0,
+    top: 0,
+    right: 0,
+    left: 0,
     zIndex: 2147483000,
-    background: "var(--background)",
+    background: mode === "intro" ? "var(--background)" : "transparent",
     cursor: "pointer",
     opacity: exiting ? 0 : 1,
-    transition: `opacity ${timing.exitMs}ms ease`,
+    transition: mode === "intro" ? `opacity ${timing.exitMs}ms ease` : "none",
     pointerEvents: exiting ? "none" : "auto",
   };
 
   return (
-    <div style={overlayStyle} onClick={skip} aria-label="Intro luz">
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background:
-            "radial-gradient(120% 90% at 50% 45%, rgba(30,90,140,0.10), rgba(0,0,0,0) 70%)",
-        }}
-      />
+    <div ref={overlayRef} style={overlayStyle} onClick={skip} aria-label="Intro luz">
+      {mode === "intro" && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background:
+              "radial-gradient(120% 90% at 50% 45%, rgba(30,90,140,0.10), rgba(0,0,0,0) 70%)",
+          }}
+        />
+      )}
       <canvas
         ref={canvasRef}
-        width={1600}
-        height={900}
-        style={{ position: "absolute", inset: 0, width: "100%", height: "100%", display: "block" }}
+        width={1200}
+        height={720}
+        style={{
+          position: "absolute",
+          top: "5vw",
+          right: "5vw",
+          width: "1100px",
+          pointerEvents: "none",
+          mixBlendMode: mode === "transition" ? "overlay" : "normal",
+        }}
       />
       {mode === "intro" && (
         <div
@@ -582,6 +764,85 @@ export function CrtIntro({ mode, sectionName, onDone }: CrtIntroProps) {
           clic para entrar
         </div>
       )}
+    </div>
+  );
+}
+
+const DOCK_REVEAL_MS = 900;
+const DOCK_HUE_CYCLE_MS = 16000;
+
+export interface CrtDockedOverlayProps {
+  /** Nombre de la sección/página actual — se dibuja junto al logo y nunca desaparece. */
+  sectionName?: string;
+}
+
+/**
+ * Badge permanente — logo + nombre de sección en el mismo canvas grande del
+ * burst (mismo tamaño, viñeta visible en todo `.content`), montado detrás
+ * del contenido (no interactivo). El logo se escribe de izquierda a
+ * derecha al aparecer, y su tinte va rotando de color de forma continua.
+ */
+export function CrtDockedOverlay({ sectionName }: CrtDockedOverlayProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const stateRef = useRef<GLState | null>(null);
+  const sectionNameRef = useRef(sectionName);
+  sectionNameRef.current = sectionName;
+
+  useEffect(() => {
+    const cv = canvasRef.current;
+    if (!cv) return;
+    const st = makeGL(cv);
+    if (!st) return;
+    stateRef.current = st;
+    const t0 = performance.now();
+    let raf = 0;
+    loadLogo(st, () => {
+      const loop = () => {
+        const el = performance.now() - t0;
+        const reveal = clamp(el / DOCK_REVEAL_MS, 0, 1);
+        const hue = (el / DOCK_HUE_CYCLE_MS) * 360;
+        const tint = hslToRgb(hue, 0.55, 0.62);
+        drawFrame(
+          st,
+          cv,
+          dockedParams(Easing.easeOutCubic(reveal)),
+          0,
+          tint,
+          { showLogo: true, showOsd: false },
+          0.35,
+          sectionNameRef.current,
+        );
+        raf = requestAnimationFrame(loop);
+      };
+      raf = requestAnimationFrame(loop);
+    });
+    return () => {
+      cancelAnimationFrame(raf);
+      stateRef.current = null;
+    };
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: -1,
+        pointerEvents: "none",
+      }}
+      aria-hidden="true"
+    >
+      <canvas
+        ref={canvasRef}
+        width={1200}
+        height={720}
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          mixBlendMode: "overlay",
+        }}
+      />
     </div>
   );
 }

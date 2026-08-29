@@ -15,7 +15,7 @@ luz doesn't try to be a full Tailwind replacement, and it doesn't try to be a co
 
 - **One color in, a full theme out** — pass a `primary` color and get shades `50`–`950`, a derived `secondary`, `neutral` ramp, and a 10-hue color wheel.
 - **oklch throughout** — perceptually uniform palettes with automatic light/dark inversion.
-- **Two numbered scales, on purpose** — `size-N` (an exponential typographic scale, for font-size) and `space-N` (linear, for padding/margin/gap/width/height) are kept separate rather than one scale awkwardly serving both.
+- **Named type scale, numbered spacing scale** — `text-xs`…`text-3xl` (exponential, for font-size) and `space-N` (linear, for padding/margin/gap/width/height) are kept separate rather than one scale awkwardly serving both.
 - **A closed-vocabulary utility engine** — Tailwind-nomenclature-compatible classes (`p-4`, `bg-primary-600`, `open:bg-primary-600`), scanned from your source and emitted as static CSS at build time. No arbitrary values, no bracket syntax, nothing shipped that isn't used. Variant selectors also parse Tailwind's arbitrary `data-[attr=value]:`/`aria-[attr=value]:` syntax generically, so component source copied from Radix- or Base UI-based kits (shadcn, animate-ui, ...) matches without luz needing to know which library it came from.
 - **A shadcn/ui token bridge** — real, unmodified shadcn component source (Base UI variant) can consume luz's tokens directly, via a small `:root` alias block generated automatically.
 - **Framework adapters** — Static CSS generation for Astro (`luz/astro`) and Vite (`luz/vite`).
