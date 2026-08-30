@@ -22,6 +22,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   font?: string;
   /** Default `"line-height"` for body text. Default `"130%"`. */
   "line-height"?: string;
+  /** `letter-spacing` applied to `h1`-`h6`. Default `"-0.02em"`. */
+  "heading-letter-spacing"?: string;
   /** `font-weight` used for `<strong>`/`<b>`. Default `800`. */
   "font-bold-weight"?: number;
   /** Base `font-weight` for body text. Default `400`. */
@@ -63,6 +65,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   mode?: "light" | "dark" | "auto";
   /** Custom-property name for the neutral/gray palette. Default `"neutral"`. */
   neutrals?: string;
+  /** Fraction (0–1) of `primary`'s chroma carried into the neutral/gray palette. `0` = pure gray, `1` = full tint. Default `0.2`. */
+  neutralTint?: number;
   /** Prepended to every generated custom-property name (e.g. `"luz-"` → `--luz-primary-500`). Default `""`. */
   prefix?: string;
   /** Default `transition` shorthand applied via setup rules. Default `"all ease 200ms"`. */
@@ -150,6 +154,7 @@ const PRESET_FLUID_RANGE: Record<NonNullable<LuzConfig["preset"]>, FluidRangeNam
 const defaultConfig: LuzConfig = {
   font: "sans-serif",
   "line-height": "130%",
+  "heading-letter-spacing": "-0.02em",
   "font-bold-weight": 800,
   "font-weight": 400,
   "font-monospace": "monospace",
@@ -161,6 +166,7 @@ const defaultConfig: LuzConfig = {
   name: "primary",
   mode: "dark",
   neutrals: "neutral",
+  neutralTint: 0.2,
   prefix: "",
   transition: "all ease 200ms",
   "box-shadow": "none",
@@ -287,6 +293,7 @@ export function luz(config?: LuzConfig): LuzResult {
     base,
     prefix,
     neutrals,
+    neutralTint,
     power,
     secondary,
     properties: generateProperties,
@@ -302,6 +309,7 @@ export function luz(config?: LuzConfig): LuzResult {
   for (const hueName of WHEEL_HUE_NAMES) delete typography[hueName];
 
   const normalBase = base as number;
+  const normalNeutralTint = neutralTint as number;
   const isAuto = mode === "auto";
   const isDark: boolean = isAuto ? false : mode === "dark";
 
@@ -317,7 +325,7 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const neutralsName: string = `${prefix}${neutrals}`;
   const neutralCSSVar: string = `var(--${neutralsName})`;
-  const neutralColor: string = `oklch(from ${primaryCSSVar} l 0 h)`;
+  const neutralColor: string = `oklch(from ${primaryCSSVar} l calc(c * ${normalNeutralTint}) h)`;
 
   /** Full `colors` token record for one shade direction (light or dark). */
   function buildColors(reverse: boolean): Record<string, string> {
@@ -337,8 +345,7 @@ export function luz(config?: LuzConfig): LuzResult {
     const neutralShades = luzShadesByHue({
       color: neutralCSSVar,
       name: neutralsName,
-      base: 0.05,
-      amplitude: 0.02,
+      base: 0.05 * normalNeutralTint,
       reverse,
       steps: colorSteps,
     });
