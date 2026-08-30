@@ -76,11 +76,12 @@ table {
     }
   }
   & th {
-    color: var(--foreground);
+    color: var(--element-placeholder-color);
     background-color: var(--element-background);
+    border-bottom: var(--border-width) solid var(--element-border-color);
   }
   & td {
-    border-bottom-color: var(--background);
+    border-bottom: var(--border-width) solid var(--element-border-color);
   }
 }
 input,
@@ -463,7 +464,6 @@ input[type="range"]:focus-visible {
   }
 }
 .card {
-  container-type: inline-size;
   padding: var(--space-6);
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);

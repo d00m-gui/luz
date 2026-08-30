@@ -81,15 +81,18 @@ i {
   font-family: var(--font-emphasis);
 }
 table {
-  padding: calc(var(--size-unit) * 8);
+  width: 100%;
   margin: calc(var(--size-unit) * 8) 0;
   & th {
-    padding: calc(var(--size-unit) * 8);
+    padding: var(--space-2) var(--space-3);
     text-align: left;
-    font-weight: 600;
+    font-weight: var(--font-bold-weight);
+    font-size: var(--font-size-small);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
   }
   & td {
-    padding: calc(var(--size-unit) * 8);
+    padding: var(--space-2) var(--space-3);
   }
 }
 code,
