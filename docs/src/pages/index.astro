@@ -2,13 +2,18 @@
 import Layout from "../layouts/Layout.astro";
 import { luz } from "../../../src/luz";
 import { config } from "../../luz.config.ts";
-import { UNCOVERED_CLASSES } from "../content/components";
+import { UNCOVERED_CLASSES, UNCOVERED_ELEMENTS } from "../content/components";
 
 const { tokens } = luz(config);
 
 if (UNCOVERED_CLASSES.length > 0) {
   console.warn(
-    `[components] sin ejemplo en components.ts: ${UNCOVERED_CLASSES.join(", ")}`,
+    `[components] clases sin ejemplo en components.ts: ${UNCOVERED_CLASSES.join(", ")}`,
+  );
+}
+if (UNCOVERED_ELEMENTS.length > 0) {
+  console.warn(
+    `[components] tags sin ejemplo en components.ts: ${UNCOVERED_ELEMENTS.join(", ")}`,
   );
 }
 
@@ -163,70 +168,6 @@ function swatchStyle(name: string, weight: number) {
         <hr />
         <hr class="dashed" />
       </div>
-    </section>
-
-    <section class="card">
-      <h2 class="card-title">Form</h2>
-      <form class="kitchen-sink-form">
-        <label>
-          Text input
-          <input type="text" placeholder="Type here" />
-        </label>
-        <label>
-          Valid input
-          <input type="text" aria-invalid="false" value="Looks good" />
-        </label>
-        <label>
-          Invalid input
-          <input type="text" aria-invalid="true" value="Something's off" />
-        </label>
-        <label>
-          Textarea
-          <textarea placeholder="Type something..."></textarea>
-        </label>
-
-        <label>
-          Range
-          <input type="range" />
-        </label>
-        <label><input type="checkbox" checked /> Checkbox</label>
-        <label><input type="checkbox" role="switch" checked /> Switch</label>
-        <label><input type="radio" name="ks-radio" checked /> Radio A</label>
-        <label><input type="radio" name="ks-radio" /> Radio B</label>
-        <label>
-          File
-          <input type="file" />
-        </label>
-        <label>
-          Progress
-          <progress value="60" max="100"></progress>
-        </label>
-      </form>
-    </section>
-
-    <section class="card">
-      <h2 class="card-title">Table</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Role</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>Ada</td>
-            <td>Admin</td>
-            <td>Active</td>
-          </tr>
-          <tr>
-            <td>Grace</td>
-            <td>Editor</td>
-            <td>Pending</td>
-          </tr>
-        </tbody>
-      </table>
     </section>
   </div>
 </Layout>

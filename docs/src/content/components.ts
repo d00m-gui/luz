@@ -1,4 +1,21 @@
-import { DESIGN_CLASSES } from "./components.generated";
+import { DESIGN_CLASSES, DESIGN_ELEMENTS } from "./components.generated";
+
+/** Reset-only/structural tags with no meaningful standalone demo. */
+const EXEMPT_ELEMENTS = [
+  "html",
+  "body",
+  "svg",
+  "canvas",
+  "img",
+  "picture",
+  "video",
+  "br",
+  "section",
+  "q",
+  "address",
+  "figure",
+  "optgroup",
+];
 
 export interface ComponentDoc {
   id: string;
@@ -12,7 +29,7 @@ export interface ComponentDoc {
     | "Surfaces"
     | "Data"
     | "Identity";
-  /** Class names from `design.css` this entry demonstrates — checked against `DESIGN_CLASSES`. */
+  /** Class names or bare tag selectors from luz's CSS this entry demonstrates — checked against `DESIGN_CLASSES`/`DESIGN_ELEMENTS`. */
   covers: string[];
   /** Copyable source, also used as the live preview unless `preview` is set. */
   html: string;
@@ -99,7 +116,7 @@ export const COMPONENTS: ComponentDoc[] = [
     id: "pagination",
     title: "Pagination",
     category: "Navigation",
-    covers: ["pagination", "pagination-item"],
+    covers: ["pagination", "pagination-item", "nav"],
     html: `<nav class="pagination">
   <a class="pagination-item" href="#">1</a>
   <a class="pagination-item" aria-current="page" href="#">2</a>
@@ -271,7 +288,7 @@ export const COMPONENTS: ComponentDoc[] = [
     id: "modal",
     title: "Modal",
     category: "Overlays",
-    covers: ["modal"],
+    covers: ["modal", "dialog"],
     html: `<button onclick="document.getElementById('modal-demo').showModal()">Open modal</button>
 <dialog id="modal-demo" class="modal">
   <p>Modal content.</p>
@@ -307,7 +324,227 @@ export const COMPONENTS: ComponentDoc[] = [
     html: `<span class="loading"></span> Loading…
 <span aria-busy="true"></span> Saving…`,
   },
+  {
+    id: "table",
+    title: "Table",
+    category: "Data",
+    covers: ["table"],
+    html: `<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Role</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>Ada Lovelace</td>
+      <td>Admin</td>
+      <td><span class="dot success"></span> Active</td>
+    </tr>
+    <tr>
+      <td>Grace Hopper</td>
+      <td>Editor</td>
+      <td><span class="dot warning"></span> Pending</td>
+    </tr>
+    <tr>
+      <td>Alan Turing</td>
+      <td>Viewer</td>
+      <td><span class="dot neutral"></span> Invited</td>
+    </tr>
+  </tbody>
+</table>`,
+  },
+  {
+    id: "native-list",
+    title: "List",
+    category: "Data",
+    covers: ["ol", "ul", "dl"],
+    html: `<ul>
+  <li>First item</li>
+  <li>Second item</li>
+</ul>
+<ol>
+  <li>Step one</li>
+  <li>Step two</li>
+</ol>
+<dl>
+  <dt>luz</dt>
+  <dd>CSS theming library.</dd>
+</dl>`,
+  },
+  {
+    id: "link",
+    title: "Link",
+    category: "Primitives",
+    covers: ["a"],
+    html: `<p>
+  <a href="#">Default</a> ·
+  <a href="#" class="secondary">Secondary</a> ·
+  <a href="#" class="contrast">Contrast</a> ·
+  <a href="#" class="danger">Danger</a> ·
+  <a href="#" class="success">Success</a> ·
+  <a href="#" class="warning">Warning</a>
+</p>`,
+  },
+  {
+    id: "blockquote",
+    title: "Blockquote",
+    category: "Primitives",
+    covers: ["blockquote"],
+    html: `<blockquote>
+  "The best config is the one you never have to touch twice."
+  <cite>— luz</cite>
+</blockquote>`,
+  },
+  {
+    id: "kbd",
+    title: "Kbd",
+    category: "Primitives",
+    covers: ["kbd"],
+    html: `<p><kbd>Ctrl</kbd> + <kbd>K</kbd> opens the command palette.</p>`,
+  },
+  {
+    id: "mark",
+    title: "Mark",
+    category: "Primitives",
+    covers: ["mark"],
+    html: `<p>Luz keeps <mark>the config always wins</mark> as its core rule.</p>`,
+  },
+  {
+    id: "code",
+    title: "Code",
+    category: "Primitives",
+    covers: ["code", "pre", "samp"],
+    html: `<p>Install with <code>bun add luz</code>, then call <code>luz(config)</code>.</p>
+<pre><code>luz({ primary: "#f28c20" })</code></pre>
+<p><samp>200 OK</samp></p>`,
+  },
+  {
+    id: "text-emphasis",
+    title: "Text emphasis",
+    category: "Primitives",
+    covers: ["strong", "b", "em", "i", "small", "abbr", "p"],
+    html: `<p>
+  <strong>Strong</strong> and <em>emphasis</em>, <small>small print</small>,
+  <abbr title="HyperText Markup Language">HTML</abbr>.
+</p>`,
+  },
+  {
+    id: "headings",
+    title: "Headings",
+    category: "Primitives",
+    covers: ["h1", "h2", "h3", "h4", "h5", "h6"],
+    html: `<h1>Heading level 1</h1>
+<h2>Heading level 2</h2>
+<h3>Heading level 3</h3>
+<h4>Heading level 4</h4>
+<h5>Heading level 5</h5>
+<h6>Heading level 6</h6>`,
+  },
+  {
+    id: "divider",
+    title: "Divider",
+    category: "Primitives",
+    covers: ["hr"],
+    html: `<p>Content above</p>
+<hr />
+<p>Content below</p>
+<hr class="dashed" />`,
+  },
+  {
+    id: "text-input",
+    title: "Text input",
+    category: "Primitives",
+    covers: ["input", "textarea", "select"],
+    html: `<label>
+  Text input
+  <input type="text" placeholder="Type here" />
+</label>
+<label>
+  Invalid input
+  <input type="text" aria-invalid="true" value="Something's off" />
+</label>
+<label>
+  Textarea
+  <textarea placeholder="Type something..."></textarea>
+</label>
+<label>
+  Select
+  <select>
+    <option>Option A</option>
+    <option>Option B</option>
+  </select>
+</label>`,
+  },
+  {
+    id: "checkbox-radio",
+    title: "Checkbox & Radio",
+    category: "Primitives",
+    covers: [],
+    html: `<label><input type="checkbox" checked /> Checkbox</label>
+<label><input type="checkbox" role="switch" checked /> Switch</label>
+<label><input type="radio" name="ks-radio" checked /> Radio A</label>
+<label><input type="radio" name="ks-radio" /> Radio B</label>`,
+  },
+  {
+    id: "range",
+    title: "Range",
+    category: "Primitives",
+    covers: [],
+    html: `<label>
+  Range
+  <input type="range" />
+</label>`,
+  },
+  {
+    id: "progress",
+    title: "Progress",
+    category: "Primitives",
+    covers: ["progress"],
+    html: `<label>
+  Progress
+  <progress value="60" max="100"></progress>
+</label>`,
+  },
+  {
+    id: "file-input",
+    title: "File input",
+    category: "Primitives",
+    covers: [],
+    html: `<label>
+  File
+  <input type="file" />
+</label>`,
+  },
+  {
+    id: "form",
+    title: "Form",
+    category: "Primitives",
+    covers: ["form", "fieldset", "label"],
+    html: `<form>
+  <fieldset>
+    <legend>Shipping address</legend>
+    <label>
+      Full name
+      <input type="text" placeholder="Ada Lovelace" />
+    </label>
+  </fieldset>
+</form>`,
+  },
+  {
+    id: "hidden",
+    title: "Hidden utility",
+    category: "Primitives",
+    covers: ["hidden"],
+    html: `<p>Visible text</p>
+<p hidden>Hidden text (via [hidden] or .hidden)</p>`,
+  },
 ];
 
 const covered = new Set(COMPONENTS.flatMap((c) => c.covers));
 export const UNCOVERED_CLASSES = DESIGN_CLASSES.filter((c) => !covered.has(c));
+export const UNCOVERED_ELEMENTS = DESIGN_ELEMENTS.filter(
+  (e) => !covered.has(e) && !EXEMPT_ELEMENTS.includes(e),
+);
