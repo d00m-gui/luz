@@ -280,6 +280,9 @@ blockquote {
 [type="reset"],
 [type="submit"],
 button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
   border: var(--border-width) solid var(--border-color);
   box-shadow: var(--box-shadow);
   transition: var(--transition);
@@ -295,7 +298,8 @@ button {
   &[type="reset"],
   &[role="cancel"],
   &.cancel,
-  &.reset {
+  &.reset,
+  &.neutral {
     background-color: var(--btn-bg-neutral);
   }
   &[role="apply"],
@@ -320,6 +324,25 @@ button {
   }
   &.pill {
     border-radius: calc(var(--size-unit) * 40);
+  }
+  &.square {
+    padding: 0;
+    width: var(--space-10);
+    height: var(--space-10);
+    justify-content: center;
+  }
+  &.block {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+  }
+  &.loading {
+    pointer-events: none;
+    opacity: 0.7;
+    &::before {
+      content: "⠙";
+      animation: loading 1s steps(1, end) infinite;
+    }
   }
   @media (hover: hover) and (pointer: fine) {
     &:hover,
@@ -1011,6 +1034,17 @@ dialog.modal {
   font-size: var(--font-size-small);
   color: var(--element-placeholder-color);
 }
+.icon {
+  display: inline-flex;
+  font-size: 1em;
+  line-height: 1;
+}
+.cta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
 
 @media (prefers-reduced-motion: reduce) {
   .btn,
@@ -1030,6 +1064,10 @@ dialog.modal {
     transition-duration: 0.01ms !important;
   }
   .skeleton {
+    animation: none;
+  }
+  .btn.loading::before,
+  .button.loading::before {
     animation: none;
   }
 }
