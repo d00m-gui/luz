@@ -253,6 +253,12 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "breadcrumb-separator": `var(--${prefix}${neutrals}-600)`,
     "skeleton-bg": `var(--${prefix}${neutrals}-800)`,
     "skeleton-shine": `var(--${prefix}${neutrals}-700)`,
+    "dot-success": `var(--${prefix}green-500)`,
+    "dot-danger": `var(--${prefix}red-500)`,
+    "dot-warning": `var(--${prefix}yellow-500)`,
+    "dot-neutral": `var(--${prefix}${neutrals}-500)`,
+    "stat-delta-up": `var(--${prefix}green-500)`,
+    "stat-delta-down": `var(--${prefix}red-500)`,
   };
 }
 
