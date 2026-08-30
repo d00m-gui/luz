@@ -72,6 +72,15 @@
   padding-top: var(--space-20);
 }
 
+.content .card {
+  display: grid;
+  gap: var(--space-10);
+  .fluid {
+    display: grid;
+    gap: var(--space-5);
+  }
+}
+
 .content .description {
   line-height: var(--line-height);
   margin-bottom: var(--space-6);
@@ -296,4 +305,46 @@
 
 .api-example + .api-example {
   margin-top: var(--space-4);
+}
+
+.component-doc + .component-doc {
+  margin-top: var(--space-8);
+}
+
+.component-doc-title {
+  margin-bottom: var(--space-3);
+}
+
+.component-preview {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6);
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  margin-bottom: var(--space-3);
+}
+
+.component-code {
+  position: relative;
+}
+
+.component-code pre {
+  margin: 0;
+  padding: var(--space-4);
+  overflow-x: auto;
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  font-family: var(--font-monospace);
+  font-size: var(--font-size-small);
+}
+
+.copy-btn {
+  position: absolute;
+  top: var(--space-2);
+  right: var(--space-2);
+  font-size: var(--font-size-small);
+  padding: var(--space-1) var(--space-3);
 }

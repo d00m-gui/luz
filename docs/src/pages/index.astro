@@ -2,8 +2,23 @@
 import Layout from "../layouts/Layout.astro";
 import { luz } from "../../../src/luz";
 import { config } from "../../luz.config.ts";
+import { COMPONENTS, UNCOVERED_CLASSES } from "../content/components";
 
 const { tokens } = luz(config);
+
+if (UNCOVERED_CLASSES.length > 0) {
+  console.warn(
+    `[components] sin ejemplo en components.ts: ${UNCOVERED_CLASSES.join(", ")}`,
+  );
+}
+
+const COMPONENT_CATEGORIES = ["Overlays", "Feedback", "Navigation", "Layout"] as const;
+const CATEGORY_TITLES: Record<(typeof COMPONENT_CATEGORIES)[number], string> = {
+  Overlays: "Overlays",
+  Feedback: "Feedback",
+  Navigation: "Navigation",
+  Layout: "Layout & Data",
+};
 
 const WEIGHTS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 const SHADE_SCALES = ["primary", "secondary", "neutral"];
@@ -237,131 +252,46 @@ function swatchStyle(name: string, weight: number) {
       </table>
     </section>
 
-    <section class="card">
-      <h2 class="card-title">Overlays</h2>
-      <div class="kitchen-sink-row">
-        <button popovertarget="demo-popover">Open popover</button>
-        <div id="demo-popover" popover class="popover">
-          <p>Popover content, dismisses on outside click or Esc.</p>
-        </div>
-
-        <button popovertarget="demo-toast">Show toast</button>
-        <div id="demo-toast" popover class="toast success">
-          Saved successfully
-        </div>
-
-        <button popovertarget="demo-toast-danger">Show error toast</button>
-        <div id="demo-toast-danger" popover class="toast danger">
-          Something went wrong
-        </div>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2 class="card-title">Feedback</h2>
-      <div class="kitchen-sink-row">
-        <div class="stat">
-          <span class="stat-label">Revenue</span>
-          <span class="stat-value">$12.4k</span>
-          <span class="stat-delta up">▲ 4.2%</span>
-        </div>
-        <div class="stat">
-          <span class="stat-label">Churn</span>
-          <span class="stat-value">2.1%</span>
-          <span class="stat-delta down">▼ 0.8%</span>
-        </div>
-      </div>
-      <div class="kitchen-sink-row">
-        <span class="dot success" title="success"></span>
-        <span class="dot danger" title="danger"></span>
-        <span class="dot warning" title="warning"></span>
-        <span class="dot neutral" title="neutral"></span>
-      </div>
-      <div class="empty">
-        <span class="empty-title">No results</span>
-        <span>Try adjusting your filters.</span>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2 class="card-title">Navigation</h2>
-      <div class="segmented demo-block">
-        <input
-          class="segmented-input"
-          type="radio"
-          name="ks-segmented"
-          id="ks-seg-day"
-          checked
-        />
-        <label class="segmented-item" for="ks-seg-day">Day</label>
-        <input
-          class="segmented-input"
-          type="radio"
-          name="ks-segmented"
-          id="ks-seg-week"
-        />
-        <label class="segmented-item" for="ks-seg-week">Week</label>
-        <input
-          class="segmented-input"
-          type="radio"
-          name="ks-segmented"
-          id="ks-seg-month"
-        />
-        <label class="segmented-item" for="ks-seg-month">Month</label>
-      </div>
-
-      <div class="kitchen-sink-row">
-        <button class="toggle" aria-pressed="true">Bold</button>
-        <button class="toggle" aria-pressed="false">Italic</button>
-      </div>
-
-      <nav class="pagination kitchen-sink-row">
-        <a class="pagination-item" href="#">1</a>
-        <a class="pagination-item" aria-current="page" href="#">2</a>
-        <a class="pagination-item" href="#">3</a>
-      </nav>
-
-      <div class="stepper demo-block">
-        <div class="stepper-step done">Account</div>
-        <div class="stepper-step active">Details</div>
-        <div class="stepper-step">Confirm</div>
-      </div>
-
-      <div class="preview-frame">
-        <nav class="tabbar-bottom" style="position: absolute">
-          <a class="tabbar-bottom-item" aria-current="page" href="#">Home</a>
-          <a class="tabbar-bottom-item" href="#">Search</a>
-          <a class="tabbar-bottom-item" href="#">Profile</a>
-        </nav>
-      </div>
-    </section>
-
-    <section class="card">
-      <h2 class="card-title">Layout &amp; Data</h2>
-      <div class="panel-header">
-        <span class="panel-header-title">Panel header</span>
-        <button class="ghost">Action</button>
-      </div>
-
-      <div class="preview-frame">
-        <div class="titlebar" style="position: absolute; inset-inline: 0">
-          <span>Titlebar</span>
-          <span class="dot success"></span>
-        </div>
-      </div>
-
-      <div class="preview-frame">
-        <div class="statusbar" style="position: absolute; inset-inline: 0">
-          <span>Ready</span>
-          <span>v0.1.0</span>
-        </div>
-      </div>
-
-      <div class="kitchen-sink-row" style="flex-direction: column">
-        <div class="list-item">Item one</div>
-        <div class="list-item">Item two</div>
-        <div class="list-item">Item three</div>
-      </div>
-    </section>
+    {
+      COMPONENT_CATEGORIES.map((category) => (
+        <section class="card">
+          <h2 class="card-title">{CATEGORY_TITLES[category]}</h2>
+          {COMPONENTS.filter((c) => c.category === category).map((c) => (
+            <article class="component-doc">
+              <h3 class="component-doc-title">{c.title}</h3>
+              <div class="component-preview">
+                <Fragment set:html={c.preview ?? c.html} />
+              </div>
+              <div class="component-code">
+                <button class="copy-btn ghost" data-copy type="button">
+                  Copy
+                </button>
+                <pre><code>{c.html}</code></pre>
+              </div>
+            </article>
+          ))}
+        </section>
+      ))
+    }
   </div>
 </Layout>
+
+<script>
+  document.addEventListener("click", async (event) => {
+    const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "[data-copy]",
+    );
+    if (!btn) return;
+    const code = btn.nextElementSibling?.textContent ?? "";
+    const original = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(code);
+      btn.textContent = "Copied";
+    } catch {
+      btn.textContent = "Error";
+    }
+    setTimeout(() => {
+      btn.textContent = original;
+    }, 1500);
+  });
+</script>

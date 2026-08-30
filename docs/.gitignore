@@ -3,3 +3,4 @@ dist/
 .astro/
 src/styles/luz.css
 src/content/api.generated.ts
+src/content/components.generated.ts

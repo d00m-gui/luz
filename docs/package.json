@@ -7,7 +7,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "gen:content": "bun run scripts/gen-content.ts"
+    "gen:content": "bun run scripts/gen-content.ts",
+    "gen:components": "bun run scripts/gen-components.ts"
   },
   "dependencies": {
     "@astrojs/react": "6.0.4",
