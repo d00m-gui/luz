@@ -575,7 +575,7 @@ input[type="range"]:focus-visible {
   }
 }
 dialog.modal {
-  container-type: inline-size;
+  margin: auto;
   padding: var(--space-6);
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
@@ -583,6 +583,7 @@ dialog.modal {
   color: var(--foreground);
   box-shadow: var(--box-shadow);
   max-width: min(90vw, 32rem);
+  max-height: 90vh;
   opacity: 0;
   transform: scale(0.95);
   transition: var(--transition);
@@ -754,6 +755,8 @@ dialog.modal {
   outline-offset: calc(var(--size-unit) * 2);
 }
 .toggle {
+  background-color: var(--element-background);
+  color: var(--foreground);
   &[aria-pressed="true"] {
     background-color: var(--btn-bg);
     color: var(--btn-color);
@@ -860,7 +863,13 @@ dialog.modal {
   }
 }
 .popover {
-  container-type: inline-size;
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
+  max-width: min(90vw, 32rem);
+  max-height: 90vh;
   padding: var(--space-6);
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
@@ -919,7 +928,7 @@ dialog.modal {
   }
 }
 .stat {
-  container-type: inline-size;
+  min-width: max-content;
   padding: var(--space-5);
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
