@@ -154,6 +154,7 @@ function swatchStyle(name: string, weight: number) {
         </blockquote>
         <p><kbd>Ctrl</kbd> + <kbd>K</kbd></p>
         <hr />
+        <hr class="dashed" />
       </div>
     </section>
 
@@ -167,6 +168,7 @@ function swatchStyle(name: string, weight: number) {
         <button class="warning">Warning</button>
         <button class="ghost">Ghost</button>
         <button class="reset">Reset</button>
+        <button class="pill">Pill</button>
         <button disabled>Disabled</button>
       </div>
     </section>
@@ -233,6 +235,133 @@ function swatchStyle(name: string, weight: number) {
           </tr>
         </tbody>
       </table>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Overlays</h2>
+      <div class="kitchen-sink-row">
+        <button popovertarget="demo-popover">Open popover</button>
+        <div id="demo-popover" popover class="popover">
+          <p>Popover content, dismisses on outside click or Esc.</p>
+        </div>
+
+        <button popovertarget="demo-toast">Show toast</button>
+        <div id="demo-toast" popover class="toast success">
+          Saved successfully
+        </div>
+
+        <button popovertarget="demo-toast-danger">Show error toast</button>
+        <div id="demo-toast-danger" popover class="toast danger">
+          Something went wrong
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Feedback</h2>
+      <div class="kitchen-sink-row">
+        <div class="stat">
+          <span class="stat-label">Revenue</span>
+          <span class="stat-value">$12.4k</span>
+          <span class="stat-delta up">▲ 4.2%</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">Churn</span>
+          <span class="stat-value">2.1%</span>
+          <span class="stat-delta down">▼ 0.8%</span>
+        </div>
+      </div>
+      <div class="kitchen-sink-row">
+        <span class="dot success" title="success"></span>
+        <span class="dot danger" title="danger"></span>
+        <span class="dot warning" title="warning"></span>
+        <span class="dot neutral" title="neutral"></span>
+      </div>
+      <div class="empty">
+        <span class="empty-title">No results</span>
+        <span>Try adjusting your filters.</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Navigation</h2>
+      <div class="segmented">
+        <input
+          class="segmented-input"
+          type="radio"
+          name="ks-segmented"
+          id="ks-seg-day"
+          checked
+        />
+        <label class="segmented-item" for="ks-seg-day">Day</label>
+        <input
+          class="segmented-input"
+          type="radio"
+          name="ks-segmented"
+          id="ks-seg-week"
+        />
+        <label class="segmented-item" for="ks-seg-week">Week</label>
+        <input
+          class="segmented-input"
+          type="radio"
+          name="ks-segmented"
+          id="ks-seg-month"
+        />
+        <label class="segmented-item" for="ks-seg-month">Month</label>
+      </div>
+
+      <div class="kitchen-sink-row">
+        <button class="toggle" aria-pressed="true">Bold</button>
+        <button class="toggle" aria-pressed="false">Italic</button>
+      </div>
+
+      <nav class="pagination kitchen-sink-row">
+        <a class="pagination-item" href="#">1</a>
+        <a class="pagination-item" aria-current="page" href="#">2</a>
+        <a class="pagination-item" href="#">3</a>
+      </nav>
+
+      <div class="stepper">
+        <div class="stepper-step done">Account</div>
+        <div class="stepper-step active">Details</div>
+        <div class="stepper-step">Confirm</div>
+      </div>
+
+      <div class="preview-frame">
+        <nav class="tabbar-bottom" style="position: absolute">
+          <a class="tabbar-bottom-item" aria-current="page" href="#">Home</a>
+          <a class="tabbar-bottom-item" href="#">Search</a>
+          <a class="tabbar-bottom-item" href="#">Profile</a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="card-title">Layout &amp; Data</h2>
+      <div class="panel-header">
+        <span class="panel-header-title">Panel header</span>
+        <button class="ghost">Action</button>
+      </div>
+
+      <div class="preview-frame">
+        <div class="titlebar" style="position: absolute">
+          <span>Titlebar</span>
+          <span class="dot success"></span>
+        </div>
+      </div>
+
+      <div class="preview-frame">
+        <div class="statusbar" style="position: absolute">
+          <span>Ready</span>
+          <span>v0.1.0</span>
+        </div>
+      </div>
+
+      <div class="kitchen-sink-row" style="flex-direction: column">
+        <div class="list-item">Item one</div>
+        <div class="list-item">Item two</div>
+        <div class="list-item">Item three</div>
+      </div>
     </section>
   </div>
 </Layout>
