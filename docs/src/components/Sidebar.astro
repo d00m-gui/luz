@@ -1,6 +1,11 @@
 ---
 import { getCollection } from "astro:content";
-import { CATEGORY_HUES, DEFAULT_CATEGORY_HUE } from "../lib/category-colors";
+import {
+  CATEGORY_HUES,
+  COMPONENT_CATEGORY_HUES,
+  DEFAULT_CATEGORY_HUE,
+} from "../lib/category-colors";
+import { COMPONENTS } from "../content/components";
 
 interface Props {
   activeId: string;
@@ -11,6 +16,7 @@ const { activeId, breadcrumb } = Astro.props;
 const features = (await getCollection("features")).sort(
   (a, b) => a.data.order - b.data.order,
 );
+const componentsByCategory = Object.groupBy(COMPONENTS, (c) => c.category);
 ---
 
 <nav class="sidebar">
@@ -45,5 +51,24 @@ const features = (await getCollection("features")).sort(
         })}
       </div>
     )
+  }
+  {
+    Object.entries(componentsByCategory).map(([category, entries]) => (
+      <div class="sidebar-group">
+        <div class="sidebar-group-title">{category}</div>
+        {entries!.map((c) => {
+          const hue = COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
+          return (
+            <a
+              href={`/components/${c.id}`}
+              class={`sidebar-item${activeId === `component-${c.id}` ? " active" : ""}`}
+            >
+              <span class="sidebar-dot" style={`background: var(--${hue}-500)`} />
+              {c.title}
+            </a>
+          );
+        })}
+      </div>
+    ))
   }
 </nav>

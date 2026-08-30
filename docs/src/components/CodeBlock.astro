@@ -1,0 +1,47 @@
+---
+import { Code } from "astro:components";
+
+interface Props {
+  code: string;
+  lang?: string;
+}
+
+const { code, lang = "html" } = Astro.props;
+
+const luzShikiTheme = {
+  name: "luz",
+  type: "dark" as const,
+  colors: {
+    "editor.background": "transparent",
+    "editor.foreground": "var(--shiki-token-text)",
+  },
+  tokenColors: [
+    { scope: ["comment"], settings: { foreground: "var(--shiki-token-comment)" } },
+    {
+      scope: ["string", "string.quoted"],
+      settings: { foreground: "var(--shiki-token-string)" },
+    },
+    {
+      scope: ["constant.numeric", "constant.language"],
+      settings: { foreground: "var(--shiki-token-constant)" },
+    },
+    {
+      scope: ["keyword", "storage.type", "entity.name.tag"],
+      settings: { foreground: "var(--shiki-token-keyword)" },
+    },
+    {
+      scope: ["entity.other.attribute-name"],
+      settings: { foreground: "var(--shiki-token-parameter)" },
+    },
+    {
+      scope: ["punctuation", "punctuation.definition.tag"],
+      settings: { foreground: "var(--shiki-token-punctuation)" },
+    },
+  ],
+};
+---
+
+<div class="component-code">
+  <button class="copy-btn ghost" data-copy type="button">Copy</button>
+  <Code code={code} lang={lang} theme={luzShikiTheme} />
+</div>

@@ -44,3 +44,23 @@ const {
     </div>
   </body>
 </html>
+
+<script>
+  document.addEventListener("click", async (event) => {
+    const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "[data-copy]",
+    );
+    if (!btn) return;
+    const code = btn.nextElementSibling?.textContent ?? "";
+    const original = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(code);
+      btn.textContent = "Copied";
+    } catch {
+      btn.textContent = "Error";
+    }
+    setTimeout(() => {
+      btn.textContent = original;
+    }, 1500);
+  });
+</script>

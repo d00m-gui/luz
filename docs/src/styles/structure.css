@@ -81,6 +81,10 @@
   }
 }
 
+.content h2 {
+  margin-bottom: var(--space-10);
+}
+
 .content .description {
   line-height: var(--line-height);
   margin-bottom: var(--space-6);
@@ -328,15 +332,24 @@
 
 .component-code {
   position: relative;
+  padding: var(--space-4);
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  /* Tokens leídos por el tema custom de Shiki en CodeBlock.astro. */
+  --shiki-token-text: var(--foreground);
+  --shiki-token-keyword: var(--red-500);
+  --shiki-token-parameter: var(--yellow-500);
+  --shiki-token-string: var(--emerald-500);
+  --shiki-token-constant: var(--cyan-500);
+  --shiki-token-comment: var(--element-placeholder-color);
+  --shiki-token-punctuation: var(--element-placeholder-color);
 }
 
 .component-code pre {
   margin: 0;
-  padding: var(--space-4);
   overflow-x: auto;
-  border: var(--border-width) solid var(--element-border-color);
-  border-radius: var(--border-radius);
-  background-color: var(--element-background);
+  overflow-y: hidden;
   font-family: var(--font-monospace);
   font-size: var(--font-size-small);
 }

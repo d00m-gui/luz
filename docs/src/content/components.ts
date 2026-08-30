@@ -3,7 +3,15 @@ import { DESIGN_CLASSES } from "./components.generated";
 export interface ComponentDoc {
   id: string;
   title: string;
-  category: "Overlays" | "Feedback" | "Navigation" | "Layout";
+  category:
+    | "Overlays"
+    | "Feedback"
+    | "Navigation"
+    | "Layout"
+    | "Primitives"
+    | "Surfaces"
+    | "Data"
+    | "Identity";
   /** Class names from `design.css` this entry demonstrates — checked against `DESIGN_CLASSES`. */
   covers: string[];
   /** Copyable source, also used as the live preview unless `preview` is set. */
@@ -171,6 +179,133 @@ export const COMPONENTS: ComponentDoc[] = [
     html: `<div class="list-item">Item one</div>
 <div class="list-item">Item two</div>
 <div class="list-item">Item three</div>`,
+  },
+  {
+    id: "button",
+    title: "Button",
+    category: "Primitives",
+    covers: ["btn", "button"],
+    html: `<button>Default</button>
+<button class="success">Success</button>
+<button class="contrast">Contrast</button>
+<button class="danger">Danger</button>
+<button class="warning">Warning</button>
+<button class="ghost">Ghost</button>
+<button class="reset">Reset</button>
+<button class="pill">Pill</button>
+<button disabled>Disabled</button>`,
+  },
+  {
+    id: "badge",
+    title: "Badge",
+    category: "Data",
+    covers: ["badge"],
+    html: `<span class="badge">Default</span>
+<span class="badge success">Success</span>
+<span class="badge danger">Danger</span>
+<span class="badge warning">Warning</span>
+<span class="badge neutral">Neutral</span>
+<span class="badge ghost">Ghost</span>
+<span class="badge pill">Pill</span>`,
+  },
+  {
+    id: "alert",
+    title: "Alert",
+    category: "Overlays",
+    covers: ["alert"],
+    html: `<div class="alert">Default alert</div>
+<div class="alert success">Changes saved</div>
+<div class="alert danger">Something went wrong</div>
+<div class="alert warning">Check your input</div>
+<div class="alert info">New version available</div>`,
+  },
+  {
+    id: "card",
+    title: "Card",
+    category: "Surfaces",
+    covers: ["card"],
+    html: `<div class="card">
+  <div class="card-title">Card title</div>
+  <p>Card content goes here.</p>
+  <div class="card-footer">Footer</div>
+</div>`,
+  },
+  {
+    id: "avatar",
+    title: "Avatar",
+    category: "Identity",
+    covers: ["avatar"],
+    html: `<span class="avatar sm">AB</span>
+<span class="avatar">CD</span>
+<span class="avatar lg">EF</span>`,
+  },
+  {
+    id: "tabs",
+    title: "Tabs",
+    category: "Navigation",
+    covers: ["tabs", "tab", "tab-input"],
+    html: `<div class="tabs">
+  <input class="tab-input" type="radio" name="ks-tabs" id="ks-tab-a" checked />
+  <label class="tab" for="ks-tab-a">Overview</label>
+  <input class="tab-input" type="radio" name="ks-tabs" id="ks-tab-b" />
+  <label class="tab" for="ks-tab-b">Activity</label>
+  <input class="tab-input" type="radio" name="ks-tabs" id="ks-tab-c" />
+  <label class="tab" for="ks-tab-c">Settings</label>
+</div>`,
+  },
+  {
+    id: "accordion",
+    title: "Accordion",
+    category: "Data",
+    covers: ["accordion"],
+    html: `<details class="accordion">
+  <summary>What is luz?</summary>
+  <p>A CSS theming library — colors, typography, and spacing from a single primary color.</p>
+</details>
+<details class="accordion">
+  <summary>Does it need a build step?</summary>
+  <p>No — the output is plain CSS custom properties.</p>
+</details>`,
+  },
+  {
+    id: "modal",
+    title: "Modal",
+    category: "Overlays",
+    covers: ["modal"],
+    html: `<button onclick="document.getElementById('modal-demo').showModal()">Open modal</button>
+<dialog id="modal-demo" class="modal">
+  <p>Modal content.</p>
+  <button onclick="document.getElementById('modal-demo').close()">Close</button>
+</dialog>`,
+  },
+  {
+    id: "breadcrumbs",
+    title: "Breadcrumbs",
+    category: "Navigation",
+    covers: ["breadcrumbs"],
+    html: `<nav class="breadcrumbs">
+  <ol>
+    <li><a href="#">luz</a></li>
+    <li><a href="#">docs</a></li>
+    <li>Componentes</li>
+  </ol>
+</nav>`,
+  },
+  {
+    id: "skeleton",
+    title: "Skeleton",
+    category: "Feedback",
+    covers: ["skeleton"],
+    html: `<div class="skeleton" style="height: 1rem; width: 12rem;"></div>
+<div class="skeleton" style="height: 1rem; width: 8rem; margin-top: 0.5rem;"></div>`,
+  },
+  {
+    id: "loading",
+    title: "Loading",
+    category: "Feedback",
+    covers: ["loading"],
+    html: `<span class="loading"></span> Loading…
+<span aria-busy="true"></span> Saving…`,
   },
 ];
 

@@ -2,7 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { luz } from "../../../src/luz";
 import { config } from "../../luz.config.ts";
-import { COMPONENTS, UNCOVERED_CLASSES } from "../content/components";
+import { UNCOVERED_CLASSES } from "../content/components";
 
 const { tokens } = luz(config);
 
@@ -11,14 +11,6 @@ if (UNCOVERED_CLASSES.length > 0) {
     `[components] sin ejemplo en components.ts: ${UNCOVERED_CLASSES.join(", ")}`,
   );
 }
-
-const COMPONENT_CATEGORIES = ["Overlays", "Feedback", "Navigation", "Layout"] as const;
-const CATEGORY_TITLES: Record<(typeof COMPONENT_CATEGORIES)[number], string> = {
-  Overlays: "Overlays",
-  Feedback: "Feedback",
-  Navigation: "Navigation",
-  Layout: "Layout & Data",
-};
 
 const WEIGHTS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 const SHADE_SCALES = ["primary", "secondary", "neutral"];
@@ -131,7 +123,7 @@ function swatchStyle(name: string, weight: number) {
         </p>
         <div class="kitchen-sink-row">
           <button>Empezar</button>
-          <button class="ghost">Ver componentes</button>
+          <a href="/components/button" class="ghost">Ver componentes</a>
         </div>
 
         <hr />
@@ -170,21 +162,6 @@ function swatchStyle(name: string, weight: number) {
         </p>
         <hr />
         <hr class="dashed" />
-      </div>
-    </section>
-
-    <section class="card">
-      <h2 class="card-title">Buttons</h2>
-      <div role="group" class="kitchen-sink-row">
-        <button>Default</button>
-        <button class="success">Success</button>
-        <button class="contrast">Contrast</button>
-        <button class="danger">Danger</button>
-        <button class="warning">Warning</button>
-        <button class="ghost">Ghost</button>
-        <button class="reset">Reset</button>
-        <button class="pill">Pill</button>
-        <button disabled>Disabled</button>
       </div>
     </section>
 
@@ -251,47 +228,5 @@ function swatchStyle(name: string, weight: number) {
         </tbody>
       </table>
     </section>
-
-    {
-      COMPONENT_CATEGORIES.map((category) => (
-        <section class="card">
-          <h2 class="card-title">{CATEGORY_TITLES[category]}</h2>
-          {COMPONENTS.filter((c) => c.category === category).map((c) => (
-            <article class="component-doc">
-              <h3 class="component-doc-title">{c.title}</h3>
-              <div class="component-preview">
-                <Fragment set:html={c.preview ?? c.html} />
-              </div>
-              <div class="component-code">
-                <button class="copy-btn ghost" data-copy type="button">
-                  Copy
-                </button>
-                <pre><code>{c.html}</code></pre>
-              </div>
-            </article>
-          ))}
-        </section>
-      ))
-    }
   </div>
 </Layout>
-
-<script>
-  document.addEventListener("click", async (event) => {
-    const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(
-      "[data-copy]",
-    );
-    if (!btn) return;
-    const code = btn.nextElementSibling?.textContent ?? "";
-    const original = btn.textContent;
-    try {
-      await navigator.clipboard.writeText(code);
-      btn.textContent = "Copied";
-    } catch {
-      btn.textContent = "Error";
-    }
-    setTimeout(() => {
-      btn.textContent = original;
-    }, 1500);
-  });
-</script>
