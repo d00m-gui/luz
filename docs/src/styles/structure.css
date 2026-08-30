@@ -248,6 +248,10 @@
   border-radius: 0;
 }
 
+.demo-block {
+  margin-bottom: var(--space-6);
+}
+
 .preview-frame {
   position: relative;
   height: var(--space-16);

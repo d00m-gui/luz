@@ -8,9 +8,5 @@ export const config: LuzAstroConfig = {
   "font-headings": "var(--dm-sans)",
   "font-monospace": "var(--dm-mono)",
   properties: true,
+  background: "#050505",
 };
-// red: "#e11d1d",
-// yellow: "#f4e566",
-// cyan: "#44c9f2",
-// blue: "#09a1ca",
-// background: "#050505",
