@@ -351,7 +351,9 @@
   overflow-x: auto;
   overflow-y: hidden;
   font-family: var(--font-monospace);
-  font-size: var(--font-size-small);
+  code {
+    display: block;
+  }
 }
 
 .copy-btn {
@@ -360,4 +362,32 @@
   right: var(--space-2);
   font-size: var(--font-size-small);
   padding: var(--space-1) var(--space-3);
+}
+
+/* Glyphs de demo — Nerd Fonts "Symbols Only" (github.com/ryanoasis/nerd-fonts), pinneado a v3.5.1 vía CDN. No es dependencia de luz, solo se usa acá para mostrar los ejemplos de botón con ícono. */
+@font-face {
+  font-family: "NerdFontsSymbols Nerd Font";
+  src: url("https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@v3.5.1/patched-fonts/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf")
+    format("truetype");
+  font-display: swap;
+}
+.nf {
+  font-family: "NerdFontsSymbols Nerd Font";
+  font-style: normal;
+  font-weight: normal;
+}
+.nf-fa-download::before {
+  content: "\f019";
+}
+.nf-fa-github::before {
+  content: "\f09b";
+}
+.nf-fa-google::before {
+  content: "\f1a0";
+}
+.nf-fa-plus::before {
+  content: "\f067";
+}
+.nf-md-arrow_right::before {
+  content: "\f0054";
 }

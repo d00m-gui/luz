@@ -201,16 +201,33 @@ export const COMPONENTS: ComponentDoc[] = [
     id: "button",
     title: "Button",
     category: "Primitives",
-    covers: ["btn", "button"],
+    covers: ["btn", "button", "icon"],
     html: `<button>Default</button>
+<button class="neutral">Neutral</button>
 <button class="success">Success</button>
 <button class="contrast">Contrast</button>
 <button class="danger">Danger</button>
 <button class="warning">Warning</button>
 <button class="ghost">Ghost</button>
-<button class="reset">Reset</button>
 <button class="pill">Pill</button>
-<button disabled>Disabled</button>`,
+<button disabled>Disabled</button>
+
+<button class="square" aria-label="Add"><i class="icon nf nf-fa-plus"></i></button>
+<button><i class="icon nf nf-fa-download"></i> Download</button>
+<button class="loading">Saving</button>
+
+<button class="block"><i class="icon nf nf-fa-github"></i> Continue with GitHub</button>`,
+  },
+  {
+    id: "cta",
+    title: "CTA button",
+    category: "Primitives",
+    covers: ["cta"],
+    html: `<button class="cta">
+  <span class="text-xs">Nuevo</span>
+  <span class="text-lg">Empezar gratis</span>
+  <span class="text-sm">Sin tarjeta de crédito</span>
+</button>`,
   },
   {
     id: "badge",
