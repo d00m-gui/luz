@@ -4,8 +4,12 @@ import { luz } from "../../../src/luz";
 import { WHEEL_HUE_NAMES } from "../../../src/tools/wheel";
 import { config } from "../../luz.config.ts";
 import { ThemeToolbar } from "../components/ThemeToolbar";
+import { ColorPicker } from "../components/ColorPicker";
 import { COMPONENTS, UNCOVERED_FILES } from "../content/components";
-import { COMPONENT_CATEGORY_HUES, DEFAULT_CATEGORY_HUE } from "../lib/category-colors";
+import {
+  COMPONENT_CATEGORY_HUES,
+  DEFAULT_CATEGORY_HUE,
+} from "../lib/category-colors";
 
 const { tokens } = luz(config);
 
@@ -32,24 +36,61 @@ function swatchStyle(name: string, weight: number) {
   breadcrumb="Luz"
   contentClass="luz-defaults"
 >
-  <h2>Luz</h2>
-  <p>
-    Un sistema de diseño que vive en tu CSS: colores, tipografía y espaciado
-    generados a partir de un solo color <strong>primary</strong>, sin build
-    step propio ni runtime.
-  </p>
-
+  <div class="luz-intro-row">
+    <div class="card luz-intro">
+      <div class="panel-header">
+        <div class="panel-header-title">
+          <ThemeToolbar client:load />
+        </div>
+        <figure>
+          <img src="/luz-logo.svg" width={256} height={256} />
+        </figure>
+        <ColorPicker client:load />
+      </div>
+      <div class="hue">
+        {
+          SHADE_SCALES.map((name) => (
+            <div class="swatch-row">
+              <div class="swatch-row-label" style={`color: var(--${name}-500)`}>
+                {name}
+              </div>
+              <div class="swatch-list">
+                {WEIGHTS.map((weight) => (
+                  <div
+                    class="swatch"
+                    data-name={name}
+                    style={swatchStyle(name, weight)}
+                  >
+                    <span>{weight}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+        {
+          WHEEL_HUES.map((name) => (
+            <div class="swatch-row">
+              <div class="swatch-row-label">{name}</div>
+              <div class="swatch-list">
+                {WEIGHTS.map((weight) => (
+                  <div
+                    class="swatch"
+                    data-name={name}
+                    style={swatchStyle(name, weight)}
+                  >
+                    <span>{weight}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
   <div class="docs-sections">
-    <section class="card components-toolbar-card">
-      <details>
-        <summary class="titlebar panel-header">
-          <span class="panel-header-title">Tema en vivo</span>
-        </summary>
-        <ThemeToolbar client:load />
-      </details>
-    </section>
-
-    <section class="card">
+    <!-- <section class="card">
       <h2 class="card-title">Colores</h2>
       {
         SHADE_SCALES.map((name) => (
@@ -57,7 +98,11 @@ function swatchStyle(name: string, weight: number) {
             <div class="swatch-row-label">{name}</div>
             <div class="swatch-list">
               {WEIGHTS.map((weight) => (
-                <div class="swatch" data-name={name} style={swatchStyle(name, weight)}>
+                <div
+                  class="swatch"
+                  data-name={name}
+                  style={swatchStyle(name, weight)}
+                >
                   <span>{weight}</span>
                 </div>
               ))}
@@ -72,7 +117,11 @@ function swatchStyle(name: string, weight: number) {
             <div class="swatch-row-label">{name}</div>
             <div class="swatch-list">
               {WEIGHTS.map((weight) => (
-                <div class="swatch" data-name={name} style={swatchStyle(name, weight)}>
+                <div
+                  class="swatch"
+                  data-name={name}
+                  style={swatchStyle(name, weight)}
+                >
                   <span>{weight}</span>
                 </div>
               ))}
@@ -80,9 +129,9 @@ function swatchStyle(name: string, weight: number) {
           </div>
         ))
       }
-    </section>
+    </section> -->
 
-    <section class="card">
+    <!-- <section class="card">
       <h2 class="card-title">Sizes</h2>
 
       <div class="text-scale">
@@ -109,31 +158,34 @@ function swatchStyle(name: string, weight: number) {
           ))
         }
       </div>
-    </section>
+    </section> -->
 
-    <section>
-      <h2>Componentes</h2>
-      <div class="grid components-index-grid">
-        {
-          COMPONENTS.map((component) => {
-            const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
-            const spanClass = component.span ? ` col-span-${component.span}` : "";
-            return (
-              <article class={`card components-index-item lazy-render${spanClass}`}>
-                <a href={`/components/${component.id}`} style={`color: var(--${hue}-500)`}>
-                  {component.title}
-                </a>
-                <div class="component-preview">
-                  <Fragment set:html={component.preview ?? component.html} />
-                </div>
-              </article>
-            );
-          })
-        }
-      </div>
-    </section>
+    <div class="grid components-index-grid">
+      {
+        COMPONENTS.map((component) => {
+          const hue =
+            COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
+          const spanClass = component.span ? ` col-span-${component.span}` : "";
+          return (
+            <article
+              class={`card components-index-item lazy-render${spanClass}`}
+            >
+              <a
+                href={`/components/${component.id}`}
+                style={`color: var(--${hue}-500)`}
+              >
+                {component.title}
+              </a>
+              <div class="component-preview">
+                <Fragment set:html={component.preview ?? component.html} />
+              </div>
+            </article>
+          );
+        })
+      }
+    </div>
 
-    <section class="card">
+    <!-- <section class="card">
       <div class="html fluid">
         <h1>Un sistema de diseño que vive en tu CSS</h1>
         <p>
@@ -184,7 +236,7 @@ function swatchStyle(name: string, weight: number) {
         <hr />
         <hr class="dashed" />
       </div>
-    </section>
+    </section> -->
   </div>
 </Layout>
 
@@ -199,7 +251,9 @@ function swatchStyle(name: string, weight: number) {
   }
 
   function contrastSwatches() {
-    for (const el of document.querySelectorAll<HTMLElement>(".swatch[data-name]")) {
+    for (const el of document.querySelectorAll<HTMLElement>(
+      ".swatch[data-name]",
+    )) {
       const name = el.dataset.name;
       if (!name) continue;
       const [r, g, b] = resolveRGB(getComputedStyle(el).backgroundColor);

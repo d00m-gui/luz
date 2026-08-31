@@ -533,6 +533,22 @@ export const COMPONENTS: ComponentDoc[] = [
 <label><input type="radio" name="ks-radio" /> Radio B</label>`,
   },
   {
+    id: "colorpicker",
+    title: "Color picker",
+    category: "Primitives",
+    covers: ["colorpicker", "colorpicker-bg", "colorpicker-input", "colorpicker-swatch", "colorpicker-ring"],
+    html: `<div class="colorpicker" style="--n: 12">
+  <div class="colorpicker-bg"></div>
+  ${["red", "copper", "orange", "yellow", "green", "emerald", "teal", "cyan", "blue", "sky", "violet", "pink"]
+    .map(
+      (name, i) => `<input type="radio" name="cp-demo" id="cp-${name}" class="colorpicker-input" style="--i: ${i}" ${i === 0 ? "checked" : ""} />
+  <label for="cp-${name}" class="colorpicker-swatch" style="--i: ${i}; --swatch: var(--${name})"></label>
+  <span class="colorpicker-ring"></span>`,
+    )
+    .join("\n  ")}
+</div>`,
+  },
+  {
     id: "range",
     title: "Range",
     category: "Primitives",
@@ -669,67 +685,13 @@ export const COMPONENTS: ComponentDoc[] = [
   },
   {
     id: "gradient-property",
-    title: "Animated gradients (@property)",
+    title: "Animated gradients",
     category: "Surfaces",
     covers: ["card"],
     span: 3,
     html: `<div class="gradient-demo-row">
-  <div class="card gradient-demo gradient-demo-1"><span>conic angle</span></div>
-  <div class="card gradient-demo gradient-demo-2"><span>color-mix stop</span></div>
-  <div class="card gradient-demo gradient-demo-3"><span>radial position</span></div>
-</div>
-<style>
-  @property --angle-1 {
-    syntax: "<angle>";
-    inherits: false;
-    initial-value: 0deg;
-  }
-  @property --mix-2 {
-    syntax: "<percentage>";
-    inherits: false;
-    initial-value: 20%;
-  }
-  @property --pos-3 {
-    syntax: "<percentage>";
-    inherits: false;
-    initial-value: 30%;
-  }
-  .gradient-demo-row {
-    display: flex;
-    gap: var(--space-4);
-    flex-wrap: wrap;
-  }
-  .gradient-demo {
-    width: 10rem;
-    height: 6rem;
-    display: flex;
-    align-items: flex-end;
-    color: white;
-    text-shadow: 0 1px 2px oklch(0% 0 0 / 60%);
-    font-size: 0.85em;
-  }
-  .gradient-demo-1 {
-    background: conic-gradient(from var(--angle-1), var(--primary-400), var(--secondary-400), var(--neutral-400), var(--primary-400));
-    transition: --angle-1 600ms ease;
-  }
-  .gradient-demo-1:hover {
-    --angle-1: 360deg;
-  }
-  .gradient-demo-2 {
-    background: linear-gradient(135deg, color-mix(in oklch, var(--primary-500) var(--mix-2), var(--secondary-500)), var(--neutral-800));
-    transition: --mix-2 600ms ease;
-  }
-  .gradient-demo-2:hover {
-    --mix-2: 80%;
-  }
-  .gradient-demo-3 {
-    background: radial-gradient(circle at var(--pos-3) 50%, var(--primary-300), var(--secondary-700) 70%);
-    transition: --pos-3 600ms ease;
-  }
-  .gradient-demo-3:hover {
-    --pos-3: 70%;
-  }
-</style>`,
+  <div class="card gradient-demo gradient-luz"><span>conic angle</span></div>
+</div>`,
   },
   {
     id: "grid",

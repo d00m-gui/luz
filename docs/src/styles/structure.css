@@ -1,21 +1,39 @@
 .layout {
-  position: absolute;
-  inset: 0;
   display: flex;
   flex-direction: row;
 }
 
+.luz-intro-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+.luz-intro {
+  flex: 1 1 auto;
+  min-width: 0;
+  .lib-name {
+    font-family: var(--font-monospace);
+    font-size: var(--font-size-lg-fluid);
+  }
+}
+
 .sidebar {
   width: 15rem;
-  flex: 0 0 15rem;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   justify-content: flex-start;
-  gap: var(--space-16);
+  height: 100vh;
+  .breadcrumbs {
+    flex: 0 0 auto;
+    background-color: var(--neutral-800);
+  }
 }
+.sidebar-scroll {
+  overflow-y: auto;
+  flex: 1 1 auto;
 
+}
 .sidebar-group {
   margin-bottom: var(--space-2);
   display: grid;
@@ -326,6 +344,8 @@
 
 .component-preview {
   position: relative;
+  border-bottom: 1px solid red;
+  padding: var(--spacing) 0;
 }
 
 .components-toolbar-card {

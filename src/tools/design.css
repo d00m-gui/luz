@@ -14,6 +14,7 @@
 @import "./design/range.css";
 @import "./design/progress.css";
 @import "./design/checkbox-radio.css";
+@import "./design/colorpicker.css";
 @import "./design/blockquote.css";
 @import "./design/button.css";
 @import "./design/_focus.css";
@@ -51,3 +52,4 @@
 @import "./design/_center.css";
 @import "./design/_scroll.css";
 @import "./design/grid.css";
+@import "./design/gradient.css";

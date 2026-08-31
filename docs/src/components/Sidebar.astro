@@ -9,10 +9,9 @@ import { COMPONENTS } from "../content/components";
 
 interface Props {
   activeId: string;
-  breadcrumb: string;
 }
 
-const { activeId, breadcrumb } = Astro.props;
+const { activeId } = Astro.props;
 const features = (await getCollection("features")).sort(
   (a, b) => a.data.order - b.data.order,
 );
@@ -20,7 +19,6 @@ const componentsByCategory = Object.groupBy(COMPONENTS, (c) => c.category);
 ---
 
 <nav class="sidebar">
-  <code>{breadcrumb}</code>
   <div class="sidebar-group">
     <div class="sidebar-group-title">Docs</div>
     <a
