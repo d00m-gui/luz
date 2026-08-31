@@ -14,4 +14,14 @@
     padding-top: var(--space-4);
     border-top: var(--border-width) solid var(--element-border-color);
   }
+  &.glass {
+    background-color: color-mix(in oklch, var(--element-background) 60%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .card.glass {
+    background-color: var(--element-background);
+  }
 }

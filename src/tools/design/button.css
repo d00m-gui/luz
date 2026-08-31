@@ -75,6 +75,11 @@ button {
     width: 100%;
     justify-content: center;
   }
+  &.glass {
+    background-color: color-mix(in oklch, var(--current-bg) 60%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
   &.loading {
     pointer-events: none;
     opacity: 0.7;
@@ -111,5 +116,17 @@ button {
   .btn.loading::before,
   .button.loading::before {
     animation: none;
+  }
+}
+@supports not (backdrop-filter: blur(1px)) {
+  .btn.glass,
+  .button.glass,
+  [role="button"].glass,
+  [type="button"].glass,
+  [type="file"].glass::file-selector-button,
+  [type="reset"].glass,
+  [type="submit"].glass,
+  button.glass {
+    background-color: var(--current-bg);
   }
 }
