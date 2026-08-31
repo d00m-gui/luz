@@ -34,6 +34,10 @@ const {
   </head>
   <body>
     <div class="layout">
+      <input type="checkbox" id="sidebar-drawer" class="drawer-toggle" checked hidden />
+      <label for="sidebar-drawer" class="drawer-trigger" aria-label="Alternar sidebar">
+        <span class="drawer-icon"><span></span><span></span><span></span></span>
+      </label>
       <Sidebar activeId={activeId} breadcrumb={breadcrumb} />
       <main class="main">
         <div class={["content", contentClass].filter(Boolean).join(" ")}>

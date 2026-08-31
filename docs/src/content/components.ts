@@ -331,6 +331,41 @@ export const COMPONENTS: ComponentDoc[] = [
 </dialog>`,
   },
   {
+    id: "drawer",
+    title: "Drawer",
+    category: "Overlays",
+    covers: ["drawer", "drawer-trigger", "drawer-icon"],
+    html: `<div id="drawer-demo" popover class="drawer" data-placement="left">
+  <nav>
+    <p><strong>Menú</strong></p>
+    <a href="#">Inicio</a><br />
+    <a href="#">Componentes</a><br />
+    <a href="#">Docs</a>
+  </nav>
+</div>
+<button popovertarget="drawer-demo" class="drawer-trigger" aria-label="Abrir menú">
+  <span class="drawer-icon"><span></span><span></span><span></span></span>
+</button>`,
+  },
+  {
+    id: "drawer-sidebar",
+    title: "Drawer (sidebar)",
+    category: "Layout",
+    covers: ["drawer-toggle", "drawer-sidebar"],
+    html: `<div style="display: flex; align-items: flex-start">
+  <input type="checkbox" id="drawer-sidebar-demo" class="drawer-toggle" checked hidden />
+  <nav class="drawer-sidebar" style="--drawer-width: 10rem">
+    <p><strong>Sidebar</strong></p>
+    <a href="#">Item uno</a><br />
+    <a href="#">Item dos</a><br />
+    <a href="#">Item tres</a>
+  </nav>
+  <label for="drawer-sidebar-demo" class="drawer-trigger" aria-label="Toggle sidebar">
+    <span class="drawer-icon"><span></span><span></span><span></span></span>
+  </label>
+</div>`,
+  },
+  {
     id: "breadcrumbs",
     title: "Breadcrumbs",
     category: "Navigation",

@@ -97,6 +97,12 @@
   position: relative;
   padding-top: var(--space-20);
 }
+.layout > .drawer-trigger {
+  position: fixed;
+  top: var(--space-6);
+  left: var(--space-6);
+  z-index: 20;
+}
 
 .content .card .fluid {
   display: grid;
