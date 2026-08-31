@@ -467,12 +467,12 @@ export const COMPONENTS: ComponentDoc[] = [
     title: "Headings",
     category: "Primitives",
     covers: ["h1", "h2", "h3", "h4", "h5", "h6"],
-    html: `<h1>Heading level 1</h1>
-<h2>Heading level 2</h2>
-<h3>Heading level 3</h3>
-<h4>Heading level 4</h4>
-<h5>Heading level 5</h5>
-<h6>Heading level 6</h6>`,
+    html: `<h1>Easy to read</h1>
+<h2>Easy to read</h2>
+<h3>Easy to read</h3>
+<h4>Easy to read</h4>
+<h5>Easy to read</h5>
+<h6>Easy to read</h6>`,
   },
   {
     id: "divider",

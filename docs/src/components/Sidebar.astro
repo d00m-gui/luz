@@ -70,11 +70,11 @@ const componentsByCategory = Object.groupBy(COMPONENTS, (c) => c.category);
             <a
               href={`/components/${c.id}`}
               class={`sidebar-item${activeId === `component-${c.id}` ? " active" : ""}`}
-              style={`color: ${activeId === `component-${c.id}` ? " var(--foreground)" : `var(--${hue}-400)`}`}
+              style={`--sidebar-bg: var(--${hue}-400)`}
             >
               <span
                 class="sidebar-dot"
-                style={`background: var(--${hue}-500)`}
+                style={`background: var(--${hue}-400)`}
               />
               {c.title}
             </a>

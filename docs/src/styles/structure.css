@@ -37,11 +37,20 @@
   text-decoration: none;
   border-radius: 0;
   font-size: var(--font-size-base-fluid);
+  font-weight: var(--font-bold-weight);
+  color: var(--foreground);
+  &:hover {
+    --sidebar-bg-alpha: oklch(from var(--sidebar-bg, var(--background)) l c h / 20%);
+    --on-sidebar: oklch(from var(--sidebar-bg, var(--background)) calc(l + 0.15) c h);
+    background-color: var(--sidebar-bg-alpha);
+    color: var(--on-sidebar);
+  }
 }
 
 .sidebar-item.active {
-  border-left-color: var(--element-active-border-color);
-  color: var(--element-active-color);
+  /*border-left-color: var(--element-active-border-color);*/
+  background-color: var(--sidebar-bg, var(--background));
+  color: var(--background);
 }
 
 .sidebar-dot {
@@ -316,33 +325,7 @@
 }
 
 .component-preview {
-  gap: var(--space-3);
-  padding: var(--space-6);
-  border: var(--border-width) solid var(--element-border-color);
-  border-radius: var(--border-radius);
-  margin-bottom: var(--space-3);
   position: relative;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    opacity: 0.2;
-    pointer-events: none;
-    background-image:
-      linear-gradient(oklch(from var(--foreground) l c h / 15%) var(--base-unit), transparent var(--base-unit)),
-      linear-gradient(90deg, oklch(from var(--foreground) l c h / 15%) var(--base-unit), transparent var(--base-unit)),
-      linear-gradient(oklch(from var(--foreground) l c h / 15%) 0.5px, transparent 0.5px),
-      linear-gradient(90deg, oklch(from var(--foreground) l c h / 15%) 0.5px, var(--background) 0.5px);
-    background-size:
-      20px 20px,
-      20px 20px;
-    background-position:
-      -1px -1px,
-      -1px -1px,
-      -0.5px -0.5px,
-      -0.5px -0.5px;
-  }
 }
 
 .components-toolbar-card {
@@ -402,7 +385,7 @@
   --shiki-token-string: var(--secondary-500);
   --shiki-token-constant: var(--primary-50);
   --shiki-token-comment: var(--primary-100);
-  --shiki-token-punctuation: var(--primary-400); /*var(--element-placeholder-color);*/
+  --shiki-token-punctuation: var(--primary-400);
 }
 
 .component-code pre {

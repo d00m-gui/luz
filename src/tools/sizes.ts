@@ -129,9 +129,8 @@ export function luzSizes(
     "border-radius": `${(base / 78).toFixed(1)}rem`,
     "border-width": `${(base / 128).toFixed(1)}rem`,
     spacing: `${((base / 10) * 3).toFixed(0)}vw`,
-    "element-vertical": `${(base / 14).toFixed(1)}ch`,
-    "element-horizontal": `${(base / 8).toFixed(1)}ch`,
-    "element-text-shadow": `0 .5px oklch(from var(--neutral-950) 100% 0 0 / calc(1 * .15))`
+    "element-vertical": `${(base / 16).toFixed(1)}ch`,
+    "element-horizontal": `${(base / 12).toFixed(1)}ch`
   };
 }
 
