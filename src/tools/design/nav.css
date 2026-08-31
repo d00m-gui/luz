@@ -1,0 +1,19 @@
+nav {
+  display: flex;
+  overflow: visible;
+  & ul,
+  & ol {
+    align-items: center;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    &:first-of-type {
+      margin-left: calc(var(--element-horizontal) * -1);
+    }
+    & li {
+      padding: var(--element-vertical) var(--element-horizontal);
+      margin: 0;
+      display: inline-block;
+    }
+  }
+}

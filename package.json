@@ -65,6 +65,7 @@
     "dev:watch": "bunup --watch",
     "docs": "bun run --cwd docs dev",
     "format": "oxfmt",
+    "gen": "bun run gen:reset && bun run --cwd docs gen:components",
     "gen:reset": "bun run scripts/generate-reset.ts",
     "lint": "oxlint --ignore-pattern \"dist/**\" .",
     "prepare": "bun simple-git-hooks",

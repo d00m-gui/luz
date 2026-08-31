@@ -1,49 +1,26 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import { luz } from "../../../src/luz";
+import { WHEEL_HUE_NAMES } from "../../../src/tools/wheel";
 import { config } from "../../luz.config.ts";
-import { UNCOVERED_CLASSES, UNCOVERED_ELEMENTS } from "../content/components";
+import { UNCOVERED_FILES } from "../content/components";
 
 const { tokens } = luz(config);
 
-if (UNCOVERED_CLASSES.length > 0) {
+if (UNCOVERED_FILES.length > 0) {
   console.warn(
-    `[components] clases sin ejemplo en components.ts: ${UNCOVERED_CLASSES.join(", ")}`,
-  );
-}
-if (UNCOVERED_ELEMENTS.length > 0) {
-  console.warn(
-    `[components] tags sin ejemplo en components.ts: ${UNCOVERED_ELEMENTS.join(", ")}`,
+    `[components] componentes sin ejemplo en components.ts: ${UNCOVERED_FILES.join(", ")}`,
   );
 }
 
 const WEIGHTS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 const SHADE_SCALES = ["primary", "secondary", "neutral"];
-const WHEEL_HUES = [
-  "red",
-  "orange",
-  "copper",
-  "yellow",
-  "green",
-  "emerald",
-  "teal",
-  "cyan",
-  "blue",
-  "sky",
-];
+const WHEEL_HUES = WHEEL_HUE_NAMES;
 
 const TEXT_SCALE_NAMES = ["xs", "sm", "base", "lg", "xl", "2xl", "3xl"];
 
 function swatchStyle(name: string, weight: number) {
-  const raw = tokens.colors[`${name}-${weight}`];
-  const lightnessMatch = raw?.match(/oklch\(from \S+ ([\d.]+)%/);
-  const lightness = lightnessMatch
-    ? Number(lightnessMatch[1])
-    : weight <= 400
-      ? 80
-      : 20;
-  const onColor = lightness >= 50 ? `on-${name}-inverse` : `on-${name}`;
-  return `background: var(--${name}-${weight}); color: var(--${onColor})`;
+  return `background: var(--${name}-${weight})`;
 }
 ---
 
@@ -62,7 +39,7 @@ function swatchStyle(name: string, weight: number) {
             <div class="swatch-row-label">{name}</div>
             <div class="swatch-list">
               {WEIGHTS.map((weight) => (
-                <div class="swatch" style={swatchStyle(name, weight)}>
+                <div class="swatch" data-name={name} style={swatchStyle(name, weight)}>
                   <span>{weight}</span>
                 </div>
               ))}
@@ -77,7 +54,7 @@ function swatchStyle(name: string, weight: number) {
             <div class="swatch-row-label">{name}</div>
             <div class="swatch-list">
               {WEIGHTS.map((weight) => (
-                <div class="swatch" style={swatchStyle(name, weight)}>
+                <div class="swatch" data-name={name} style={swatchStyle(name, weight)}>
                   <span>{weight}</span>
                 </div>
               ))}
@@ -121,10 +98,10 @@ function swatchStyle(name: string, weight: number) {
       <div class="html fluid">
         <h1>Un sistema de diseño que vive en tu CSS</h1>
         <p>
-          luz genera colores, tipografía y espaciado a partir de un solo
-          color <strong>primary</strong> — sin build step propio, sin
-          runtime: el resultado es CSS plano que corre en cualquier
-          framework, o en ninguno.
+          luz genera colores, tipografía y espaciado a partir de un solo color <strong
+            >primary</strong
+          > — sin build step propio, sin runtime: el resultado es CSS plano que corre
+          en cualquier framework, o en ninguno.
         </p>
         <div class="kitchen-sink-row">
           <button>Empezar</button>
@@ -144,7 +121,7 @@ function swatchStyle(name: string, weight: number) {
         <p>
           Cada paleta nace de una <a href="#" class="secondary"
             >rueda armonizada</a
-          > de diez hues, pensada para que el contraste funcione en modo{" "}
+          > de doce hues, pensada para que el contraste funcione en modo{" "}
           <em>claro</em> y <em>oscuro</em> sin retocar nada a mano. El resultado:
           componentes coherentes entre sí incluso cuando cambiás el color base.
         </p>
@@ -153,9 +130,9 @@ function swatchStyle(name: string, weight: number) {
           La regla que gobierna todo el proyecto es simple:{" "}
           <mark>cualquier valor que luz calcule puede overridearse</mark>,
           aplicado al final del pipeline, sin pisadas de cálculos internos
-          posteriores. Si un <a href="#" class="danger">rojo</a> queda muy
-          saturado o un <a href="#" class="success">verde</a> poco legible,
-          se ajusta en la config — no en el CSS generado.
+          posteriores. Si un <a href="#" class="danger">rojo</a> queda muy saturado
+          o un <a href="#" class="success">verde</a> poco legible, se ajusta en la
+          config — no en el CSS generado.
         </p>
         <blockquote>
           "La mejor config es la que no tenés que tocar dos veces."
@@ -171,3 +148,25 @@ function swatchStyle(name: string, weight: number) {
     </section>
   </div>
 </Layout>
+
+<script>
+  function resolveRGB(color: string): [number, number, number] {
+    const canvas = new OffscreenCanvas(1, 1);
+    const ctx = canvas.getContext("2d")!;
+    ctx.fillStyle = color;
+    ctx.fillRect(0, 0, 1, 1);
+    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
+    return [r!, g!, b!];
+  }
+
+  function contrastSwatches() {
+    for (const el of document.querySelectorAll<HTMLElement>(".swatch[data-name]")) {
+      const name = el.dataset.name;
+      if (!name) continue;
+      const [r, g, b] = resolveRGB(getComputedStyle(el).backgroundColor);
+      const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+      el.style.color = `var(--on-${name}${luminance > 0.5 ? "-inverse" : ""})`;
+    }
+  }
+  document.addEventListener("astro:page-load", contrastSwatches);
+</script>

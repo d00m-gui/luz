@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from "node:fs";
 import { basename, dirname, extname, join } from "node:path";
-import { DESIGN, RESET, STRUCTURE } from "./reset-css.generated";
+import { COMPONENTS, RESET } from "./reset-css.generated";
 
 export interface CssSections {
   theme: string;
@@ -48,8 +48,7 @@ export function writeCss(
 
   const staticLayers: Array<[name: string, content: string]> = [
     [`${base}.reset${ext}`, RESET],
-    [`${base}.structure${ext}`, STRUCTURE],
-    [`${base}.design${ext}`, DESIGN],
+    [`${base}.components${ext}`, COMPONENTS],
   ];
   for (const [name, content] of staticLayers) {
     writeFileSync(join(dir, name), content, { encoding: "utf-8" });

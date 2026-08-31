@@ -1,4 +1,4 @@
-import { DESIGN_CLASSES, DESIGN_ELEMENTS } from "./components.generated";
+import { DESIGN_FILES } from "./components.generated";
 
 /** Reset-only/structural tags with no meaningful standalone demo. */
 const EXEMPT_ELEMENTS = [
@@ -29,7 +29,7 @@ export interface ComponentDoc {
     | "Surfaces"
     | "Data"
     | "Identity";
-  /** Class names or bare tag selectors from luz's CSS this entry demonstrates — checked against `DESIGN_CLASSES`/`DESIGN_ELEMENTS`. */
+  /** Class names or bare tag selectors from luz's CSS this entry demonstrates — checked against each `DESIGN_FILES` entry's `classes`/`elements`. */
   covers: string[];
   /** Copyable source, also used as the live preview unless `preview` is set. */
   html: string;
@@ -58,6 +58,16 @@ export const COMPONENTS: ComponentDoc[] = [
 
 <button popovertarget="toast-danger">Show error toast</button>
 <div id="toast-danger" popover class="toast danger">Something went wrong</div>`,
+  },
+  {
+    id: "tooltip",
+    title: "Tooltip",
+    category: "Overlays",
+    covers: ["tooltip"],
+    html: `<span data-tooltip="Top (default)">Hover me</span>
+<span data-tooltip="Bottom" data-placement="bottom">Hover me</span>
+<span data-tooltip="Left" data-placement="left">Hover me</span>
+<span data-tooltip="Right" data-placement="right">Hover me</span>`,
   },
   {
     id: "stat",
@@ -484,6 +494,14 @@ export const COMPONENTS: ComponentDoc[] = [
   <input type="text" aria-invalid="true" value="Something's off" />
 </label>
 <label>
+  Success input
+  <input type="text" aria-invalid="false" value="Everything is AWESOME!" />
+</label>
+<label>
+  Warning
+  <input type="text" placeholder="Must type the correct message..." />
+</label>
+<label>
   Textarea
   <textarea placeholder="Type something..."></textarea>
 </label>
@@ -499,7 +517,7 @@ export const COMPONENTS: ComponentDoc[] = [
     id: "checkbox-radio",
     title: "Checkbox & Radio",
     category: "Primitives",
-    covers: [],
+    covers: ["checkbox", "radio", "switch"],
     html: `<label><input type="checkbox" checked /> Checkbox</label>
 <label><input type="checkbox" role="switch" checked /> Switch</label>
 <label><input type="radio" name="ks-radio" checked /> Radio A</label>
@@ -561,7 +579,8 @@ export const COMPONENTS: ComponentDoc[] = [
 ];
 
 const covered = new Set(COMPONENTS.flatMap((c) => c.covers));
-export const UNCOVERED_CLASSES = DESIGN_CLASSES.filter((c) => !covered.has(c));
-export const UNCOVERED_ELEMENTS = DESIGN_ELEMENTS.filter(
-  (e) => !covered.has(e) && !EXEMPT_ELEMENTS.includes(e),
-);
+export const UNCOVERED_FILES = DESIGN_FILES.filter((f) => {
+  const tokens = [...f.classes, ...f.elements, ...f.attrs];
+  if (tokens.length > 0 && tokens.every((t) => EXEMPT_ELEMENTS.includes(t))) return false;
+  return !tokens.some((t) => covered.has(t));
+}).map((f) => f.file);

@@ -1,0 +1,9 @@
+a:focus-visible,
+button:focus-visible,
+.btn:focus-visible,
+.button:focus-visible,
+[role="button"]:focus-visible,
+input[type="range"]:focus-visible {
+  outline: var(--size-unit) solid var(--element-active-border-color);
+  outline-offset: calc(var(--size-unit) * 2);
+}

@@ -9,29 +9,22 @@
   font-weight: var(--font-weight);
   line-height: var(--line-height);
   font-size: inherit;
-}
-table {
-  border-collapse: collapse;
-  border-spacing: 0;
-}
-ol,
-ul {
-  list-style: none;
-}
-q:before,
-q:after,
-blockquote:before,
-blockquote:after {
-  content: "";
-}
-[hidden],
-.hidden {
-  display: none;
-}
-*,
-:before,
-:after {
   box-sizing: inherit;
+}
+html,
+body {
+  box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+body {
+  font-family: var(--font);
+  font-weight: var(--font-weight);
+  font-size: calc(var(--size-unit) * 10);
+  background-color: var(--background);
+  color: var(--foreground);
 }
 img,
 picture,
@@ -41,23 +34,10 @@ svg {
   max-width: 100%;
   display: block;
 }
-input,
-button,
-textarea,
-select {
-  font: inherit;
-}
-#root,
-#__next {
-  isolation: isolate;
-}
-html,
-body {
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  height: 100%;
-  margin: 0;
-  padding: 0;
+figure {
+  & img {
+    width: 100%;
+  }
 }
 br {
   float: none;
@@ -68,10 +48,13 @@ br {
   display: block;
   overflow: hidden;
 }
-figure {
-  & img {
-    width: 100%;
-  }
+#root,
+#__next {
+  isolation: isolate;
+}
+[hidden],
+.hidden {
+  display: none;
 }
 @media (prefers-reduced-motion: reduce) {
   html {

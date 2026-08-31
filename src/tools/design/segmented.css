@@ -1,0 +1,37 @@
+.segmented {
+  display: inline-flex;
+  gap: var(--size-unit);
+  background-color: var(--element-background);
+  border-radius: var(--border-radius);
+  padding: var(--size-unit);
+}
+.segmented-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+.segmented-item {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  color: var(--on-tab);
+  font-weight: var(--font-weight);
+  transition: var(--transition);
+  transition-property: background-color, color;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--on-tab-active);
+    }
+  }
+}
+.segmented-input:checked + .segmented-item {
+  background-color: var(--btn-bg);
+  color: var(--on-btn);
+  font-weight: var(--font-bold-weight);
+}
+.segmented-input:focus-visible + .segmented-item {
+  outline: calc(var(--size-unit) * 2) solid var(--element-active-border-color);
+  outline-offset: calc(var(--size-unit) * 2);
+}

@@ -1,0 +1,41 @@
+a {
+  text-transform: none;
+  font-weight: inherit;
+  border: none;
+  outline: none;
+  text-decoration: underline;
+  color: var(--anchor);
+  & img {
+    cursor: pointer;
+    border: none;
+    outline: none;
+  }
+  &:active,
+  &:hover,
+  &:visited {
+    cursor: pointer;
+    outline: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      filter: brightness(1.1);
+      transition: var(--transition);
+      transition-property: filter;
+    }
+  }
+  &.secondary {
+    --anchor: var(--anchor-secondary);
+  }
+  &.contrast {
+    --anchor: var(--anchor-contrast);
+  }
+  &.danger {
+    --anchor: var(--anchor-danger);
+  }
+  &.success {
+    --anchor: var(--anchor-success);
+  }
+  &.warning {
+    --anchor: var(--anchor-warning);
+  }
+}

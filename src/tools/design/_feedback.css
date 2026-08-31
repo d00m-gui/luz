@@ -1,0 +1,46 @@
+.success {
+  --scheme: var(--success);
+  --on-scheme: var(--on-success);
+}
+.danger {
+  --scheme: var(--danger);
+  --on-scheme: var(--on-danger);
+}
+.warning {
+  --scheme: var(--warning);
+  --on-scheme: var(--on-warning);
+}
+.info {
+  --scheme: var(--info);
+  --on-scheme: var(--on-info);
+}
+.primary {
+  --scheme: var(--scheme-primary);
+  --on-scheme: var(--on-scheme-primary);
+}
+.secondary {
+  --scheme: var(--scheme-secondary);
+  --on-scheme: var(--on-scheme-secondary);
+}
+.neutral {
+  --scheme: var(--scheme-neutral);
+  --on-scheme: var(--on-scheme-neutral);
+}
+:where(.success, .danger, .warning, .info, .primary, .secondary, .neutral) {
+  color: var(--scheme);
+}
+.solid {
+  background-color: var(--scheme, var(--scheme-primary));
+  border-color: var(--scheme, var(--scheme-primary));
+  color: var(--on-scheme, var(--on-scheme-primary));
+}
+.soft {
+  background-color: oklch(from var(--scheme, var(--scheme-primary)) l c h / 12%);
+  border-color: var(--scheme, var(--scheme-primary));
+  color: oklch(from var(--scheme, var(--scheme-primary)) calc(l + 0.25) c h);
+}
+.outline {
+  background-color: transparent;
+  border-color: var(--scheme, var(--scheme-primary));
+  color: var(--scheme, var(--scheme-primary));
+}

@@ -1,0 +1,9 @@
+code,
+pre,
+samp {
+  font-family: var(--font-monospace);
+  overflow-x: auto;
+  & > code {
+    padding: calc(var(--size-unit) * 10);
+  }
+}

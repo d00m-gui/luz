@@ -1,0 +1,35 @@
+.tabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: var(--border-width) solid var(--border-color);
+}
+.tab-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 1px;
+  height: 1px;
+}
+.tab {
+  padding: var(--space-3) var(--space-5);
+  cursor: pointer;
+  color: var(--on-tab);
+  border-bottom: calc(var(--size-unit) * 2) solid transparent;
+  font-weight: var(--font-weight);
+  transition: var(--transition);
+  transition-property: color, border-color;
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      color: var(--on-tab-active);
+    }
+  }
+}
+.tab-input:checked + .tab {
+  color: var(--on-tab-active);
+  border-color: var(--tab-border-active);
+  font-weight: var(--font-bold-weight);
+}
+.tab-input:focus-visible + .tab {
+  outline: calc(var(--size-unit) * 2) solid var(--element-active-border-color);
+  outline-offset: calc(var(--size-unit) * 2);
+}

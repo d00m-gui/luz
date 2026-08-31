@@ -1,0 +1,59 @@
+.tooltip,
+[data-tooltip] {
+  position: relative;
+  &:not(a, button, input) {
+    cursor: help;
+    text-decoration: none;
+  }
+  &[data-placement="top"]:before,
+  &:before {
+    z-index: 99;
+    padding: 0 calc(var(--size-unit) * 10);
+    border-radius: calc(var(--size-unit) * 5);
+    content: attr(data-tooltip);
+    border: var(--border-width) solid var(--foreground);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    font-size: var(--font-size-small);
+    text-decoration: none;
+    display: block;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    overflow: hidden;
+    transform: translate(-50%, -5px);
+    background: var(--tooltip-bg);
+    color: var(--on-tooltip);
+    border-color: transparent;
+    transition: var(--transition);
+    transition-property: opacity;
+  }
+  &[data-placement="bottom"]:before {
+    top: 100%;
+    bottom: auto;
+    transform: translate(-50%, 2.5px);
+  }
+  &[data-placement="left"]:before {
+    inset: 50% 100% auto auto;
+    transform: translate(-2.5px, -50%);
+  }
+  &[data-placement="right"]:before {
+    inset: 50% auto auto 100%;
+    transform: translate(2.5px, -50%);
+  }
+  &:focus:before {
+    opacity: 1;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover:before {
+      opacity: 1;
+    }
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-tooltip]:before {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,5 @@
+mark,
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--on-selection);
+}

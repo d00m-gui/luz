@@ -1,0 +1,8 @@
+.toggle {
+  background-color: var(--element-background);
+  color: var(--foreground);
+  &[aria-pressed="true"] {
+    background-color: var(--btn-bg);
+    color: var(--on-btn);
+  }
+}

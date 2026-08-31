@@ -1,0 +1,35 @@
+.breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--font-size-small);
+  color: var(--on-breadcrumb);
+  & ol,
+  & ul {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+  }
+  & li {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    &:not(:last-child)::after {
+      content: "/";
+      color: var(--breadcrumb-separator);
+    }
+    &:last-child {
+      color: var(--foreground);
+      font-weight: var(--font-weight);
+    }
+  }
+  & a {
+    color: var(--on-breadcrumb);
+    text-decoration: none;
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        color: var(--foreground);
+      }
+    }
+  }
+}

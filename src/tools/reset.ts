@@ -1,5 +1,5 @@
-import { DESIGN, RESET, STRUCTURE } from "./reset-css.generated";
+import { COMPONENTS, RESET } from "./reset-css.generated";
 
 export function buildReset(): string {
-  return `${RESET}\n${STRUCTURE}\n${DESIGN}`;
+  return `${RESET}\n${COMPONENTS}`;
 }

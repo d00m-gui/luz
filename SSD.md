@@ -26,12 +26,12 @@ src/
   index.ts             entry pública (re-exports)
   tools/
     constants.ts        curvas de shade (WEIGHTS/SHADES/SHADES_REVERSE) — datos puros
-    reset.css/structure.css/design.css   las 3 capas del reset, CSS real
+    reset.css/design.css   las 2 capas del reset, CSS real (design.css es manifest de design/*.css, 1 archivo por componente)
     hue.ts               luzShadesByHue: 1 hue base → N shades oklch (50–950 garantizados + steps custom)
     wheel.ts             luzWheel: 10 hues (red…sky), l heredada de primary (armonía), seed overrideable, vía luzShadesByHue
     sizes.ts             luzSizes/luzSpace/luzTypeLandmarks: size-N, space-N, font-size-h1..h6/small fijos
     props.ts             luzProperty: infiere @property por token (syntax/initial-value) — opt-in
-    reset.ts             buildReset(): importa los 3 .css como texto (`with { type: "text" }`) y compone
+    reset.ts             buildReset(): compone RESET + COMPONENTS desde reset-css.generated.ts
     shade-fallback.ts    var(--x-500) → var(--x-500, var(--x)) para paletas custom incompletas
     shadcn-bridge.ts     shadcnBridgeCSS: alias de tokens shadcn ← tokens luz
     utilities.ts         registry de utility classes + scan + emisión de CSS
@@ -330,6 +330,44 @@ lo introdujo este cambio)**: con `name`/`prefix` custom simultáneos (ej.
 `--luz-brand`/`--luz-secondary` (el alias "base" sin sufijo `-N`). No es
 parte de este batch — anotado para otra pasada.
 
+## `_feedback.css` — esquema × tratamiento, 2 ejes combinables
+
+`tools/design/_feedback.css` (último `@import` de `design.css`, después
+de todos los componentes — así sus clases ganan el empate de
+especificidad contra los estilos base de `.btn`/`.badge`/`.alert`/
+`.toast`). Dos ejes de clases combinables en el HTML:
+
+- **Esquema** (`.success`/`.danger`/`.warning`/`.info`/`.primary`/
+  `.secondary`/`.neutral`): fija `--scheme`/`--on-scheme` a los tokens
+  de `themeVariables()` (`--success`, `--on-success`, ... y los nuevos
+  `--scheme-primary`/`--scheme-secondary`/`--scheme-neutral` + `on-*`).
+  El `color: var(--scheme)` para el look "solo color" vive aparte, en
+  un `:where(.success, .danger, ...)` compartido de especificidad cero
+  — así nunca pisa el `color`/`--current-color` que ya calcula un
+  componente (`.btn`/`.badge`/`.alert`) cuando el esquema se combina
+  sin clase de tratamiento.
+- **Tratamiento** (`.solid`/`.soft`/`.outline`): lee `--scheme` con
+  fallback a `--scheme-primary`, define fondo/borde/texto.
+
+`.btn`/`.badge` derivan `--current-bg`/`--current-color` de `var(--scheme,
+var(--btn-bg))` / `var(--scheme, var(--on-btn))` (o `--badge-bg`/
+`--on-badge`) — sus modificadores de color (`.success`, `.danger`,
+`.warning`, `.neutral`, `.alternative`, `[role="contrast"]`, etc.) solo
+fijan `--scheme`/`--on-scheme`, ya no tienen una regla de pintado por
+variante. El hover/active de `.btn` usa `oklch(from var(--current-bg)
+...)`, ya no toca `--btn-bg` directo. `.alert` y `.toast.<esquema>` usan
+la fórmula de `.soft` (fallback `--scheme-neutral` en `.alert`). `.dot`
+no necesita reglas propias por esquema: hereda `color` de la clase de
+esquema vía `background-color: currentColor`.
+
+**Bug corregido**: los tokens de esquema no pueden llamarse `primary`/
+`secondary`/`neutral`/`on-secondary`/`on-neutral` a secas — `buildColors()`
+ya emite variables con esos nombres por default (`--primary`/`--secondary`/
+`--neutral` = color semilla crudo, `--on-secondary`/`--on-neutral`), y como
+`--primary-500` etc. se calculan a partir de esas, un choque de nombres
+crea una referencia circular (ambas quedan inválidas en el browser). Por
+eso el alias fijo usa el prefijo `scheme-`.
+
 ## Bloque D4 — `.css` estáticos reales en `dist/`, `@import` directo
 
 `reset.css`/`structure.css`/`design.css` (100% estáticos, no dependen de
@@ -383,14 +421,25 @@ generador interactivo de design systems más adelante. Proyecto separado
 ("luz-studio"), planificación propia en su directorio — no vive adentro
 del paquete luz ni de este repo.
 
-## `reset.ts` — función, 3 capas, fuente en CSS real
+## `reset.ts` — función, 2 capas, un archivo CSS por componente
 
 `export const reset = string` pasó a ser `export function buildReset():
-string`. Las 3 capas viven como archivos `.css` reales (`reset.css`/
-`structure.css`/`design.css` en `src/tools/`) — son 100% CSS estático (sin
-interpolación `${...}`, toda su dinámica pasa por `var(--...)`), así que
-editarlos como `.css` de verdad (syntax highlighting/lint reales) tiene
-sentido y no cuesta nada en runtime.
+string`. El reset vive como archivos `.css` reales en `src/tools/` — son
+100% CSS estático (sin interpolación `${...}`, toda su dinámica pasa por
+`var(--...)`), así que editarlos como `.css` de verdad (syntax
+highlighting/lint reales) tiene sentido y no cuesta nada en runtime.
+
+Dos capas, no tres: `reset.css` (genérico, no-por-componente — `*`,
+`html`/`body`, `img`/`picture`/`video`/`canvas`/`svg`, `br`, `figure`,
+`#root`/`#__next`, `[hidden]`) y `design.css`, que es un manifest corto
+de `@import "./design/nombre.css";` — un archivo **self-contained** por
+componente bajo `src/tools/design/` (48 archivos: reset+structure+design
+de ese componente juntos, ya no repartidos entre 3 capas globales). Dos
+selectores genuinamente compartidos entre componentes (`:focus-visible`
+de `a`/`button`/`.btn`/`input[range]`, el estado `[disabled]` de
+`input`/`optgroup`/`select`/`textarea`/`label`/`button`) viven en
+`_focus.css`/`_disabled.css`, prefijados con `_` para distinguirlos de un
+componente real.
 
 **Cómo llegan a `reset.ts` — nada de imports "mágicos" de `.css`.**
 `bunup` (build del paquete publicado) y Vite (`docs/` importa el código
@@ -402,13 +451,15 @@ de acuerdo en cómo importar un `.css` como texto: `bunup` no resuelve
 exported by reset.css` (verificado con un `astro build` real, no
 supuesto). Ninguna sintaxis de import sirve para los dos.
 
-Solución: `scripts/generate-reset.ts` lee los 3 `.css` y escribe
-`src/tools/reset-css.generated.ts` (comiteado, no gitignored) con
-`RESET`/`STRUCTURE`/`DESIGN` como constantes de string planas — un módulo
-`.ts` normal, sin nada especial que ningún bundler necesite entender.
+Solución: `scripts/generate-reset.ts` lee `reset.css`/`design.css`,
+resuelve los `@import` locales de `design.css` de forma recursiva, y
+escribe `src/tools/reset-css.generated.ts` (comiteado, no gitignored) con
+`RESET`/`COMPONENTS` como constantes de string planas — un módulo `.ts`
+normal, sin nada especial que ningún bundler necesite entender.
 `reset.ts` importa de ahí. **Hay que correr `bun run gen:reset` después de
-tocar cualquiera de los 3 `.css`** — no es automático todavía (no hay
-watcher/hook, ver `CLAUDE.md`).
+tocar `reset.css`, `design.css`, o cualquier archivo bajo
+`src/tools/design/`** — no es automático todavía (no hay watcher/hook,
+ver `CLAUDE.md`).
 
 **Por qué no `readFileSync` en runtime** (alternativa descartada): rompería
 `luz()` en cualquier entorno sin `node:fs` — un browser, un edge runtime —
@@ -430,19 +481,18 @@ cuando hoy es JS puro sin I/O. El generado evita ese costo por completo.
   theme/bridge/utilities) — significaría publicarlos en `package.json`
   `exports` y decidir cómo llegan al modo `"virtual"`. Sigue sin decidir.
 
-Sección 3-capas sin cambios de fondo, sigue compuesta de:
+- **`RESET`**: normalize puro y genérico, no-por-componente — box model,
+  márgenes, list-style, elementos exentos de catálogo de componentes
+  (`html`/`body`/`img`/`picture`/`video`/`canvas`/`svg`/`br`/`figure`).
+  Cero tokens de color/tipografía propios de luz más allá de
+  `--font-weight`/`--line-height` (restauración semántica, no elección
+  visual).
+- **`COMPONENTS`**: todo lo demás — un archivo self-contained por
+  componente en `src/tools/design/` (reset+layout+color+hover/focus/active
+  del componente juntos, ya no repartidos entre capas globales),
+  concatenados según el manifest `design.css`.
 
-- **`RESET`**: normalize puro — box model, márgenes, list-style. Cero
-  tokens de color/tipografía propios de luz más allá de `--font-weight`/
-  `--line-height` (restauración semántica, no elección visual).
-- **`STRUCTURE`**: layout + fundamento tipográfico — tamaños, flex, spacing,
-  sin color ni sombras. Acá vive la aplicación real de `font`/`font-weight`/
-  `font-headings`/etc.
-- **`DESIGN`**: la capa opinada — color, sombras, hover/focus/active,
-  formas de componente (switch, badge, tooltip). Todo lo que un design
-  system probablemente quiera reemplazar por el suyo.
-
-No es togglable todavía (decisión explícita — ver `CLAUDE.md`): las 3
+No es togglable todavía (decisión explícita — ver `CLAUDE.md`): las 2
 siempre se generan juntas, `buildReset()` no toma parámetros aún. La
 función existe para que un futuro `layers` pueda seleccionar un subset sin
 otro rewrite — no para cambiar comportamiento hoy.
@@ -460,10 +510,6 @@ así que texto suelto sin envolver en `<p>` ignoraba la config. Y
 tenía `&::-moz-progress-bar { background-color: var(--primary-500) }`
 hardcodeado — ahora usa el alias `--progress-fill` de `themeVariables()`.
 
-**Clasificación reset/estructura/diseño no es 100% objetiva** — hay casos
-límite (ej. `hr`'s color va a `DESIGN`, su `margin` a `STRUCTURE`). Es un
-primer corte razonable, abierto a mover cosas de sección en una pasada
-posterior si algo no encaja al usarlo.
 
 ## Adaptadores (`astro/`, `vite/`)
 

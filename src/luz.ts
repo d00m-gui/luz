@@ -2,7 +2,7 @@
  * Luz - Lightweight theming library.
  */
 
-import { luzShadesByHue } from "./tools/hue";
+import { luzOnColor, luzShadesByHue } from "./tools/hue";
 import { luzProperty } from "./tools/props";
 import { buildReset } from "./tools/reset";
 import {
@@ -16,7 +16,7 @@ import {
 import { luzWheel, WHEEL_HUE_NAMES, type WheelHueName } from "./tools/wheel";
 import { withShadeFallback } from "./tools/shade-fallback";
 
-/** Also accepts any of luz's 10 wheel hue names (`sky`, `blue`, `cyan`, `teal`, `emerald`, `green`, `yellow`, `orange`, `copper`, `red`) as a raw CSS color. */
+/** Also accepts any of luz's 12 wheel hue names (`red`, `copper`, `orange`, `yellow`, `green`, `emerald`, `teal`, `cyan`, `blue`, `sky`, `violet`, `pink`) as a raw CSS color. */
 export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   /** Body font stack. Default `"sans-serif"`. */
   font?: string;
@@ -183,22 +183,40 @@ function muted(cssVar: string): string {
 
 function themeVariables(tokens: LuzTokens): Record<string, string> {
   const { name, prefix, neutrals } = { ...tokens.settings };
+  const success = `var(--${prefix}success)`;
+  const danger = `var(--${prefix}danger)`;
+  const warning = `var(--${prefix}warning)`;
+  const info = `var(--${prefix}info)`;
   return {
-    anchor: muted(`var(--${prefix}blue-500)`),
+    success: `var(--${prefix}green-200)`,
+    danger: `var(--${prefix}red-200)`,
+    warning: `var(--${prefix}yellow-200)`,
+    info: `var(--${prefix}blue-200)`,
+    "on-success": luzOnColor(success),
+    "on-danger": luzOnColor(danger),
+    "on-warning": luzOnColor(warning),
+    "on-info": luzOnColor(info),
+    "scheme-primary": `var(--${prefix}${name}-500)`,
+    "on-scheme-primary": `var(--on-${prefix}${name})`,
+    "scheme-secondary": `var(--${prefix}secondary-500)`,
+    "on-scheme-secondary": `var(--on-${prefix}secondary)`,
+    "scheme-neutral": `var(--${prefix}${neutrals}-500)`,
+    "on-scheme-neutral": `var(--on-${prefix}${neutrals})`,
+    anchor: muted(info),
     "anchor-secondary": muted(`var(--${prefix}secondary-500)`),
     "anchor-contrast": `var(--${prefix}${neutrals}-500)`,
-    "anchor-danger": muted(`var(--${prefix}red-500)`),
-    "anchor-success": muted(`var(--${prefix}emerald-500)`),
-    "anchor-warning": muted(`var(--${prefix}yellow-500)`),
+    "anchor-danger": muted(danger),
+    "anchor-success": muted(success),
+    "anchor-warning": muted(warning),
     "hr-color": `var(--${prefix}${name}-500)`,
     "kbd-border-color": `var(--${prefix}${name}-900)`,
     "kbd-bg": `var(--${prefix}${name}-900)`,
-    "kbd-color": `var(--on-${prefix}${name})`,
+    "on-kbd": luzOnColor(`var(--${prefix}${name}-900)`),
     "kbd-shadow": `var(--${prefix}${name}-500)`,
     "table-hover-bg": `var(--${prefix}${name}-800)`,
-    "table-hover-color": `var(--${prefix}${name}-300)`,
+    "on-table-hover": `var(--${prefix}${name}-300)`,
     "selection-bg": `var(--${prefix}${name}-500)`,
-    "selection-color": `var(--on-${prefix}${name})`,
+    "on-selection": `var(--on-${prefix}${name})`,
     "file-input-border-top": `var(--${prefix}${name}-200)`,
     "range-track-bg": `var(--${prefix}${neutrals}-900)`,
     "range-track-shadow": `var(--${prefix}${name}-500)`,
@@ -206,65 +224,32 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     accent: `var(--${prefix}${name}-500)`,
     "progress-shadow": `var(--${prefix}${name}-500)`,
     "progress-fill": `var(--${prefix}${name}-500)`,
-    "checkbox-color": `var(--${prefix}${name}-100)`,
+    "on-checkbox": `var(--${prefix}${name}-100)`,
     "checkbox-checked-bg": `var(--${prefix}${name}-500)`,
     "checkbox-checked-border": `transparent`,
     "switch-bg": `var(--${prefix}${name}-500)`,
-    "radio-dot-bg": `var(--${prefix}green-500)`,
+    "radio-dot-bg": success,
     "radio-checked-bg": `var(--${prefix}${name}-500)`,
     "radio-checked-border": `var(--${prefix}${name}-500)`,
     "blockquote-border": `var(--${prefix}${name}-200)`,
-    "blockquote-footer-color": `var(--${prefix}${name}-500)`,
+    "on-blockquote-footer": `var(--${prefix}${name}-500)`,
     "btn-bg": `var(--${prefix}${name}-500)`,
-    "btn-color": `var(--on-${prefix}${name})`,
-    "btn-shadow-color": `var(--${prefix}${name}-700)`,
-    "btn-bg-secondary": `var(--${prefix}secondary-500)`,
-    "btn-color-secondary": `var(--on-${prefix}secondary)`,
-    "btn-bg-neutral": `var(--${prefix}${neutrals}-500)`,
-    "btn-bg-success": `var(--${prefix}green-500)`,
-    "btn-bg-danger": `var(--${prefix}red-500)`,
-    "btn-bg-warning": `var(--${prefix}yellow-500)`,
-    "btn-color-ghost": `var(--${prefix}${name}-400)`,
-    "input-valid": `var(--${prefix}green-500)`,
-    "input-invalid": `var(--${prefix}red-500)`,
+    "on-btn": `var(--on-${prefix}${name})`,
+    "btn-bg-hover": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,
+    "on-btn-ghost": `var(--${prefix}${name}-400)`,
     "tooltip-bg": `var(--${prefix}${name}-900)`,
-    "tooltip-color": `var(--${prefix}${name}-100)`,
+    "on-tooltip": `var(--${prefix}${name}-100)`,
     "badge-bg": `var(--${prefix}${name}-500)`,
-    "badge-color": `var(--on-${prefix}${name})`,
-    "badge-bg-success": `var(--${prefix}green-500)`,
-    "badge-bg-danger": `var(--${prefix}red-500)`,
-    "badge-bg-warning": `var(--${prefix}yellow-500)`,
-    "badge-bg-neutral": `var(--${prefix}${neutrals}-500)`,
-    "badge-color-ghost": `var(--${prefix}${name}-400)`,
-    "alert-bg": `oklch(from var(--${prefix}${neutrals}-600) l c h / 12%)`,
-    "alert-border": `var(--${prefix}${neutrals}-600)`,
-    "alert-color": `var(--foreground)`,
-    "alert-bg-success": `oklch(from var(--${prefix}green-500) l c h / 12%)`,
-    "alert-border-success": `var(--${prefix}green-500)`,
-    "alert-color-success": `var(--${prefix}green-300)`,
-    "alert-bg-danger": `oklch(from var(--${prefix}red-500) l c h / 12%)`,
-    "alert-border-danger": `var(--${prefix}red-500)`,
-    "alert-color-danger": `var(--${prefix}red-300)`,
-    "alert-bg-warning": `oklch(from var(--${prefix}yellow-500) l c h / 12%)`,
-    "alert-border-warning": `var(--${prefix}yellow-500)`,
-    "alert-color-warning": `var(--${prefix}yellow-300)`,
-    "alert-bg-info": `oklch(from var(--${prefix}blue-500) l c h / 12%)`,
-    "alert-border-info": `var(--${prefix}blue-500)`,
-    "alert-color-info": `var(--${prefix}blue-300)`,
-    "tab-color": `var(--${prefix}${neutrals}-400)`,
-    "tab-color-active": `var(--foreground)`,
+    "on-badge": `var(--on-${prefix}${name})`,
+    "on-badge-ghost": `var(--${prefix}${name}-400)`,
+    "on-tab": `var(--${prefix}${neutrals}-400)`,
+    "on-tab-active": `var(--foreground)`,
     "tab-border-active": `var(--${prefix}${name}-500)`,
     "modal-backdrop": `oklch(from var(--${prefix}${neutrals}-950) l c h / 60%)`,
-    "breadcrumb-color": `var(--${prefix}${neutrals}-400)`,
+    "on-breadcrumb": `var(--${prefix}${neutrals}-400)`,
     "breadcrumb-separator": `var(--${prefix}${neutrals}-600)`,
     "skeleton-bg": `var(--${prefix}${neutrals}-800)`,
     "skeleton-shine": `var(--${prefix}${neutrals}-700)`,
-    "dot-success": `var(--${prefix}green-500)`,
-    "dot-danger": `var(--${prefix}red-500)`,
-    "dot-warning": `var(--${prefix}yellow-500)`,
-    "dot-neutral": `var(--${prefix}${neutrals}-500)`,
-    "stat-delta-up": `var(--${prefix}green-500)`,
-    "stat-delta-down": `var(--${prefix}red-500)`,
   };
 }
 
@@ -345,7 +330,6 @@ export function luz(config?: LuzConfig): LuzResult {
     const neutralShades = luzShadesByHue({
       color: neutralCSSVar,
       name: neutralsName,
-      base: 0.05 * normalNeutralTint,
       reverse,
       steps: colorSteps,
     });
@@ -367,21 +351,18 @@ export function luz(config?: LuzConfig): LuzResult {
       ...neutralShades,
       background: `var(--${neutralsName}-900)`,
       foreground: `var(--${neutralsName}-100)`,
-      [`on-${secondaryName}`]: `oklch(from ${secondaryCSSVar} 88% 0 h)`,
-      [`on-${secondaryName}-inverse`]: `oklch(from ${secondaryCSSVar} 20% 0 h)`,
-      [`on-${primaryName}`]: `oklch(from var(--${primaryName}) 88% 0 h)`,
-      [`on-${primaryName}-inverse`]: `oklch(from var(--${primaryName}) 20% 0 h)`,
-      [`on-${neutralsName}`]: `oklch(from ${neutralCSSVar} 88% 0 h)`,
-      [`on-${neutralsName}-inverse`]: `oklch(from ${neutralCSSVar} 20% 0 h)`,
+      [`on-${secondaryName}`]: luzOnColor(secondaryCSSVar),
+      [`on-${primaryName}`]: luzOnColor(`var(--${primaryName})`),
+      [`on-${neutralsName}`]: luzOnColor(neutralCSSVar),
       ...wheel,
       border: `var(--border-width) solid var(--element-border-color)`,
       "element-background": `var(--${neutralsName}-950)`,
       "element-border-color": `oklch(from var(--${neutralsName}-600) l c h / 50%)`,
       "border-color": `oklch(from var(--${neutralsName}-600) l c h / 50%)`,
       "element-active-border-color": `oklch(from var(--${primaryName}-200) l c h / 50%)`,
-      "element-color": `var(--${primaryName}-100)`,
-      "element-active-color": `var(--${primaryName}-50)`,
-      "element-placeholder-color": `oklch(from var(--foreground) l c h / 50%)`,
+      "on-element": `var(--${primaryName}-100)`,
+      "on-element-active": `var(--${primaryName}-50)`,
+      "on-element-placeholder": `oklch(from var(--foreground) l c h / 50%)`,
     };
   }
 

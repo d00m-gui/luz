@@ -1,0 +1,31 @@
+.stat {
+  min-width: max-content;
+  padding: var(--space-5);
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+}
+.stat-value {
+  display: block;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-bold-weight);
+  color: var(--foreground);
+}
+.stat-label {
+  display: block;
+  font-size: var(--font-size-small);
+  color: var(--on-element-placeholder);
+}
+.stat-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-bold-weight);
+  &.up {
+    color: var(--success);
+  }
+  &.down {
+    color: var(--danger);
+  }
+}

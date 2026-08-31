@@ -1,0 +1,8 @@
+strong,
+b {
+  font-weight: var(--font-bold-weight, 700);
+}
+em,
+i {
+  font-family: var(--font-emphasis);
+}

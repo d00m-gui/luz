@@ -114,7 +114,7 @@ const PHOSPHOR: Record<string, [number, number, number]> = {
   fosforo: [0.55, 1.0, 0.72],
 };
 
-/** Resuelve un valor CSS (`var(--x)`, `oklch(...)`) a RGB 0-1 vía el motor de color del navegador. */
+/** Resuelve un valor CSS (`var(--primary)`, `oklch(...)`) a RGB 0-1 vía el motor de color del navegador. */
 function resolveRGB(cssValue: string): [number, number, number] {
   const el = document.createElement("div");
   el.style.color = cssValue;

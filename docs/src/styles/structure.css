@@ -72,16 +72,13 @@
   padding-top: var(--space-20);
 }
 
-.content .card {
+.content .card .fluid {
   display: grid;
-  gap: var(--space-10);
-  .fluid {
-    display: grid;
-    gap: var(--space-5);
-  }
+  gap: var(--space-5);
 }
 
-.content h2 {
+.content > h2,
+.content .card > h2 {
   margin-bottom: var(--space-10);
 }
 
@@ -328,6 +325,26 @@
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
   margin-bottom: var(--space-3);
+  position: relative;
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.2;
+    background-image:
+      linear-gradient(oklch(from var(--foreground) l c h / 15%) var(--base-unit), transparent var(--base-unit)),
+      linear-gradient(90deg, oklch(from var(--foreground) l c h / 15%) var(--base-unit), transparent var(--base-unit)),
+      linear-gradient(oklch(from var(--foreground) l c h / 15%) 0.5px, transparent 0.5px),
+      linear-gradient(90deg, oklch(from var(--foreground) l c h / 15%) 0.5px, var(--background) 0.5px);
+    background-size:
+      20px 20px,
+      20px 20px;
+    background-position:
+      -1px -1px,
+      -1px -1px,
+      -0.5px -0.5px,
+      -0.5px -0.5px;
+  }
 }
 
 .component-code {
@@ -335,15 +352,14 @@
   padding: var(--space-4);
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
-  background-color: var(--element-background);
   /* Tokens leídos por el tema custom de Shiki en CodeBlock.astro. */
   --shiki-token-text: var(--foreground);
-  --shiki-token-keyword: var(--red-500);
-  --shiki-token-parameter: var(--yellow-500);
-  --shiki-token-string: var(--emerald-500);
-  --shiki-token-constant: var(--cyan-500);
-  --shiki-token-comment: var(--element-placeholder-color);
-  --shiki-token-punctuation: var(--element-placeholder-color);
+  --shiki-token-keyword: var(--orange-700);
+  --shiki-token-parameter: var(--primary-200);
+  --shiki-token-string: var(--secondary-500);
+  --shiki-token-constant: var(--primary-50);
+  --shiki-token-comment: var(--primary-100);
+  --shiki-token-punctuation: var(--primary-400); /*var(--element-placeholder-color);*/
 }
 
 .component-code pre {
@@ -353,6 +369,7 @@
   font-family: var(--font-monospace);
   code {
     display: block;
+    font-size: 110%;
   }
 }
 
@@ -364,7 +381,7 @@
   padding: var(--space-1) var(--space-3);
 }
 
-/* Glyphs de demo — Nerd Fonts "Symbols Only" (github.com/ryanoasis/nerd-fonts), pinneado a v3.5.1 vía CDN. No es dependencia de luz, solo se usa acá para mostrar los ejemplos de botón con ícono. */
+/* Nerd Fonts (github.com/ryanoasis/nerd-fonts), pinneado a v3.5.1 vía CDN. */
 @font-face {
   font-family: "NerdFontsSymbols Nerd Font";
   src: url("https://cdn.jsdelivr.net/gh/ryanoasis/nerd-fonts@v3.5.1/patched-fonts/NerdFontsSymbolsOnly/SymbolsNerdFont-Regular.ttf")

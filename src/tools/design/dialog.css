@@ -1,0 +1,32 @@
+dialog.modal {
+  margin: auto;
+  padding: var(--space-6);
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  color: var(--foreground);
+  box-shadow: var(--box-shadow);
+  max-width: min(90vw, 32rem);
+  max-height: 90vh;
+  opacity: 0;
+  transform: scale(0.95);
+  transition: var(--transition);
+  transition-property: opacity, transform, overlay, display;
+  transition-behavior: allow-discrete;
+  &::backdrop {
+    background-color: var(--modal-backdrop);
+  }
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  &[open] {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  dialog.modal {
+    transition-duration: 0.01ms !important;
+  }
+}

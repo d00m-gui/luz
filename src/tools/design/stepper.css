@@ -1,0 +1,46 @@
+.stepper {
+  display: flex;
+  align-items: center;
+  counter-reset: stepper-step;
+}
+.stepper-step {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  counter-increment: stepper-step;
+  &::before {
+    content: counter(stepper-step);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: var(--space-8);
+    height: var(--space-8);
+    border: var(--border-width) solid var(--element-border-color);
+    border-radius: 100%;
+    font-size: var(--font-size-small);
+    font-weight: var(--font-bold-weight);
+    color: var(--foreground);
+    transition: var(--transition);
+    transition-property: background-color, border-color, color;
+  }
+  &:not(:last-child)::after {
+    content: "";
+    flex: 1;
+    height: var(--border-width);
+    background: var(--element-border-color);
+    margin-inline: var(--space-2);
+  }
+  &.active::before,
+  &[data-state="active"]::before {
+    border-color: var(--tab-border-active);
+    color: var(--tab-border-active);
+  }
+  &.done::before,
+  &[data-state="done"]::before {
+    background-color: var(--badge-bg);
+    border-color: var(--badge-bg);
+    color: var(--on-badge);
+  }
+}

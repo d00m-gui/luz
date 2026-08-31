@@ -1,0 +1,21 @@
+ol,
+ul {
+  list-style: none;
+}
+ul li {
+  margin-left: var(--element-vertical);
+  list-style: inside square;
+}
+.list-item {
+  padding: var(--space-3) var(--space-4);
+  border-bottom: var(--border-width) solid var(--element-border-color);
+  &:last-child {
+    border-bottom: none;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    &:hover {
+      background-color: var(--table-hover-bg);
+      color: var(--on-table-hover);
+    }
+  }
+}

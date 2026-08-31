@@ -1,0 +1,17 @@
+.pagination {
+  display: flex;
+  gap: var(--space-2);
+}
+.pagination-item {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--border-radius);
+  border: var(--border-width) solid var(--element-border-color);
+  color: var(--foreground);
+  transition: var(--transition);
+  transition-property: background-color, color, border-color;
+  &[aria-current="page"] {
+    background-color: var(--btn-bg);
+    color: var(--on-btn);
+    border-color: transparent;
+  }
+}

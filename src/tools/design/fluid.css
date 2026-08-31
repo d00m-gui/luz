@@ -1,0 +1,47 @@
+@supports (font-size: 1cqi) {
+  .fluid {
+    container-type: inline-size;
+    & :is(h1, .h1) {
+      font-size: var(--font-size-h1-fluid);
+    }
+    & :is(h2, .h2) {
+      font-size: var(--font-size-h2-fluid);
+    }
+    & :is(h3, .h3) {
+      font-size: var(--font-size-h3-fluid);
+    }
+    & :is(h4, .h4) {
+      font-size: var(--font-size-h4-fluid);
+    }
+    & :is(h5, .h5) {
+      font-size: var(--font-size-h5-fluid);
+    }
+    & :is(h6, .h6) {
+      font-size: var(--font-size-h6-fluid);
+    }
+    & :is(small, .small) {
+      font-size: var(--font-size-small-fluid);
+    }
+    & .text-xs {
+      font-size: var(--font-size-xs-fluid);
+    }
+    & .text-sm {
+      font-size: var(--font-size-sm-fluid);
+    }
+    & .text-base {
+      font-size: var(--font-size-base-fluid);
+    }
+    & .text-lg {
+      font-size: var(--font-size-lg-fluid);
+    }
+    & .text-xl {
+      font-size: var(--font-size-xl-fluid);
+    }
+    & .text-2xl {
+      font-size: var(--font-size-2xl-fluid);
+    }
+    & .text-3xl {
+      font-size: var(--font-size-3xl-fluid);
+    }
+  }
+}

@@ -1,0 +1,10 @@
+.statusbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--element-background);
+  border-top: var(--border-width) solid var(--element-border-color);
+  font-size: var(--font-size-small);
+  color: var(--on-element-placeholder);
+}

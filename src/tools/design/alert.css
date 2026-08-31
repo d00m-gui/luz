@@ -1,0 +1,10 @@
+.alert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  border: var(--border-width) solid var(--scheme, var(--scheme-neutral));
+  border-radius: var(--border-radius);
+  background-color: oklch(from var(--scheme, var(--scheme-neutral)) l c h / 12%);
+  color: oklch(from var(--scheme, var(--scheme-neutral)) calc(l + 0.25) c h);
+}
