@@ -29,6 +29,12 @@ const componentsByCategory = Object.groupBy(COMPONENTS, (c) => c.category);
     >
       Tokens
     </a>
+    <a
+      href="/components"
+      class={`sidebar-item${activeId === "components-index" ? " active" : ""}`}
+    >
+      Componentes
+    </a>
   </div>
   {
     features.length > 0 && (

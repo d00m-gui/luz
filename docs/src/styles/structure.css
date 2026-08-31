@@ -347,6 +347,51 @@
   }
 }
 
+.components-toolbar-card {
+  margin-bottom: var(--space-8);
+}
+
+.components-toolbar-card .titlebar {
+  margin: calc(var(--space-6) * -1) calc(var(--space-6) * -1) var(--space-6);
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
+}
+
+.components-toolbar-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+
+.components-toolbar-controls label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: var(--font-size-small);
+}
+
+.components-index-grid {
+  columns: 22rem;
+  column-gap: var(--space-6);
+}
+
+.components-index-item {
+  break-inside: avoid;
+  margin-bottom: var(--space-6);
+}
+
+.components-index-item > a {
+  display: block;
+  font-weight: var(--font-bold-weight);
+  margin-bottom: var(--space-3);
+  text-decoration: none;
+}
+
+.components-index-item .component-preview {
+  margin-bottom: 0;
+}
+
 .component-code {
   position: relative;
   padding: var(--space-4);
