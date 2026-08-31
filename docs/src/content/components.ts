@@ -35,6 +35,8 @@ export interface ComponentDoc {
   html: string;
   /** Docs-only override for the live preview (e.g. bounding a `position: fixed` component) — `html` stays the copyable source. */
   preview?: string;
+  /** Grid column span in the `/` component index — for previews wide enough that a single column cramps them. Default 1. */
+  span?: 2 | 3;
 }
 
 export const COMPONENTS: ComponentDoc[] = [
@@ -138,6 +140,7 @@ export const COMPONENTS: ComponentDoc[] = [
     title: "Stepper",
     category: "Navigation",
     covers: ["stepper", "stepper-step"],
+    span: 2,
     html: `<div class="stepper">
   <div class="stepper-step done">Account</div>
   <div class="stepper-step active">Details</div>
@@ -212,6 +215,7 @@ export const COMPONENTS: ComponentDoc[] = [
     title: "Button",
     category: "Primitives",
     covers: ["btn", "button", "icon"],
+    span: 2,
     html: `<button>Default</button>
 <button class="neutral">Neutral</button>
 <button class="success">Success</button>
@@ -360,6 +364,7 @@ export const COMPONENTS: ComponentDoc[] = [
     title: "Table",
     category: "Data",
     covers: ["table"],
+    span: 2,
     html: `<table>
   <thead>
     <tr>
@@ -562,6 +567,7 @@ export const COMPONENTS: ComponentDoc[] = [
     title: "Form",
     category: "Primitives",
     covers: ["form", "fieldset", "label"],
+    span: 2,
     html: `<form>
   <fieldset>
     <legend>Shipping address</legend>
@@ -585,6 +591,7 @@ export const COMPONENTS: ComponentDoc[] = [
     title: "light-dark()",
     category: "Feedback",
     covers: [],
+    span: 2,
     html: `<p><code>mode: "auto"</code> emits every color token as <code>light-dark(light, dark)</code> instead of a separate <code>@media (prefers-color-scheme: dark)</code> block. Each box below forces its own <code>color-scheme</code> to prove both branches resolve, regardless of your system preference — try <code>mode: "auto"</code> in the toolbar at <a href="/components">/components</a> to see it with your own tokens.</p>
 <div class="light-dark-demo">
   <div class="light-dark-demo-box" style="color-scheme: light">
@@ -665,6 +672,7 @@ export const COMPONENTS: ComponentDoc[] = [
     title: "Animated gradients (@property)",
     category: "Surfaces",
     covers: ["card"],
+    span: 3,
     html: `<div class="gradient-demo-row">
   <div class="card gradient-demo gradient-demo-1"><span>conic angle</span></div>
   <div class="card gradient-demo gradient-demo-2"><span>color-mix stop</span></div>
@@ -722,6 +730,20 @@ export const COMPONENTS: ComponentDoc[] = [
     --pos-3: 70%;
   }
 </style>`,
+  },
+  {
+    id: "grid",
+    title: "Grid",
+    category: "Layout",
+    covers: ["grid", "grid-cols-3", "col-span-1", "col-span-2", "col-span-full"],
+    span: 2,
+    html: `<div class="grid grid-cols-3" style="gap: var(--space-2)">
+  <div class="card col-span-2">col-span-2</div>
+  <div class="card">col-span-1</div>
+  <div class="card">col-span-1</div>
+  <div class="card">col-span-1</div>
+  <div class="card col-span-full">col-span-full</div>
+</div>`,
   },
 ];
 

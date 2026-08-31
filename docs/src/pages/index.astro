@@ -3,7 +3,9 @@ import Layout from "../layouts/Layout.astro";
 import { luz } from "../../../src/luz";
 import { WHEEL_HUE_NAMES } from "../../../src/tools/wheel";
 import { config } from "../../luz.config.ts";
-import { UNCOVERED_FILES } from "../content/components";
+import { ThemeToolbar } from "../components/ThemeToolbar";
+import { COMPONENTS, UNCOVERED_FILES } from "../content/components";
+import { COMPONENT_CATEGORY_HUES, DEFAULT_CATEGORY_HUE } from "../lib/category-colors";
 
 const { tokens } = luz(config);
 
@@ -27,12 +29,28 @@ function swatchStyle(name: string, weight: number) {
 <Layout
   title="Luz"
   activeId="luz-defaults"
-  breadcrumb="Tokens"
+  breadcrumb="Luz"
   contentClass="luz-defaults"
 >
-  <h2>Tokens</h2>
+  <h2>Luz</h2>
+  <p>
+    Un sistema de diseño que vive en tu CSS: colores, tipografía y espaciado
+    generados a partir de un solo color <strong>primary</strong>, sin build
+    step propio ni runtime.
+  </p>
+
   <div class="docs-sections">
+    <section class="card components-toolbar-card">
+      <details>
+        <summary class="titlebar panel-header">
+          <span class="panel-header-title">Tema en vivo</span>
+        </summary>
+        <ThemeToolbar client:load />
+      </details>
+    </section>
+
     <section class="card">
+      <h2 class="card-title">Colores</h2>
       {
         SHADE_SCALES.map((name) => (
           <div class="swatch-row">
@@ -93,8 +111,29 @@ function swatchStyle(name: string, weight: number) {
       </div>
     </section>
 
+    <section>
+      <h2>Componentes</h2>
+      <div class="grid components-index-grid">
+        {
+          COMPONENTS.map((component) => {
+            const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
+            const spanClass = component.span ? ` col-span-${component.span}` : "";
+            return (
+              <article class={`card components-index-item lazy-render${spanClass}`}>
+                <a href={`/components/${component.id}`} style={`color: var(--${hue}-500)`}>
+                  {component.title}
+                </a>
+                <div class="component-preview">
+                  <Fragment set:html={component.preview ?? component.html} />
+                </div>
+              </article>
+            );
+          })
+        }
+      </div>
+    </section>
+
     <section class="card">
-      <h2 class="card-title">Typography</h2>
       <div class="html fluid">
         <h1>Un sistema de diseño que vive en tu CSS</h1>
         <p>

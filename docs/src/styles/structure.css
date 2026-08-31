@@ -353,13 +353,10 @@
 }
 
 .components-index-grid {
-  columns: 22rem;
-  column-gap: var(--space-6);
-}
-
-.components-index-item {
-  break-inside: avoid;
-  margin-bottom: var(--space-6);
+  grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  grid-auto-flow: dense;
+  align-items: start;
+  gap: var(--space-6);
 }
 
 .components-index-item > a {
