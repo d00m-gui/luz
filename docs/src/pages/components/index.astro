@@ -18,7 +18,7 @@ import { COMPONENT_CATEGORY_HUES, DEFAULT_CATEGORY_HUE } from "../../lib/categor
       COMPONENTS.map((component) => {
         const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
         return (
-          <article class="card components-index-item">
+          <article class="card components-index-item lazy-render">
             <a href={`/components/${component.id}`} style={`color: var(--${hue}-500)`}>
               {component.title}
             </a>

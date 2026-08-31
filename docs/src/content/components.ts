@@ -302,13 +302,17 @@ export const COMPONENTS: ComponentDoc[] = [
     title: "Accordion",
     category: "Data",
     covers: ["accordion"],
-    html: `<details class="accordion">
+    html: `<details class="accordion" name="luz-accordion">
   <summary>What is luz?</summary>
   <p>A CSS theming library — colors, typography, and spacing from a single primary color.</p>
 </details>
-<details class="accordion">
+<details class="accordion" name="luz-accordion">
   <summary>Does it need a build step?</summary>
   <p>No — the output is plain CSS custom properties.</p>
+</details>
+<details class="accordion" name="luz-accordion">
+  <summary>Is JS required?</summary>
+  <p>No — exclusive open/close is native, via the shared <code>name</code> attribute on each <code>&lt;details&gt;</code>.</p>
 </details>`,
   },
   {
@@ -575,6 +579,121 @@ export const COMPONENTS: ComponentDoc[] = [
     covers: ["hidden"],
     html: `<p>Visible text</p>
 <p hidden>Hidden text (via [hidden] or .hidden)</p>`,
+  },
+  {
+    id: "glass",
+    title: "Glass",
+    category: "Surfaces",
+    covers: ["glass"],
+    html: `<div class="card glass">
+  <div class="card-title">Frosted card</div>
+  <p><code>.glass</code> adds <code>backdrop-filter: blur()</code> over a translucent background — falls back to a solid card where <code>backdrop-filter</code> isn't supported.</p>
+</div>
+<button class="btn glass">Glass button</button>`,
+    preview: `<div style="background: linear-gradient(135deg, var(--primary-400), var(--secondary-500)); padding: var(--space-6); border-radius: var(--border-radius); display: flex; flex-direction: column; gap: var(--space-4); align-items: flex-start;">
+  <div class="card glass">
+    <div class="card-title">Frosted card</div>
+    <p><code>.glass</code> adds <code>backdrop-filter: blur()</code> over a translucent background.</p>
+  </div>
+  <button class="btn glass">Glass button</button>
+</div>`,
+  },
+  {
+    id: "target-text",
+    title: "Target text",
+    category: "Feedback",
+    covers: ["mark"],
+    html: `<p id="target-text-demo">Open this page with <code>#target-text-demo:~:text=this%20sentence</code> in the URL — supported browsers style the matched text via <code>::target-text</code>, same treatment as <mark>this sentence</mark> and text selection. Safari doesn't support it yet — the fragment just scrolls into view with no highlight.</p>`,
+  },
+  {
+    id: "editable",
+    title: "Editable card",
+    category: "Primitives",
+    covers: ["card"],
+    html: `<div class="card">
+  <div class="card-title" style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-2)">
+    Notes
+    <button type="button" class="btn ghost square" aria-label="Edit" onclick="this.closest('.card').querySelector('.editable-demo').focus()">✎</button>
+  </div>
+  <div class="editable-demo" contenteditable="plaintext-only">Click the pencil, then type. <code>contenteditable="plaintext-only"</code> strips any pasted markup automatically — no rich-text risk, unlike <code>contenteditable="true"</code>.</div>
+</div>
+<style>
+  .editable-demo {
+    border-radius: var(--border-radius);
+    padding: var(--space-2);
+    outline: 0;
+  }
+  .editable-demo:focus {
+    animation: editable-highlight 900ms ease-out;
+  }
+  @keyframes editable-highlight {
+    from { background-color: color-mix(in oklch, var(--primary) 25%, transparent); }
+    to { background-color: transparent; }
+  }
+</style>`,
+  },
+  {
+    id: "gradient-property",
+    title: "Animated gradients (@property)",
+    category: "Surfaces",
+    covers: ["card"],
+    html: `<div class="gradient-demo-row">
+  <div class="card gradient-demo gradient-demo-1"><span>conic angle</span></div>
+  <div class="card gradient-demo gradient-demo-2"><span>color-mix stop</span></div>
+  <div class="card gradient-demo gradient-demo-3"><span>radial position</span></div>
+</div>
+<style>
+  @property --angle-1 {
+    syntax: "<angle>";
+    inherits: false;
+    initial-value: 0deg;
+  }
+  @property --mix-2 {
+    syntax: "<percentage>";
+    inherits: false;
+    initial-value: 20%;
+  }
+  @property --pos-3 {
+    syntax: "<percentage>";
+    inherits: false;
+    initial-value: 30%;
+  }
+  .gradient-demo-row {
+    display: flex;
+    gap: var(--space-4);
+    flex-wrap: wrap;
+  }
+  .gradient-demo {
+    width: 10rem;
+    height: 6rem;
+    display: flex;
+    align-items: flex-end;
+    color: white;
+    text-shadow: 0 1px 2px oklch(0% 0 0 / 60%);
+    font-size: 0.85em;
+  }
+  .gradient-demo-1 {
+    background: conic-gradient(from var(--angle-1), var(--primary-400), var(--secondary-400), var(--neutral-400), var(--primary-400));
+    transition: --angle-1 600ms ease;
+  }
+  .gradient-demo-1:hover {
+    --angle-1: 360deg;
+  }
+  .gradient-demo-2 {
+    background: linear-gradient(135deg, color-mix(in oklch, var(--primary-500) var(--mix-2), var(--secondary-500)), var(--neutral-800));
+    transition: --mix-2 600ms ease;
+  }
+  .gradient-demo-2:hover {
+    --mix-2: 80%;
+  }
+  .gradient-demo-3 {
+    background: radial-gradient(circle at var(--pos-3) 50%, var(--primary-300), var(--secondary-700) 70%);
+    transition: --pos-3 600ms ease;
+  }
+  .gradient-demo-3:hover {
+    --pos-3: 70%;
+  }
+</style>`,
   },
 ];
 

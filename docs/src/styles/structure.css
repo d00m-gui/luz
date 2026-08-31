@@ -326,6 +326,7 @@
   border-radius: var(--border-radius);
   margin-bottom: var(--space-3);
   position: relative;
+  pointer-events: none;
   &::before {
     content: "";
     position: absolute;
