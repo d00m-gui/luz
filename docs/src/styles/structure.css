@@ -1,5 +1,4 @@
 .layout {
-  padding: var(--spacing);
   position: absolute;
   inset: 0;
   display: flex;
@@ -317,21 +316,19 @@
 }
 
 .component-preview {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
   gap: var(--space-3);
   padding: var(--space-6);
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
   margin-bottom: var(--space-3);
   position: relative;
-  pointer-events: none;
+
   &::before {
     content: "";
     position: absolute;
     inset: 0;
     opacity: 0.2;
+    pointer-events: none;
     background-image:
       linear-gradient(oklch(from var(--foreground) l c h / 15%) var(--base-unit), transparent var(--base-unit)),
       linear-gradient(90deg, oklch(from var(--foreground) l c h / 15%) var(--base-unit), transparent var(--base-unit)),

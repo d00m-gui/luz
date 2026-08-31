@@ -46,10 +46,11 @@ const componentsByCategory = Object.groupBy(COMPONENTS, (c) => c.category);
             <a
               href={`/api/${entry.id}`}
               class={`sidebar-item${activeId === `api-${entry.id}` ? " active" : ""}`}
+              style={`color: var(--${hue}-400)`}
             >
               <span
                 class="sidebar-dot"
-                style={`background: var(--${hue}-500)`}
+                style={`background: var(--${hue}-400)`}
               />
               {entry.data.title}
             </a>
@@ -63,13 +64,18 @@ const componentsByCategory = Object.groupBy(COMPONENTS, (c) => c.category);
       <div class="sidebar-group">
         <div class="sidebar-group-title">{category}</div>
         {entries!.map((c) => {
-          const hue = COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
+          const hue =
+            COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
           return (
             <a
               href={`/components/${c.id}`}
               class={`sidebar-item${activeId === `component-${c.id}` ? " active" : ""}`}
+              style={`color: ${activeId === `component-${c.id}` ? " var(--foreground)" : `var(--${hue}-400)`}`}
             >
-              <span class="sidebar-dot" style={`background: var(--${hue}-500)`} />
+              <span
+                class="sidebar-dot"
+                style={`background: var(--${hue}-500)`}
+              />
               {c.title}
             </a>
           );
