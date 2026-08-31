@@ -60,7 +60,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
    * @default "dark"
    * @param "light" fixed light palette
    * @param "dark" fixed dark palette
-   * @param "auto" light palette in `:root`, dark override under `@media (prefers-color-scheme: dark)`
+   * @param "auto" both palettes emitted in `:root` via `light-dark()`, resolved per `prefers-color-scheme`
    */
   mode?: "light" | "dark" | "auto";
   /** Custom-property name for the neutral/gray palette. Default `"neutral"`. */
@@ -179,6 +179,22 @@ const defaultConfig: LuzConfig = {
 /** Tones down a shade's chroma — inline text (links) reads calmer than the raw peak-chroma shade. */
 function muted(cssVar: string): string {
   return `oklch(from ${cssVar} l calc(c * 0.6) h)`;
+}
+
+/** Merges a light and a dark color map into one, wrapping each differing entry in `light-dark()`. */
+function mergeLightDark(
+  light: Record<string, string>,
+  dark: Record<string, string>,
+): Record<string, string> {
+  const merged: Record<string, string> = {};
+  for (const [key, lightValue] of Object.entries(light)) {
+    const darkValue = dark[key];
+    merged[key] =
+      darkValue !== undefined && darkValue !== lightValue
+        ? `light-dark(${lightValue}, ${darkValue})`
+        : lightValue;
+  }
+  return merged;
 }
 
 function themeVariables(tokens: LuzTokens): Record<string, string> {
@@ -366,7 +382,9 @@ export function luz(config?: LuzConfig): LuzResult {
     };
   }
 
-  const colors = buildColors(isDark);
+  const colors = isAuto
+    ? mergeLightDark(buildColors(false), buildColors(true))
+    : buildColors(isDark);
 
   const sizeTokens: Record<string, string> = {
     ...luzSizes(normalBase, sizeRelativeToBase),
@@ -415,34 +433,14 @@ export function luz(config?: LuzConfig): LuzResult {
     shadedNames,
   );
 
-  let darkOverrideBlock = "";
-  if (isAuto) {
-    const darkColors = buildColors(true);
-    const changed: Record<string, string> = {};
-    for (const [key, value] of Object.entries(darkColors)) {
-      if (colors[key] !== value) changed[key] = value;
-    }
-    const darkVariables = withShadeFallback(
-      toVariableLines(changed),
-      shadedNames,
-    );
-    if (darkVariables) {
-      darkOverrideBlock = `
-  @media (prefers-color-scheme: dark) {
-    :root {
-      ${darkVariables}
-    }
-  }`;
-    }
-  }
+  const colorScheme = isAuto ? "color-scheme: light dark;\n    " : "";
 
-  let style = `
+  const style = `
   ${buildReset()}
   ${properties}
   :root {
-    ${variables}
+    ${colorScheme}${variables}
   }
-  ${darkOverrideBlock}
   `;
 
   return { tokens, variables, style, properties };
