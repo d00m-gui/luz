@@ -1,0 +1,7 @@
+.scroll-y {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+}
+.scrollbar-thin {
+  scrollbar-width: thin;
+}

@@ -47,3 +47,6 @@
 @import "./design/cta.css";
 @import "./design/fluid.css";
 @import "./design/_feedback.css";
+@import "./design/_lazy-render.css";
+@import "./design/_center.css";
+@import "./design/_scroll.css";

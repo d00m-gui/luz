@@ -1,0 +1,11 @@
+.center {
+  align-content: center;
+  justify-items: center;
+}
+@supports not (align-content: center) {
+  .center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
