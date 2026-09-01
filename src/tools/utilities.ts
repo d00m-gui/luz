@@ -234,7 +234,7 @@ const LAYOUT_LITERALS: LiteralNamespace[] = (
     ["shrink-0", "flex-shrink", "0"],
     ["grow", "flex-grow", "1"],
     ["grow-0", "flex-grow", "0"],
-    ["flex-1", "flex", "1 1 0%"],
+    ["flex-1", "flex", "1 1 auto"],
     ["w-full", "width", "100%"],
     ["w-fit", "width", "fit-content"],
     ["w-auto", "width", "auto"],

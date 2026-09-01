@@ -1,11 +1,6 @@
 .panel-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding-bottom: var(--space-4);
-  margin-bottom: var(--space-4);
-  border-bottom: var(--border-width) solid var(--element-border-color);
-}
-.panel-header-title {
-  font-weight: var(--font-bold-weight);
+  justify-content: start;
+  gap: var(--space-4);
 }

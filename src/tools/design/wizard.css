@@ -1,16 +1,16 @@
-.stepper {
+.wizard {
   display: flex;
   align-items: center;
-  counter-reset: stepper-step;
+  counter-reset: wizard-step;
 }
-.stepper-step {
+.wizard-step {
   display: flex;
   align-items: center;
   gap: var(--space-2);
   flex: 1;
-  counter-increment: stepper-step;
+  counter-increment: wizard-step;
   &::before {
-    content: counter(stepper-step);
+    content: counter(wizard-step);
     display: flex;
     align-items: center;
     justify-content: center;

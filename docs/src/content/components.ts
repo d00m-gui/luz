@@ -136,15 +136,15 @@ export const COMPONENTS: ComponentDoc[] = [
 </nav>`,
   },
   {
-    id: "stepper",
-    title: "Stepper",
+    id: "wizard",
+    title: "Wizard",
     category: "Navigation",
-    covers: ["stepper", "stepper-step"],
+    covers: ["wizard", "wizard-step"],
     span: 2,
-    html: `<div class="stepper">
-  <div class="stepper-step done">Account</div>
-  <div class="stepper-step active">Details</div>
-  <div class="stepper-step">Confirm</div>
+    html: `<div class="wizard">
+  <div class="wizard-step done">Account</div>
+  <div class="wizard-step active">Details</div>
+  <div class="wizard-step">Confirm</div>
 </div>`,
   },
   {
