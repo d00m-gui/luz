@@ -12,6 +12,7 @@ function formatConfig(state: ToolbarState): string {
   return `luz({
   primary: "${state.primary}",
   mode: "${state.mode}",
+  harmony: "${state.harmony}",
   preset: "${state.preset}",
   neutralTint: ${state.neutralTint},
 })`;
@@ -28,10 +29,6 @@ export function ThemeToolbar() {
   return (
     <>
 <style precedence="high">{`${THEME_SCOPE_SELECTOR} { ${variables} }`}</style>
-      <p className="lib-name">luz</p>
-    <h4>Un estilo, todo el espectro.</h4>
-    <hr />
-
     <div className="components-toolbar-body">
       <div className="components-toolbar-controls">
         <label>
@@ -47,6 +44,18 @@ export function ThemeToolbar() {
             <option value="light">light</option>
             <option value="dark">dark</option>
             <option value="auto">auto</option>
+          </select>
+        </label>
+        <label>
+          Harmony
+          <select
+            value={state.harmony}
+            onChange={(e) => update({ harmony: e.target.value as ToolbarState["harmony"] })}
+          >
+            <option value="complementary">complementary</option>
+            <option value="analogous">analogous</option>
+            <option value="triad">triad</option>
+            <option value="monochrome">monochrome</option>
           </select>
         </label>
         <label>

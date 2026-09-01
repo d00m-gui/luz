@@ -36,17 +36,29 @@ function swatchStyle(name: string, weight: number) {
   breadcrumb="Luz"
   contentClass="luz-defaults"
 >
-  <div class="luz-intro-row">
-    <div class="card luz-intro">
-      <div class="panel-header">
-        <div class="panel-header-title">
-          <ThemeToolbar client:load />
-        </div>
-        <figure>
-          <img src="/luz-logo.svg" width={256} height={256} />
-        </figure>
-        <ColorPicker client:load />
+  <div class="flex gap-5">
+    <div class="card flex-1">
+      <ThemeToolbar client:load />
+      <ColorPicker client:load />
+      <div class="hue components-toolbar-brand">
+        <p class="components-toolbar-brand-title">Brand colors</p>
+        {
+          ["primary", "secondary"].map((name) => (
+            <div class="swatch-row">
+              <div class="swatch-row-label" style={`color: var(--${name}-500)`}>
+                {name}
+              </div>
+              <div class="swatch-list">
+                {WEIGHTS.map((weight) => (
+                  <div class="swatch" style={swatchStyle(name, weight)} data-tooltip={weight} />
+                ))}
+              </div>
+            </div>
+          ))
+        }
       </div>
+    </div>
+    <div class="card luz-intro flex-1">
       <div class="hue">
         {
           SHADE_SCALES.map((name) => (
@@ -60,9 +72,8 @@ function swatchStyle(name: string, weight: number) {
                     class="swatch"
                     data-name={name}
                     style={swatchStyle(name, weight)}
-                  >
-                    <span>{weight}</span>
-                  </div>
+                    data-tooltip={weight}
+                  />
                 ))}
               </div>
             </div>
@@ -71,16 +82,17 @@ function swatchStyle(name: string, weight: number) {
         {
           WHEEL_HUES.map((name) => (
             <div class="swatch-row">
-              <div class="swatch-row-label">{name}</div>
+              <div class="swatch-row-label" style={`color: var(--${name}-500)`}>
+                {name}
+              </div>
               <div class="swatch-list">
                 {WEIGHTS.map((weight) => (
                   <div
                     class="swatch"
                     data-name={name}
                     style={swatchStyle(name, weight)}
-                  >
-                    <span>{weight}</span>
-                  </div>
+                    data-tooltip={weight}
+                  />
                 ))}
               </div>
             </div>
@@ -185,7 +197,7 @@ function swatchStyle(name: string, weight: number) {
       }
     </div>
 
-    <!-- <section class="card">
+    <section class="card">
       <div class="html fluid">
         <h1>Un sistema de diseño que vive en tu CSS</h1>
         <p>
@@ -236,7 +248,7 @@ function swatchStyle(name: string, weight: number) {
         <hr />
         <hr class="dashed" />
       </div>
-    </section> -->
+    </section>
   </div>
 </Layout>
 

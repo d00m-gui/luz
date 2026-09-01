@@ -48,6 +48,23 @@ export function luzOnColor(seed: string): string {
   return `oklch(from ${seed} clamp(0, calc((l - 0.6) * -1000), 1) calc(c * 0.08) h)`;
 }
 
+export type ColorHarmony = "complementary" | "analogous" | "triad" | "monochrome";
+
+const HARMONY_HUE_OFFSET: Record<ColorHarmony, number> = {
+  complementary: 180,
+  analogous: 30,
+  triad: 120,
+  monochrome: 0,
+};
+
+/** Derives a `secondary` seed from `primary` per color harmony, used when no explicit `secondary` is set. */
+export function luzHarmonySecondary(primaryCSSVar: string, harmony: ColorHarmony): string {
+  if (harmony === "monochrome") {
+    return `oklch(from ${primaryCSSVar} l calc(c * 0.45) h)`;
+  }
+  return `oklch(from ${primaryCSSVar} l c calc(h + ${HARMONY_HUE_OFFSET[harmony]}))`;
+}
+
 export function luzShadesByHue({
   color,
   name,

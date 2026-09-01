@@ -2,7 +2,7 @@
  * Luz - Lightweight theming library.
  */
 
-import { luzOnColor, luzShadesByHue } from "./tools/hue";
+import { luzHarmonySecondary, luzOnColor, luzShadesByHue, type ColorHarmony } from "./tools/hue";
 import { luzProperty } from "./tools/props";
 import { buildReset } from "./tools/reset";
 import {
@@ -53,8 +53,17 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   primary: string;
   /** Custom-property name for the primary palette, e.g. `--{name}-500`. Default `"primary"`. */
   name?: string;
-  /** Base color for the secondary palette. Default: primary hue rotated 180°. */
+  /** Base color for the secondary palette. Default: derived from `primary` per `harmony`. */
   secondary?: string;
+  /**
+   * Color harmony used to derive `secondary` from `primary` when `secondary` isn't set explicitly.
+   * @default "complementary"
+   * @param "complementary" primary hue rotated 180°
+   * @param "analogous" primary hue rotated 30°
+   * @param "triad" primary hue rotated 120°
+   * @param "monochrome" primary hue, lower chroma
+   */
+  harmony?: ColorHarmony;
   /**
    * Color scheme the generated palette ships as.
    * @default "dark"
@@ -165,6 +174,7 @@ const defaultConfig: LuzConfig = {
   primary: "#007dea",
   name: "primary",
   mode: "dark",
+  harmony: "complementary",
   neutrals: "neutral",
   neutralTint: 0.2,
   prefix: "",
@@ -234,7 +244,7 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "selection-bg": `var(--${prefix}${name}-500)`,
     "on-selection": `var(--on-${prefix}${name})`,
     "file-input-border-top": `var(--${prefix}${name}-200)`,
-    "range-track-bg": `var(--${prefix}${neutrals}-900)`,
+    "range-track-bg": `var(--element-background)`,
     "range-track-shadow": `var(--${prefix}${name}-500)`,
     "range-thumb-active-bg": `var(--${prefix}${name}-500)`,
     accent: `var(--${prefix}${name}-500)`,
@@ -252,20 +262,20 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "btn-bg": `var(--${prefix}${name}-500)`,
     "on-btn": `var(--on-${prefix}${name})`,
     "btn-bg-hover": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,
-    "on-btn-ghost": `var(--${prefix}${name}-400)`,
+    "on-btn-ghost": `oklch(from var(--foreground) l c h / 65%)`,
     "tooltip-bg": `var(--${prefix}${name}-900)`,
     "on-tooltip": `var(--${prefix}${name}-100)`,
     "badge-bg": `var(--${prefix}${name}-500)`,
     "on-badge": `var(--on-${prefix}${name})`,
     "on-badge-ghost": `var(--${prefix}${name}-400)`,
-    "on-tab": `var(--${prefix}${neutrals}-400)`,
+    "on-tab": `oklch(from var(--foreground) l c h / 65%)`,
     "on-tab-active": `var(--foreground)`,
     "tab-border-active": `var(--${prefix}${name}-500)`,
     "modal-backdrop": `oklch(from var(--${prefix}${neutrals}-950) l c h / 60%)`,
-    "on-breadcrumb": `var(--${prefix}${neutrals}-400)`,
-    "breadcrumb-separator": `var(--${prefix}${neutrals}-600)`,
-    "skeleton-bg": `var(--${prefix}${neutrals}-800)`,
-    "skeleton-shine": `var(--${prefix}${neutrals}-700)`,
+    "on-breadcrumb": `oklch(from var(--foreground) l c h / 65%)`,
+    "breadcrumb-separator": `oklch(from var(--foreground) l c h / 35%)`,
+    "skeleton-bg": `oklch(from var(--foreground) l c h / 8%)`,
+    "skeleton-shine": `oklch(from var(--foreground) l c h / 14%)`,
   };
 }
 
@@ -297,6 +307,7 @@ export function luz(config?: LuzConfig): LuzResult {
     neutralTint,
     power,
     secondary,
+    harmony,
     properties: generateProperties,
     preset: _preset,
     colorSteps,
@@ -319,7 +330,7 @@ export function luz(config?: LuzConfig): LuzResult {
   const primaryCSSVar: string = `var(--${primaryName})`;
 
   const secondaryColor: string =
-    secondary ?? `oklch(from ${primaryCSSVar} l c calc(h + 180))`;
+    secondary ?? luzHarmonySecondary(primaryCSSVar, harmony as ColorHarmony);
 
   const secondaryName: string = `${prefix}secondary`;
   const secondaryCSSVar: string = `var(--${secondaryName})`;
@@ -372,9 +383,9 @@ export function luz(config?: LuzConfig): LuzResult {
       [`on-${neutralsName}`]: luzOnColor(neutralCSSVar),
       ...wheel,
       border: `var(--border-width) solid var(--element-border-color)`,
-      "element-background": `var(--${neutralsName}-950)`,
-      "element-border-color": `oklch(from var(--${neutralsName}-600) l c h / 50%)`,
-      "border-color": `oklch(from var(--${neutralsName}-600) l c h / 50%)`,
+      "element-background": `var(--background)`,
+      "element-border-color": `oklch(from var(--foreground) l c h / 20%)`,
+      "border-color": `oklch(from var(--foreground) l c h / 50%)`,
       "element-active-border-color": `oklch(from var(--${primaryName}-200) l c h / 50%)`,
       "on-element": `var(--${primaryName}-100)`,
       "on-element-active": `var(--${primaryName}-50)`,

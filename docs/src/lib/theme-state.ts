@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import type { LuzConfig } from "../../../src/luz";
 import { config as siteConfig } from "../../luz.config";
 
 const STORAGE_KEY = "luz-docs-toolbar";
@@ -11,6 +12,7 @@ export interface ToolbarState {
   mode: "light" | "dark" | "auto";
   preset: "app" | "content" | "landing";
   neutralTint: number;
+  harmony: NonNullable<LuzConfig["harmony"]>;
 }
 
 export const DEFAULT_STATE: ToolbarState = {
@@ -18,6 +20,7 @@ export const DEFAULT_STATE: ToolbarState = {
   mode: siteConfig.mode ?? "dark",
   preset: siteConfig.preset ?? "content",
   neutralTint: siteConfig.neutralTint ?? 0,
+  harmony: siteConfig.harmony ?? "complementary",
 };
 
 export function loadThemeState(): ToolbarState {
