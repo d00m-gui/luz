@@ -32,6 +32,14 @@ button {
     --scheme: var(--secondary);
     --on-scheme: var(--on-secondary);
   }
+  &[role="tertiary"] {
+    --scheme: var(--tertiary, var(--secondary));
+    --on-scheme: var(--on-tertiary, var(--on-secondary));
+  }
+  &[role="quaternary"] {
+    --scheme: var(--quaternary, var(--tertiary, var(--secondary)));
+    --on-scheme: var(--on-quaternary, var(--on-tertiary, var(--on-secondary)));
+  }
   &[type="reset"],
   &[role="cancel"],
   &.cancel,

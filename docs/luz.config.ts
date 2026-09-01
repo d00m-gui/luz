@@ -8,5 +8,5 @@ export const config: LuzAstroConfig = {
   "font-headings": "var(--dm-sans)",
   "font-monospace": "var(--dm-mono)",
   properties: true,
-  neutralTint: 0,
+  neutralTint: 0
 };

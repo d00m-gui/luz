@@ -32,6 +32,8 @@
   &.info,
   &.primary,
   &.secondary,
+  &.tertiary,
+  &.quaternary,
   &.neutral {
     background-color: oklch(from var(--scheme) l c h / 12%);
     border-color: var(--scheme);

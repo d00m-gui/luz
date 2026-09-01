@@ -93,9 +93,13 @@ function mergedTokenValues(tokens: LuzTokens): Map<string, [string, boolean]> {
   return merged;
 }
 
+/** Anything reading `var(--depth...)` (e.g. `element-background`) must stay unregistered: a typed `@property` resolves once where it's declared and inherits that fixed value, instead of re-substituting per consuming element — which is how `--depth` (set per nesting level in `_depth.css`) is meant to work. */
+const READS_DEPTH = /var\(--depth\b/;
+
 function inferProperties(tokens: LuzTokens): PropertyDecl[] {
   const declarations: PropertyDecl[] = [];
   for (const [name, [value, isColor]] of mergedTokenValues(tokens)) {
+    if (READS_DEPTH.test(value)) continue;
     const decl = toDecl(name, value, isColor);
     if (decl) declarations.push(decl);
   }

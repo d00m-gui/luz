@@ -2,7 +2,7 @@
  * Luz - Lightweight theming library.
  */
 
-import { luzHarmonySecondary, luzOnColor, luzShadesByHue, type ColorHarmony } from "./tools/hue";
+import { luzHarmonyColors, luzOnColor, luzShadesByHue, type ColorHarmony } from "./tools/hue";
 import { luzProperty } from "./tools/props";
 import { buildReset } from "./tools/reset";
 import {
@@ -55,13 +55,17 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   name?: string;
   /** Base color for the secondary palette. Default: derived from `primary` per `harmony`. */
   secondary?: string;
+  /** Base color for the tertiary palette. Default: derived from `primary` per `harmony`. Only generated for `"monochrome"`, `"triad"`, and `"analogous"` — `"complementary"` has no third color. */
+  tertiary?: string;
+  /** Base color for the quaternary palette. Default: derived from `primary` per `harmony`. Only generated for `"analogous"`, the only harmony with a fourth color. */
+  quaternary?: string;
   /**
-   * Color harmony used to derive `secondary` from `primary` when `secondary` isn't set explicitly.
+   * Color harmony used to derive `secondary`/`tertiary`/`quaternary` from `primary` when they aren't set explicitly.
    * @default "complementary"
-   * @param "complementary" primary hue rotated 180°
-   * @param "analogous" primary hue rotated 30°
-   * @param "triad" primary hue rotated 120°
-   * @param "monochrome" primary hue, lower chroma
+   * @param "complementary" primary + secondary, hue rotated 180°
+   * @param "analogous" primary + secondary/tertiary/quaternary, hue rotated 30°/60°/90°
+   * @param "triad" primary + secondary/tertiary, hue rotated 120°/240°
+   * @param "monochrome" primary + secondary/tertiary, same hue, lower chroma
    */
   harmony?: ColorHarmony;
   /**
@@ -88,6 +92,14 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   background?: string;
   /** `--foreground` override. Default: `neutrals` 100/900 shade depending on `mode`. */
   foreground?: string;
+  /** `--depth-base` offset added to the nesting level counted by `.card`/`.popover`/etc. (1–4, capped). Default `0`. */
+  depth?: number;
+  /** Max lightness offset from `background` the `--depth` elevation curve (nested `.card`/`.popover`/etc.) approaches asymptotically. Default `0.125`. */
+  depthMax?: number;
+  /** Per-level falloff (0–1) of the `--depth` elevation curve — smaller means more contrast between the first few nesting levels. Default `0.6`. */
+  depthDecay?: number;
+  /** Forces the `--depth` elevation direction/magnitude, overriding the automatic `mode`-based sign. A `.elements-depth-light`/`.elements-depth-dark` class on a subtree still overrides this. */
+  depthSign?: number;
   /** Generate `@property` declarations for every token. Default `false`. */
   properties?: boolean;
   /** Shade steps generated per color palette. Default `11` (50–950). */
@@ -184,6 +196,9 @@ const defaultConfig: LuzConfig = {
   sizeRelativeToBase: false,
   sizeFluidRange: "fixed",
   spaceSteps: 24,
+  depth: 0,
+  depthMax: 0.125,
+  depthDecay: 0.6,
 };
 
 /** Tones down a shade's chroma — inline text (links) reads calmer than the raw peak-chroma shade. */
@@ -226,10 +241,18 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "on-scheme-primary": `var(--on-${prefix}${name})`,
     "scheme-secondary": `var(--${prefix}secondary-500)`,
     "on-scheme-secondary": `var(--on-${prefix}secondary)`,
+    "scheme-tertiary": `var(--${prefix}tertiary-500, var(--${prefix}secondary-500))`,
+    "on-scheme-tertiary": `var(--on-${prefix}tertiary, var(--on-${prefix}secondary))`,
+    "scheme-quaternary": `var(--${prefix}quaternary-500, var(--${prefix}tertiary-500, var(--${prefix}secondary-500)))`,
+    "on-scheme-quaternary": `var(--on-${prefix}quaternary, var(--on-${prefix}tertiary, var(--on-${prefix}secondary)))`,
     "scheme-neutral": `var(--${prefix}${neutrals}-500)`,
     "on-scheme-neutral": `var(--on-${prefix}${neutrals})`,
     anchor: muted(info),
     "anchor-secondary": muted(`var(--${prefix}secondary-500)`),
+    "anchor-tertiary": muted(`var(--${prefix}tertiary-500, var(--${prefix}secondary-500))`),
+    "anchor-quaternary": muted(
+      `var(--${prefix}quaternary-500, var(--${prefix}tertiary-500, var(--${prefix}secondary-500)))`,
+    ),
     "anchor-contrast": `var(--${prefix}${neutrals}-500)`,
     "anchor-danger": muted(danger),
     "anchor-success": muted(success),
@@ -307,6 +330,8 @@ export function luz(config?: LuzConfig): LuzResult {
     neutralTint,
     power,
     secondary,
+    tertiary,
+    quaternary,
     harmony,
     properties: generateProperties,
     preset: _preset,
@@ -315,6 +340,10 @@ export function luz(config?: LuzConfig): LuzResult {
     sizeFluidRange,
     spaceSteps,
     spacing,
+    depth,
+    depthMax,
+    depthDecay,
+    depthSign,
     vars,
     ...typography
   } = settings;
@@ -329,11 +358,19 @@ export function luz(config?: LuzConfig): LuzResult {
   const primaryName: string = `${prefix}${normalName}`;
   const primaryCSSVar: string = `var(--${primaryName})`;
 
-  const secondaryColor: string =
-    secondary ?? luzHarmonySecondary(primaryCSSVar, harmony as ColorHarmony);
+  const harmonyColors = luzHarmonyColors(primaryCSSVar, harmony as ColorHarmony);
 
+  const secondaryColor: string = secondary ?? (harmonyColors[0] as string);
   const secondaryName: string = `${prefix}secondary`;
   const secondaryCSSVar: string = `var(--${secondaryName})`;
+
+  const tertiaryColor: string | undefined = tertiary ?? harmonyColors[1];
+  const tertiaryName: string = `${prefix}tertiary`;
+  const tertiaryCSSVar: string = `var(--${tertiaryName})`;
+
+  const quaternaryColor: string | undefined = quaternary ?? harmonyColors[2];
+  const quaternaryName: string = `${prefix}quaternary`;
+  const quaternaryCSSVar: string = `var(--${quaternaryName})`;
 
   const neutralsName: string = `${prefix}${neutrals}`;
   const neutralCSSVar: string = `var(--${neutralsName})`;
@@ -353,6 +390,19 @@ export function luz(config?: LuzConfig): LuzResult {
       reverse,
       steps: colorSteps,
     });
+
+    const tertiaryShades = tertiaryColor
+      ? luzShadesByHue({ color: tertiaryCSSVar, name: tertiaryName, reverse, steps: colorSteps })
+      : {};
+
+    const quaternaryShades = quaternaryColor
+      ? luzShadesByHue({
+          color: quaternaryCSSVar,
+          name: quaternaryName,
+          reverse,
+          steps: colorSteps,
+        })
+      : {};
 
     const neutralShades = luzShadesByHue({
       color: neutralCSSVar,
@@ -374,15 +424,25 @@ export function luz(config?: LuzConfig): LuzResult {
       ...primaryShades,
       ...secondaryShades,
       [secondaryName]: secondaryColor,
+      ...tertiaryShades,
+      ...(tertiaryColor ? { [tertiaryName]: tertiaryColor } : {}),
+      ...quaternaryShades,
+      ...(quaternaryColor ? { [quaternaryName]: quaternaryColor } : {}),
       [neutralsName]: neutralColor,
       ...neutralShades,
       background: `var(--${neutralsName}-900)`,
       foreground: `var(--${neutralsName}-100)`,
       [`on-${secondaryName}`]: luzOnColor(secondaryCSSVar),
+      ...(tertiaryColor ? { [`on-${tertiaryName}`]: luzOnColor(tertiaryCSSVar) } : {}),
+      ...(quaternaryColor ? { [`on-${quaternaryName}`]: luzOnColor(quaternaryCSSVar) } : {}),
       [`on-${primaryName}`]: luzOnColor(`var(--${primaryName})`),
       [`on-${neutralsName}`]: luzOnColor(neutralCSSVar),
       ...wheel,
       border: `var(--border-width) solid var(--element-border-color)`,
+      "depth-base": `${depth}`,
+      "depth-max": `${depthMax}`,
+      "depth-decay": `${depthDecay}`,
+      "depth-sign": `${depthSign ?? (reverse ? -0.3 : 0.3)}`,
       "element-background": `var(--background)`,
       "element-border-color": `oklch(from var(--foreground) l c h / 20%)`,
       "border-color": `oklch(from var(--foreground) l c h / 50%)`,
@@ -431,7 +491,13 @@ export function luz(config?: LuzConfig): LuzResult {
   }
 
 
-  const shadedNames = [primaryName, secondaryName, neutralsName];
+  const shadedNames = [
+    primaryName,
+    secondaryName,
+    ...(tertiaryColor ? [tertiaryName] : []),
+    ...(quaternaryColor ? [quaternaryName] : []),
+    neutralsName,
+  ];
 
   const variables = withShadeFallback(
     toVariableLines({

@@ -5,6 +5,7 @@ import { WHEEL_HUE_NAMES } from "../../../src/tools/wheel";
 import { config } from "../../luz.config.ts";
 import { ThemeToolbar } from "../components/ThemeToolbar";
 import { ColorPicker } from "../components/ColorPicker";
+import { BrandColors } from "../components/BrandColors";
 import { COMPONENTS, UNCOVERED_FILES } from "../content/components";
 import {
   COMPONENT_CATEGORY_HUES,
@@ -40,44 +41,35 @@ function swatchStyle(name: string, weight: number) {
     <div class="card flex-1">
       <ThemeToolbar client:load />
       <ColorPicker client:load />
-      <div class="hue components-toolbar-brand">
-        <p class="components-toolbar-brand-title">Brand colors</p>
-        {
-          ["primary", "secondary"].map((name) => (
-            <div class="swatch-row">
-              <div class="swatch-row-label" style={`color: var(--${name}-500)`}>
-                {name}
-              </div>
-              <div class="swatch-list">
-                {WEIGHTS.map((weight) => (
-                  <div class="swatch" style={swatchStyle(name, weight)} data-tooltip={weight} />
-                ))}
-              </div>
-            </div>
-          ))
-        }
-      </div>
+      <BrandColors client:load />
     </div>
     <div class="card luz-intro flex-1">
       <div class="hue">
         {
-          SHADE_SCALES.map((name) => (
-            <div class="swatch-row">
-              <div class="swatch-row-label" style={`color: var(--${name}-500)`}>
-                {name}
-              </div>
-              <div class="swatch-list">
-                {WEIGHTS.map((weight) => (
+          SHADE_SCALES.map((name) => {
+            if (name != "primary") {
+              return (
+                <div class="swatch-row">
                   <div
-                    class="swatch"
-                    data-name={name}
-                    style={swatchStyle(name, weight)}
-                    data-tooltip={weight}
-                  />
-                ))}
-              </div>
-            </div>
-          ))
+                    class="swatch-row-label"
+                    style={`color: var(--${name}-500)`}
+                  >
+                    {name}
+                  </div>
+                  <div class="swatch-list">
+                    {WEIGHTS.map((weight) => (
+                      <div
+                        class="swatch"
+                        data-name={name}
+                        style={swatchStyle(name, weight)}
+                        data-tooltip={weight}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            }
+          })
         }
         {
           WHEEL_HUES.map((name) => (

@@ -50,19 +50,39 @@ export function luzOnColor(seed: string): string {
 
 export type ColorHarmony = "complementary" | "analogous" | "triad" | "monochrome";
 
-const HARMONY_HUE_OFFSET: Record<ColorHarmony, number> = {
-  complementary: 180,
-  analogous: 30,
-  triad: 120,
-  monochrome: 0,
+function hueShift(color: string, degrees: number): string {
+  return `oklch(from ${color} l c calc(h + ${degrees}))`;
+}
+
+function chromaScale(color: string, factor: number): string {
+  return `oklch(from ${color} l calc(c * ${factor}) h)`;
+}
+
+/** Hue offsets from `primary` for each extra harmony color, in slot order (secondary, tertiary, quaternary). */
+const HARMONY_HUE_OFFSETS: Record<ColorHarmony, number[]> = {
+  complementary: [180],
+  analogous: [30, 60, 90],
+  triad: [120, 240],
+  monochrome: [],
 };
 
-/** Derives a `secondary` seed from `primary` per color harmony, used when no explicit `secondary` is set. */
-export function luzHarmonySecondary(primaryCSSVar: string, harmony: ColorHarmony): string {
+/** Chroma multipliers from `primary` for `monochrome`'s extra colors, in slot order (secondary, tertiary). */
+const MONOCHROME_CHROMA_SCALES = [0.45, 0.2];
+
+/** Derives the harmony's extra seed colors from `primary`, in slot order (secondary, tertiary, quaternary) — used for a slot when it isn't set explicitly in config. */
+export function luzHarmonyColors(primaryCSSVar: string, harmony: ColorHarmony): string[] {
   if (harmony === "monochrome") {
-    return `oklch(from ${primaryCSSVar} l calc(c * 0.45) h)`;
+    return MONOCHROME_CHROMA_SCALES.map((factor) => chromaScale(primaryCSSVar, factor));
   }
-  return `oklch(from ${primaryCSSVar} l c calc(h + ${HARMONY_HUE_OFFSET[harmony]}))`;
+  return HARMONY_HUE_OFFSETS[harmony].map((degrees) => hueShift(primaryCSSVar, degrees));
+}
+
+const HARMONY_SLOT_NAMES = ["secondary", "tertiary", "quaternary"] as const;
+
+/** Palette names (besides `primary`) a harmony actually generates, e.g. `["secondary"]` for `complementary`, `["secondary", "tertiary", "quaternary"]` for `analogous`. */
+export function luzHarmonyColorNames(harmony: ColorHarmony): string[] {
+  const count = harmony === "monochrome" ? MONOCHROME_CHROMA_SCALES.length : HARMONY_HUE_OFFSETS[harmony].length;
+  return HARMONY_SLOT_NAMES.slice(0, count);
 }
 
 export function luzShadesByHue({

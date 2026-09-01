@@ -19,6 +19,7 @@
 @import "./design/button.css";
 @import "./design/_focus.css";
 @import "./design/_disabled.css";
+@import "./design/_depth.css";
 @import "./design/nav.css";
 @import "./design/section.css";
 @import "./design/tooltip.css";

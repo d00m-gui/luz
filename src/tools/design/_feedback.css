@@ -22,11 +22,19 @@
   --scheme: var(--scheme-secondary);
   --on-scheme: var(--on-scheme-secondary);
 }
+.tertiary {
+  --scheme: var(--scheme-tertiary);
+  --on-scheme: var(--on-scheme-tertiary);
+}
+.quaternary {
+  --scheme: var(--scheme-quaternary);
+  --on-scheme: var(--on-scheme-quaternary);
+}
 .neutral {
   --scheme: var(--scheme-neutral);
   --on-scheme: var(--on-scheme-neutral);
 }
-:where(.success, .danger, .warning, .info, .primary, .secondary, .neutral) {
+:where(.success, .danger, .warning, .info, .primary, .secondary, .tertiary, .quaternary, .neutral) {
   color: var(--scheme);
 }
 .solid {

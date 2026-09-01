@@ -26,6 +26,12 @@ a {
   &.secondary {
     --anchor: var(--anchor-secondary);
   }
+  &.tertiary {
+    --anchor: var(--anchor-tertiary);
+  }
+  &.quaternary {
+    --anchor: var(--anchor-quaternary);
+  }
   &.contrast {
     --anchor: var(--anchor-contrast);
   }
