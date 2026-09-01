@@ -4,9 +4,12 @@
 .layout {
   display: flex;
   flex-direction: column;
+  height: 100%;
+  overflow: hidden;
 }
 
 .luz-intro {
+  flex: 0 0 auto;
   .logo {
     path {
       fill: var(--primary-50);
@@ -18,7 +21,10 @@
     scale: 0.60;
   }
 }
+
 .main-row {
+  flex: 1 1 auto;
+  height: 100%;
 }
 
 .sidebar {
@@ -28,14 +34,12 @@
   justify-content: flex-start;
   container-type: inline-size;
   height: 100vh;
-  position: sticky;
-  top: 0;
-  overflow: hidden;
-  overflow-y: auto;
 }
 .sidebar-scroll {
+  overflow: hidden;
   overflow-y: auto;
   flex: 1 1 auto;
+  width: 100%;
 
 }
 .sidebar-group {
@@ -89,6 +93,9 @@
   min-width: 0;
   display: flex;
   flex-direction: column;
+
+  overflow: hidden;
+  overflow-y: auto;
 }
 
 .breadcrumb {
@@ -103,20 +110,6 @@
   gap: var(--space-5);
 }
 
-.content .card .fluid {
-  display: grid;
-  gap: var(--space-5);
-}
-
-.content > h2,
-.content .card > h2 {
-  margin-bottom: var(--space-10);
-}
-
-.content .description {
-  line-height: var(--line-height);
-  margin-bottom: var(--space-6);
-}
 
 .props-table-wrap {
   overflow-x: auto;
@@ -294,8 +287,6 @@
 
 .component-preview {
   position: relative;
-  border-bottom: 1px solid red;
-  padding: var(--spacing) 0;
 }
 
 .components-toolbar-card {

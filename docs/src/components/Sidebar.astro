@@ -19,62 +19,64 @@ const componentsByCategory = Object.groupBy(COMPONENTS, (c) => c.category);
 ---
 
 <nav class="sidebar drawer-sidebar">
-  <div class="sidebar-group">
-    <div class="sidebar-group-title">Docs</div>
-    <a
-      href="/"
-      class={`sidebar-item${activeId === "luz-defaults" ? " active" : ""}`}
-      style={`--sidebar-bg: var(--primary-400)`}
-    >
-      Inicio
-    </a>
-  </div>
+  <div class="sidebar-scroll">
+    <div class="sidebar-group">
+      <div class="sidebar-group-title">Docs</div>
+      <a
+        href="/"
+        class={`sidebar-item${activeId === "luz-defaults" ? " active" : ""}`}
+        style={`--sidebar-bg: var(--primary-400)`}
+      >
+        Inicio
+      </a>
+    </div>
 
-  {
-    Object.entries(componentsByCategory).map(([category, entries]) => (
-      <div class="sidebar-group">
-        <div class="sidebar-group-title">{category}</div>
-        {entries!.map((c) => {
-          const hue =
-            COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
-          return (
-            <a
-              href={`/components/${c.id}`}
-              class={`sidebar-item${activeId === `component-${c.id}` ? " active" : ""}`}
-              style={`--sidebar-bg: var(--${hue}-400)`}
-            >
-              <span
-                class="sidebar-dot"
-                style={`background: var(--${hue}-400)`}
-              />
-              {c.title}
-            </a>
-          );
-        })}
-      </div>
-    ))
-  }
-  {
-    features.length > 0 && (
-      <div class="sidebar-group">
-        <div class="sidebar-group-title">API</div>
-        {features.map((entry) => {
-          const hue = CATEGORY_HUES[entry.id] ?? DEFAULT_CATEGORY_HUE;
-          return (
-            <a
-              href={`/api/${entry.id}`}
-              class={`sidebar-item${activeId === `api-${entry.id}` ? " active" : ""}`}
-              style={`color: var(--${hue}-400)`}
-            >
-              <span
-                class="sidebar-dot"
-                style={`background: var(--${hue}-400)`}
-              />
-              {entry.data.title}
-            </a>
-          );
-        })}
-      </div>
-    )
-  }
+    {
+      Object.entries(componentsByCategory).map(([category, entries]) => (
+        <div class="sidebar-group">
+          <div class="sidebar-group-title">{category}</div>
+          {entries!.map((c) => {
+            const hue =
+              COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
+            return (
+              <a
+                href={`/components/${c.id}`}
+                class={`sidebar-item${activeId === `component-${c.id}` ? " active" : ""}`}
+                style={`--sidebar-bg: var(--${hue}-400)`}
+              >
+                <span
+                  class="sidebar-dot"
+                  style={`background: var(--${hue}-400)`}
+                />
+                {c.title}
+              </a>
+            );
+          })}
+        </div>
+      ))
+    }
+    {
+      features.length > 0 && (
+        <div class="sidebar-group">
+          <div class="sidebar-group-title">API</div>
+          {features.map((entry) => {
+            const hue = CATEGORY_HUES[entry.id] ?? DEFAULT_CATEGORY_HUE;
+            return (
+              <a
+                href={`/api/${entry.id}`}
+                class={`sidebar-item${activeId === `api-${entry.id}` ? " active" : ""}`}
+                style={`color: var(--${hue}-400)`}
+              >
+                <span
+                  class="sidebar-dot"
+                  style={`background: var(--${hue}-400)`}
+                />
+                {entry.data.title}
+              </a>
+            );
+          })}
+        </div>
+      )
+    }
+  </div>
 </nav>
