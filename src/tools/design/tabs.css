@@ -27,7 +27,6 @@
 .tab-input:checked + .tab {
   color: var(--on-tab-active);
   border-color: var(--tab-border-active);
-  font-weight: var(--font-bold-weight);
 }
 .tab-input:focus-visible + .tab {
   outline: calc(var(--size-unit) * 2) solid var(--element-active-border-color);

@@ -5,7 +5,7 @@ import {
   COMPONENT_CATEGORY_HUES,
   DEFAULT_CATEGORY_HUE,
 } from "../lib/category-colors";
-import { COMPONENTS } from "../content/components";
+import { VISIBLE_COMPONENTS } from "../content/components";
 
 interface Props {
   activeId: string;
@@ -15,11 +15,11 @@ const { activeId } = Astro.props;
 const features = (await getCollection("features")).sort(
   (a, b) => a.data.order - b.data.order,
 );
-const componentsByCategory = Object.groupBy(COMPONENTS, (c) => c.category);
+const componentsByCategory = Object.groupBy(VISIBLE_COMPONENTS, (c) => c.category);
 ---
 
 <nav class="sidebar drawer-sidebar">
-  <div class="sidebar-scroll">
+  <div class="sidebar-scroll scrollbar-thin">
     <div class="sidebar-group">
       <div class="sidebar-group-title">Docs</div>
       <a

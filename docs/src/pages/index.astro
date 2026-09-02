@@ -6,7 +6,7 @@ import { config } from "../../luz.config.ts";
 import { ThemeToolbar } from "../components/ThemeToolbar";
 import { ColorPicker } from "../components/ColorPicker";
 import { BrandColors } from "../components/BrandColors";
-import { COMPONENTS, UNCOVERED_FILES } from "../content/components";
+import { VISIBLE_COMPONENTS, UNCOVERED_FILES } from "../content/components";
 import {
   COMPONENT_CATEGORY_HUES,
   DEFAULT_CATEGORY_HUE,
@@ -27,27 +27,25 @@ const WHEEL_HUES = WHEEL_HUE_NAMES;
 const TEXT_SCALE_NAMES = ["xs", "sm", "base", "lg", "xl", "2xl", "3xl"];
 
 function swatchStyle(name: string, weight: number) {
-  return `background: var(--${name}-${weight})`;
+  return `background: var(--${name}-${weight}); color: contrast-color(var(--${name}-${weight}));`;
 }
 ---
 
 <Layout
   title="Luz"
   activeId="luz-defaults"
-  breadcrumb="Luz"
+  breadcrumb="Sumario"
   contentClass="luz-defaults"
 >
-  <div class="flex gap-5">
-    <div class="card flex-1">
-      <ThemeToolbar client:load />
-      <ColorPicker client:load />
+  <div class="header flex gap-5">
+    <div class="luz-intro flex-1">
+      <p class="uppercase">Harmony</p>
       <BrandColors client:load />
-    </div>
-    <div class="card luz-intro flex-1">
+      <p class="uppercase">Hues</p>
       <div class="hue">
         {
           SHADE_SCALES.map((name) => {
-            if (name != "primary") {
+            if (name != "primary" && name != "secondary") {
               return (
                 <div class="swatch-row">
                   <div
@@ -56,16 +54,17 @@ function swatchStyle(name: string, weight: number) {
                   >
                     {name}
                   </div>
-                  <div class="swatch-list">
-                    {WEIGHTS.map((weight) => (
+                  {WEIGHTS.map((weight) => (
+                    <div class="swatch-list">
                       <div
                         class="swatch"
                         data-name={name}
                         style={swatchStyle(name, weight)}
-                        data-tooltip={weight}
-                      />
-                    ))}
-                  </div>
+                      >
+                        {weight}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               );
             }
@@ -74,23 +73,31 @@ function swatchStyle(name: string, weight: number) {
         {
           WHEEL_HUES.map((name) => (
             <div class="swatch-row">
-              <div class="swatch-row-label" style={`color: var(--${name}-500)`}>
+              <div
+                class="swatch-row-label"
+                style={{ color: `var(--${name}-500)` }}
+              >
                 {name}
               </div>
-              <div class="swatch-list">
-                {WEIGHTS.map((weight) => (
+              {WEIGHTS.map((weight) => (
+                <div class="swatch-list">
                   <div
                     class="swatch"
                     data-name={name}
                     style={swatchStyle(name, weight)}
-                    data-tooltip={weight}
-                  />
-                ))}
-              </div>
+                  >
+                    {weight}
+                  </div>
+                </div>
+              ))}
             </div>
           ))
         }
       </div>
+    </div>
+    <div class="card flex-1">
+      <ThemeToolbar client:load />
+      <ColorPicker client:load />
     </div>
   </div>
   <div class="docs-sections">
@@ -166,7 +173,7 @@ function swatchStyle(name: string, weight: number) {
 
     <div class="grid components-index-grid">
       {
-        COMPONENTS.map((component) => {
+        VISIBLE_COMPONENTS.map((component) => {
           const hue =
             COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
           const spanClass = component.span ? ` col-span-${component.span}` : "";
@@ -180,7 +187,7 @@ function swatchStyle(name: string, weight: number) {
               >
                 {component.title}
               </a>
-              <div class="component-preview">
+              <div class={`component-preview ${component.id}-preview`}>
                 <Fragment set:html={component.preview ?? component.html} />
               </div>
             </article>
@@ -243,27 +250,3 @@ function swatchStyle(name: string, weight: number) {
     </section>
   </div>
 </Layout>
-
-<script>
-  function resolveRGB(color: string): [number, number, number] {
-    const canvas = new OffscreenCanvas(1, 1);
-    const ctx = canvas.getContext("2d")!;
-    ctx.fillStyle = color;
-    ctx.fillRect(0, 0, 1, 1);
-    const [r, g, b] = ctx.getImageData(0, 0, 1, 1).data;
-    return [r!, g!, b!];
-  }
-
-  function contrastSwatches() {
-    for (const el of document.querySelectorAll<HTMLElement>(
-      ".swatch[data-name]",
-    )) {
-      const name = el.dataset.name;
-      if (!name) continue;
-      const [r, g, b] = resolveRGB(getComputedStyle(el).backgroundColor);
-      const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-      el.style.color = `var(--on-${name}${luminance > 0.5 ? "-inverse" : ""})`;
-    }
-  }
-  document.addEventListener("astro:page-load", contrastSwatches);
-</script>

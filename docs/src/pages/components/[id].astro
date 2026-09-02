@@ -1,11 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import CodeBlock from "../../components/CodeBlock.astro";
-import { COMPONENTS } from "../../content/components";
+import { VISIBLE_COMPONENTS } from "../../content/components";
 import { COMPONENT_CATEGORY_HUES, DEFAULT_CATEGORY_HUE } from "../../lib/category-colors";
 
 export function getStaticPaths() {
-  return COMPONENTS.map((c) => ({ params: { id: c.id }, props: { component: c } }));
+  return VISIBLE_COMPONENTS.map((c) => ({ params: { id: c.id }, props: { component: c } }));
 }
 
 const { component } = Astro.props;

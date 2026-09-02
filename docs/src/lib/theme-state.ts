@@ -13,6 +13,10 @@ export interface ToolbarState {
   preset: "app" | "content" | "landing";
   neutralTint: number;
   harmony: NonNullable<LuzConfig["harmony"]>;
+  depth: number;
+  depthMax: number;
+  depthDecay: number;
+  depthSign: number;
 }
 
 export const DEFAULT_STATE: ToolbarState = {
@@ -21,6 +25,10 @@ export const DEFAULT_STATE: ToolbarState = {
   preset: siteConfig.preset ?? "content",
   neutralTint: siteConfig.neutralTint ?? 0,
   harmony: siteConfig.harmony ?? "complementary",
+  depth: siteConfig.depth ?? 0,
+  depthMax: siteConfig.depthMax ?? 0.125,
+  depthDecay: siteConfig.depthDecay ?? 0.6,
+  depthSign: siteConfig.depthSign ?? -0.3,
 };
 
 export function loadThemeState(): ToolbarState {

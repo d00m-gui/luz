@@ -15,6 +15,10 @@ function formatConfig(state: ToolbarState): string {
   harmony: "${state.harmony}",
   preset: "${state.preset}",
   neutralTint: ${state.neutralTint},
+  depth: ${state.depth},
+  depthMax: ${state.depthMax},
+  depthDecay: ${state.depthDecay},
+  depthSign: ${state.depthSign},
 })`;
 }
 
@@ -80,6 +84,54 @@ export function ThemeToolbar() {
             onChange={(e) => update({ neutralTint: Number(e.target.value) })}
           />
           <span>{state.neutralTint.toFixed(1)}</span>
+        </label>
+        <label>
+          Depth
+          <input
+            type="range"
+            min={0}
+            max={4}
+            step={1}
+            value={state.depth}
+            onChange={(e) => update({ depth: Number(e.target.value) })}
+          />
+          <span>{state.depth}</span>
+        </label>
+        <label>
+          Depth max
+          <input
+            type="range"
+            min={0}
+            max={0.5}
+            step={0.025}
+            value={state.depthMax}
+            onChange={(e) => update({ depthMax: Number(e.target.value) })}
+          />
+          <span>{state.depthMax.toFixed(3)}</span>
+        </label>
+        <label>
+          Depth decay
+          <input
+            type="range"
+            min={0}
+            max={1}
+            step={0.05}
+            value={state.depthDecay}
+            onChange={(e) => update({ depthDecay: Number(e.target.value) })}
+          />
+          <span>{state.depthDecay.toFixed(2)}</span>
+        </label>
+        <label>
+          Depth sign
+          <input
+            type="range"
+            min={-1}
+            max={1}
+            step={0.1}
+            value={state.depthSign}
+            onChange={(e) => update({ depthSign: Number(e.target.value) })}
+          />
+          <span>{state.depthSign.toFixed(1)}</span>
         </label>
         <button type="button" className="ghost" onClick={resetThemeState}>
           Reset

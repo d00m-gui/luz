@@ -37,6 +37,8 @@ export interface ComponentDoc {
   preview?: string;
   /** Grid column span in the `/` component index — for previews wide enough that a single column cramps them. Default 1. */
   span?: 2 | 3;
+  /** Excludes the entry from the index, sidebar, and routing while it's being reworked. Still counts toward `covers`. */
+  wip?: boolean;
 }
 
 export const COMPONENTS: ComponentDoc[] = [
@@ -372,8 +374,8 @@ export const COMPONENTS: ComponentDoc[] = [
     covers: ["breadcrumbs"],
     html: `<nav class="breadcrumbs">
   <ol>
-    <li><a href="#">luz</a></li>
-    <li><a href="#">docs</a></li>
+    <li><a>luz</a></li>
+    <li><a>docs</a></li>
     <li>Componentes</li>
   </ol>
 </nav>`,
@@ -605,6 +607,7 @@ export const COMPONENTS: ComponentDoc[] = [
   },
   {
     id: "file-input",
+    wip: true,
     title: "File input",
     category: "Primitives",
     covers: [],
@@ -632,6 +635,7 @@ export const COMPONENTS: ComponentDoc[] = [
   {
     id: "hidden",
     title: "Hidden utility",
+    wip: true,
     category: "Primitives",
     covers: ["hidden"],
     html: `<p>Visible text</p>
@@ -668,6 +672,7 @@ export const COMPONENTS: ComponentDoc[] = [
   },
   {
     id: "glass",
+    wip: true,
     title: "Glass",
     category: "Surfaces",
     covers: ["glass"],
@@ -719,8 +724,9 @@ export const COMPONENTS: ComponentDoc[] = [
 </style>`,
   },
   {
-    id: "gradient-property",
-    title: "Animated gradients",
+    id: "gradient",
+    wip: true,
+    title: "Gradients",
     category: "Surfaces",
     covers: ["card"],
     span: 3,
@@ -734,6 +740,7 @@ export const COMPONENTS: ComponentDoc[] = [
     category: "Layout",
     covers: ["grid", "grid-cols-3", "col-span-1", "col-span-2", "col-span-full"],
     span: 2,
+    wip: true,
     html: `<div class="grid grid-cols-3" style="gap: var(--space-2)">
   <div class="card col-span-2">col-span-2</div>
   <div class="card">col-span-1</div>
@@ -750,3 +757,5 @@ export const UNCOVERED_FILES = DESIGN_FILES.filter((f) => {
   if (tokens.length > 0 && tokens.every((t) => EXEMPT_ELEMENTS.includes(t))) return false;
   return !tokens.some((t) => covered.has(t));
 }).map((f) => f.file);
+
+export const VISIBLE_COMPONENTS = COMPONENTS.filter((c) => !c.wip);
