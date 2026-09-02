@@ -1,8 +1,8 @@
-:where(.btn, .button, [role="button"], [type="button"], [type="file"]::file-selector-button, [type="reset"], [type="submit"], button, .badge, .solid) {
+:where(.btn, .button, [role="button"], [type="button"], [type="file"]::file-selector-button, [type="reset"], [type="submit"], button, .badge, .card, .solid) {
   --current-color: var(--on-scheme, contrast-color(var(--current-bg)));
 }
 @supports not (color: contrast-color(black)) {
-  :where(.btn, .button, [role="button"], [type="button"], [type="file"]::file-selector-button, [type="reset"], [type="submit"], button, .badge, .solid) {
+  :where(.btn, .button, [role="button"], [type="button"], [type="file"]::file-selector-button, [type="reset"], [type="submit"], button, .badge, .card, .solid) {
     --current-color: var(--on-scheme, oklch(from var(--current-bg) clamp(0, calc((l - 0.6) * -1000), 1) calc(c * 0.08) h));
   }
 }

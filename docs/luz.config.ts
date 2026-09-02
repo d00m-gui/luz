@@ -7,6 +7,7 @@ export const config: LuzAstroConfig = {
   font: "var(--dm-sans)",
   "font-headings": "var(--dm-sans)",
   "font-monospace": "var(--dm-mono)",
+  "font-emphasis": "var(--eb-serif)",
   properties: true,
   neutralTint: 0
 };

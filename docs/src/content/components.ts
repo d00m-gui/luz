@@ -39,6 +39,8 @@ export interface ComponentDoc {
   span?: 2 | 3;
   /** Excludes the entry from the index, sidebar, and routing while it's being reworked. Still counts toward `covers`. */
   wip?: boolean;
+  /** Variant demos shown on the same page below the base one — a class-modifier flavor of this component (e.g. `.tabs.segmented`) rather than a component of its own. */
+  variants?: { title: string; html: string; preview?: string }[];
 }
 
 export const COMPONENTS: ComponentDoc[] = [
@@ -105,39 +107,6 @@ export const COMPONENTS: ComponentDoc[] = [
 </div>`,
   },
   {
-    id: "segmented",
-    title: "Segmented control",
-    category: "Navigation",
-    covers: ["segmented", "segmented-input", "segmented-item"],
-    html: `<div class="segmented">
-  <input class="segmented-input" type="radio" name="ks-segmented" id="ks-seg-day" checked />
-  <label class="segmented-item" for="ks-seg-day">Day</label>
-  <input class="segmented-input" type="radio" name="ks-segmented" id="ks-seg-week" />
-  <label class="segmented-item" for="ks-seg-week">Week</label>
-  <input class="segmented-input" type="radio" name="ks-segmented" id="ks-seg-month" />
-  <label class="segmented-item" for="ks-seg-month">Month</label>
-</div>`,
-  },
-  {
-    id: "toggle",
-    title: "Toggle",
-    category: "Navigation",
-    covers: ["toggle"],
-    html: `<button class="toggle" aria-pressed="true">Bold</button>
-<button class="toggle" aria-pressed="false">Italic</button>`,
-  },
-  {
-    id: "pagination",
-    title: "Pagination",
-    category: "Navigation",
-    covers: ["pagination", "pagination-item", "nav"],
-    html: `<nav class="pagination">
-  <a class="pagination-item" href="#">1</a>
-  <a class="pagination-item" aria-current="page" href="#">2</a>
-  <a class="pagination-item" href="#">3</a>
-</nav>`,
-  },
-  {
     id: "wizard",
     title: "Wizard",
     category: "Navigation",
@@ -150,73 +119,87 @@ export const COMPONENTS: ComponentDoc[] = [
 </div>`,
   },
   {
-    id: "tabbar-bottom",
-    title: "Bottom tab bar",
-    category: "Navigation",
-    covers: ["tabbar-bottom", "tabbar-bottom-item"],
-    html: `<nav class="tabbar-bottom">
-  <a class="tabbar-bottom-item" aria-current="page" href="#">Home</a>
-  <a class="tabbar-bottom-item" href="#">Search</a>
-  <a class="tabbar-bottom-item" href="#">Profile</a>
-</nav>`,
-    preview: `<div class="preview-frame"><nav class="tabbar-bottom" style="position: absolute">
-  <a class="tabbar-bottom-item" aria-current="page" href="#">Home</a>
-  <a class="tabbar-bottom-item" href="#">Search</a>
-  <a class="tabbar-bottom-item" href="#">Profile</a>
-</nav></div>`,
-  },
-  {
     id: "panel-header",
     title: "Panel header",
     category: "Layout",
-    covers: ["panel-header", "panel-header-title"],
+    covers: ["panel-header", "panel-header-title", "top", "bottom"],
     html: `<div class="panel-header">
   <span class="panel-header-title">Panel header</span>
   <button class="ghost">Action</button>
 </div>`,
-  },
-  {
-    id: "titlebar",
-    title: "Titlebar",
-    category: "Layout",
-    covers: ["titlebar"],
-    html: `<div class="titlebar">
+    variants: [
+      {
+        title: "Titlebar — .panel-header.top",
+        html: `<div class="panel-header top">
   <span>Titlebar</span>
   <span class="dot success"></span>
 </div>`,
-    preview: `<div class="preview-frame"><div class="titlebar" style="position: absolute; inset-inline: 0">
+        preview: `<div class="preview-frame"><div class="panel-header top" style="position: absolute; inset-inline: 0">
   <span>Titlebar</span>
   <span class="dot success"></span>
 </div></div>`,
-  },
-  {
-    id: "statusbar",
-    title: "Statusbar",
-    category: "Layout",
-    covers: ["statusbar"],
-    html: `<div class="statusbar">
+      },
+      {
+        title: "Statusbar — .panel-header.bottom",
+        html: `<div class="panel-header bottom">
   <span>Ready</span>
   <span>v0.1.0</span>
 </div>`,
-    preview: `<div class="preview-frame"><div class="statusbar" style="position: absolute; inset-inline: 0">
+        preview: `<div class="preview-frame"><div class="panel-header bottom" style="position: absolute; inset-inline: 0">
   <span>Ready</span>
   <span>v0.1.0</span>
 </div></div>`,
+      },
+    ],
   },
   {
     id: "list",
     title: "List",
     category: "Layout",
-    covers: ["list-item"],
-    html: `<div class="list-item">Item one</div>
-<div class="list-item">Item two</div>
-<div class="list-item">Item three</div>`,
+    covers: ["list", "list-row", "list-col-grow", "list-col-wrap"],
+    html: `<div class="list">
+  <div class="list-row">
+    <span class="avatar sm">AB</span>
+    <div class="list-col-grow">
+      <p><strong>Ada Byron</strong></p>
+      <p class="text-sm">Admin</p>
+    </div>
+    <button class="ghost square" aria-label="More"><i class="icon nf nf-fa-ellipsis_v"></i></button>
+  </div>
+  <div class="list-row">
+    <span class="avatar sm">GH</span>
+    <div class="list-col-grow">
+      <p><strong>Grace Hopper</strong></p>
+      <p class="text-sm">Editor</p>
+    </div>
+    <button class="ghost square" aria-label="More"><i class="icon nf nf-fa-ellipsis_v"></i></button>
+  </div>
+</div>`,
+    variants: [
+      {
+        title: "Collapsible rows — <details class=\"list-row\">",
+        html: `<div class="list">
+  <details class="list-row" name="luz-list-demo">
+    <summary>What is luz?</summary>
+    <p>A CSS theming library — colors, typography, and spacing from a single primary color.</p>
+  </details>
+  <details class="list-row" name="luz-list-demo">
+    <summary>Does it need a build step?</summary>
+    <p>No — the output is plain CSS custom properties.</p>
+  </details>
+  <details class="list-row" name="luz-list-demo">
+    <summary>Is JS required?</summary>
+    <p>No — exclusive open/close is native, via the shared <code>name</code> attribute on each <code>&lt;details&gt;</code>.</p>
+  </details>
+</div>`,
+      },
+    ],
   },
   {
     id: "button",
     title: "Button",
     category: "Primitives",
-    covers: ["btn", "button", "icon"],
+    covers: ["btn", "button", "icon", "cta"],
     span: 2,
     html: `<button>Default</button>
 <button class="neutral">Neutral</button>
@@ -233,17 +216,16 @@ export const COMPONENTS: ComponentDoc[] = [
 <button class="loading">Saving</button>
 
 <button class="block"><i class="icon nf nf-fa-github"></i> Continue with GitHub</button>`,
-  },
-  {
-    id: "cta",
-    title: "CTA button",
-    category: "Primitives",
-    covers: ["cta"],
-    html: `<button class="cta">
+    variants: [
+      {
+        title: "CTA — .btn.cta",
+        html: `<button class="cta">
   <span class="text-xs">Nuevo</span>
   <span class="text-lg">Empezar gratis</span>
   <span class="text-sm">Sin tarjeta de crédito</span>
 </button>`,
+      },
+    ],
   },
   {
     id: "badge",
@@ -255,6 +237,7 @@ export const COMPONENTS: ComponentDoc[] = [
 <span class="badge danger">Danger</span>
 <span class="badge warning">Warning</span>
 <span class="badge neutral">Neutral</span>
+<span class="badge contrast">Contrast</span>
 <span class="badge ghost">Ghost</span>
 <span class="badge pill">Pill</span>`,
   },
@@ -279,6 +262,15 @@ export const COMPONENTS: ComponentDoc[] = [
   <p>Card content goes here.</p>
   <div class="card-footer">Footer</div>
 </div>`,
+    variants: [
+      {
+        title: "Scheme — .card.success",
+        html: `<div class="card success">
+  <div class="card-title">Changes saved</div>
+  <p>Card also takes the shared .success/.danger/.warning/.neutral/.contrast scheme classes.</p>
+</div>`,
+      },
+    ],
   },
   {
     id: "avatar",
@@ -293,7 +285,7 @@ export const COMPONENTS: ComponentDoc[] = [
     id: "tabs",
     title: "Tabs",
     category: "Navigation",
-    covers: ["tabs", "tab", "tab-input"],
+    covers: ["tabs", "tab", "tab-input", "segmented", "toggle", "pagination", "bottom", "nav"],
     html: `<div class="tabs">
   <input class="tab-input" type="radio" name="ks-tabs" id="ks-tab-a" checked />
   <label class="tab" for="ks-tab-a">Overview</label>
@@ -302,24 +294,51 @@ export const COMPONENTS: ComponentDoc[] = [
   <input class="tab-input" type="radio" name="ks-tabs" id="ks-tab-c" />
   <label class="tab" for="ks-tab-c">Settings</label>
 </div>`,
-  },
-  {
-    id: "accordion",
-    title: "Accordion",
-    category: "Data",
-    covers: ["accordion"],
-    html: `<details class="accordion" name="luz-accordion">
-  <summary>What is luz?</summary>
-  <p>A CSS theming library — colors, typography, and spacing from a single primary color.</p>
-</details>
-<details class="accordion" name="luz-accordion">
-  <summary>Does it need a build step?</summary>
-  <p>No — the output is plain CSS custom properties.</p>
-</details>
-<details class="accordion" name="luz-accordion">
-  <summary>Is JS required?</summary>
-  <p>No — exclusive open/close is native, via the shared <code>name</code> attribute on each <code>&lt;details&gt;</code>.</p>
-</details>`,
+    variants: [
+      {
+        title: "Segmented control — .tabs.segmented",
+        html: `<div class="tabs segmented">
+  <input class="tab-input" type="radio" name="ks-segmented" id="ks-seg-day" checked />
+  <label class="tab" for="ks-seg-day">Day</label>
+  <input class="tab-input" type="radio" name="ks-segmented" id="ks-seg-week" />
+  <label class="tab" for="ks-seg-week">Week</label>
+  <input class="tab-input" type="radio" name="ks-segmented" id="ks-seg-month" />
+  <label class="tab" for="ks-seg-month">Month</label>
+</div>`,
+      },
+      {
+        title: "Toggle — .tabs.toggle",
+        html: `<div class="tabs toggle">
+  <input class="tab-input" type="checkbox" id="format-bold" />
+  <label class="tab" for="format-bold"><strong>B</strong></label>
+  <input class="tab-input" type="checkbox" id="format-italic" />
+  <label class="tab" for="format-italic"><em>I</em></label>
+  <input class="tab-input" type="checkbox" id="format-underline" />
+  <label class="tab" for="format-underline"><u>U</u></label>
+</div>`,
+      },
+      {
+        title: "Pagination — .tabs.pagination",
+        html: `<nav class="tabs pagination">
+  <a class="tab" href="#">1</a>
+  <a class="tab" aria-current="page" href="#">2</a>
+  <a class="tab" href="#">3</a>
+</nav>`,
+      },
+      {
+        title: "Bottom tab bar — .tabs.bottom",
+        html: `<nav class="tabs bottom">
+  <a class="tab" aria-current="page" href="#">Home</a>
+  <a class="tab" href="#">Search</a>
+  <a class="tab" href="#">Profile</a>
+</nav>`,
+        preview: `<div class="preview-frame"><nav class="tabs bottom" style="position: absolute">
+  <a class="tab" aria-current="page" href="#">Home</a>
+  <a class="tab" href="#">Search</a>
+  <a class="tab" href="#">Profile</a>
+</nav></div>`,
+      },
+    ],
   },
   {
     id: "modal",
@@ -338,15 +357,20 @@ export const COMPONENTS: ComponentDoc[] = [
     category: "Overlays",
     covers: ["drawer", "drawer-trigger", "drawer-icon"],
     html: `<div id="drawer-demo" popover class="drawer" data-placement="left">
-  <nav>
-    <p><strong>Menú</strong></p>
-    <a href="#">Inicio</a><br />
-    <a href="#">Componentes</a><br />
-    <a href="#">Docs</a>
-  </nav>
+  <div>
+    <div class="panel-header">
+      <span class="panel-header-title"><strong>Menu</strong></span>
+      <button class="ghost" popovertarget="drawer-demo">&times;</button>
+    </div>
+    <div class="list">
+      <div class="list-row"><a href="#">Inicio</a></div>
+      <div class="list-row"><a href="#">Componentes</a></div>
+      <div class="list-row"><a href="#">Docs</a></div>
+    </div>
+  </div>
 </div>
 <button popovertarget="drawer-demo" class="drawer-trigger" aria-label="Abrir menú">
-  <span class="drawer-icon"><span></span><span></span><span></span></span>
+  <span class="drawer-icon">Menu</span>
 </button>`,
   },
   {
@@ -430,8 +454,8 @@ export const COMPONENTS: ComponentDoc[] = [
 </table>`,
   },
   {
-    id: "native-list",
-    title: "List",
+    id: "native-lists",
+    title: "Lists (native)",
     category: "Data",
     covers: ["ol", "ul", "dl"],
     html: `<ul>

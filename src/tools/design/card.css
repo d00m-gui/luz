@@ -1,9 +1,10 @@
 .card {
+  --current-bg: var(--scheme, var(--element-background));
   padding: var(--space-6);
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
-  background-color: var(--element-background);
-  color: var(--foreground);
+  background-color: var(--current-bg);
+  color: var(--current-color);
   box-shadow: var(--box-shadow);
   & .card-title {
     font-weight: var(--font-bold-weight);

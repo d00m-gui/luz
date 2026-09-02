@@ -39,24 +39,21 @@ button {
   &[type="reset"],
   &[role="cancel"],
   &.cancel,
-  &.reset,
-  &.neutral {
-    --scheme: var(--neutral);
+  &.reset {
+    --scheme: var(--scheme-neutral);
   }
   &[role="apply"],
-  &.apply,
-  &.success {
+  &.apply {
     --scheme: var(--success);
   }
-  &[role="contrast"],
-  &.contrast {
+  &[role="contrast"] {
     --scheme: var(--foreground);
   }
-  &.danger {
-    --scheme: var(--danger);
-  }
-  &.warning {
-    --scheme: var(--warning);
+  &.cta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-1);
   }
   &.ghost {
     --current-bg: transparent;

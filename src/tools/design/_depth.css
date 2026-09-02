@@ -10,14 +10,14 @@
   .popover,
   .toast,
   dialog.modal,
-  .accordion > summary,
+  .list-row > summary,
   .drawer[popover],
-  .titlebar,
-  .statusbar,
-  .tabbar-bottom,
-  .segmented,
+  .panel-header.top,
+  .panel-header.bottom,
+  .tabs.bottom,
+  .tabs.segmented,
   .stat,
-  .toggle,
+  .tabs.toggle,
   .avatar,
   table th,
   input,
@@ -33,8 +33,8 @@
     c h
   );
 }
-:where(.card, .popover, .toast, dialog.modal, .accordion > summary, .drawer[popover], .titlebar, .statusbar, .tabbar-bottom, .segmented, .stat, .toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
-:where(.card, .popover, .toast, dialog.modal, .accordion > summary, .drawer[popover], .titlebar, .statusbar, .tabbar-bottom, .segmented, .stat, .toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"]) {
+:where(.card, .popover, .toast, dialog.modal, .list-row > summary, .drawer[popover], .panel-header.top, .panel-header.bottom, .tabs.bottom, .tabs.segmented, .stat, .tabs.toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
+:where(.card, .popover, .toast, dialog.modal, .list-row > summary, .drawer[popover], .panel-header.top, .panel-header.bottom, .tabs.bottom, .tabs.segmented, .stat, .tabs.toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"]) {
   --depth: calc(var(--depth-base, 0) + 2);
   --element-background: oklch(
     from var(--background)
@@ -42,9 +42,9 @@
     c h
   );
 }
-:where(.card, .popover, .toast, dialog.modal, .accordion > summary, .drawer[popover], .titlebar, .statusbar, .tabbar-bottom, .segmented, .stat, .toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
-:where(.card, .popover, .toast, dialog.modal, .accordion > summary, .drawer[popover], .titlebar, .statusbar, .tabbar-bottom, .segmented, .stat, .toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
-:where(.card, .popover, .toast, dialog.modal, .accordion > summary, .drawer[popover], .titlebar, .statusbar, .tabbar-bottom, .segmented, .stat, .toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"]) {
+:where(.card, .popover, .toast, dialog.modal, .list-row > summary, .drawer[popover], .panel-header.top, .panel-header.bottom, .tabs.bottom, .tabs.segmented, .stat, .tabs.toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
+:where(.card, .popover, .toast, dialog.modal, .list-row > summary, .drawer[popover], .panel-header.top, .panel-header.bottom, .tabs.bottom, .tabs.segmented, .stat, .tabs.toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
+:where(.card, .popover, .toast, dialog.modal, .list-row > summary, .drawer[popover], .panel-header.top, .panel-header.bottom, .tabs.bottom, .tabs.segmented, .stat, .tabs.toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"]) {
   --depth: calc(var(--depth-base, 0) + 3);
   --element-background: oklch(
     from var(--background)
@@ -52,10 +52,10 @@
     c h
   );
 }
-:where(.card, .popover, .toast, dialog.modal, .accordion > summary, .drawer[popover], .titlebar, .statusbar, .tabbar-bottom, .segmented, .stat, .toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
-:where(.card, .popover, .toast, dialog.modal, .accordion > summary, .drawer[popover], .titlebar, .statusbar, .tabbar-bottom, .segmented, .stat, .toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
-:where(.card, .popover, .toast, dialog.modal, .accordion > summary, .drawer[popover], .titlebar, .statusbar, .tabbar-bottom, .segmented, .stat, .toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
-:where(.card, .popover, .toast, dialog.modal, .accordion > summary, .drawer[popover], .titlebar, .statusbar, .tabbar-bottom, .segmented, .stat, .toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"]) {
+:where(.card, .popover, .toast, dialog.modal, .list-row > summary, .drawer[popover], .panel-header.top, .panel-header.bottom, .tabs.bottom, .tabs.segmented, .stat, .tabs.toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
+:where(.card, .popover, .toast, dialog.modal, .list-row > summary, .drawer[popover], .panel-header.top, .panel-header.bottom, .tabs.bottom, .tabs.segmented, .stat, .tabs.toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
+:where(.card, .popover, .toast, dialog.modal, .list-row > summary, .drawer[popover], .panel-header.top, .panel-header.bottom, .tabs.bottom, .tabs.segmented, .stat, .tabs.toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"])
+:where(.card, .popover, .toast, dialog.modal, .list-row > summary, .drawer[popover], .panel-header.top, .panel-header.bottom, .tabs.bottom, .tabs.segmented, .stat, .tabs.toggle, .avatar, table th, input, select, textarea, [type="checkbox"], [type="radio"]) {
   --depth: calc(var(--depth-base, 0) + 4);
   --element-background: oklch(
     from var(--background)

@@ -1,5 +1,35 @@
-/* Nerd Fonts (github.com/ryanoasis/nerd-fonts), pinneado a v3.5.1 vía CDN. */
-@import url("https://www.nerdfonts.com/assets/css/webfont.css");
+/* Nerd Fonts (github.com/ryanoasis/nerd-fonts) v3.5.1, subset local a los íconos usados en docs/. */
+@font-face {
+  font-family: "NerdFontsSymbols Nerd Font";
+  src: url("/fonts/nerd-icons.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+.nf {
+  font-family: "NerdFontsSymbols Nerd Font";
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  line-height: 1;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.nf-cod-github:before {
+  content: "\ea84";
+}
+.nf-cod-layout_sidebar_left:before {
+  content: "\ebf3";
+}
+.nf-fa-plus:before {
+  content: "\f067";
+}
+.nf-fa-download:before {
+  content: "\f019";
+}
+.nf-fa-github:before {
+  content: "\f09b";
+}
 
 .layout {
   --toolbar-height: var(--space-14);
@@ -7,7 +37,7 @@
   flex-direction: column;
   height: 100%;
   overflow: hidden;
-  .titlebar {
+  .panel-header.top {
     flex: 0 0 auto;
   }
   .main-location {
@@ -134,10 +164,8 @@
 .content {
   padding: var(--space-8);
   position: relative;
-  display: grid;
-  gap: var(--space-5);
+  display: block;
 }
-
 
 .props-table-wrap {
   overflow-x: auto;
@@ -188,18 +216,16 @@
   display: flex;
   align-items: center;
   position: relative;
+  gap:  var(--space-1);
+  margin-bottom: var(--space-1);
 }
 
 .swatch-row-label {
+  width: 7rem;
+  padding: var(--space-1);
   font-family: var(--font-monospace);
   font-weight: var(--font-bold-weight);
   text-transform: uppercase;
-  background: var(--background);
-}
-
-.swatch-list {
-  padding: 0;
-  text-align: center;
 }
 
 .swatch {
@@ -209,7 +235,11 @@
   justify-content: center;
   font-size: var(--font-size-xs-fluid);
   letter-spacing: 0.1rem;
-  padding: var(--space-2);
+  padding: var(--space-1);
+  border: var(--border-width) solid var(--element-border-color);
+  border-bottom-width: var(--space-3);
+  border-radius: var(--border-width);
+  width: var(--space-7);
 }
 
 .text-scale {
@@ -325,7 +355,7 @@
   margin-bottom: var(--space-8);
 }
 
-.components-toolbar-card .titlebar {
+.components-toolbar-card .panel-header.top {
   margin: calc(var(--space-6) * -1) calc(var(--space-6) * -1) var(--space-6);
   border-radius: var(--border-radius) var(--border-radius) 0 0;
 }

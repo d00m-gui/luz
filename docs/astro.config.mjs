@@ -9,15 +9,21 @@ export default defineConfig({
   integrations: [react(), luzAstro({ ...config })],
   fonts: [
     {
-      provider: fontProviders.google(),
+      provider: fontProviders.fontsource(),
       name: "DM Sans",
       cssVariable: "--dm-sans",
       weights: [400, 500, 600, 700],
     },
     {
-      provider: fontProviders.google(),
+      provider: fontProviders.fontsource(),
       name: "DM Mono",
       cssVariable: "--dm-mono",
+      weights: [400, 500],
+    },
+    {
+      provider: fontProviders.fontsource(),
+      name: "EB Garamond",
+      cssVariable: "--eb-serif",
       weights: [400, 500],
     },
   ],

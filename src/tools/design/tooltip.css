@@ -8,10 +8,10 @@
   &[data-placement="top"]:before,
   &:before {
     z-index: 99;
-    padding: 0 calc(var(--size-unit) * 10);
-    border-radius: calc(var(--size-unit) * 5);
+    padding: var(--size-unit) calc(var(--size-unit) * 10);
+    border-radius: calc(var(--size-unit) * 2);
     content: attr(data-tooltip);
-    border: var(--border-width) solid var(--foreground);
+    border: var(--border-width) solid var(--element-border-color);
     text-overflow: ellipsis;
     white-space: nowrap;
     opacity: 0;
@@ -26,7 +26,6 @@
     transform: translate(-50%, -5px);
     background: var(--tooltip-bg);
     color: var(--on-tooltip);
-    border-color: transparent;
     transition: var(--transition);
     transition-property: opacity;
   }

@@ -6,6 +6,7 @@ import { config } from "../../luz.config.ts";
 import { ThemeToolbar } from "../components/ThemeToolbar";
 import { ColorPicker } from "../components/ColorPicker";
 import { BrandColors } from "../components/BrandColors";
+import { Swatches } from "../components/Swatches";
 import { VISIBLE_COMPONENTS, UNCOVERED_FILES } from "../content/components";
 import {
   COMPONENT_CATEGORY_HUES,
@@ -39,60 +40,9 @@ function swatchStyle(name: string, weight: number) {
 >
   <div class="header flex gap-5">
     <div class="luz-intro flex-1">
-      <p class="uppercase">Harmony</p>
       <BrandColors client:load />
-      <p class="uppercase">Hues</p>
       <div class="hue">
-        {
-          SHADE_SCALES.map((name) => {
-            if (name != "primary" && name != "secondary") {
-              return (
-                <div class="swatch-row">
-                  <div
-                    class="swatch-row-label"
-                    style={`color: var(--${name}-500)`}
-                  >
-                    {name}
-                  </div>
-                  {WEIGHTS.map((weight) => (
-                    <div class="swatch-list">
-                      <div
-                        class="swatch"
-                        data-name={name}
-                        style={swatchStyle(name, weight)}
-                      >
-                        {weight}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              );
-            }
-          })
-        }
-        {
-          WHEEL_HUES.map((name) => (
-            <div class="swatch-row">
-              <div
-                class="swatch-row-label"
-                style={{ color: `var(--${name}-500)` }}
-              >
-                {name}
-              </div>
-              {WEIGHTS.map((weight) => (
-                <div class="swatch-list">
-                  <div
-                    class="swatch"
-                    data-name={name}
-                    style={swatchStyle(name, weight)}
-                  >
-                    {weight}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ))
-        }
+        <Swatches names={["neutral", ...WHEEL_HUES]} weights={WEIGHTS} />
       </div>
     </div>
     <div class="card flex-1">
@@ -101,76 +51,6 @@ function swatchStyle(name: string, weight: number) {
     </div>
   </div>
   <div class="docs-sections">
-    <!-- <section class="card">
-      <h2 class="card-title">Colores</h2>
-      {
-        SHADE_SCALES.map((name) => (
-          <div class="swatch-row">
-            <div class="swatch-row-label">{name}</div>
-            <div class="swatch-list">
-              {WEIGHTS.map((weight) => (
-                <div
-                  class="swatch"
-                  data-name={name}
-                  style={swatchStyle(name, weight)}
-                >
-                  <span>{weight}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))
-      }
-
-      {
-        WHEEL_HUES.map((name) => (
-          <div class="swatch-row">
-            <div class="swatch-row-label">{name}</div>
-            <div class="swatch-list">
-              {WEIGHTS.map((weight) => (
-                <div
-                  class="swatch"
-                  data-name={name}
-                  style={swatchStyle(name, weight)}
-                >
-                  <span>{weight}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        ))
-      }
-    </section> -->
-
-    <!-- <section class="card">
-      <h2 class="card-title">Sizes</h2>
-
-      <div class="text-scale">
-        {
-          TEXT_SCALE_NAMES.map((name) => (
-            <div class="text-scale-step">
-              <span style={`font-size: var(--font-size-${name})`}>Aa</span>
-              <code>--font-size-{name}</code>
-            </div>
-          ))
-        }
-      </div>
-
-      <div class="size-scale">
-        {
-          ["border-radius", "border-width", "spacing"].map((name) => (
-            <div class="size-step">
-              <div
-                class="size-swatch size-swatch-flat"
-                style={`width: var(--${name}); height: calc(var(--size-unit) * 6)`}
-              />
-              <code>--{name}</code>
-            </div>
-          ))
-        }
-      </div>
-    </section> -->
-
     <div class="grid components-index-grid">
       {
         VISIBLE_COMPONENTS.map((component) => {

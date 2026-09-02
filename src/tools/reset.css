@@ -39,6 +39,14 @@ figure {
     width: 100%;
   }
 }
+ol,
+ul {
+  list-style: none;
+}
+ul li {
+  margin-left: var(--element-vertical);
+  list-style: inside square;
+}
 br {
   float: none;
   clear: both;

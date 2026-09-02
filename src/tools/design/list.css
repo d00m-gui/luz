@@ -1,21 +1,63 @@
-ol,
-ul {
-  list-style: none;
+.list {
+  display: flex;
+  flex-direction: column;
 }
-ul li {
-  margin-left: var(--element-vertical);
-  list-style: inside square;
-}
-.list-item {
+.list-row {
+  display: grid;
+  grid-auto-flow: column;
+  align-items: center;
+  gap: var(--space-3);
   padding: var(--space-3) var(--space-4);
   border-bottom: var(--border-width) solid var(--element-border-color);
   &:last-child {
     border-bottom: none;
+  }
+  & > :nth-child(2) {
+    justify-self: start;
+    width: 100%;
   }
   @media (hover: hover) and (pointer: fine) {
     &:hover {
       background-color: var(--table-hover-bg);
       color: var(--on-table-hover);
     }
+  }
+}
+.list-col-grow {
+  width: 100%;
+}
+.list-col-wrap {
+  grid-column: 1 / -1;
+}
+details.list-row {
+  display: block;
+  padding: 0;
+  cursor: pointer;
+  & > summary {
+    display: grid;
+    grid-auto-flow: column;
+    align-items: center;
+    padding: var(--space-3) var(--space-4);
+    font-weight: var(--font-bold-weight);
+    background-color: var(--element-background);
+    list-style: none;
+    &::-webkit-details-marker {
+      display: none;
+    }
+    &::after {
+      content: "+";
+      justify-self: end;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      &:hover {
+        background-color: var(--table-hover-bg);
+      }
+    }
+  }
+  &[open] > summary::after {
+    content: "−";
+  }
+  & > :not(summary) {
+    padding: var(--space-4) var(--space-5);
   }
 }

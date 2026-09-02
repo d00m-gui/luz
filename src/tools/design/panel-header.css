@@ -1,6 +1,22 @@
 .panel-header {
   display: flex;
   align-items: center;
-  justify-content: start;
   gap: var(--space-4);
+  .panel-header-title {
+    flex: 1 1 auto;
+  }
+}
+.panel-header.top,
+.panel-header.bottom {
+  justify-content: space-between;
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--element-background);
+}
+.panel-header.top {
+  border-bottom: var(--border-width) solid var(--element-border-color);
+}
+.panel-header.bottom {
+  border-top: var(--border-width) solid var(--element-border-color);
+  font-size: var(--font-size-small);
+  color: var(--on-element-placeholder);
 }

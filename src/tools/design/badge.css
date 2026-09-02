@@ -10,9 +10,6 @@
   line-height: var(--line-height);
   background-color: var(--current-bg);
   color: var(--current-color);
-  &.neutral {
-    --scheme: var(--neutral);
-  }
   &.ghost {
     background-color: transparent;
     color: var(--on-badge-ghost);

@@ -330,6 +330,27 @@ lo introdujo este cambio)**: con `name`/`prefix` custom simultáneos (ej.
 `--luz-brand`/`--luz-secondary` (el alias "base" sin sufijo `-N`). No es
 parte de este batch — anotado para otra pasada.
 
+## Variantes de componente vía clase modificadora, no componente nuevo
+
+Cuando dos "componentes" son el mismo patrón visual/estructural con un
+detalle distinto, se consolidan en un solo archivo/selector base +
+modificador, en vez de vivir como CSS separados. Aplicado:
+
+- `.tabs` (`tabs.css`) es la base — `input[hidden] + .tab`/`a.tab` con
+  `:checked`/`[aria-current="page"]` como estado activo. Absorbe lo que
+  antes eran `segmented.css`, `toggle.css`, `pagination.css` y
+  `tabbar-bottom.css`: `.tabs.segmented` (radio, track con bg),
+  `.tabs.toggle` (checkbox, caja con divisores), `.tabs.pagination`
+  (links, ítems con borde), `.tabs.bottom` (links, barra fija inferior).
+- `.panel-header` (`panel-header.css`) es la base — flex row con gap.
+  Absorbe `titlebar.css`/`statusbar.css`: `.panel-header.top` (borde
+  inferior, el header) y `.panel-header.bottom` (borde superior,
+  `font-size-small`, el statusbar).
+
+`_depth.css` (elevación por anidamiento) referencia estas clases por
+nombre en su lista `:where(...)` — actualizar ahí también si se agregan/
+renombran variantes.
+
 ## `_feedback.css` — esquema × tratamiento, 2 ejes combinables
 
 `tools/design/_feedback.css` (último `@import` de `design.css`, después
