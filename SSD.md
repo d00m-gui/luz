@@ -338,35 +338,57 @@ especificidad contra los estilos base de `.btn`/`.badge`/`.alert`/
 `.toast`). Dos ejes de clases combinables en el HTML:
 
 - **Esquema** (`.success`/`.danger`/`.warning`/`.info`/`.primary`/
-  `.secondary`/`.neutral`): fija `--scheme`/`--on-scheme` a los tokens
-  de `themeVariables()` (`--success`, `--on-success`, ... y los nuevos
-  `--scheme-primary`/`--scheme-secondary`/`--scheme-neutral` + `on-*`).
-  El `color: var(--scheme)` para el look "solo color" vive aparte, en
-  un `:where(.success, .danger, ...)` compartido de especificidad cero
-  — así nunca pisa el `color`/`--current-color` que ya calcula un
-  componente (`.btn`/`.badge`/`.alert`) cuando el esquema se combina
-  sin clase de tratamiento.
+  `.secondary`/`.neutral`): fija solo `--scheme` (fondo) a los tokens de
+  `themeVariables()`/`buildColors()` (`--success`, `--scheme-primary`/
+  `--scheme-secondary`/`--scheme-neutral`, etc.). El texto ya no viene de
+  un token `on-*` precalculado — se computa en vivo con `contrast-color()`,
+  ver más abajo. El `color: var(--scheme)` para el look "solo color" vive
+  aparte, en un `:where(.success, .danger, ...)` compartido de
+  especificidad cero — así nunca pisa el `color`/`--current-color` que ya
+  calcula un componente (`.btn`/`.badge`/`.alert`) cuando el esquema se
+  combina sin clase de tratamiento.
 - **Tratamiento** (`.solid`/`.soft`/`.outline`): lee `--scheme` con
   fallback a `--scheme-primary`, define fondo/borde/texto.
 
-`.btn`/`.badge` derivan `--current-bg`/`--current-color` de `var(--scheme,
-var(--btn-bg))` / `var(--scheme, var(--on-btn))` (o `--badge-bg`/
-`--on-badge`) — sus modificadores de color (`.success`, `.danger`,
-`.warning`, `.neutral`, `.alternative`, `[role="contrast"]`, etc.) solo
-fijan `--scheme`/`--on-scheme`, ya no tienen una regla de pintado por
-variante. El hover/active de `.btn` usa `oklch(from var(--current-bg)
-...)`, ya no toca `--btn-bg` directo. `.alert` y `.toast.<esquema>` usan
-la fórmula de `.soft` (fallback `--scheme-neutral` en `.alert`). `.dot`
-no necesita reglas propias por esquema: hereda `color` de la clase de
-esquema vía `background-color: currentColor`.
+`.btn`/`.badge`/`.solid` derivan `--current-bg` de `var(--scheme,
+var(--btn-bg))` (o `--badge-bg`/`--scheme-primary`), cada uno en su propio
+archivo. `--current-color` (`var(--on-scheme, contrast-color(var(--current-bg)))`
++ fallback `@supports`) ya no se repite por componente — vive una sola vez
+en `_contrast.css`, un `:where(.btn, .button, ..., .badge, .solid) { ... }`
+de especificidad cero que los tres consumen. Sus modificadores
+de color (`.success`, `.danger`, `.warning`, `.neutral`, `.alternative`,
+`[role="contrast"]`, etc.) solo fijan `--scheme`, ya no tienen una regla
+de pintado por variante ni necesitan un `on-*` por color (`on-success`,
+`on-danger`, `on-scheme-*`, `on-primary`/`on-secondary`/`on-tertiary`/
+`on-quaternary`/`on-neutral` — eliminados de `luz.ts`, `contrast-color()`
+calcula el contraste real de cada fondo en vez de tener una tabla
+pre-calculada por color). `--on-scheme` queda como hook opcional — no lo
+emite `luz()`, pero el consumidor puede fijarlo (`.btn.danger { --on-scheme: ... }`)
+para forzar el color de texto de una variante puntual, y gana por estar
+primero en el `var(..., contrast-color(...))`. `contrast-color()` es
+Baseline recién desde abril 2026 (Chrome 147/Firefox 146/Safari 26) — cada
+regla que la usa tiene un bloque hermano `@supports not (color:
+contrast-color(black))` que reescribe `--current-color`/`color` con la
+fórmula `oklch(from var(--current-bg) ...)` de antes (`luzOnColor()` en
+`hue.ts`, ahora solo usada como fallback). El hover/active de `.btn` usa
+`oklch(from var(--current-bg) ...)`, ya no toca `--btn-bg` directo. `.alert`
+y `.toast.<esquema>` usan la fórmula de `.soft` (fallback `--scheme-neutral`
+en `.alert`). `.dot` no necesita reglas propias por esquema: hereda
+`color` de la clase de esquema vía `background-color: currentColor`.
+
+`on-btn`/`on-badge`/`on-kbd`/`on-selection` siguen existiendo como tokens
+globales en `luz.ts` — los consume código fuera del sistema `--scheme`
+(`segmented`/`toggle`/`pagination`/`wizard.css` para `on-btn`/`on-badge`,
+`kbd.css`, `mark`/`::selection`) — pero su fórmula pasó de `luzOnColor(seed)`
+a `luzContrastColor(seed)` (`contrast-color(var(--btn-bg))` etc.), con el
+mismo fallback `@supports` emitido una vez en el `:root` que genera `luz()`.
 
 **Bug corregido**: los tokens de esquema no pueden llamarse `primary`/
-`secondary`/`neutral`/`on-secondary`/`on-neutral` a secas — `buildColors()`
-ya emite variables con esos nombres por default (`--primary`/`--secondary`/
-`--neutral` = color semilla crudo, `--on-secondary`/`--on-neutral`), y como
-`--primary-500` etc. se calculan a partir de esas, un choque de nombres
-crea una referencia circular (ambas quedan inválidas en el browser). Por
-eso el alias fijo usa el prefijo `scheme-`.
+`secondary`/`neutral` a secas — `buildColors()` ya emite variables con
+esos nombres por default (`--primary`/`--secondary`/`--neutral` = color
+semilla crudo), y como `--primary-500` etc. se calculan a partir de esas,
+un choque de nombres crea una referencia circular (ambas quedan inválidas
+en el browser). Por eso el alias fijo usa el prefijo `scheme-`.
 
 ## Bloque D4 — `.css` estáticos reales en `dist/`, `@import` directo
 

@@ -7,7 +7,6 @@
 [type="submit"],
 button {
   --current-bg: var(--scheme, var(--btn-bg));
-  --current-color: var(--on-scheme, var(--on-btn));
   font: inherit;
   padding: var(--element-vertical) var(--element-horizontal);
   border-radius: var(--border-radius);
@@ -30,15 +29,12 @@ button {
   &[role="alternative"],
   &.alternative {
     --scheme: var(--secondary);
-    --on-scheme: var(--on-secondary);
   }
   &[role="tertiary"] {
     --scheme: var(--tertiary, var(--secondary));
-    --on-scheme: var(--on-tertiary, var(--on-secondary));
   }
   &[role="quaternary"] {
     --scheme: var(--quaternary, var(--tertiary, var(--secondary)));
-    --on-scheme: var(--on-quaternary, var(--on-tertiary, var(--on-secondary)));
   }
   &[type="reset"],
   &[role="cancel"],
@@ -46,26 +42,21 @@ button {
   &.reset,
   &.neutral {
     --scheme: var(--neutral);
-    --on-scheme: var(--on-neutral);
   }
   &[role="apply"],
   &.apply,
   &.success {
     --scheme: var(--success);
-    --on-scheme: var(--on-success);
   }
   &[role="contrast"],
   &.contrast {
     --scheme: var(--foreground);
-    --on-scheme: var(--background);
   }
   &.danger {
     --scheme: var(--danger);
-    --on-scheme: var(--on-danger);
   }
   &.warning {
     --scheme: var(--warning);
-    --on-scheme: var(--on-warning);
   }
   &.ghost {
     --current-bg: transparent;
@@ -87,6 +78,9 @@ button {
     background-color: color-mix(in oklch, var(--current-bg) 60%, transparent);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
+    @supports not (backdrop-filter: blur(1px)) {
+      background-color: var(--current-bg);
+    }
   }
   &.loading {
     pointer-events: none;
@@ -124,17 +118,5 @@ button {
   .btn.loading::before,
   .button.loading::before {
     animation: none;
-  }
-}
-@supports not (backdrop-filter: blur(1px)) {
-  .btn.glass,
-  .button.glass,
-  [role="button"].glass,
-  [type="button"].glass,
-  [type="file"].glass::file-selector-button,
-  [type="reset"].glass,
-  [type="submit"].glass,
-  button.glass {
-    background-color: var(--current-bg);
   }
 }

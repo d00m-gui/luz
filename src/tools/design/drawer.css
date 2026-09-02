@@ -88,6 +88,7 @@
 }
 .drawer-sidebar {
   width: var(--drawer-width, 15rem);
+  flex-shrink: 0;
   overflow: hidden;
   transition: var(--transition);
   transition-property: width;

@@ -1,46 +1,38 @@
 .success {
   --scheme: var(--success);
-  --on-scheme: var(--on-success);
 }
 .danger {
   --scheme: var(--danger);
-  --on-scheme: var(--on-danger);
 }
 .warning {
   --scheme: var(--warning);
-  --on-scheme: var(--on-warning);
 }
 .info {
   --scheme: var(--info);
-  --on-scheme: var(--on-info);
 }
 .primary {
   --scheme: var(--scheme-primary);
-  --on-scheme: var(--on-scheme-primary);
 }
 .secondary {
   --scheme: var(--scheme-secondary);
-  --on-scheme: var(--on-scheme-secondary);
 }
 .tertiary {
   --scheme: var(--scheme-tertiary);
-  --on-scheme: var(--on-scheme-tertiary);
 }
 .quaternary {
   --scheme: var(--scheme-quaternary);
-  --on-scheme: var(--on-scheme-quaternary);
 }
 .neutral {
   --scheme: var(--scheme-neutral);
-  --on-scheme: var(--on-scheme-neutral);
 }
 :where(.success, .danger, .warning, .info, .primary, .secondary, .tertiary, .quaternary, .neutral) {
   color: var(--scheme);
 }
 .solid {
-  background-color: var(--scheme, var(--scheme-primary));
-  border-color: var(--scheme, var(--scheme-primary));
-  color: var(--on-scheme, var(--on-scheme-primary));
+  --current-bg: var(--scheme, var(--scheme-primary));
+  background-color: var(--current-bg);
+  border-color: var(--current-bg);
+  color: var(--current-color);
 }
 .soft {
   background-color: oklch(from var(--scheme, var(--scheme-primary)) l c h / 12%);

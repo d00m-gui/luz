@@ -1,6 +1,5 @@
 .badge {
   --current-bg: var(--scheme, var(--badge-bg));
-  --current-color: var(--on-scheme, var(--on-badge));
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -13,7 +12,6 @@
   color: var(--current-color);
   &.neutral {
     --scheme: var(--neutral);
-    --on-scheme: var(--on-neutral);
   }
   &.ghost {
     background-color: transparent;

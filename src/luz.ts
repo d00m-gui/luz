@@ -2,7 +2,7 @@
  * Luz - Lightweight theming library.
  */
 
-import { luzHarmonyColors, luzOnColor, luzShadesByHue, type ColorHarmony } from "./tools/hue";
+import { luzContrastColor, luzHarmonyColors, luzOnColor, luzShadesByHue, type ColorHarmony } from "./tools/hue";
 import { luzProperty } from "./tools/props";
 import { buildReset } from "./tools/reset";
 import {
@@ -233,20 +233,11 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     danger: `var(--${prefix}red-200)`,
     warning: `var(--${prefix}yellow-200)`,
     info: `var(--${prefix}blue-200)`,
-    "on-success": luzOnColor(success),
-    "on-danger": luzOnColor(danger),
-    "on-warning": luzOnColor(warning),
-    "on-info": luzOnColor(info),
     "scheme-primary": `var(--${prefix}${name}-500)`,
-    "on-scheme-primary": `var(--on-${prefix}${name})`,
     "scheme-secondary": `var(--${prefix}secondary-500)`,
-    "on-scheme-secondary": `var(--on-${prefix}secondary)`,
     "scheme-tertiary": `var(--${prefix}tertiary-500, var(--${prefix}secondary-500))`,
-    "on-scheme-tertiary": `var(--on-${prefix}tertiary, var(--on-${prefix}secondary))`,
     "scheme-quaternary": `var(--${prefix}quaternary-500, var(--${prefix}tertiary-500, var(--${prefix}secondary-500)))`,
-    "on-scheme-quaternary": `var(--on-${prefix}quaternary, var(--on-${prefix}tertiary, var(--on-${prefix}secondary)))`,
     "scheme-neutral": `var(--${prefix}${neutrals}-500)`,
-    "on-scheme-neutral": `var(--on-${prefix}${neutrals})`,
     anchor: muted(info),
     "anchor-secondary": muted(`var(--${prefix}secondary-500)`),
     "anchor-tertiary": muted(`var(--${prefix}tertiary-500, var(--${prefix}secondary-500))`),
@@ -260,12 +251,12 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "hr-color": `var(--${prefix}${name}-500)`,
     "kbd-border-color": `var(--${prefix}${name}-900)`,
     "kbd-bg": `var(--${prefix}${name}-900)`,
-    "on-kbd": luzOnColor(`var(--${prefix}${name}-900)`),
+    "on-kbd": luzContrastColor(`var(--kbd-bg)`),
     "kbd-shadow": `var(--${prefix}${name}-500)`,
     "table-hover-bg": `var(--${prefix}${name}-800)`,
     "on-table-hover": `var(--${prefix}${name}-300)`,
     "selection-bg": `var(--${prefix}${name}-500)`,
-    "on-selection": `var(--on-${prefix}${name})`,
+    "on-selection": luzContrastColor(`var(--selection-bg)`),
     "file-input-border-top": `var(--${prefix}${name}-200)`,
     "range-track-bg": `var(--element-background)`,
     "range-track-shadow": `var(--${prefix}${name}-500)`,
@@ -283,13 +274,13 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "blockquote-border": `var(--${prefix}${name}-200)`,
     "on-blockquote-footer": `var(--${prefix}${name}-500)`,
     "btn-bg": `var(--${prefix}${name}-500)`,
-    "on-btn": `var(--on-${prefix}${name})`,
+    "on-btn": luzContrastColor(`var(--btn-bg)`),
     "btn-bg-hover": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,
     "on-btn-ghost": `oklch(from var(--foreground) l c h / 65%)`,
     "tooltip-bg": `var(--${prefix}${name}-900)`,
     "on-tooltip": `var(--${prefix}${name}-100)`,
     "badge-bg": `var(--${prefix}${name}-500)`,
-    "on-badge": `var(--on-${prefix}${name})`,
+    "on-badge": luzContrastColor(`var(--badge-bg)`),
     "on-badge-ghost": `var(--${prefix}${name}-400)`,
     "on-tab": `oklch(from var(--foreground) l c h / 65%)`,
     "on-tab-active": `var(--foreground)`,
@@ -432,11 +423,6 @@ export function luz(config?: LuzConfig): LuzResult {
       ...neutralShades,
       background: `var(--${neutralsName}-900)`,
       foreground: `var(--${neutralsName}-100)`,
-      [`on-${secondaryName}`]: luzOnColor(secondaryCSSVar),
-      ...(tertiaryColor ? { [`on-${tertiaryName}`]: luzOnColor(tertiaryCSSVar) } : {}),
-      ...(quaternaryColor ? { [`on-${quaternaryName}`]: luzOnColor(quaternaryCSSVar) } : {}),
-      [`on-${primaryName}`]: luzOnColor(`var(--${primaryName})`),
-      [`on-${neutralsName}`]: luzOnColor(neutralCSSVar),
       ...wheel,
       border: `var(--border-width) solid var(--element-border-color)`,
       "depth-base": `${depth}`,
@@ -512,11 +498,23 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const colorScheme = isAuto ? "color-scheme: light dark;\n    " : "";
 
+  const contrastFallback = toVariableLines({
+    "on-btn": luzOnColor("var(--btn-bg)"),
+    "on-badge": luzOnColor("var(--badge-bg)"),
+    "on-kbd": luzOnColor("var(--kbd-bg)"),
+    "on-selection": luzOnColor("var(--selection-bg)"),
+  });
+
   const style = `
   ${buildReset()}
   ${properties}
   :root {
     ${colorScheme}${variables}
+  }
+  @supports not (color: contrast-color(black)) {
+    :root {
+      ${contrastFallback}
+    }
   }
   `;
 
