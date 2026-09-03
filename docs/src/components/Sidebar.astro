@@ -20,63 +20,68 @@ const componentsByCategory = Object.groupBy(VISIBLE_COMPONENTS, (c) => c.categor
 
 <nav class="sidebar drawer-sidebar">
   <div class="sidebar-scroll scrollbar-thin">
-    <div class="sidebar-group">
-      <div class="sidebar-group-title">Docs</div>
+    <div class="list">
       <a
         href="/"
-        class={`sidebar-item${activeId === "luz-defaults" ? " active" : ""}`}
+        class="list-row"
+        aria-current={activeId === "luz-defaults" ? "page" : undefined}
         style={`--sidebar-bg: var(--primary-400)`}
       >
         Inicio
       </a>
-    </div>
 
-    {
-      Object.entries(componentsByCategory).map(([category, entries]) => (
-        <div class="sidebar-group">
-          <div class="sidebar-group-title">{category}</div>
-          {entries!.map((c) => {
-            const hue =
-              COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
-            return (
-              <a
-                href={`/components/${c.id}`}
-                class={`sidebar-item${activeId === `component-${c.id}` ? " active" : ""}`}
-                style={`--sidebar-bg: var(--${hue}-400)`}
-              >
-                <span
-                  class="sidebar-dot"
-                  style={`background: var(--${hue}-400)`}
-                />
-                {c.title}
-              </a>
-            );
-          })}
-        </div>
-      ))
-    }
-    {
-      features.length > 0 && (
-        <div class="sidebar-group">
-          <div class="sidebar-group-title">API</div>
-          {features.map((entry) => {
-            const hue = CATEGORY_HUES[entry.id] ?? DEFAULT_CATEGORY_HUE;
-            return (
-              <a
-                href={`/api/${entry.id}`}
-                class={`sidebar-item${activeId === `api-${entry.id}` ? " active" : ""}`}
-                style={`color: var(--${hue}-400)`}
-              >
-                <span
-                  class="sidebar-dot"
-                  style={`background: var(--${hue}-400)`}
-                />
-                {entry.data.title}
-              </a>
-            );
-          })}
-        </div>
-      )
-    }
+      {
+        Object.entries(componentsByCategory).map(([category, entries]) => {
+          const isOpen = entries!.some((c) => activeId === `component-${c.id}`);
+          return (
+            <details class="list-row" open={isOpen}>
+              <summary>{category}</summary>
+              <div class="list">
+                {entries!.map((c) => {
+                  const hue = COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
+                  return (
+                    <a
+                      href={`/components/${c.id}`}
+                      class="list-row"
+                      aria-current={activeId === `component-${c.id}` ? "page" : undefined}
+                      style={`--sidebar-bg: var(--${hue}-400)`}
+                    >
+                      <span class="sidebar-dot" style={`background: var(--${hue}-400)`} />
+                      {c.title}
+                    </a>
+                  );
+                })}
+              </div>
+            </details>
+          );
+        })
+      }
+      {
+        features.length > 0 && (
+          <details
+            class="list-row"
+            open={features.some((f) => activeId === `api-${f.id}`)}
+          >
+            <summary>API</summary>
+            <div class="list">
+              {features.map((entry) => {
+                const hue = CATEGORY_HUES[entry.id] ?? DEFAULT_CATEGORY_HUE;
+                return (
+                  <a
+                    href={`/api/${entry.id}`}
+                    class="list-row"
+                    aria-current={activeId === `api-${entry.id}` ? "page" : undefined}
+                    style={`--sidebar-bg: var(--${hue}-400)`}
+                  >
+                    <span class="sidebar-dot" style={`background: var(--${hue}-400)`} />
+                    {entry.data.title}
+                  </a>
+                );
+              })}
+            </div>
+          </details>
+        )
+      }
+    </div>
   </div>
 </nav>

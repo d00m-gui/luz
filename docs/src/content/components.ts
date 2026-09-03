@@ -243,7 +243,7 @@ export const COMPONENTS: ComponentDoc[] = [
     id: "list",
     title: "List",
     category: "Layout",
-    covers: ["list", "list-row", "list-col-grow", "list-col-wrap"],
+    covers: ["list", "list-row", "list-col-grow", "list-col-wrap", "list-title", "horizontal", "responsive"],
     html: `<div class="list">
   <div class="list-row">
     <span class="avatar sm">AB</span>
@@ -278,6 +278,66 @@ export const COMPONENTS: ComponentDoc[] = [
     <summary>Is JS required?</summary>
     <p>No — exclusive open/close is native, via the shared <code>name</code> attribute on each <code>&lt;details&gt;</code>.</p>
   </details>
+</div>`,
+      },
+      {
+        title: "Titled group, active & disabled items — <code>.list-title</code>, <code>aria-current</code>, <code>aria-disabled</code>",
+        html: `<div class="list">
+  <p class="list-title">Workspace</p>
+  <div class="list-row"><i class="icon nf nf-fa-home"></i><span class="list-col-grow">Inicio</span></div>
+  <div class="list-row" aria-current="page"><i class="icon nf nf-fa-cube"></i><span class="list-col-grow">Componentes</span></div>
+  <div class="list-row" aria-disabled="true"><i class="icon nf nf-fa-lock"></i><span class="list-col-grow">Facturación</span></div>
+  <div class="list-row"><i class="icon nf nf-fa-book"></i><span class="list-col-grow">Docs</span><kbd>⌘D</kbd></div>
+</div>`,
+      },
+      {
+        title: "Horizontal — <code>.list.horizontal</code>",
+        html: `<div class="list horizontal">
+  <div class="list-row">Inicio</div>
+  <div class="list-row" aria-current="page">Componentes</div>
+  <div class="list-row">Docs</div>
+  <div class="list-row">Contacto</div>
+</div>`,
+      },
+      {
+        title: "Responsive — <code>.list.responsive</code> (horizontal ≥48rem, vertical debajo)",
+        html: `<div class="list responsive">
+  <div class="list-row">Inicio</div>
+  <div class="list-row" aria-current="page">Componentes</div>
+  <div class="list-row">Docs</div>
+  <div class="list-row">Contacto</div>
+</div>`,
+      },
+      {
+        title: "Submenu anidado — <code>.list .list</code>",
+        html: `<div class="list">
+  <p class="list-title">Docs</p>
+  <div class="list-row"><i class="icon nf nf-fa-rocket"></i><span class="list-col-grow">Empezando</span></div>
+  <div class="list-row"><i class="icon nf nf-fa-cube"></i><span class="list-col-grow">Componentes</span></div>
+  <div class="list">
+    <div class="list-row"><span class="list-col-grow">Button</span></div>
+    <div class="list-row"><span class="list-col-grow">List</span></div>
+    <div class="list-row"><span class="list-col-grow">Menu</span></div>
+  </div>
+</div>`,
+      },
+      {
+        title: "File tree colapsable — <details class=\"list-row\"> anidados",
+        html: `<div class="list">
+  <details class="list-row" open>
+    <summary><i class="icon nf nf-fa-folder_open"></i> src</summary>
+    <div class="list">
+      <details class="list-row" open>
+        <summary><i class="icon nf nf-fa-folder_open"></i> tools</summary>
+        <div class="list">
+          <div class="list-row"><i class="icon nf nf-fa-file_code_o"></i><span class="list-col-grow">list.css</span></div>
+          <div class="list-row"><i class="icon nf nf-fa-file_code_o"></i><span class="list-col-grow">overlay.css</span></div>
+        </div>
+      </details>
+      <div class="list-row"><i class="icon nf nf-fa-file_code_o"></i><span class="list-col-grow">index.ts</span></div>
+    </div>
+  </details>
+  <div class="list-row"><i class="icon nf nf-fa-file_text_o"></i><span class="list-col-grow">package.json</span></div>
 </div>`,
       },
     ],
@@ -491,17 +551,33 @@ export const COMPONENTS: ComponentDoc[] = [
 </button>`,
   },
   {
-    id: "drawer-sidebar",
-    title: "Drawer (sidebar)",
+    id: "sidebar",
+    title: "Sidebar",
     category: "Layout",
-    covers: ["drawer-toggle", "drawer-sidebar"],
+    covers: ["drawer-toggle", "drawer-sidebar", "list", "list-row"],
     html: `<div style="display: flex; align-items: flex-start">
   <input type="checkbox" id="drawer-sidebar-demo" class="drawer-toggle" checked hidden />
-  <nav class="drawer-sidebar" style="--drawer-width: 10rem">
-    <p><strong>Sidebar</strong></p>
-    <a href="#">Item uno</a><br />
-    <a href="#">Item dos</a><br />
-    <a href="#">Item tres</a>
+  <nav class="sidebar drawer-sidebar" style="--drawer-width: 12rem">
+    <div class="sidebar-scroll">
+      <div class="list">
+        <a href="#" class="list-row" style="--sidebar-bg: var(--primary-400)">Inicio</a>
+        <details class="list-row" open>
+          <summary>Componentes</summary>
+          <div class="list">
+            <a href="#" class="list-row" style="--sidebar-bg: var(--blue-400)">Button</a>
+            <a href="#" class="list-row" aria-current="page" style="--sidebar-bg: var(--green-400)">List</a>
+            <a href="#" class="list-row" style="--sidebar-bg: var(--yellow-400)">Menu</a>
+          </div>
+        </details>
+        <details class="list-row">
+          <summary>Layout</summary>
+          <div class="list">
+            <a href="#" class="list-row" style="--sidebar-bg: var(--secondary-400)">Panel header</a>
+            <a href="#" class="list-row" style="--sidebar-bg: var(--secondary-400)">Drawer</a>
+          </div>
+        </details>
+      </div>
+    </div>
   </nav>
   <label for="drawer-sidebar-demo" class="drawer-trigger" aria-label="Toggle sidebar">
     <span class="drawer-icon"><span></span><span></span><span></span></span>
