@@ -23,7 +23,7 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  padding: var(--space-4) var(--space-5);
+  padding: calc(var(--space-4) * var(--density, 1)) calc(var(--space-5) * var(--density, 1));
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
   background-color: var(--element-background);

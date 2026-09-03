@@ -1,10 +1,13 @@
+import type { CSSProperties } from "react";
+
 export const SWATCH_WEIGHTS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
 
-function swatchStyle(name: string, weight: number) {
+function swatchStyle(name: string, weight: number): CSSProperties {
   return {
     backgroundColor: `var(--${name}-${weight})`,
-    color: `contrast-color(var(--${name}-${weight}))`,
-  };
+    "--current-bg": `var(--${name}-${weight})`,
+    color: "var(--current-color)",
+  } as CSSProperties;
 }
 
 export function Swatches({
@@ -18,7 +21,10 @@ export function Swatches({
     <>
       {names.map((name) => (
         <div className="swatch-row" key={name}>
-          <div className="swatch-row-label" style={{ background: `var(--${name}-500)`, color: `contrast-color(var(--${name}-500))` }}>
+          <div
+            className="swatch-row-label"
+            style={{ background: `var(--${name}-500)`, "--current-bg": `var(--${name}-500)`, color: "var(--current-color)" } as CSSProperties}
+          >
             {name}
           </div>
           {weights.map((weight) => (

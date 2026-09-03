@@ -17,6 +17,8 @@ export interface ToolbarState {
   depthMax: number;
   depthDecay: number;
   depthSign: number;
+  density: number;
+  contrastThreshold: number;
 }
 
 export const DEFAULT_STATE: ToolbarState = {
@@ -29,6 +31,8 @@ export const DEFAULT_STATE: ToolbarState = {
   depthMax: siteConfig.depthMax ?? 0.125,
   depthDecay: siteConfig.depthDecay ?? 0.6,
   depthSign: siteConfig.depthSign ?? -0.3,
+  density: siteConfig.density ?? 1,
+  contrastThreshold: siteConfig.contrastThreshold ?? 0.6,
 };
 
 export function loadThemeState(): ToolbarState {

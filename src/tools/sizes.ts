@@ -43,6 +43,11 @@ function generateFluidTagSize(minSize: number, maxSize: number): string {
   return `clamp(${minSize.toFixed(3)}rem, ${yIntercept.toFixed(3)}rem + ${(slope * 100).toFixed(3)}cqi, ${maxSize.toFixed(3)}rem)`;
 }
 
+/** Scales a font-size value by the live `--density` factor. */
+function withDensity(value: string): string {
+  return `calc(${value} * var(--density, 1))`;
+}
+
 /** Consecutive rungs — `small` is the anchor (rung 0), `h1` six steps up. */
 const TYPE_LANDMARK_RUNGS = [
   ["small", 0],
@@ -74,8 +79,8 @@ export function luzTypeLandmarks(
   for (const [name, n] of TYPE_LANDMARK_RUNGS) {
     const minSize = anchorRem * ratio ** n;
     const maxSize = anchorRem * ratio ** (n + range);
-    landmarks[`font-size-${name}`] = `${minSize.toFixed(3)}rem`;
-    landmarks[`font-size-${name}-fluid`] = generateFluidTagSize(minSize, maxSize);
+    landmarks[`font-size-${name}`] = withDensity(`${minSize.toFixed(3)}rem`);
+    landmarks[`font-size-${name}-fluid`] = withDensity(generateFluidTagSize(minSize, maxSize));
   }
   return landmarks;
 }
@@ -110,8 +115,8 @@ export function luzTextScale(
   for (const [name, n] of TEXT_SCALE_RUNGS) {
     const minSize = anchorRem * ratio ** n;
     const maxSize = anchorRem * ratio ** (n + range);
-    textSizes[`font-size-${name}`] = `${minSize.toFixed(3)}rem`;
-    textSizes[`font-size-${name}-fluid`] = generateFluidTagSize(minSize, maxSize);
+    textSizes[`font-size-${name}`] = withDensity(`${minSize.toFixed(3)}rem`);
+    textSizes[`font-size-${name}-fluid`] = withDensity(generateFluidTagSize(minSize, maxSize));
   }
   return textSizes;
 }
@@ -129,8 +134,8 @@ export function luzSizes(
     "border-radius": `${(base / 78).toFixed(1)}rem`,
     "border-width": `${(base / 128).toFixed(1)}rem`,
     spacing: `${((base / 10) * 3).toFixed(0)}vw`,
-    "element-vertical": `${(base / 32).toFixed(1)}rem`,
-    "element-horizontal": `${(base / 24).toFixed(1)}rem`
+    "element-vertical": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
+    "element-horizontal": `calc(${(base / 24).toFixed(3)}rem * var(--density, 1))`
   };
 }
 

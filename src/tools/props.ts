@@ -55,7 +55,8 @@ function classify(
   if (!isSingleToken(v)) return null;
 
   for (const [re, syntax] of SIMPLE_SYNTAX) {
-    if (re.test(v)) return { syntax, initialValue: v };
+    if (re.test(v))
+      return { syntax, initialValue: v.includes("var(") ? "0px" : v };
   }
   if (HEX_COLOR.test(v) || COLOR_FN.test(v))
     return {

@@ -43,15 +43,11 @@ function shadeEntry(
   ];
 }
 
-/** Auto-contrast text color for a background: white-ish or black-ish depending on `seed`'s own lightness, with a slight tint of its hue. Fallback for `contrast-color()` behind `@supports`. */
+/** Auto-contrast text color for a background: white-ish or black-ish depending on `seed`'s own lightness vs. `--contrast-threshold`, with a slight tint of its hue. Fallback for `contrast-color()` behind `@supports`. */
 export function luzOnColor(seed: string): string {
-  return `oklch(from ${seed} clamp(0, calc((l - 0.6) * -1000), 1) calc(c * 0.08) h)`;
+  return `oklch(from ${seed} clamp(0, calc((l - var(--contrast-threshold, 0.6)) * -1000), 1) calc(c * 0.08) h)`;
 }
 
-/** WCAG-contrasting text color for a background, via the CSS `contrast-color()` function (Baseline since Apr 2026). */
-export function luzContrastColor(seed: string): string {
-  return `contrast-color(${seed})`;
-}
 
 export type ColorHarmony = "complementary" | "analogous" | "triad" | "monochrome";
 

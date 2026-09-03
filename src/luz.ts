@@ -2,7 +2,7 @@
  * Luz - Lightweight theming library.
  */
 
-import { luzContrastColor, luzHarmonyColors, luzOnColor, luzShadesByHue, type ColorHarmony } from "./tools/hue";
+import { luzHarmonyColors, luzOnColor, luzShadesByHue, type ColorHarmony } from "./tools/hue";
 import { luzProperty } from "./tools/props";
 import { buildReset } from "./tools/reset";
 import {
@@ -92,6 +92,10 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   background?: string;
   /** `--foreground` override. Default: `neutrals` 100/900 shade depending on `mode`. */
   foreground?: string;
+  /**
+   * Multiplier on element padding (`--element-vertical`/`--element-horizontal`, buttons/fields/forms) and form-control chrome size (`range` track/thumb). Emitted as `--density`, a live `calc()` factor (not baked at generation time) — overridable per subtree/instance by redeclaring `--density` locally, same as any custom property. `1` = default, `<1` = denser, `>1` = looser. Default `1`.
+   */
+  density?: number;
   /** `--depth-base` offset added to the nesting level counted by `.card`/`.popover`/etc. (1–4, capped). Default `0`. */
   depth?: number;
   /** Max lightness offset from `background` the `--depth` elevation curve (nested `.card`/`.popover`/etc.) approaches asymptotically. Default `0.125`. */
@@ -100,6 +104,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   depthDecay?: number;
   /** Forces the `--depth` elevation direction/magnitude, overriding the automatic `mode`-based sign. A `.elements-depth-light`/`.elements-depth-dark` class on a subtree still overrides this. */
   depthSign?: number;
+  /** Lightness (0–1) above which `luzOnColor`'s auto-contrast text (the 12 wheel hues' `on-*`, and the `contrast-color()` fallback) flips from white-ish to black-ish. Emitted as `--contrast-threshold`, live (not baked) — overridable per subtree. Default `0.6`. */
+  contrastThreshold?: number;
   /** Generate `@property` declarations for every token. Default `false`. */
   properties?: boolean;
   /** Shade steps generated per color palette. Default `11` (50–950). */
@@ -196,9 +202,11 @@ const defaultConfig: LuzConfig = {
   sizeRelativeToBase: false,
   sizeFluidRange: "fixed",
   spaceSteps: 24,
+  density: 1,
   depth: 0,
   depthMax: 0.125,
   depthDecay: 0.6,
+  contrastThreshold: 0.6,
 };
 
 /** Tones down a shade's chroma — inline text (links) reads calmer than the raw peak-chroma shade. */
@@ -251,16 +259,17 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "hr-color": `var(--${prefix}${name}-500)`,
     "kbd-border-color": `var(--${prefix}${neutrals}-950)`,
     "kbd-bg": `var(--${prefix}${neutrals}-900)`,
-    "on-kbd": luzContrastColor(`var(--kbd-bg)`),
+    "on-kbd": `var(--on-scheme, ${luzOnColor("var(--kbd-bg)")})`,
     "kbd-shadow": `var(--${prefix}${neutrals}-500)`,
     "table-hover-bg": `var(--${prefix}${neutrals}-900)`,
     "on-table-hover": `var(--${prefix}${neutrals}-300)`,
     "selection-bg": `var(--${prefix}${name}-500)`,
-    "on-selection": luzContrastColor(`var(--selection-bg)`),
+    "on-selection": `var(--on-scheme, ${luzOnColor("var(--selection-bg)")})`,
     "file-input-border-top": `var(--${prefix}${name}-200)`,
     "range-track-bg": `var(--element-background)`,
     "range-track-shadow": `var(--${prefix}${name}-500)`,
     "range-thumb-active-bg": `var(--${prefix}${name}-500)`,
+    "range-tick-color": `var(--element-border-color)`,
     accent: `var(--${prefix}${name}-500)`,
     "progress-shadow": `var(--${prefix}${name}-500)`,
     "progress-fill": `var(--${prefix}${name}-500)`,
@@ -274,13 +283,13 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "blockquote-border": `var(--${prefix}${name}-200)`,
     "on-blockquote-footer": `var(--${prefix}${name}-500)`,
     "btn-bg": `var(--${prefix}${name}-500)`,
-    "on-btn": luzContrastColor(`var(--btn-bg)`),
+    "on-btn": `var(--on-scheme, ${luzOnColor("var(--btn-bg)")})`,
     "btn-bg-hover": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,
     "on-btn-ghost": `oklch(from var(--foreground) l c h / 65%)`,
     "tooltip-bg": `var(--${prefix}${neutrals}-950)`,
     "on-tooltip": `var(--${prefix}${neutrals}-300)`,
     "badge-bg": `var(--${prefix}${name}-500)`,
-    "on-badge": luzContrastColor(`var(--badge-bg)`),
+    "on-badge": `var(--on-scheme, ${luzOnColor("var(--badge-bg)")})`,
     "on-badge-ghost": `var(--${prefix}${name}-400)`,
     "on-tab": `oklch(from var(--foreground) l c h / 65%)`,
     "on-tab-active": `var(--foreground)`,
@@ -331,10 +340,12 @@ export function luz(config?: LuzConfig): LuzResult {
     sizeFluidRange,
     spaceSteps,
     spacing,
+    density,
     depth,
     depthMax,
     depthDecay,
     depthSign,
+    contrastThreshold,
     vars,
     ...typography
   } = settings;
@@ -429,6 +440,8 @@ export function luz(config?: LuzConfig): LuzResult {
       "depth-max": `${depthMax}`,
       "depth-decay": `${depthDecay}`,
       "depth-sign": `${depthSign ?? (reverse ? -0.3 : 0.3)}`,
+      "contrast-threshold": `${contrastThreshold}`,
+      density: `${density}`,
       "element-background": `var(--background)`,
       "element-border-color": `oklch(from var(--foreground) l c h / 20%)`,
       "border-color": `oklch(from var(--foreground) l c h / 50%)`,
@@ -498,23 +511,11 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const colorScheme = isAuto ? "color-scheme: light dark;\n    " : "";
 
-  const contrastFallback = toVariableLines({
-    "on-btn": luzOnColor("var(--btn-bg)"),
-    "on-badge": luzOnColor("var(--badge-bg)"),
-    "on-kbd": luzOnColor("var(--kbd-bg)"),
-    "on-selection": luzOnColor("var(--selection-bg)"),
-  });
-
   const style = `
   ${buildReset()}
   ${properties}
   :root {
     ${colorScheme}${variables}
-  }
-  @supports not (color: contrast-color(black)) {
-    :root {
-      ${contrastFallback}
-    }
   }
   `;
 

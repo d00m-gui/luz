@@ -69,7 +69,7 @@
   z-index: 400;
 }
 .sidebar-scroll {
-  padding: var(--space-5) 0;
+  padding: var(--space-8) 0;
   overflow: hidden;
   overflow-y: auto;
   flex: 1 1 auto;
@@ -176,6 +176,10 @@
   width: var(--space-7);
 }
 
+.swatch,
+.swatch-row-label {
+  --current-color: oklch(from var(--current-bg) clamp(0, calc((l - var(--contrast-threshold, 0.6)) * -1000), 1) calc(c * 0.08) h);
+}
 .text-scale {
   display: flex;
   align-items: baseline;

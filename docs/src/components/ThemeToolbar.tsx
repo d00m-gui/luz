@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, type CSSProperties } from "react";
 import { luz, type LuzConfig } from "../../../src/luz";
 import { config as siteConfig } from "../../luz.config";
 import {
@@ -19,6 +19,8 @@ function formatConfig(state: ToolbarState): string {
   depthMax: ${state.depthMax},
   depthDecay: ${state.depthDecay},
   depthSign: ${state.depthSign},
+  density: ${state.density},
+  contrastThreshold: ${state.contrastThreshold},
 })`;
 }
 
@@ -132,6 +134,34 @@ export function ThemeToolbar() {
             onChange={(e) => update({ depthSign: Number(e.target.value) })}
           />
           <span>{state.depthSign.toFixed(1)}</span>
+        </label>
+        <label>
+          Density
+          <input
+            type="range"
+            min={0.5}
+            max={1.5}
+            step={0.1}
+            data-ticks
+            style={{ "--range-steps": 10 } as CSSProperties}
+            value={state.density}
+            onChange={(e) => update({ density: Number(e.target.value) })}
+          />
+          <span>{state.density.toFixed(1)}</span>
+        </label>
+        <label>
+          Contrast threshold
+          <input
+            type="range"
+            min={0.3}
+            max={0.8}
+            step={0.05}
+            data-ticks
+            style={{ "--range-steps": 10 } as CSSProperties}
+            value={state.contrastThreshold}
+            onChange={(e) => update({ contrastThreshold: Number(e.target.value) })}
+          />
+          <span>{state.contrastThreshold.toFixed(2)}</span>
         </label>
         <button type="button" className="ghost" onClick={resetThemeState}>
           Reset
