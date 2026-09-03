@@ -7,17 +7,18 @@ import { ThemeToolbar } from "../components/ThemeToolbar";
 import { ColorPicker } from "../components/ColorPicker";
 import { BrandColors } from "../components/BrandColors";
 import { Swatches } from "../components/Swatches";
-import { VISIBLE_COMPONENTS, UNCOVERED_FILES } from "../content/components";
+import { loadComponents } from "../content/components";
 import {
   COMPONENT_CATEGORY_HUES,
   DEFAULT_CATEGORY_HUE,
 } from "../lib/category-colors";
 
 const { tokens } = luz(config);
+const { visibleComponents, uncoveredFiles } = await loadComponents();
 
-if (UNCOVERED_FILES.length > 0) {
+if (uncoveredFiles.length > 0) {
   console.warn(
-    `[components] componentes sin ejemplo en components.ts: ${UNCOVERED_FILES.join(", ")}`,
+    `[components] componentes sin doc en src/content/components/: ${uncoveredFiles.join(", ")} — correr "bun run gen:components" para generar el stub`,
   );
 }
 
@@ -53,7 +54,7 @@ function swatchStyle(name: string, weight: number) {
   <div class="docs-sections">
     <div class="grid components-index-grid">
       {
-        VISIBLE_COMPONENTS.map((component) => {
+        visibleComponents.map((component) => {
           const hue =
             COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
           const spanClass = component.span ? ` col-span-${component.span}` : "";

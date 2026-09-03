@@ -1,11 +1,32 @@
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { transform } from "lightningcss";
+import yaml from "js-yaml";
+
+/** Reset-only/structural tags with no meaningful standalone demo — kept in sync with `src/content/components.ts`. */
+const EXEMPT_ELEMENTS = [
+  "html",
+  "body",
+  "svg",
+  "canvas",
+  "img",
+  "picture",
+  "video",
+  "br",
+  "section",
+  "q",
+  "address",
+  "figure",
+  "optgroup",
+];
 
 const TOOLS_DIR = fileURLToPath(new URL("../../src/tools", import.meta.url));
 const OUT_FILE = fileURLToPath(
   new URL("../src/content/components.generated.ts", import.meta.url),
+);
+const COMPONENTS_DIR = fileURLToPath(
+  new URL("../src/content/components/", import.meta.url),
 );
 
 /** Old enough that lightningcss can't rely on native CSS nesting — forces it to flatten `&` into plain selectors. */
@@ -186,3 +207,35 @@ export const DESIGN_ATTRS: readonly string[] = ${JSON.stringify(DESIGN_ATTRS, nu
 console.log(
   `generated ${OUT_FILE} (${designFiles.length} componentes, ${DESIGN_CLASSES.length} clases, ${DESIGN_ELEMENTS.length} tags, ${DESIGN_ATTRS.length} attrs)`,
 );
+
+function titleize(file: string): string {
+  return file.split(/[-_]/).map((w) => w[0]!.toUpperCase() + w.slice(1)).join(" ");
+}
+
+const covered = new Set<string>();
+for (const name of readdirSync(COMPONENTS_DIR)) {
+  if (!name.endsWith(".md")) continue;
+  const raw = readFileSync(join(COMPONENTS_DIR, name), "utf8");
+  const fm = raw.match(/^---\n([\s\S]*?)\n---/);
+  if (!fm) continue;
+  const data = yaml.load(fm[1]!) as { covers?: string[] };
+  data.covers?.forEach((c) => covered.add(c));
+}
+
+const stubs: string[] = [];
+for (const f of designFiles) {
+  const tokens = [...f.classes, ...f.elements, ...f.attrs];
+  if (tokens.length > 0 && tokens.every((t) => EXEMPT_ELEMENTS.includes(t))) continue;
+  if (tokens.some((t) => covered.has(t))) continue;
+  const outPath = join(COMPONENTS_DIR, `${f.file}.md`);
+  if (existsSync(outPath)) continue;
+  const frontmatter = yaml.dump(
+    { title: titleize(f.file), category: "Primitives", covers: [f.file], wip: true },
+    { lineWidth: -1 },
+  );
+  writeFileSync(outPath, `---\n${frontmatter}---\n<!-- TODO: ejemplo de .${f.file} -->\n`);
+  stubs.push(outPath);
+}
+if (stubs.length > 0) {
+  console.log(`generated ${stubs.length} doc stub(s) sin ejemplo:\n${stubs.join("\n")}`);
+}

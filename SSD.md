@@ -663,6 +663,35 @@ la vía cuando sí hace falta un primitivo real.
 ni el bridge angostado) — pendiente para una pasada de contenido, no de
 arquitectura.
 
+## `docs/`: ejemplos de componentes como Content Collection (Markdown)
+
+Los ejemplos por componente (antes un array `COMPONENTS` de ~980 líneas en
+`docs/src/content/components.ts`) viven ahora uno por archivo en
+`docs/src/content/components/<id>.md` — content collection de Astro
+(`docs/src/content.config.ts`, colección `components`, mismo patrón que
+`features`). Frontmatter para la metadata (`title`, `desc?`, `category`,
+`covers`, `span?`, `wip?`, `preview?`, `variants?`); el cuerpo del `.md` es
+el HTML copiable/renderizado del ejemplo base — no se procesa como
+Markdown (no se llama `render()`), se usa `entry.body` crudo.
+
+`desc` es texto corto (puede llevar `<code>` inline) que antes vivía
+pegado al `title` con un separador `" — "`; ahora se renderiza aparte
+(`<small>` junto al título) tanto a nivel de componente como de variante.
+
+`docs/src/content/components.ts` pasó de exportar el array a exportar
+`loadComponents()` (async, `getCollection("components")` + el cálculo de
+`visibleComponents`/`uncoveredFiles` que antes eran constantes) — los tres
+consumidores (`Sidebar.astro`, `pages/index.astro`,
+`pages/components/[id].astro`) lo llaman con `await` en su frontmatter.
+
+`docs/scripts/gen-components.ts` (`bun run gen:components`), además de
+regenerar `components.generated.ts` desde `src/tools/{reset,design}.css`,
+ahora también escanea los `.md` existentes y, para cada archivo de diseño
+sin cobertura (mismo criterio que antes: ningún token en `covers` de
+ningún componente), escribe un stub `<file>.md` inicial (`wip: true`,
+`category` y `covers` a completar a mano) si todavía no existe uno con ese
+nombre — evita tener que armar el objeto a mano en un array gigante.
+
 ## Referencias
 
 - `README.md` — pitch de producto / API pública documentada para consumidores.

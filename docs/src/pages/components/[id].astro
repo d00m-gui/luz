@@ -1,14 +1,15 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import CodeBlock from "../../components/CodeBlock.astro";
-import { VISIBLE_COMPONENTS } from "../../content/components";
+import { loadComponents } from "../../content/components";
 import {
   COMPONENT_CATEGORY_HUES,
   DEFAULT_CATEGORY_HUE,
 } from "../../lib/category-colors";
 
-export function getStaticPaths() {
-  return VISIBLE_COMPONENTS.map((c) => ({
+export async function getStaticPaths() {
+  const { visibleComponents } = await loadComponents();
+  return visibleComponents.map((c) => ({
     params: { id: c.id },
     props: { component: c },
   }));
@@ -24,7 +25,10 @@ const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
   breadcrumb={component.title}
   hue={hue}
 >
-  <h2 style={`color: var(--${hue}-500)`}>{component.title}</h2>
+  <h2 style={`color: var(--${hue}-500)`}>
+    {component.title}
+    {component.desc && <small set:html={` — ${component.desc}`} />}
+  </h2>
   <div class="docs-sections">
     <section class="card">
       <article class="component-doc">
@@ -36,7 +40,10 @@ const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
       {
         component.variants?.map((variant) => (
           <article class="component-doc">
-            <h3 class="component-doc-title">{variant.title}</h3>
+            <h3 class="component-doc-title">
+              {variant.title}
+              {variant.desc && <small set:html={` — ${variant.desc}`} />}
+            </h3>
             <div class={`component-preview ${component.id}-variant-preview`}>
               <Fragment set:html={variant.preview ?? variant.html} />
             </div>
