@@ -253,7 +253,7 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "kbd-bg": `var(--${prefix}${neutrals}-900)`,
     "on-kbd": luzContrastColor(`var(--kbd-bg)`),
     "kbd-shadow": `var(--${prefix}${neutrals}-500)`,
-    "table-hover-bg": `var(--${prefix}${neutrals}-800)`,
+    "table-hover-bg": `var(--${prefix}${neutrals}-900)`,
     "on-table-hover": `var(--${prefix}${neutrals}-300)`,
     "selection-bg": `var(--${prefix}${name}-500)`,
     "on-selection": luzContrastColor(`var(--selection-bg)`),

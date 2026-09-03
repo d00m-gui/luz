@@ -63,7 +63,7 @@
   &.quaternary,
   &.neutral {
     background-color: oklch(from var(--scheme) l c h / 26%);
-    border-color: var(--scheme);
+    border-color: oklch(from var(--scheme) calc(l + 0.25) c h);
     color: oklch(from var(--scheme) calc(l + 0.25) c h);
     backdrop-filter: blur(var(--space-1));
     .icon {

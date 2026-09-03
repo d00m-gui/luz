@@ -62,9 +62,10 @@ export const COMPONENTS: ComponentDoc[] = [
     covers: ["menu"],
     html: `<button popovertarget="menu-basic" class="ghost">⋮ Options</button>
 <div id="menu-basic" popover class="menu">
-  <div class="list-row"><a href="#">Edit</a></div>
-  <div class="list-row"><a href="#">Duplicate</a></div>
-  <div class="list-row"><a href="#" style="color: var(--danger)">Delete</a></div>
+  <a class="list-row"><i class="icon nf nf-cod-edit_code"></i><span class="list-col-grow">Edit</span></a>
+  <a class="list-row"><i class="icon nf nf-oct-duplicate"></i><span class="list-col-grow">Duplicate</span></a>
+  <a class="list-row" aria-disabled="true"><i class="icon nf nf-fa-lock"></i><span class="list-col-grow">Facturación</span></a>
+  <a class="list-row danger"><i class="icon nf nf-fa-trash_can"></i><span class="list-col-grow">Delete</span><span><kbd>Meta</kbd>+<kbd>D</kbd></span></a>
 </div>`,
     variants: [
       {
@@ -73,9 +74,9 @@ export const COMPONENTS: ComponentDoc[] = [
   Right-click here
 </div>
 <div popover id="menu-ctx" class="menu" style="position-anchor: --ctx-anchor">
-  <div class="list-row"><a href="#">Cut</a></div>
-  <div class="list-row"><a href="#">Copy</a></div>
-  <div class="list-row"><a href="#">Paste</a></div>
+  <a class="list-row">Cut</a>
+  <a class="list-row">Copy</a>
+  <a class="list-row">Paste</a>
 </div>`,
       },
     ],
@@ -284,45 +285,46 @@ export const COMPONENTS: ComponentDoc[] = [
         title: "Titled group, active & disabled items — <code>.list-title</code>, <code>aria-current</code>, <code>aria-disabled</code>",
         html: `<div class="list">
   <p class="list-title">Workspace</p>
-  <div class="list-row"><i class="icon nf nf-fa-home"></i><span class="list-col-grow">Inicio</span></div>
-  <div class="list-row" aria-current="page"><i class="icon nf nf-fa-cube"></i><span class="list-col-grow">Componentes</span></div>
-  <div class="list-row" aria-disabled="true"><i class="icon nf nf-fa-lock"></i><span class="list-col-grow">Facturación</span></div>
-  <div class="list-row"><i class="icon nf nf-fa-book"></i><span class="list-col-grow">Docs</span><kbd>⌘D</kbd></div>
+  <a class="list-row"><i class="icon nf nf-fa-home"></i><span class="list-col-grow">Inicio</span></a>
+  <a class="list-row" aria-current="page"><i class="icon nf nf-fa-cube"></i><span class="list-col-grow">Componentes</span></a>
+  <a class="list-row" aria-disabled="true"><i class="icon nf nf-fa-lock"></i><span class="list-col-grow">Facturación</span></a>
+  <a class="list-row"><i class="icon nf nf-fa-book"></i><span class="list-col-grow">Docs</span><kbd>⌘D</kbd></a>
 </div>`,
       },
       {
         title: "Horizontal — <code>.list.horizontal</code>",
         html: `<div class="list horizontal">
-  <div class="list-row">Inicio</div>
-  <div class="list-row" aria-current="page">Componentes</div>
-  <div class="list-row">Docs</div>
-  <div class="list-row">Contacto</div>
+  <a class="list-row">Inicio</a>
+  <a class="list-row" aria-current="page">Componentes</a>
+  <a class="list-row">Docs</a>
+  <a class="list-row">Contacto</a>
 </div>`,
       },
       {
         title: "Responsive — <code>.list.responsive</code> (horizontal ≥48rem, vertical debajo)",
         html: `<div class="list responsive">
-  <div class="list-row">Inicio</div>
-  <div class="list-row" aria-current="page">Componentes</div>
-  <div class="list-row">Docs</div>
-  <div class="list-row">Contacto</div>
+  <a class="list-row">Inicio</a>
+  <a class="list-row" aria-current="page">Componentes</a>
+  <a class="list-row">Docs</a>
+  <a class="list-row">Contacto</a>
 </div>`,
       },
       {
         title: "Submenu anidado — <code>.list .list</code>",
         html: `<div class="list">
   <p class="list-title">Docs</p>
-  <div class="list-row"><i class="icon nf nf-fa-rocket"></i><span class="list-col-grow">Empezando</span></div>
-  <div class="list-row"><i class="icon nf nf-fa-cube"></i><span class="list-col-grow">Componentes</span></div>
+  <a class="list-row"><i class="icon nf nf-fa-rocket"></i><span class="list-col-grow">Empezando</span></a>
+  <a class="list-row"><i class="icon nf nf-fa-cube"></i><span class="list-col-grow">Componentes</span></a>
   <div class="list">
-    <div class="list-row"><span class="list-col-grow">Button</span></div>
-    <div class="list-row"><span class="list-col-grow">List</span></div>
-    <div class="list-row"><span class="list-col-grow">Menu</span></div>
+    <a class="list-row"><span class="list-col-grow">Button</span></a>
+    <a class="list-row" aria-current="page"><span class="list-col-grow">List</span></a>
+    <a class="list-row"><span class="list-col-grow">Menu</span></a>
   </div>
 </div>`,
       },
       {
-        title: "File tree colapsable — <details class=\"list-row\"> anidados",
+        title: "Filetree",
+        desc: `colapsable — <details class=\"list-row\"> anidados`,
         html: `<div class="list">
   <details class="list-row" open>
     <summary><i class="icon nf nf-fa-folder_open"></i> src</summary>
@@ -497,22 +499,22 @@ export const COMPONENTS: ComponentDoc[] = [
       {
         title: "Pagination — .tabs.pagination",
         html: `<nav class="tabs pagination">
-  <a class="tab" href="#">1</a>
-  <a class="tab" aria-current="page" href="#">2</a>
-  <a class="tab" href="#">3</a>
+  <a class="tab">1</a>
+  <a class="tab" aria-current="page">2</a>
+  <a class="tab">3</a>
 </nav>`,
       },
       {
         title: "Bottom tab bar — .tabs.bottom",
         html: `<nav class="tabs bottom">
-  <a class="tab" aria-current="page" href="#">Home</a>
-  <a class="tab" href="#">Search</a>
-  <a class="tab" href="#">Profile</a>
+  <a class="tab" aria-current="page">Home</a>
+  <a class="tab">Search</a>
+  <a class="tab">Profile</a>
 </nav>`,
         preview: `<div class="preview-frame"><nav class="tabs bottom" style="position: absolute">
-  <a class="tab" aria-current="page" href="#">Home</a>
-  <a class="tab" href="#">Search</a>
-  <a class="tab" href="#">Profile</a>
+  <a class="tab" aria-current="page">Home</a>
+  <a class="tab">Search</a>
+  <a class="tab">Profile</a>
 </nav></div>`,
       },
     ],
@@ -540,9 +542,9 @@ export const COMPONENTS: ComponentDoc[] = [
       <button class="ghost" popovertarget="drawer-demo">&times;</button>
     </div>
     <div class="list">
-      <div class="list-row"><a href="#">Inicio</a></div>
-      <div class="list-row"><a href="#">Componentes</a></div>
-      <div class="list-row"><a href="#">Docs</a></div>
+      <a class="list-row">Inicio</a>
+      <a class="list-row">Componentes</a>
+      <a class="list-row">Docs</a>
     </div>
   </div>
 </div>
@@ -560,20 +562,20 @@ export const COMPONENTS: ComponentDoc[] = [
   <nav class="sidebar drawer-sidebar" style="--drawer-width: 12rem">
     <div class="sidebar-scroll">
       <div class="list">
-        <a href="#" class="list-row" style="--sidebar-bg: var(--primary-400)">Inicio</a>
+        <a class="list-row" style="--sidebar-bg: var(--primary-400)">Inicio</a>
         <details class="list-row" open>
           <summary>Componentes</summary>
           <div class="list">
-            <a href="#" class="list-row" style="--sidebar-bg: var(--blue-400)">Button</a>
-            <a href="#" class="list-row" aria-current="page" style="--sidebar-bg: var(--green-400)">List</a>
-            <a href="#" class="list-row" style="--sidebar-bg: var(--yellow-400)">Menu</a>
+            <a class="list-row" style="--sidebar-bg: var(--blue-400)">Button</a>
+            <a class="list-row" aria-current="page" style="--sidebar-bg: var(--green-400)">List</a>
+            <a class="list-row" style="--sidebar-bg: var(--yellow-400)">Menu</a>
           </div>
         </details>
         <details class="list-row">
           <summary>Layout</summary>
           <div class="list">
-            <a href="#" class="list-row" style="--sidebar-bg: var(--secondary-400)">Panel header</a>
-            <a href="#" class="list-row" style="--sidebar-bg: var(--secondary-400)">Drawer</a>
+            <a class="list-row" style="--sidebar-bg: var(--secondary-400)">Panel header</a>
+            <a class="list-row" style="--sidebar-bg: var(--secondary-400)">Drawer</a>
           </div>
         </details>
       </div>
@@ -670,12 +672,12 @@ export const COMPONENTS: ComponentDoc[] = [
     category: "Primitives",
     covers: ["a"],
     html: `<p>
-  <a href="#">Default</a> ·
-  <a href="#" class="secondary">Secondary</a> ·
-  <a href="#" class="contrast">Contrast</a> ·
-  <a href="#" class="danger">Danger</a> ·
-  <a href="#" class="success">Success</a> ·
-  <a href="#" class="warning">Warning</a>
+  <a>Default</a> ·
+  <a class="secondary">Secondary</a> ·
+  <a class="contrast">Contrast</a> ·
+  <a class="danger">Danger</a> ·
+  <a class="success">Success</a> ·
+  <a class="warning">Warning</a>
 </p>`,
   },
   {
