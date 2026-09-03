@@ -7,6 +7,8 @@
 [type="submit"],
 button {
   --current-bg: var(--scheme, var(--btn-bg));
+  display: inline-flex;
+  align-items: center;
   font: inherit;
   padding: var(--element-vertical) var(--element-horizontal);
   border-radius: var(--border-radius);
@@ -50,10 +52,21 @@ button {
     --scheme: var(--foreground);
   }
   &.cta {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    display: block;
     gap: var(--space-1);
+    .text-xs, .text-sm {
+      font-size: var(--font-size-base);
+      text-transform: uppercase;
+      font-weight: var(--font-bold-weight);
+    }
+    .text-lg {
+      display: block;
+      font-size: var(--font-size-lg-fluid);
+      line-height: 90%;
+      max-width: 70%;
+      font-weight: var(--font-bold-weight);
+    }
+
   }
   &.badge {
     box-shadow: none;
@@ -92,6 +105,15 @@ button {
   }
   .icon {
     margin: 0 0.5ch;
+    &:first-child {
+      margin-inline-start: 0;
+    }
+    &:last-child {
+      margin-inline-end: 0;
+    }
+    &:last-child:not(:only-child) {
+      margin-inline-start: auto;
+    }
   }
   &:hover {
     background-color: oklch(from var(--current-bg) calc(l + 0.02) c h);

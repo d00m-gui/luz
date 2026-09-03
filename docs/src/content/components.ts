@@ -164,7 +164,7 @@ export const COMPONENTS: ComponentDoc[] = [
       <p><strong>Ada Byron</strong></p>
       <p class="text-sm">Admin</p>
     </div>
-    <button class="ghost square" aria-label="More"><i class="icon nf nf-fa-ellipsis_v"></i></button>
+    <button class="ghost square" aria-label="More">⋮</button>
   </div>
   <div class="list-row">
     <span class="avatar sm">GH</span>
@@ -172,7 +172,7 @@ export const COMPONENTS: ComponentDoc[] = [
       <p><strong>Grace Hopper</strong></p>
       <p class="text-sm">Editor</p>
     </div>
-    <button class="ghost square" aria-label="More"><i class="icon nf nf-fa-ellipsis_v"></i></button>
+    <button class="ghost square" aria-label="More">⋮</button>
   </div>
 </div>`,
     variants: [
@@ -213,6 +213,7 @@ export const COMPONENTS: ComponentDoc[] = [
 
 <button class="square" aria-label="Add"><i class="icon nf nf-fa-plus"></i></button>
 <button><i class="icon nf nf-fa-download"></i> Download</button>
+<button>Continue <i class="icon nf nf-fa-download"></i></button>
 <button class="loading">Saving</button>
 
 <button class="block"><i class="icon nf nf-fa-github"></i> Continue with GitHub</button>`,
@@ -220,9 +221,9 @@ export const COMPONENTS: ComponentDoc[] = [
       {
         title: "CTA — .btn.cta",
         html: `<button class="cta">
-  <span class="text-xs">Nuevo</span>
-  <span class="text-lg">Empezar gratis</span>
-  <span class="text-sm">Sin tarjeta de crédito</span>
+        <i class="icon nf nf-fa-github"></i>
+  <span class="text-lg">Sin tarjeta de crédito</span>
+  <span class="text-sm">Empezar gratis</span>
 </button>`,
       },
     ],
