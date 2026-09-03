@@ -18,7 +18,7 @@ export function Swatches({
     <>
       {names.map((name) => (
         <div className="swatch-row" key={name}>
-          <div className="swatch-row-label" style={{ color: `var(--${name}-500)` }}>
+          <div className="swatch-row-label" style={{ background: `var(--${name}-500)`, color: `contrast-color(var(--${name}-500))` }}>
             {name}
           </div>
           {weights.map((weight) => (

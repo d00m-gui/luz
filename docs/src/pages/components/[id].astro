@@ -16,8 +16,6 @@ export function getStaticPaths() {
 
 const { component } = Astro.props;
 const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
-
-console.log("COMPONENT", component);
 ---
 
 <Layout

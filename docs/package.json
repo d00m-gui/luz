@@ -8,7 +8,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "gen:content": "bun run scripts/gen-content.ts",
-    "gen:components": "bun run scripts/gen-components.ts"
+    "gen:components": "bun run scripts/gen-components.ts",
+    "gen:nerd-icons": "bun run scripts/gen-nerd-icons.ts"
   },
   "dependencies": {
     "@astrojs/react": "6.0.4",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@types/react": "^19.2.18",
     "@types/react-dom": "^19.2.4",
-    "lightningcss": "^1.32.0"
+    "lightningcss": "^1.32.0",
+    "wawoff2": "^2.0.1"
   }
 }

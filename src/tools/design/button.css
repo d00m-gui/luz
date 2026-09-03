@@ -52,18 +52,18 @@ button {
     --scheme: var(--foreground);
   }
   &.cta {
-    display: block;
     gap: var(--space-1);
+    padding: calc(var(--element-vertical) * 2) calc(var(--element-horizontal) * 2);
     .text-xs, .text-sm {
       font-size: var(--font-size-base);
       text-transform: uppercase;
       font-weight: var(--font-bold-weight);
+      opacity: 0.80;
     }
     .text-lg {
       display: block;
       font-size: var(--font-size-lg-fluid);
       line-height: 90%;
-      max-width: 70%;
       font-weight: var(--font-bold-weight);
     }
 
@@ -106,10 +106,10 @@ button {
   .icon {
     margin: 0 0.5ch;
     &:first-child {
-      margin-inline-start: 0;
+      margin-inline-start: 0.5ch;
     }
     &:last-child {
-      margin-inline-end: 0;
+      margin-inline-end: 0.5ch;
     }
     &:last-child:not(:only-child) {
       margin-inline-start: auto;
