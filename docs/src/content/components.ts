@@ -240,6 +240,14 @@ export const COMPONENTS: ComponentDoc[] = [
 <span class="badge contrast">Contrast</span>
 <span class="badge ghost">Ghost</span>
 <span class="badge pill">Pill</span>`,
+    variants: [
+      {
+        title: "Interactive — <button class=\"badge\">",
+        html: `<button class="badge">Default <i class="icon nf nf-fa-plus"></i></button>
+<button class="badge success">Success</button>
+<button class="badge danger">Remove ×</button>`,
+      },
+    ],
   },
   {
     id: "alert",
@@ -250,7 +258,9 @@ export const COMPONENTS: ComponentDoc[] = [
 <div class="alert success">Changes saved</div>
 <div class="alert danger">Something went wrong</div>
 <div class="alert warning">Check your input</div>
-<div class="alert info">New version available</div>`,
+<div class="alert info">New version available</div>
+<div class="alert neutral">Neutral notice</div>
+<div class="alert contrast">Contrast notice</div>`,
   },
   {
     id: "card",
@@ -264,10 +274,26 @@ export const COMPONENTS: ComponentDoc[] = [
 </div>`,
     variants: [
       {
-        title: "Scheme — .card.success",
+        title: "Scheme — .card.success/.danger/.warning/.neutral/.contrast",
         html: `<div class="card success">
   <div class="card-title">Changes saved</div>
-  <p>Card also takes the shared .success/.danger/.warning/.neutral/.contrast scheme classes.</p>
+  <p>Deploy completed without errors.</p>
+</div>
+<div class="card danger">
+  <div class="card-title">Something went wrong</div>
+  <p>The last deploy failed.</p>
+</div>
+<div class="card warning">
+  <div class="card-title">Check your input</div>
+  <p>Some fields need review.</p>
+</div>
+<div class="card neutral">
+  <div class="card-title">Draft</div>
+  <p>Not published yet.</p>
+</div>
+<div class="card contrast">
+  <div class="card-title">Pinned</div>
+  <p>Card also takes the shared scheme classes, same as .btn/.badge/.alert.</p>
 </div>`,
       },
     ],

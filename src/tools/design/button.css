@@ -55,6 +55,9 @@ button {
     align-items: flex-start;
     gap: var(--space-1);
   }
+  &.badge {
+    box-shadow: none;
+  }
   &.ghost {
     --current-bg: transparent;
     color: var(--on-btn-ghost);
@@ -99,6 +102,9 @@ button {
     box-shadow: 0 0 0 var(--size-unit) oklch(from var(--neutral-950) l c h / 10%) inset,
     0 -4ch 3px -2px color-mix(in oklch, var(--current-bg) 90%, var(--neutral-800)) inset,
     0 3px 2px -2px color-mix(in oklch, var(--neutral-950) 30%, transparent)
+  }
+  &.badge:active {
+    box-shadow: none;
   }
 }
 @media (prefers-reduced-motion: reduce) {
