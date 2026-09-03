@@ -178,7 +178,7 @@ const PRESET_FLUID_RANGE: Record<NonNullable<LuzConfig["preset"]>, FluidRangeNam
   landing: 2.4,
 };
 
-const defaultConfig: LuzConfig = {
+export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   font: "sans-serif",
   "line-height": "130%",
   "heading-letter-spacing": "-0.02em",
@@ -309,7 +309,7 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
  * @returns Object containing structured `tokens` and a string of CSS variables.
  */
 export function luz(config?: LuzConfig): LuzResult {
-  const settings: LuzConfig = { ...defaultConfig, ...config };
+  const settings: LuzConfig = { ...LUZ_DEFAULT_CONFIG, ...config };
   if (config?.preset !== undefined && config?.sizeFluidRange === undefined) {
     settings.sizeFluidRange = PRESET_FLUID_RANGE[config.preset];
   }

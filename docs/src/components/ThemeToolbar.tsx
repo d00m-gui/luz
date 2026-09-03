@@ -49,7 +49,6 @@ export function ThemeToolbar() {
           >
             <option value="light">light</option>
             <option value="dark">dark</option>
-            <option value="auto">auto</option>
           </select>
         </label>
         <label>
@@ -80,8 +79,8 @@ export function ThemeToolbar() {
           <input
             type="range"
             min={0}
-            max={1}
-            step={0.1}
+            max={0.8}
+            step={0.01}
             value={state.neutralTint}
             onChange={(e) => update({ neutralTint: Number(e.target.value) })}
           />
@@ -155,7 +154,7 @@ export function ThemeToolbar() {
             type="range"
             min={0.3}
             max={0.8}
-            step={0.05}
+            step={0.01}
             data-ticks
             style={{ "--range-steps": 10 } as CSSProperties}
             value={state.contrastThreshold}

@@ -1,8 +1,8 @@
 import type { LuzAstroConfig } from "../src/astro";
 
 export const config: LuzAstroConfig = {
-  primary: "#d97b45",
-  mode: "dark",
+  primary: "#e9560c",
+  mode: "light",
   preset: "app",
   font: "var(--dm-sans)",
   "font-headings": "var(--dm-sans)",
@@ -10,5 +10,5 @@ export const config: LuzAstroConfig = {
   "font-emphasis": "var(--eb-serif)",
   properties: true,
   neutralTint: 0,
-  contrastThreshold: 0.7
+  contrastThreshold: 0.71,
 };

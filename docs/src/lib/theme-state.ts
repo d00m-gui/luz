@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import type { LuzConfig } from "../../../src/luz";
+import { LUZ_DEFAULT_CONFIG, type LuzConfig } from "../../../src/luz";
 import { config as siteConfig } from "../../luz.config";
 
 const STORAGE_KEY = "luz-docs-toolbar";
@@ -23,23 +23,31 @@ export interface ToolbarState {
 
 export const DEFAULT_STATE: ToolbarState = {
   primary: siteConfig.primary,
-  mode: siteConfig.mode ?? "dark",
+  mode: siteConfig.mode ?? LUZ_DEFAULT_CONFIG.mode ?? "dark",
   preset: siteConfig.preset ?? "content",
-  neutralTint: siteConfig.neutralTint ?? 0,
-  harmony: siteConfig.harmony ?? "complementary",
-  depth: siteConfig.depth ?? 0,
-  depthMax: siteConfig.depthMax ?? 0.125,
-  depthDecay: siteConfig.depthDecay ?? 0.6,
+  neutralTint: siteConfig.neutralTint ?? LUZ_DEFAULT_CONFIG.neutralTint ?? 0,
+  harmony: siteConfig.harmony ?? LUZ_DEFAULT_CONFIG.harmony ?? "complementary",
+  depth: siteConfig.depth ?? LUZ_DEFAULT_CONFIG.depth ?? 0,
+  depthMax: siteConfig.depthMax ?? LUZ_DEFAULT_CONFIG.depthMax ?? 0.125,
+  depthDecay: siteConfig.depthDecay ?? LUZ_DEFAULT_CONFIG.depthDecay ?? 0.6,
   depthSign: siteConfig.depthSign ?? -0.3,
-  density: siteConfig.density ?? 1,
-  contrastThreshold: siteConfig.contrastThreshold ?? 0.6,
+  density: siteConfig.density ?? LUZ_DEFAULT_CONFIG.density ?? 1,
+  contrastThreshold:
+    siteConfig.contrastThreshold ?? LUZ_DEFAULT_CONFIG.contrastThreshold ?? 0.6,
 };
+
+const CONFIG_SNAPSHOT = JSON.stringify(DEFAULT_STATE);
 
 export function loadThemeState(): ToolbarState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_STATE;
-    return { ...DEFAULT_STATE, ...JSON.parse(raw) };
+    const parsed = JSON.parse(raw);
+    if (parsed.configSnapshot !== CONFIG_SNAPSHOT) {
+      localStorage.removeItem(STORAGE_KEY);
+      return DEFAULT_STATE;
+    }
+    return { ...DEFAULT_STATE, ...parsed.state };
   } catch {
     return DEFAULT_STATE;
   }
@@ -47,7 +55,10 @@ export function loadThemeState(): ToolbarState {
 
 export function saveThemeState(state: ToolbarState): void {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ configSnapshot: CONFIG_SNAPSHOT, state }),
+    );
   } catch {}
   window.dispatchEvent(new CustomEvent<ToolbarState>(EVENT, { detail: state }));
 }
