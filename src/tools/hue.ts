@@ -43,9 +43,9 @@ function shadeEntry(
   ];
 }
 
-/** Auto-contrast text color for a background: white-ish or black-ish depending on `seed`'s own lightness vs. `--contrast-threshold`, with a slight tint of its hue. Fallback for `contrast-color()` behind `@supports`. */
+/** Auto-contrast text color for a background: near-black or near-white (not pure `0`/`1` — softer against saturated backgrounds) depending on `seed`'s own lightness vs. `--contrast-threshold`, with a slight tint of its hue. Fallback for `contrast-color()` behind `@supports`. */
 export function luzOnColor(seed: string): string {
-  return `oklch(from ${seed} clamp(0, calc((l - var(--contrast-threshold, 0.6)) * -1000), 1) calc(c * 0.08) h)`;
+  return `oklch(from ${seed} clamp(0.12, calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000), 0.92) calc(c * 0.08) h)`;
 }
 
 

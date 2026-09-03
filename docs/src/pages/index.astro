@@ -7,6 +7,7 @@ import { ThemeToolbar } from "../components/ThemeToolbar";
 import { ColorPicker } from "../components/ColorPicker";
 import { BrandColors } from "../components/BrandColors";
 import { Swatches } from "../components/Swatches";
+import { GamutLegend } from "../components/GamutLegend";
 import { loadComponents } from "../content/components";
 import {
   COMPONENT_CATEGORY_HUES,
@@ -43,7 +44,8 @@ function swatchStyle(name: string, weight: number) {
     <div class="luz-intro flex-1">
       <BrandColors client:load />
       <div class="hue">
-        <Swatches names={["neutral", ...WHEEL_HUES]} weights={WEIGHTS} />
+        <GamutLegend client:load />
+        <Swatches names={["neutral", ...WHEEL_HUES]} weights={WEIGHTS} client:load />
       </div>
     </div>
     <div class="card flex-1">

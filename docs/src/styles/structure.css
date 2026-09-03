@@ -178,7 +178,38 @@
 
 .swatch,
 .swatch-row-label {
-  --current-color: oklch(from var(--current-bg) clamp(0, calc((l - var(--contrast-threshold, 0.6)) * -1000), 1) calc(c * 0.08) h);
+  --current-color: oklch(from var(--current-bg) clamp(0.12, calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000), 0.92) calc(c * 0.08) h);
+}
+
+.swatch[data-gamut="p3"]::after,
+.swatch[data-gamut="wide"]::after {
+  content: "";
+  position: absolute;
+  top: var(--space-1);
+  right: var(--space-1);
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--current-color);
+}
+
+.swatch[data-gamut] {
+  position: relative;
+}
+
+.gamut-legend {
+  font-size: var(--font-size-xs-fluid);
+  color: var(--foreground-muted, var(--neutral-500));
+  margin-bottom: var(--space-2);
+}
+
+.gamut-legend-dot {
+  display: inline-block;
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--primary-500);
+  vertical-align: middle;
 }
 .text-scale {
   display: flex;
