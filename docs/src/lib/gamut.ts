@@ -18,7 +18,11 @@ function inRange(rgb: [number, number, number]): boolean {
   return rgb.every((v) => v >= -0.001 && v <= 1.001);
 }
 
-function xyzToLinearSrgb(x: number, y: number, z: number): [number, number, number] {
+function xyzToLinearSrgb(
+  x: number,
+  y: number,
+  z: number,
+): [number, number, number] {
   return [
     3.2404542 * x - 1.5371385 * y - 0.4985314 * z,
     -0.969266 * x + 1.8760108 * y + 0.041556 * z,
@@ -26,7 +30,11 @@ function xyzToLinearSrgb(x: number, y: number, z: number): [number, number, numb
   ];
 }
 
-function xyzToLinearP3(x: number, y: number, z: number): [number, number, number] {
+function xyzToLinearP3(
+  x: number,
+  y: number,
+  z: number,
+): [number, number, number] {
   return [
     2.4934969119 * x - 0.9313836179 * y - 0.4027107845 * z,
     -0.8294889696 * x + 1.7626640603 * y + 0.0236246858 * z,
@@ -45,12 +53,16 @@ export function oklchGamut(l: number, c: number, h: number): GamutCheck {
 
 const OKLCH_RE = /oklch\(\s*([\d.]+)\s+([\d.]+)\s+([\d.]+)/;
 
-export function parseOklch(value: string): [l: number, c: number, h: number] | null {
+export function parseOklch(
+  value: string,
+): [l: number, c: number, h: number] | null {
   const match = OKLCH_RE.exec(value);
   if (!match) return null;
   return [Number(match[1]), Number(match[2]), Number(match[3])];
 }
 
 export function supportsP3Display(): boolean {
-  return typeof matchMedia === "function" && matchMedia("(color-gamut: p3)").matches;
+  return (
+    typeof matchMedia === "function" && matchMedia("(color-gamut: p3)").matches
+  );
 }

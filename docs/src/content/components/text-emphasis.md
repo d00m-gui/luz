@@ -10,6 +10,7 @@ covers:
   - abbr
   - p
 ---
+
 <p>
   <strong>Strong</strong> and <em>emphasis</em>, <small>small print</small>,
   <abbr title="HyperText Markup Language">HTML</abbr>.

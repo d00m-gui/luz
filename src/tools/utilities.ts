@@ -3,7 +3,6 @@ import { withShadeFallback } from "./shade-fallback";
 import { resolveVariant } from "./variants";
 import { scanCandidates } from "./scan";
 
-
 interface ScaleNamespace {
   kind: "scale";
   /** Class prefix, e.g. `"p"` for `p-4`. */
@@ -30,7 +29,6 @@ interface LiteralNamespace {
   dynamic?: (tokens: LuzTokens) => readonly (readonly [string, string])[];
 }
 
-
 interface BridgeColorNamespace {
   kind: "bridge-color";
   prefix: string;
@@ -42,7 +40,6 @@ export type UtilityNamespace =
   | ColorNamespace
   | LiteralNamespace
   | BridgeColorNamespace;
-
 
 const BRIDGE_COLOR_NAMES = new Set([
   "card",
@@ -61,7 +58,6 @@ const BRIDGE_COLOR_NAMES = new Set([
   "ring",
 ]);
 
-
 export function buildUtilityRegistry(): UtilityNamespace[] {
   return [
     { kind: "scale", prefix: "p", scaleFamily: "space", cssProps: ["padding"] },
@@ -77,10 +73,30 @@ export function buildUtilityRegistry(): UtilityNamespace[] {
       scaleFamily: "space",
       cssProps: ["padding-top", "padding-bottom"],
     },
-    { kind: "scale", prefix: "pt", scaleFamily: "space", cssProps: ["padding-top"] },
-    { kind: "scale", prefix: "pr", scaleFamily: "space", cssProps: ["padding-right"] },
-    { kind: "scale", prefix: "pb", scaleFamily: "space", cssProps: ["padding-bottom"] },
-    { kind: "scale", prefix: "pl", scaleFamily: "space", cssProps: ["padding-left"] },
+    {
+      kind: "scale",
+      prefix: "pt",
+      scaleFamily: "space",
+      cssProps: ["padding-top"],
+    },
+    {
+      kind: "scale",
+      prefix: "pr",
+      scaleFamily: "space",
+      cssProps: ["padding-right"],
+    },
+    {
+      kind: "scale",
+      prefix: "pb",
+      scaleFamily: "space",
+      cssProps: ["padding-bottom"],
+    },
+    {
+      kind: "scale",
+      prefix: "pl",
+      scaleFamily: "space",
+      cssProps: ["padding-left"],
+    },
     { kind: "scale", prefix: "m", scaleFamily: "space", cssProps: ["margin"] },
     {
       kind: "scale",
@@ -94,13 +110,43 @@ export function buildUtilityRegistry(): UtilityNamespace[] {
       scaleFamily: "space",
       cssProps: ["margin-top", "margin-bottom"],
     },
-    { kind: "scale", prefix: "mt", scaleFamily: "space", cssProps: ["margin-top"] },
-    { kind: "scale", prefix: "mr", scaleFamily: "space", cssProps: ["margin-right"] },
-    { kind: "scale", prefix: "mb", scaleFamily: "space", cssProps: ["margin-bottom"] },
-    { kind: "scale", prefix: "ml", scaleFamily: "space", cssProps: ["margin-left"] },
+    {
+      kind: "scale",
+      prefix: "mt",
+      scaleFamily: "space",
+      cssProps: ["margin-top"],
+    },
+    {
+      kind: "scale",
+      prefix: "mr",
+      scaleFamily: "space",
+      cssProps: ["margin-right"],
+    },
+    {
+      kind: "scale",
+      prefix: "mb",
+      scaleFamily: "space",
+      cssProps: ["margin-bottom"],
+    },
+    {
+      kind: "scale",
+      prefix: "ml",
+      scaleFamily: "space",
+      cssProps: ["margin-left"],
+    },
     { kind: "scale", prefix: "gap", scaleFamily: "space", cssProps: ["gap"] },
-    { kind: "scale", prefix: "gap-x", scaleFamily: "space", cssProps: ["column-gap"] },
-    { kind: "scale", prefix: "gap-y", scaleFamily: "space", cssProps: ["row-gap"] },
+    {
+      kind: "scale",
+      prefix: "gap-x",
+      scaleFamily: "space",
+      cssProps: ["column-gap"],
+    },
+    {
+      kind: "scale",
+      prefix: "gap-y",
+      scaleFamily: "space",
+      cssProps: ["row-gap"],
+    },
     { kind: "scale", prefix: "w", scaleFamily: "space", cssProps: ["width"] },
     { kind: "scale", prefix: "h", scaleFamily: "space", cssProps: ["height"] },
     ...TEXT_SCALE_LITERALS,
@@ -125,7 +171,6 @@ export function buildUtilityRegistry(): UtilityNamespace[] {
   ];
 }
 
-
 const MULTI_DECL_LITERALS: LiteralNamespace[] = [
   {
     kind: "literal",
@@ -139,7 +184,10 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
       return [
         ["border-width", "var(--border-width)"],
         ["border-style", "solid"],
-        ["border-color", withOpacity(colorValue(`${primaryFamily}-500`, tokens), 50)],
+        [
+          "border-color",
+          withOpacity(colorValue(`${primaryFamily}-500`, tokens), 50),
+        ],
       ];
     },
   },
@@ -148,8 +196,16 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
     className: "font-normal",
     declarations: [["font-weight", "var(--font-weight)"]],
   },
-  { kind: "literal", className: "font-medium", declarations: [["font-weight", "500"]] },
-  { kind: "literal", className: "font-semibold", declarations: [["font-weight", "600"]] },
+  {
+    kind: "literal",
+    className: "font-medium",
+    declarations: [["font-weight", "500"]],
+  },
+  {
+    kind: "literal",
+    className: "font-semibold",
+    declarations: [["font-weight", "600"]],
+  },
   {
     kind: "literal",
     className: "font-bold",
@@ -265,7 +321,6 @@ const LAYOUT_LITERALS: LiteralNamespace[] = (
 
 const SIZE_STEP_RE = /^[1-9]\d*$/;
 
-
 function resolveSizeSuffix(
   suffix: string,
   family: "space",
@@ -278,7 +333,6 @@ function resolveSizeSuffix(
 function isPublicColorKey(key: string, tokens: LuzTokens): boolean {
   return !key.endsWith("-seed") && tokens.colors[key] !== undefined;
 }
-
 
 function colorValue(key: string, tokens: LuzTokens): string {
   const varRef = `var(--${key})`;
@@ -295,7 +349,10 @@ interface ResolvedBase {
   namespaceIndex: number;
 }
 
-function sameValueDeclarations(cssProps: string[], value: string): [string, string][] {
+function sameValueDeclarations(
+  cssProps: string[],
+  value: string,
+): [string, string][] {
   return cssProps.map((prop) => [prop, value]);
 }
 
@@ -305,7 +362,10 @@ function withOpacity(value: string, percent: number): string {
   return `oklch(from ${value} l c h / ${percent}%)`;
 }
 
-function resolveBaseUtility(base: string, tokens: LuzTokens): ResolvedBase | null {
+function resolveBaseUtility(
+  base: string,
+  tokens: LuzTokens,
+): ResolvedBase | null {
   const opacityMatch = base.match(OPACITY_SUFFIX_RE);
   const opacityPercent = opacityMatch ? Number(opacityMatch[2]) : undefined;
   if (opacityPercent !== undefined && opacityPercent > 100) return null;
@@ -316,7 +376,10 @@ function resolveBaseUtility(base: string, tokens: LuzTokens): ResolvedBase | nul
     const ns = registry[i]!;
     if (ns.kind === "literal") {
       if (opacityPercent === undefined && target === ns.className) {
-        return { declarations: ns.dynamic?.(tokens) ?? ns.declarations, namespaceIndex: i };
+        return {
+          declarations: ns.dynamic?.(tokens) ?? ns.declarations,
+          namespaceIndex: i,
+        };
       }
       continue;
     }
@@ -339,14 +402,22 @@ function resolveBaseUtility(base: string, tokens: LuzTokens): ResolvedBase | nul
     } else if (ns.kind === "color") {
       if (isPublicColorKey(suffix, tokens)) {
         let value = colorValue(suffix, tokens);
-        if (opacityPercent !== undefined) value = withOpacity(value, opacityPercent);
-        return { declarations: sameValueDeclarations(ns.cssProps, value), namespaceIndex: i };
+        if (opacityPercent !== undefined)
+          value = withOpacity(value, opacityPercent);
+        return {
+          declarations: sameValueDeclarations(ns.cssProps, value),
+          namespaceIndex: i,
+        };
       }
     } else {
       if (BRIDGE_COLOR_NAMES.has(suffix)) {
         let value = `var(--${suffix})`;
-        if (opacityPercent !== undefined) value = withOpacity(value, opacityPercent);
-        return { declarations: sameValueDeclarations(ns.cssProps, value), namespaceIndex: i };
+        if (opacityPercent !== undefined)
+          value = withOpacity(value, opacityPercent);
+        return {
+          declarations: sameValueDeclarations(ns.cssProps, value),
+          namespaceIndex: i,
+        };
       }
     }
   }
@@ -361,7 +432,6 @@ export interface ResolvedUtility {
 function escapeClassSelector(candidate: string): string {
   return candidate.replace(/[:/[\]=]/g, "\\$&");
 }
-
 
 export function resolveUtility(
   candidate: string,
@@ -387,19 +457,31 @@ export function resolveUtility(
   if (!resolved) return null;
 
   const selector = `.${escapeClassSelector(candidate)}${variantSelector}`;
-  const css = resolved.declarations.map(([prop, value]) => `${prop}: ${value};`).join(" ");
+  const css = resolved.declarations
+    .map(([prop, value]) => `${prop}: ${value};`)
+    .join(" ");
   return { selector, css };
 }
 
-function sortKey(candidate: string, tokens: LuzTokens): [number, number, string] {
+function sortKey(
+  candidate: string,
+  tokens: LuzTokens,
+): [number, number, string] {
   const parts = candidate.split(":");
   const base = parts.length === 2 ? parts[1]! : parts[0]!;
   const hasVariant = parts.length === 2 ? 1 : 0;
   const resolved = resolveBaseUtility(base, tokens);
-  return [resolved?.namespaceIndex ?? Number.MAX_SAFE_INTEGER, hasVariant, candidate];
+  return [
+    resolved?.namespaceIndex ?? Number.MAX_SAFE_INTEGER,
+    hasVariant,
+    candidate,
+  ];
 }
 
-export function emitUtilitiesCSS(candidates: Set<string>, tokens: LuzTokens): string {
+export function emitUtilitiesCSS(
+  candidates: Set<string>,
+  tokens: LuzTokens,
+): string {
   const resolved = new Map<string, ResolvedUtility>();
   for (const candidate of candidates) {
     if (resolved.has(candidate)) continue;

@@ -30,7 +30,6 @@
       }
     },
     "./reset.css": "./dist/reset.css",
-    "./structure.css": "./dist/structure.css",
     "./design.css": "./dist/design.css",
     "./package.json": "./package.json"
   },

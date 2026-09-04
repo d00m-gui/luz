@@ -5,6 +5,7 @@ covers:
   - table
 span: 2
 ---
+
 <table>
   <thead>
     <tr>

@@ -1,10 +1,32 @@
 .colorpicker {
   --n: 12;
   --colorpicker-bounce: linear(
-    0, 0.009, 0.035 2.1%, 0.141, 0.281 6.7%, 0.723 12.9%, 0.938 16.7%,
-    1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%,
-    1.129 32.8%, 1.051 39.6%, 1.017 43.1%, 0.991, 0.977 51%, 0.974 53.8%,
-    0.975 57.1%, 0.997 69.8%, 1.003 76.9%, 1.004 83.8%, 1
+    0,
+    0.009,
+    0.035 2.1%,
+    0.141,
+    0.281 6.7%,
+    0.723 12.9%,
+    0.938 16.7%,
+    1.017,
+    1.077,
+    1.121,
+    1.149 24.3%,
+    1.159,
+    1.163,
+    1.161,
+    1.154 29.9%,
+    1.129 32.8%,
+    1.051 39.6%,
+    1.017 43.1%,
+    0.991,
+    0.977 51%,
+    0.974 53.8%,
+    0.975 57.1%,
+    0.997 69.8%,
+    1.003 76.9%,
+    1.004 83.8%,
+    1
   );
   position: relative;
   width: calc(var(--size-unit) * 20);
@@ -24,9 +46,19 @@
   border-radius: 50%;
   pointer-events: none;
   background: conic-gradient(
-    var(--red), var(--copper), var(--orange), var(--yellow), var(--green),
-    var(--emerald), var(--teal), var(--cyan), var(--blue), var(--sky),
-    var(--violet), var(--pink), var(--red)
+    var(--red),
+    var(--copper),
+    var(--orange),
+    var(--yellow),
+    var(--green),
+    var(--emerald),
+    var(--teal),
+    var(--cyan),
+    var(--blue),
+    var(--sky),
+    var(--violet),
+    var(--pink),
+    var(--red)
   );
 }
 .colorpicker:has(.colorpicker-input:checked) .colorpicker-bg {
@@ -51,16 +83,19 @@
   z-index: 10;
   cursor: pointer;
   transition: 2s var(--colorpicker-bounce) scale;
-  translate: calc(-50% + cos(var(--angle)) * 35%) calc(-50% + sin(var(--angle)) * 35%);
+  translate: calc(-50% + cos(var(--angle)) * 35%)
+    calc(-50% + sin(var(--angle)) * 35%);
   @media (hover: hover) and (pointer: fine) {
     .colorpicker:hover &,
     .colorpicker:focus-within & {
-      translate: calc(-50% + cos(var(--angle)) * 100%) calc(-50% + sin(var(--angle)) * 100%);
+      translate: calc(-50% + cos(var(--angle)) * 100%)
+        calc(-50% + sin(var(--angle)) * 100%);
     }
   }
   &:hover {
     scale: 1.4;
-    border: solid calc(var(--size-unit) * 4) oklch(from var(--swatch) 1 0 h / 55%);
+    border: solid calc(var(--size-unit) * 4)
+      oklch(from var(--swatch) 1 0 h / 55%);
     z-index: 11;
     transition: 1.3s var(--colorpicker-bounce) scale;
   }

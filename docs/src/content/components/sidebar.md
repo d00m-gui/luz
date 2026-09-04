@@ -7,6 +7,7 @@ covers:
   - list
   - list-row
 ---
+
 <div style="display: flex; align-items: flex-start">
   <input type="checkbox" id="drawer-sidebar-demo" class="drawer-toggle" checked hidden />
   <nav class="sidebar drawer-sidebar" style="--drawer-width: 12rem">

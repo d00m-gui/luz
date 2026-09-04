@@ -84,7 +84,13 @@ function splitSegments(css: string): Segment[] {
         j++;
       }
       const body = css.slice(i + 1, j - 1);
-      if (header) segments.push({ header, body, isAtRule: header.startsWith("@"), kind: "block" });
+      if (header)
+        segments.push({
+          header,
+          body,
+          isAtRule: header.startsWith("@"),
+          kind: "block",
+        });
       start = j;
       i = j - 1;
     }
@@ -98,7 +104,8 @@ function trimToPrimarySelector(css: string): string {
     .map((seg) => {
       if (seg.kind === "decl") return seg.text;
       const inner = trimToPrimarySelector(seg.body);
-      if (seg.isAtRule || seg.header.includes("&")) return `${seg.header} { ${inner} }`;
+      if (seg.isAtRule || seg.header.includes("&"))
+        return `${seg.header} { ${inner} }`;
       const primary = splitTopLevel(seg.header, ",")[0]!.trim();
       return `${primary} { ${inner} }`;
     })
@@ -130,19 +137,30 @@ function collectSelectors(css: string, out: Set<string>): void {
 }
 
 /** Bare class names, leading tag names, and `[attr="value"]`/`[attr]` tokens referenced by `selectors` — the vocabulary `covers` in components.ts matches against. */
-function bareTokens(selectors: string[]): { classes: string[]; elements: string[]; attrs: string[] } {
+function bareTokens(selectors: string[]): {
+  classes: string[];
+  elements: string[];
+  attrs: string[];
+} {
   const classes = new Set<string>();
   const elements = new Set<string>();
   const attrs = new Set<string>();
   for (const selector of selectors) {
-    for (const match of selector.matchAll(/\.([a-zA-Z][\w-]*)/g)) classes.add(match[1]!);
+    for (const match of selector.matchAll(/\.([a-zA-Z][\w-]*)/g))
+      classes.add(match[1]!);
     const tag = selector.match(/^([a-zA-Z][a-zA-Z0-9]*)/);
     if (tag) elements.add(tag[1]!);
-    for (const match of selector.matchAll(/\[([\w-]+)(?:[~|^$*]?=["']?([\w-]+)["']?)?\]/g)) {
+    for (const match of selector.matchAll(
+      /\[([\w-]+)(?:[~|^$*]?=["']?([\w-]+)["']?)?\]/g,
+    )) {
       attrs.add(match[2] ?? match[1]!);
     }
   }
-  return { classes: [...classes].sort(), elements: [...elements].sort(), attrs: [...attrs].sort() };
+  return {
+    classes: [...classes].sort(),
+    elements: [...elements].sort(),
+    attrs: [...attrs].sort(),
+  };
 }
 
 interface DesignFile {
@@ -153,9 +171,12 @@ interface DesignFile {
   attrs: string[];
 }
 
-function processCss(
-  css: string,
-): { selectors: string[]; classes: string[]; elements: string[]; attrs: string[] } {
+function processCss(css: string): {
+  selectors: string[];
+  classes: string[];
+  elements: string[];
+  attrs: string[];
+} {
   const flat = flatten(trimToPrimarySelector(css));
   const selectors = new Set<string>();
   collectSelectors(flat, selectors);
@@ -209,7 +230,10 @@ console.log(
 );
 
 function titleize(file: string): string {
-  return file.split(/[-_]/).map((w) => w[0]!.toUpperCase() + w.slice(1)).join(" ");
+  return file
+    .split(/[-_]/)
+    .map((w) => w[0]!.toUpperCase() + w.slice(1))
+    .join(" ");
 }
 
 const covered = new Set<string>();
@@ -225,17 +249,28 @@ for (const name of readdirSync(COMPONENTS_DIR)) {
 const stubs: string[] = [];
 for (const f of designFiles) {
   const tokens = [...f.classes, ...f.elements, ...f.attrs];
-  if (tokens.length > 0 && tokens.every((t) => EXEMPT_ELEMENTS.includes(t))) continue;
+  if (tokens.length > 0 && tokens.every((t) => EXEMPT_ELEMENTS.includes(t)))
+    continue;
   if (tokens.some((t) => covered.has(t))) continue;
   const outPath = join(COMPONENTS_DIR, `${f.file}.md`);
   if (existsSync(outPath)) continue;
   const frontmatter = yaml.dump(
-    { title: titleize(f.file), category: "Primitives", covers: [f.file], wip: true },
+    {
+      title: titleize(f.file),
+      category: "Primitives",
+      covers: [f.file],
+      wip: true,
+    },
     { lineWidth: -1 },
   );
-  writeFileSync(outPath, `---\n${frontmatter}---\n<!-- TODO: ejemplo de .${f.file} -->\n`);
+  writeFileSync(
+    outPath,
+    `---\n${frontmatter}---\n<!-- TODO: ejemplo de .${f.file} -->\n`,
+  );
   stubs.push(outPath);
 }
 if (stubs.length > 0) {
-  console.log(`generated ${stubs.length} doc stub(s) sin ejemplo:\n${stubs.join("\n")}`);
+  console.log(
+    `generated ${stubs.length} doc stub(s) sin ejemplo:\n${stubs.join("\n")}`,
+  );
 }

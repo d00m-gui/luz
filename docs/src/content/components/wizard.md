@@ -6,6 +6,7 @@ covers:
   - wizard-step
 span: 2
 ---
+
 <div class="wizard">
   <div class="wizard-step done">Account</div>
   <div class="wizard-step active">Details</div>

@@ -252,7 +252,9 @@ interface GLState {
 }
 
 function resolveColorVar(name: string, fallback: string): string {
-  const value = getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+  const value = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
   return value || fallback;
 }
 
@@ -278,7 +280,11 @@ function makeGL(canvas: HTMLCanvasElement): GLState | null {
   const buf = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, buf);
   // Triángulo único que cubre el viewport (-1..3), sin quad de 2 triángulos.
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  gl.bufferData(
+    gl.ARRAY_BUFFER,
+    new Float32Array([-1, -1, 3, -1, -1, 3]),
+    gl.STATIC_DRAW,
+  );
   const loc = gl.getAttribLocation(p, "aPos");
   gl.enableVertexAttribArray(loc);
   gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
@@ -291,8 +297,22 @@ function makeGL(canvas: HTMLCanvasElement): GLState | null {
   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
   const u: Record<string, WebGLUniformLocation | null> = {};
   [
-    "uTex", "uT", "uTrack", "uNoise", "uChroma", "uOpenX", "uOpenY", "uRoll",
-    "uBandY", "uBandH", "uFlash", "uBright", "uGlow", "uSnow", "uTint", "uCurve",
+    "uTex",
+    "uT",
+    "uTrack",
+    "uNoise",
+    "uChroma",
+    "uOpenX",
+    "uOpenY",
+    "uRoll",
+    "uBandY",
+    "uBandH",
+    "uFlash",
+    "uBright",
+    "uGlow",
+    "uSnow",
+    "uTint",
+    "uCurve",
   ].forEach((n) => (u[n] = gl.getUniformLocation(p, n)));
   gl.uniform1i(u.uTex, 0);
   const sig = document.createElement("canvas");
@@ -368,7 +388,11 @@ function drawSignal(
     g.globalAlpha = p.osdTrack;
     g.fillStyle = fg;
     g.fillText("TRACKING", 62, 600);
-    const x0 = 62, y = 642, seg = 22, gap = 8, n = 12;
+    const x0 = 62,
+      y = 642,
+      seg = 22,
+      gap = 8,
+      n = 12;
     for (let i = 0; i < n; i++) {
       const on = i < Math.round(p.trackBar * n);
       g.globalAlpha = p.osdTrack * (on ? 1 : 0.22);
@@ -392,40 +416,136 @@ const ip = (T: number, xs: number[], ys: number[], e?: EaseFn) =>
 function params(T: number): Params {
   const C = CUES;
   const off = TOTAL - 0.55; // apagado, seam negro del loop
-  const track = ip(T,
-    [C.Estatica, C.Tracking, C.Tracking + 1.4, C.Enganche + 0.5, C.Reposo + 0.8, C.Reposo + 1.0, C.Reposo + 1.25, off],
-    [1.0, 0.92, 0.45, 0.06, 0.03, 0.34, 0.02, 0.35]);
+  const track = ip(
+    T,
+    [
+      C.Estatica,
+      C.Tracking,
+      C.Tracking + 1.4,
+      C.Enganche + 0.5,
+      C.Reposo + 0.8,
+      C.Reposo + 1.0,
+      C.Reposo + 1.25,
+      off,
+    ],
+    [1.0, 0.92, 0.45, 0.06, 0.03, 0.34, 0.02, 0.35],
+  );
   const roll = interpolate(
-    [0, C.Estatica, C.Estatica + 0.9, C.Tracking, C.Tracking + 0.8, C.Tracking + 1.6, C.Enganche, C.Enganche + 0.45, C.Enganche + 0.9, TOTAL],
-    [0, 0.55, 1.45, 2.05, 2.60, 2.93, 3.06, 3.13, 3.0, 3.0],
-    Easing.linear)(T);
+    [
+      0,
+      C.Estatica,
+      C.Estatica + 0.9,
+      C.Tracking,
+      C.Tracking + 0.8,
+      C.Tracking + 1.6,
+      C.Enganche,
+      C.Enganche + 0.45,
+      C.Enganche + 0.9,
+      TOTAL,
+    ],
+    [0, 0.55, 1.45, 2.05, 2.6, 2.93, 3.06, 3.13, 3.0, 3.0],
+    Easing.linear,
+  )(T);
   const lock = clamp((T - C.Enganche) / 1.1, 0, 1);
   const gx = OPT.glitch;
   return {
     track: track * gx,
     roll,
-    noise: ip(T, [0, C.Estatica, C.Enganche, C.Reposo, off, off + 0.2], [0.4, 0.5, 0.12, 0.07, 0.07, 0.14]),
-    snow: gx * ip(T, [C.Encendido + 0.4, C.Estatica, C.Tracking + 1.2, C.Enganche + 0.7, off - 0.15, off + 0.1], [0.75, 0.6, 0.24, 0.035, 0.035, 0.12]),
-    chroma: ip(T, [C.Estatica, C.Enganche, C.Enganche + 1.0], [0.014, 0.010, 0.0018]) * (0.4 + 0.6 * gx),
-    openX: ip(T, [0.06, 0.3], [0.0, 1.0], Easing.easeOutQuart) * (T < off ? 1 : ip(T, [off + 0.28, TOTAL - 0.02], [1, 0.0], Easing.easeInQuart)),
-    openY: T < off
-      ? ip(T, [0.12, 0.3, 0.62, 1.35], [0.0, 0.010, 0.010, 1.0], Easing.easeOutCubic)
-      : ip(T, [off, off + 0.26], [1.0, 0.006], Easing.easeInQuart),
-    flash: ip(T, [0.08, 0.2, 0.5], [0.0, 0.5, 0.0], Easing.easeOutQuad)
-      + ip(T, [C.Enganche - 0.06, C.Enganche + 0.05, C.Enganche + 0.5], [0, 0.32, 0], Easing.easeOutQuad)
-      + (T > off ? ip(T, [off + 0.1, off + 0.28, off + 0.45], [0, 0.85, 0.0], Easing.easeOutQuad) : 0),
-    bright: ip(T, [0, 0.1, 0.6, C.Enganche, C.Enganche + 0.8], [0, 0.85, 1.0, 1.0, 1.12]),
-    glow: ip(T, [C.Estatica, C.Enganche, C.Enganche + 0.9, TOTAL], [0.12, 0.25, 0.85, 0.7])
-      + Math.sin(T * 1.7) * 0.03 * lock,
+    noise: ip(
+      T,
+      [0, C.Estatica, C.Enganche, C.Reposo, off, off + 0.2],
+      [0.4, 0.5, 0.12, 0.07, 0.07, 0.14],
+    ),
+    snow:
+      gx *
+      ip(
+        T,
+        [
+          C.Encendido + 0.4,
+          C.Estatica,
+          C.Tracking + 1.2,
+          C.Enganche + 0.7,
+          off - 0.15,
+          off + 0.1,
+        ],
+        [0.75, 0.6, 0.24, 0.035, 0.035, 0.12],
+      ),
+    chroma:
+      ip(T, [C.Estatica, C.Enganche, C.Enganche + 1.0], [0.014, 0.01, 0.0018]) *
+      (0.4 + 0.6 * gx),
+    openX:
+      ip(T, [0.06, 0.3], [0.0, 1.0], Easing.easeOutQuart) *
+      (T < off
+        ? 1
+        : ip(T, [off + 0.28, TOTAL - 0.02], [1, 0.0], Easing.easeInQuart)),
+    openY:
+      T < off
+        ? ip(
+            T,
+            [0.12, 0.3, 0.62, 1.35],
+            [0.0, 0.01, 0.01, 1.0],
+            Easing.easeOutCubic,
+          )
+        : ip(T, [off, off + 0.26], [1.0, 0.006], Easing.easeInQuart),
+    flash:
+      ip(T, [0.08, 0.2, 0.5], [0.0, 0.5, 0.0], Easing.easeOutQuad) +
+      ip(
+        T,
+        [C.Enganche - 0.06, C.Enganche + 0.05, C.Enganche + 0.5],
+        [0, 0.32, 0],
+        Easing.easeOutQuad,
+      ) +
+      (T > off
+        ? ip(
+            T,
+            [off + 0.1, off + 0.28, off + 0.45],
+            [0, 0.85, 0.0],
+            Easing.easeOutQuad,
+          )
+        : 0),
+    bright: ip(
+      T,
+      [0, 0.1, 0.6, C.Enganche, C.Enganche + 0.8],
+      [0, 0.85, 1.0, 1.0, 1.12],
+    ),
+    glow:
+      ip(
+        T,
+        [C.Estatica, C.Enganche, C.Enganche + 0.9, TOTAL],
+        [0.12, 0.25, 0.85, 0.7],
+      ) +
+      Math.sin(T * 1.7) * 0.03 * lock,
     bandY: (((0.82 - T * 0.33) % 1) + 1) % 1,
-    bandH: ip(T, [C.Estatica, C.Tracking + 1.2, C.Enganche + 0.6], [0.17, 0.09, 0.004]),
-    logoAlpha: ip(T, [C.Estatica - 0.3, C.Estatica + 0.4, C.Tracking + 0.9, C.Enganche + 0.6], [0, 0.45, 0.8, 1]),
+    bandH: ip(
+      T,
+      [C.Estatica, C.Tracking + 1.2, C.Enganche + 0.6],
+      [0.17, 0.09, 0.004],
+    ),
+    logoAlpha: ip(
+      T,
+      [C.Estatica - 0.3, C.Estatica + 0.4, C.Tracking + 0.9, C.Enganche + 0.6],
+      [0, 0.45, 0.8, 1],
+    ),
     logoScale: 1 + 0.055 * (1 - lock) + 0.012 * Math.sin(T * 0.9),
     logoDx: (1 - lock) * 26 * Math.sin(T * 2.3),
     logoDy: 0,
     logoReveal: 1,
-    osdPlay: (OPT.osd ? 1 : 0) * ip(T, [C.Estatica - 0.4, C.Estatica + 0.2], [0, 1]) * (Math.floor(T * 2) % 8 === 7 ? 0.35 : 1),
-    osdTrack: (OPT.osd ? 1 : 0) * ip(T, [C.Tracking - 0.25, C.Tracking + 0.15, C.Enganche + 0.55, C.Enganche + 0.9], [0, 1, 1, 0]),
+    osdPlay:
+      (OPT.osd ? 1 : 0) *
+      ip(T, [C.Estatica - 0.4, C.Estatica + 0.2], [0, 1]) *
+      (Math.floor(T * 2) % 8 === 7 ? 0.35 : 1),
+    osdTrack:
+      (OPT.osd ? 1 : 0) *
+      ip(
+        T,
+        [
+          C.Tracking - 0.25,
+          C.Tracking + 0.15,
+          C.Enganche + 0.55,
+          C.Enganche + 0.9,
+        ],
+        [0, 1, 1, 0],
+      ),
     trackBar: clamp((T - C.Tracking) / (C.Enganche - C.Tracking), 0, 1),
     stamp: "0:" + String(Math.floor(T + 12)).padStart(2, "0"),
   };
@@ -449,7 +569,12 @@ const DOCK_Y = 60;
  */
 function transitionParams(t: number): Params {
   return {
-    track: tp(t, [0, 0.28, 0.55, 1], [0.85, 0.5, 0.05, 0.02], Easing.easeOutQuad),
+    track: tp(
+      t,
+      [0, 0.28, 0.55, 1],
+      [0.85, 0.5, 0.05, 0.02],
+      Easing.easeOutQuad,
+    ),
     roll: 0, // logo/texto quietos — sin barrido vertical
     noise: tp(t, [0, 0.3, 0.6, 1], [0.35, 0.22, 0.06, 0.02]),
     snow: tp(t, [0, 0.25, 0.55, 1], [0.45, 0.28, 0.04, 0.02]),
@@ -523,7 +648,14 @@ function drawFrame(
     P.osdTrack = 0;
   }
   // Redibuja la señal en el canvas 2D y la sube como textura del frame actual.
-  drawSignal(s.sigCtx, s.logo, P, s.bg, s.fg, timing.showLogo ? sectionName : undefined);
+  drawSignal(
+    s.sigCtx,
+    s.logo,
+    P,
+    s.bg,
+    s.fg,
+    timing.showLogo ? sectionName : undefined,
+  );
   const { gl, u } = s;
   gl.viewport(0, 0, canvas.width, canvas.height);
   gl.bindTexture(gl.TEXTURE_2D, s.tex);
@@ -618,7 +750,12 @@ export interface CrtIntroProps {
   onDone?: () => void;
 }
 
-export function CrtIntro({ mode, sectionName, hue = "neutral", onDone }: CrtIntroProps) {
+export function CrtIntro({
+  mode,
+  sectionName,
+  hue = "neutral",
+  onDone,
+}: CrtIntroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const overlayRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef<GLState | null>(null);
@@ -652,7 +789,10 @@ export function CrtIntro({ mode, sectionName, hue = "neutral", onDone }: CrtIntr
     }, timing.exitMs);
   };
 
-  const frameAt = (T: number, t01: number): [Params, readonly [number, number, number]] =>
+  const frameAt = (
+    T: number,
+    t01: number,
+  ): [Params, readonly [number, number, number]] =>
     mode === "intro"
       ? [params(T), PHOSPHOR[OPT.phosphor] || PHOSPHOR.cian]
       : [transitionParams(t01), sampleSectionTint(hue, t01)];
@@ -668,7 +808,16 @@ export function CrtIntro({ mode, sectionName, hue = "neutral", onDone }: CrtIntr
     const cv = canvasRef.current;
     if (s && cv) {
       const [P, tint] = frameAt(timing.maxVirtualT, 1);
-      drawFrame(s, cv, P, timing.maxVirtualT, tint, timing, curveAmount, sectionName);
+      drawFrame(
+        s,
+        cv,
+        P,
+        timing.maxVirtualT,
+        tint,
+        timing,
+        curveAmount,
+        sectionName,
+      );
     }
     finish();
   };
@@ -685,8 +834,11 @@ export function CrtIntro({ mode, sectionName, hue = "neutral", onDone }: CrtIntr
       if (s && s.gl) {
         const el = (performance.now() - t0) / 1000;
         const T =
-          mode === "intro" ? Math.min(timing.virtualOffset + el, timing.maxVirtualT) : el;
-        const t01 = mode === "intro" ? 0 : clamp(el / TRANSITION_DURATION_S, 0, 1);
+          mode === "intro"
+            ? Math.min(timing.virtualOffset + el, timing.maxVirtualT)
+            : el;
+        const t01 =
+          mode === "intro" ? 0 : clamp(el / TRANSITION_DURATION_S, 0, 1);
         const [P, tint] = frameAt(T, t01);
         drawFrame(s, cv, P, T, tint, timing, curveAmount, sectionName);
         // "transition": crossfade progresivo — la página real (ya swapeada
@@ -694,7 +846,9 @@ export function CrtIntro({ mode, sectionName, hue = "neutral", onDone }: CrtIntr
         // no recién en el fade final. Mutación directa del DOM, no React
         // state — evita re-render por frame.
         if (mode === "transition" && overlayRef.current) {
-          overlayRef.current.style.opacity = String(tp(t01, [0, 0.35, 1], [1, 1, 0]));
+          overlayRef.current.style.opacity = String(
+            tp(t01, [0, 0.35, 1], [1, 1, 0]),
+          );
         }
         if (el >= timing.triggerSeconds) {
           finish();
@@ -724,7 +878,12 @@ export function CrtIntro({ mode, sectionName, hue = "neutral", onDone }: CrtIntr
   };
 
   return (
-    <div ref={overlayRef} style={overlayStyle} onClick={skip} aria-label="Intro luz">
+    <div
+      ref={overlayRef}
+      style={overlayStyle}
+      onClick={skip}
+      aria-label="Intro luz"
+    >
       {mode === "intro" && (
         <div
           style={{

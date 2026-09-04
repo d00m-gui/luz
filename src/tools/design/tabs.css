@@ -13,7 +13,8 @@
 .tab {
   display: flex;
   align-items: center;
-  padding: calc(var(--space-3) * var(--density, 1)) calc(var(--space-5) * var(--density, 1));
+  padding: calc(var(--space-3) * var(--density, 1))
+    calc(var(--space-5) * var(--density, 1));
   cursor: pointer;
   color: var(--on-tab);
   text-decoration: none;
@@ -81,7 +82,8 @@
 .tabs.pagination {
   border-bottom: none;
   .tab {
-    padding: calc(var(--space-2) * var(--density, 1)) calc(var(--space-4) * var(--density, 1));
+    padding: calc(var(--space-2) * var(--density, 1))
+      calc(var(--space-4) * var(--density, 1));
     border: var(--border-width) solid var(--element-border-color);
     border-radius: var(--border-radius);
     color: var(--foreground);

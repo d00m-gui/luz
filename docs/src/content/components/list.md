@@ -87,6 +87,7 @@ variants:
         <div class="list-row"><i class="icon nf nf-fa-file_text_o"></i><span class="list-col-grow">package.json</span></div>
       </div>
 ---
+
 <div class="list">
   <div class="list-row">
     <span class="avatar sm">AB</span>

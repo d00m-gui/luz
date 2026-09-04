@@ -4,6 +4,7 @@ category: Overlays
 covers:
   - alert
 ---
+
 <div class="alert">Default alert</div>
 <div class="alert success">Changes saved</div>
 <div class="alert danger">Something went wrong</div>

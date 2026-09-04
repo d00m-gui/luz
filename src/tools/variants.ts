@@ -30,5 +30,7 @@ export function resolveVariant(name: string): string | undefined {
   const match = name.match(ARBITRARY_ATTR_RE);
   if (!match) return undefined;
   const [, prefix, attr, value] = match;
-  return value === undefined ? `[${prefix}-${attr}]` : `[${prefix}-${attr}="${value}"]`;
+  return value === undefined
+    ? `[${prefix}-${attr}]`
+    : `[${prefix}-${attr}="${value}"]`;
 }

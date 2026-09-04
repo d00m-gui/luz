@@ -16,7 +16,11 @@
     border-top: var(--border-width) solid var(--element-border-color);
   }
   &.glass {
-    background-color: color-mix(in oklch, var(--element-background) 60%, transparent);
+    background-color: color-mix(
+      in oklch,
+      var(--element-background) 60%,
+      transparent
+    );
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }

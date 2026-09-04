@@ -1,4 +1,3 @@
-
 .layout {
   --toolbar-height: var(--space-14);
   display: flex;
@@ -34,7 +33,7 @@
   h4 {
     position: relative;
     top: -1.5ch;
-    scale: 0.60;
+    scale: 0.6;
   }
 }
 
@@ -143,12 +142,11 @@
   margin-bottom: 0;
 }
 
-
 .swatch-row {
   display: flex;
   align-items: center;
   position: relative;
-  gap:  var(--space-1);
+  gap: var(--space-1);
   margin-bottom: var(--space-1);
 }
 
@@ -178,7 +176,11 @@
 
 .swatch,
 .swatch-row-label {
-  --current-color: oklch(from var(--current-bg) clamp(0.12, calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000), 0.92) calc(c * 0.08) h);
+  --current-color: oklch(
+    from var(--current-bg)
+      clamp(0.12, calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000), 0.92)
+      calc(c * 0.08) h
+  );
 }
 
 .swatch[data-gamut="p3"]::after,
@@ -313,8 +315,9 @@
   gap: var(--space-4);
   padding: var(--space-5);
   margin: 0 0 var(--space-5);
-  background: var(--neutral-900);
-  &.button-preview, &.toast-preview {
+  background: var(--element-background);
+  &.button-preview,
+  &.toast-preview {
     display: flex;
     flex-wrap: wrap;
   }

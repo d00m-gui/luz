@@ -8,7 +8,7 @@ luz doesn't try to be a full Tailwind replacement, and it doesn't try to be a co
 
 1. **Classless** — plain semantic HTML, styled by luz's own reset. No classes needed.
 2. **Utility classes** — a small, closed set of Tailwind-shaped classes (`p-4`, `bg-primary-600`, `rounded`), generated at build time from your project's actual source, with zero arbitrary values and zero runtime JS.
-3. **A small curated set of common patterns** — badge, alert, card, avatar, tabs, accordion, modal, breadcrumbs, skeleton. Pure CSS classes on plain HTML, zero JS, generated from your tokens instead of shipped as a fixed theme — the interactivity that needs *some* state (tabs, accordion, modal) leans on native HTML (radio inputs, `<details>`, `<dialog>`) rather than a JS framework.
+3. **A small curated set of common patterns** — badge, alert, card, avatar, tabs, accordion, modal, breadcrumbs, skeleton. Pure CSS classes on plain HTML, zero JS, generated from your tokens instead of shipped as a fixed theme — the interactivity that needs _some_ state (tabs, accordion, modal) leans on native HTML (radio inputs, `<details>`, `<dialog>`) rather than a JS framework.
 4. **Unstyled behavior primitives** ([Base UI](https://base-ui.com)/[Radix](https://radix-ui.com), or component kits built on them) for the handful of things CSS genuinely can't do — a combobox with real collision detection, a date picker, complex keyboard navigation. luz's own utility/pattern classes style them; the primitive only supplies behavior, not its own theming.
 
 ## Features

@@ -57,6 +57,7 @@ variants:
         <i class="icon nf nf-fa-check_circle"></i> Saved successfully
       </div>
 ---
+
 <button popovertarget="toast" class="success">Show toast</button>
 <div id="toast" popover class="toast success"><i class="icon nf nf-fa-check_circle"></i> Saved successfully</div>
 

@@ -7,6 +7,7 @@ covers:
   - stat-label
   - stat-delta
 ---
+
 <div class="stat">
   <span class="stat-label">Revenue</span>
   <span class="stat-value">$12.4k</span>

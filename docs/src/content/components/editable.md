@@ -4,6 +4,7 @@ category: Primitives
 covers:
   - card
 ---
+
 <div class="card">
   <div class="card-title" style="display: flex; align-items: center; justify-content: space-between; gap: var(--space-2)">
     Notes

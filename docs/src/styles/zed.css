@@ -101,7 +101,6 @@
   width: 100%;
   border-collapse: collapse;
   font-family: var(--font-monospace);
-
 }
 
 .props-table th,
@@ -116,7 +115,6 @@
   color: var(--neutral-500);
   font-weight: var(--font-weight);
   text-transform: uppercase;
-
 }
 
 .props-table pre {

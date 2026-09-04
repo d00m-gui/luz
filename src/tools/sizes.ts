@@ -80,7 +80,9 @@ export function luzTypeLandmarks(
     const minSize = anchorRem * ratio ** n;
     const maxSize = anchorRem * ratio ** (n + range);
     landmarks[`font-size-${name}`] = withDensity(`${minSize.toFixed(3)}rem`);
-    landmarks[`font-size-${name}-fluid`] = withDensity(generateFluidTagSize(minSize, maxSize));
+    landmarks[`font-size-${name}-fluid`] = withDensity(
+      generateFluidTagSize(minSize, maxSize),
+    );
   }
   return landmarks;
 }
@@ -116,7 +118,9 @@ export function luzTextScale(
     const minSize = anchorRem * ratio ** n;
     const maxSize = anchorRem * ratio ** (n + range);
     textSizes[`font-size-${name}`] = withDensity(`${minSize.toFixed(3)}rem`);
-    textSizes[`font-size-${name}-fluid`] = withDensity(generateFluidTagSize(minSize, maxSize));
+    textSizes[`font-size-${name}-fluid`] = withDensity(
+      generateFluidTagSize(minSize, maxSize),
+    );
   }
   return textSizes;
 }
@@ -135,11 +139,14 @@ export function luzSizes(
     "border-width": `${(base / 128).toFixed(1)}rem`,
     spacing: `${((base / 10) * 3).toFixed(0)}vw`,
     "element-vertical": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
-    "element-horizontal": `calc(${(base / 24).toFixed(3)}rem * var(--density, 1))`
+    "element-horizontal": `calc(${(base / 24).toFixed(3)}rem * var(--density, 1))`,
   };
 }
 
-export function luzSpace(base: number, steps: number = 24): Record<string, string> {
+export function luzSpace(
+  base: number,
+  steps: number = 24,
+): Record<string, string> {
   const unit = base / 64;
   const spaceTokens: Record<string, string> = {};
   for (let i = 1; i <= steps; i++) {

@@ -1,3 +1,27 @@
-:where(.btn, .button, [role="button"], [type="button"], [type="file"]::file-selector-button, [type="reset"], [type="submit"], button, .badge, .card, .solid, .alert) {
-  --current-color: var(--on-scheme, oklch(from var(--current-bg) clamp(0.12, calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000), 0.92) calc(c * 0.08) h));
+:where(
+  .btn,
+  .button,
+  [role="button"],
+  [type="button"],
+  [type="file"]::file-selector-button,
+  [type="reset"],
+  [type="submit"],
+  button,
+  .badge,
+  .card,
+  .solid,
+  .alert
+) {
+  --current-color: var(
+    --on-scheme,
+    oklch(
+      from var(--current-bg)
+        clamp(
+          0.12,
+          calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000),
+          0.92
+        )
+        calc(c * 0.08) h
+    )
+  );
 }

@@ -32,6 +32,7 @@ variants:
         <span>v0.1.0</span>
       </div>
 ---
+
 <div class="panel-header">
   <span class="panel-header-title">Panel header</span>
   <button class="ghost">Action</button>

@@ -11,6 +11,7 @@ variants:
       <button class="badge success">Success</button>
       <button class="badge danger">Remove ×</button>
 ---
+
 <span class="badge">Default</span>
 <span class="badge success">Success</span>
 <span class="badge danger">Danger</span>

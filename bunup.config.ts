@@ -1,7 +1,7 @@
 import { defineConfig } from "bunup";
 import { copy, exports, unused } from "bunup/plugins";
 
-const staticCss = ["reset.css", "structure.css", "design.css"];
+const staticCss = ["reset.css", "design.css"];
 
 export default defineConfig({
   plugins: [

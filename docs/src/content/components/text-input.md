@@ -6,6 +6,7 @@ covers:
   - textarea
   - select
 ---
+
 <label>
   Text input
   <input type="text" placeholder="Type here" />

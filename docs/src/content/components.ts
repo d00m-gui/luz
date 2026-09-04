@@ -57,7 +57,8 @@ export async function loadComponents() {
   const covered = new Set(components.flatMap((c) => c.covers));
   const uncoveredFiles = DESIGN_FILES.filter((f) => {
     const tokens = [...f.classes, ...f.elements, ...f.attrs];
-    if (tokens.length > 0 && tokens.every((t) => EXEMPT_ELEMENTS.includes(t))) return false;
+    if (tokens.length > 0 && tokens.every((t) => EXEMPT_ELEMENTS.includes(t)))
+      return false;
     return !tokens.some((t) => covered.has(t));
   }).map((f) => f.file);
 

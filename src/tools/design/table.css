@@ -4,7 +4,8 @@ table {
   width: 100%;
   margin: calc(var(--size-unit) * 8) 0;
   & th {
-    padding: calc(var(--space-2) * var(--density, 1)) calc(var(--space-3) * var(--density, 1));
+    padding: calc(var(--space-2) * var(--density, 1))
+      calc(var(--space-3) * var(--density, 1));
     text-align: left;
     font-weight: var(--font-bold-weight);
     font-size: var(--font-size-small);
@@ -12,7 +13,8 @@ table {
     letter-spacing: 0.08em;
   }
   & td {
-    padding: calc(var(--space-2) * var(--density, 1)) calc(var(--space-3) * var(--density, 1));
+    padding: calc(var(--space-2) * var(--density, 1))
+      calc(var(--space-3) * var(--density, 1));
   }
   @media (hover: hover) and (pointer: fine) {
     & tr:hover {

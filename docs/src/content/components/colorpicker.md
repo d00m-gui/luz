@@ -8,6 +8,7 @@ covers:
   - colorpicker-swatch
   - colorpicker-ring
 ---
+
 <div class="colorpicker" style="--n: 12">
   <div class="colorpicker-bg"></div>
   <input type="radio" name="cp-demo" id="cp-red" class="colorpicker-input" style="--i: 0" checked />

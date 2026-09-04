@@ -56,6 +56,7 @@ variants:
         <a class="tab">Profile</a>
       </nav>
 ---
+
 <div class="tabs">
   <input class="tab-input" type="radio" name="ks-tabs" id="ks-tab-a" checked />
   <label class="tab" for="ks-tab-a">Overview</label>

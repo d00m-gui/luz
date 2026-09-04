@@ -7,6 +7,7 @@ covers:
   - label
 span: 2
 ---
+
 <form>
   <fieldset>
     <legend>Shipping address</legend>

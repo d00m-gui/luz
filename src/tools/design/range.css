@@ -6,7 +6,8 @@ input[type="range"] {
   transition-property: background-color, box-shadow;
   background-color: var(--range-track-bg);
   background-image: var(--range-ticks, none);
-  box-shadow: 0 0 calc(var(--size-unit) * var(--density, 1)) var(--range-track-shadow) inset;
+  box-shadow: 0 0 calc(var(--size-unit) * var(--density, 1))
+    var(--range-track-shadow) inset;
   &[display-vertical] {
     height: auto;
     width: calc(var(--size-unit) * 10 * var(--density, 1));
@@ -53,8 +54,7 @@ input[type="range"] {
   }
   &::-webkit-slider-thumb {
     appearance: none;
-    box-shadow: inset 0 0 0 var(--border-width)
-      var(--range-thumb-active-bg);
+    box-shadow: inset 0 0 0 var(--border-width) var(--range-thumb-active-bg);
     height: calc(var(--size-unit) * 10 * var(--density, 1));
     width: calc(var(--size-unit) * 10 * var(--density, 1));
     background: var(--range-thumb-active-bg);
@@ -66,8 +66,7 @@ input[type="range"] {
   }
   &::-moz-range-thumb {
     appearance: none;
-    box-shadow: inset 0 0 0 var(--border-width)
-      var(--range-thumb-active-bg);
+    box-shadow: inset 0 0 0 var(--border-width) var(--range-thumb-active-bg);
     height: calc(var(--size-unit) * 10 * var(--density, 1));
     width: calc(var(--size-unit) * 10 * var(--density, 1));
     background: var(--range-thumb-active-bg);

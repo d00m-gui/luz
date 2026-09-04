@@ -6,6 +6,7 @@ covers:
   - radio
   - switch
 ---
+
 <label><input type="checkbox" checked /> Checkbox</label>
 <label><input type="checkbox" role="switch" checked /> Switch</label>
 <label><input type="radio" name="ks-radio" checked /> Radio A</label>

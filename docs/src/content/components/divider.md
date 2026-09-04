@@ -4,6 +4,7 @@ category: Primitives
 covers:
   - hr
 ---
+
 <p>Content above</p>
 <hr />
 <p>Content below</p>

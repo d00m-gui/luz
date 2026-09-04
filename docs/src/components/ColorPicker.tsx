@@ -30,7 +30,10 @@ export function ColorPicker() {
   if (!ready) return null;
 
   return (
-    <div className="colorpicker" style={{ "--n": PRESETS.length } as CSSProperties}>
+    <div
+      className="colorpicker"
+      style={{ "--n": PRESETS.length } as CSSProperties}
+    >
       <div className="colorpicker-bg" />
       {PRESETS.map(({ name, color }, i) => (
         <Fragment key={name}>

@@ -16,6 +16,7 @@ variants:
     html: |-
       <input type="range" min="0" max="100" step="25" display-vertical data-ticks style="--range-steps: 4; height: 8rem" />
 ---
+
 <label>
   Range
   <input type="range" />

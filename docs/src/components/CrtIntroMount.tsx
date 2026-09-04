@@ -35,7 +35,8 @@ export function CrtIntroMount() {
 
   useEffect(() => {
     const onBeforeSwap = (event: Event) => {
-      const newDocument = (event as Event & { newDocument?: Document }).newDocument;
+      const newDocument = (event as Event & { newDocument?: Document })
+        .newDocument;
       const title = newDocument?.title.replace(TITLE_SUFFIX_RE, "").trim();
       const hue = newDocument?.documentElement.dataset.hue;
       setSectionName(title || undefined);
@@ -47,7 +48,8 @@ export function CrtIntroMount() {
       });
     };
     document.addEventListener("astro:before-swap", onBeforeSwap);
-    return () => document.removeEventListener("astro:before-swap", onBeforeSwap);
+    return () =>
+      document.removeEventListener("astro:before-swap", onBeforeSwap);
   }, []);
 
   return (

@@ -28,6 +28,7 @@ variants:
         <p>Card also takes the shared scheme classes, same as .btn/.badge/.alert.</p>
       </div>
 ---
+
 <div class="card">
   <div class="card-title">Card title</div>
   <p>Card content goes here.</p>

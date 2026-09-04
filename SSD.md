@@ -9,11 +9,12 @@ es la foto de "cómo está armado y por qué".
 
 Librería CSS-in-TypeScript de theming. Recibe un color `primary` (y config
 opcional) y devuelve tokens estructurados + CSS ya armado: paleta oklch
-50–950, secundario derivado, neutral, rueda de 10 hues, dos escalas
-numéricas (`size-N` tipográfica exponencial, `space-N` lineal), reset
-classless, motor de utility classes al estilo Tailwind (cerrado, sin valores
-arbitrarios) y un bridge de alias para consumir esos tokens desde
-componentes shadcn/ui (variante Base UI).
+50–950 con gamut real por shade (baked en build time, ver más abajo),
+secundario/terciario/cuaternario derivados por armonía, neutral, rueda de
+12 hues, dos escalas numéricas (`size-N` tipográfica exponencial, `space-N`
+lineal), reset classless, motor de utility classes al estilo Tailwind
+(cerrado, sin valores arbitrarios) y un bridge de alias para consumir esos
+tokens desde componentes shadcn/ui (variante Base UI).
 
 No es un reemplazo de Tailwind ni mantiene una librería de componentes
 propia — ver `README.md` para el pitch de producto.
@@ -25,13 +26,16 @@ src/
   luz.ts              orquestador: config → tokens → CSS string
   index.ts             entry pública (re-exports)
   tools/
-    constants.ts        curvas de shade (WEIGHTS/SHADES/SHADES_REVERSE) — datos puros
-    reset.css/design.css   las 2 capas del reset, CSS real (design.css es manifest de design/*.css, 1 archivo por componente)
-    hue.ts               luzShadesByHue: 1 hue base → N shades oklch (50–950 garantizados + steps custom)
-    wheel.ts             luzWheel: 10 hues (red…sky), l heredada de primary (armonía), seed overrideable, vía luzShadesByHue
-    sizes.ts             luzSizes/luzSpace/luzTypeLandmarks: size-N, space-N, font-size-h1..h6/small fijos
+    constants.ts        curvas de shade (WEIGHTS) — datos puros
+    reset.css            capa RESET: normalize genérico, no-por-componente
+    design.css            manifest de @import de design/*.css (1 archivo por componente, 49 hoy)
+    design/*.css          un archivo self-contained por componente (reset+layout+color+estados juntos)
+    reset.ts              buildReset(): RESET + COMPONENTS desde reset-css.generated.ts
+    gamut.ts              parseColorToOklch/clampToSrgb/formatOklch: color literal → OKLCH numérico, gamut-mapeo real (binary search) contra sRGB
+    hue.ts                luzShadesByHue: 1 seed → N shades oklch (50–950 garantizados + steps custom); baked (gamut.ts) o live (calc()) según si el seed parsea
+    wheel.ts             luzWheel: 12 hues (red…pink), l heredada de primary (armonía), seed overrideable, vía luzShadesByHue
+    sizes.ts             luzSizes/luzSpace/luzTypeLandmarks/luzTextScale: size-N, space-N, font-size-h1..h6/small/xs..3xl
     props.ts             luzProperty: infiere @property por token (syntax/initial-value) — opt-in
-    reset.ts             buildReset(): compone RESET + COMPONENTS desde reset-css.generated.ts
     shade-fallback.ts    var(--x-500) → var(--x-500, var(--x)) para paletas custom incompletas
     shadcn-bridge.ts     shadcnBridgeCSS: alias de tokens shadcn ← tokens luz
     utilities.ts         registry de utility classes + scan + emisión de CSS
@@ -42,6 +46,11 @@ src/
   vite/index.ts          plugin Vite (luzVite)
 ```
 
+`scripts/generate-reset.ts` (`bun run gen:reset`) resuelve `reset.css`/
+`design.css` (con sus `@import` de `design/*.css`) y escribe
+`src/tools/reset-css.generated.ts` — ver "`reset.ts`" más abajo para el
+porqué.
+
 ## Flujo de datos
 
 ```
@@ -49,11 +58,14 @@ LuzConfig
    │
    ▼
 luz(config)                         src/luz.ts
-   ├─ buildColors()  ── luzShadesByHue ×3 (primary/secondary/neutral)
-   │                 └─ luzWheel        (10 hues fijos)
-   ├─ luzSizes()/luzSpace()           escalas size-N / space-N
-   ├─ themeVariables()                 alias semánticos (btn-*, kbd-*, ...)
-   └─ luzProperty(tokens)              @property inferidas
+   ├─ parseColorToOklch(primary)      seed numérico si primary es un literal parseable (gamut.ts)
+   ├─ buildColors(reverse)  ── luzShadesByHue ×5 (primary/secondary/tertiary?/quaternary?/neutral)
+   │                        ├─ luzWheel           (12 hues fijos)
+   │                        └─ scheme-*/anchor-*  chromaScaledEntry: peso (resolveSchemeWeight) × chroma (schemeChroma/0.6)
+   │        (llamado 2 veces + mergeLightDark si mode: "auto")
+   ├─ luzSizes()/luzSpace()/luzTextScale()/luzTypeLandmarks()   escalas size-N / space-N / font-size-*
+   ├─ themeVariables(tokens)           alias semánticos (btn-bg, kbd-*, ... — casi todos vía scheme-primary)
+   └─ luzProperty(tokens)              @property inferidas (opt-in)
         │
         ▼
    { tokens, variables, properties, style }
@@ -82,12 +94,13 @@ Implementado para el core de `luz()` (`variables`/`style`); todavía no
 alcanza al bridge de shadcn ni al motor de utility classes.
 
 **Dos mecanismos, según si hay derivación o no:**
+
 - **Seeds** (`primary`, `secondary`, los 10 wheel hues) — el usuario define
   un color base, luz deriva el resto (rampa `-50…950`) vía
   `oklch(from var(--{name}-seed) ...)`. No son overrides de valor final:
-  cambian el *input* de un cálculo que sigue corriendo.
+  cambian el _input_ de un cálculo que sigue corriendo.
 - **`vars`** (`LuzConfig.vars: Record<string, string | number>`) — override
-  de *valor final*, sin derivación posible. Se mergea **al final** de
+  de _valor final_, sin derivación posible. Se mergea **al final** de
   `variables` en `luz()`, después de colors + sizes + typography +
   `themeVariables()` — pisa cualquier token existente por nombre
   (`{ "primary-500": "..." }`, `{ "btn-bg": "..." }`) o agrega uno nuevo si
@@ -121,13 +134,14 @@ la mayoría de esos tokens desaparecía. `docs/luz.config.ts` con
 `colorSteps: 3, sizeSteps: 5` es el repro que destapó esto.
 
 **Fix — dos mecanismos, `luz()`/adaptadores sin cambios:**
+
 - **Colores** (`hue.ts`): `luzShadesByHue` ahora genera **siempre** los 11
   pesos default (50–950), sin importar `steps` — es lo que garantiza que
   `--primary-500`, `--red-500`, etc. existan siempre. Si `steps` difiere de
   11, se agrega un set adicional resampleado (más o menos resolución para
   la escala pública `bg-primary-N`), nunca lo reemplaza. `luzWheel` hereda
   la garantía gratis (usa `luzShadesByHue` internamente) — no se tocó.
-  Efecto secundario a tener presente: `colorSteps` ya no puede *reducir*
+  Efecto secundario a tener presente: `colorSteps` ya no puede _reducir_
   el total de shades por debajo de 11 — solo puede agregar más.
 - **Sizes** (`sizes.ts`): nuevo `luzTypeLandmarks()` — 7 tokens siempre
   presentes (`font-size-small`, `h6`…`h1`), en rungs consecutivos 0-6 desde
@@ -210,6 +224,7 @@ más común (sin fluidez) y (b) mezclaba dos decisiones independientes:
 confundibles al leer el output.
 
 **Solución — dos capas**:
+
 - `luzTypeLandmarks()`/`luzTextScale()` (`tools/sizes.ts`) ahora emiten
   **dos** tokens por nivel: `font-size-{name}` (`rem` plano, el valor
   nominal — lo que usa `<h1>`-`<h6>` en `structure.css` por default, sin
@@ -236,7 +251,7 @@ como se veían antes del cambio, sin regresión visual).
 ## Armonía de la rueda de colores — `l` heredada de `primary`
 
 Comportamiento histórico restaurado (default, sin flag en `LuzConfig`) —
-da nombre a la librería. Los 10 hues de `luzWheel` (`tools/wheel.ts`) ya
+da nombre a la librería. Los 12 hues de `luzWheel` (`tools/wheel.ts`) ya
 no tienen una `l` fija por hue — su seed pasa de
 `oklch(${l}% ${c} ${hue})` a `oklch(from ${primaryCSSVar} l ${c} ${hue})`:
 heredan la luminosidad de `primary` en vivo (CSS relative color syntax,
@@ -252,13 +267,96 @@ puede quedar fuera de gamut. CSS Color 4 exige gamut mapping automático
 (reduce `C`, mantiene `L`/`H` fijos, diseñado por el mismo autor de
 OKLCH) — el navegador ya hace la reducción perceptualmente correcta sin
 ninguna fórmula propia. Heredar también el `c` de `primary` (en vez de
-dejarlo literal) sería el error: aplanaría los 10 hues a la misma
+dejarlo literal) sería el error: aplanaría los 12 hues a la misma
 magnitud de saturación absoluta, perdiendo el calibrado individual.
 Verificado visualmente con `primary` en `l` muy oscura/media/muy clara —
-los 10 hues siguen diferenciándose entre sí, sin romperse.
+los 12 hues siguen diferenciándose entre sí, sin romperse.
 
 `wheelOverrides` (ya existente) sigue pisando por completo cualquier hue
 individual — un override explícito ignora `primary` para ese hue.
+
+## Gamut real por shade — baked en build time (`src/tools/gamut.ts`)
+
+Cada shade históricamente salía con chroma constante vía relative color
+syntax (`oklch(from var(--x-500) l+off c h)`) — para hues saturados, los
+shades extremos (50/100/900/950...) caen fuera de sRGB, y el browser los
+gamut-mapea según el gamut real del display (P3 vs. sRGB), así que el
+mismo `luz()` se ve distinto según el monitor.
+
+`src/tools/gamut.ts` resuelve esto en generación, no en el browser:
+parsea el color literal de un seed (`primary`, o un override de
+secondary/tertiary/quaternary/hue de la rueda) a OKLCH numérico —
+hex/`rgb()`/`hsl()`/`oklch()`/`oklab()`, sin dependencia nueva — y por
+cada shade calcula el chroma máximo que entra en sRGB (binary search
+sobre la conversión real oklch→XYZ→linear-sRGB), sin superar nunca el
+chroma del seed. El resultado es un literal `oklch(L C H)` por shade,
+no una fórmula `calc()`. `luzHarmonyColorSeeds` (hue.ts) deriva
+secondary/tertiary/quaternary de `primary` de la misma forma pero en
+números, no en CSS, para poder bakear también esos.
+
+Si el seed no es un literal parseable (nombre de color CSS, `var()`,
+`color-mix()`, cualquier cosa que no matchee los formatos soportados),
+esa paleta cae íntegra al pipeline `calc()` anterior — sin mezclar
+ambos caminos por shade, todo o nada por paleta.
+
+`ThemeToolbar` (`docs/`) bakea igual que el output real — llama a
+`luz(config)` completo client-side en un `useMemo` (no parchea custom
+properties a mano), así que cualquier cambio de `primary` desde el
+picker vuelve a correr el parseo + binary search con el literal nuevo.
+La única vía sin baking, ahí y en cualquier build, es un `primary` no
+parseable (nombre de color, `var()`, etc.) — cae al `calc()` vivo.
+
+### `scheme-*`/`muted()` sobre el mismo pipeline numérico
+
+`scheme-primary`/`-secondary`/`-tertiary`/`-quaternary`/`-neutral` (el
+peso que consumen `.badge`/`.btn`/`.alert`) y `muted()` (`anchor-*`)
+reusan los seeds numéricos de arriba en vez de tener su propio cálculo.
+`LuzConfig.schemeShade` fuerza un peso exacto por paleta;
+`schemeLightness` (target de `l` OKLCH) elige el shade real más cercano
+a esa luminosidad — así el "scheme" de cada paleta queda armónico entre
+hues aunque cada uno tenga distinto chroma disponible, en vez de asumir
+que el mismo peso nominal (`500`) se ve igual de "intenso" en todos.
+`muted()` bakea a `oklch(L C*0.6 H)` literal con el mismo seed (bajar
+chroma nunca saca de gamut, así que no hace falta re-clampear). Mismo
+límite: sin seed parseable, cae al peso/fórmula fija de siempre.
+`scheme-*`/`anchor-*` viven ahora dentro de `buildColors()` (no en
+`themeVariables()`) porque dependen de `reverse` — se benefician gratis
+del wrapping en `light-dark()` que ya hace `mergeLightDark()` para
+`mode: "auto"`.
+
+Ambos son la misma operación ("shade a un peso, con el chroma escalado
+por un factor") con distinto peso/factor — unificados en un solo
+`chromaScaledEntry()` en `luz.ts` (baked cuando hay seed, `muted()` como
+fallback vivo cuando no). `scheme-*` usa el peso de `resolveSchemeWeight`
+y `LuzConfig.schemeChroma` (default `1`, sin cambio) como factor;
+`anchor-*` sigue fijo en peso `200`/factor `0.6` (el peso que ya usaban
+`success`/`danger`/`warning`/`info` — un bug de la primera pasada lo
+tenía en `500`, corregido). Nuevo `schemeChroma`: el `-500` de un hue
+saturado sale a chroma "completo" salvo en los pesos extremos (donde el
+gamut-clamp ya lo reduce solo) — elegir otro peso vía
+`schemeShade`/`schemeLightness` no alcanza para bajar la saturación de
+`.btn`/`.badge`/`.alert`, hace falta el factor.
+
+`btn-bg`/`badge-bg`/`accent`/`checkbox-checked-bg`/`switch-bg`/
+`radio-checked-bg`/`progress-fill`/`tab-border-active`/`hr-color`/
+`selection-bg`/`range-track-shadow`/`range-thumb-active-bg` — la
+variante _default_ (sin clase) de estos tokens pasó de apuntar a
+`var(--{name}-500)` fijo a `var(--scheme-primary)`. Antes
+`schemeShade`/`schemeLightness`/`schemeChroma` solo afectaban a las
+variantes con clase (`.secondary`, `.success`, …, vía `--scheme` en
+`button.css`/`_feedback.css`) — el botón/badge default los ignoraba por
+completo. Ahora un solo mecanismo gobierna los dos casos.
+
+Nuevos tokens `scheme-success`/`-danger`/`-warning`/`-info` (mismo
+`chromaScaledEntry`, peso `200`) — hacían falta porque `_feedback.css`
+(`.success`/`.danger`/`.warning`/`.info`, consumidas por
+`.badge`/`.alert`/`.card`) y los roles de `.btn`
+(`[role=secondary/tertiary/quaternary/apply]` en `button.css`) seguían
+apuntando a los tokens semánticos/paleta crudos (`--success`,
+`--secondary`, `--tertiary`, …) en vez de a `--scheme-*` — ninguno de
+los dos tomaba `schemeChroma`/`schemeShade`/`schemeLightness` (reporte
+del usuario). Ahora todos los caminos hacia `--scheme` (`_feedback.css`,
+`button.css`, el default sin clase) pasan por `scheme-*`.
 
 ## `LuzConfig.preset` — app vs. landing
 
@@ -277,8 +375,8 @@ impacto sin reconfigurar todo a mano.
   implique `preset` — se resuelve antes del destructure en `luz()`, mismo
   principio que `vars`.
 - **Resuelto, escopeado por componente (no global).** `container-type:
-  inline-size` en un ancestro amplio (`body`) quedó descartado — convierte
-  a ese elemento en *containing block* de sus descendientes, rompiendo
+inline-size` en un ancestro amplio (`body`) quedó descartado — convierte
+  a ese elemento en _containing block_ de sus descendientes, rompiendo
   `position: fixed` de cualquier consumidor (header fijo, botón "volver
   arriba", etc.) en todo el sitio. En cambio, `.card` y `dialog.modal`
   (`tools/design.css`) llevan `container-type: inline-size` cada uno — son
@@ -296,39 +394,24 @@ impacto sin reconfigurar todo a mano.
   del usuario para no acoplar el preset a la escala pública `size-N`/
   utilities (`power` sigue siendo un knob independiente).
 
-## Capa de componentes curados (`DESIGN`)
+## Capa de componentes curados (`design/*.css`)
 
-9 recetas CSS puras estilo daisyUI en `tools/design.css`, generadas desde
-tokens de luz (no fijas como un tema): `.badge`, `.alert`, `.card`,
-`.avatar`, `.tabs`/`.tab`, `.accordion` (`<details>`/`<summary>` nativo),
-`dialog.modal` (`<dialog>` nativo, entrada animada vía `@starting-style` +
-`transition-behavior: allow-discrete` — la técnica exacta del skill de
-Emil), `.breadcrumbs`, `.skeleton` (shimmer, respeta
-`prefers-reduced-motion`). 31 alias nuevos en `themeVariables()`
-(`badge-*`, `alert-*`, `tab-*`, `modal-backdrop`, `breadcrumb-*`,
-`skeleton-*`), mismo patrón que los existentes. `.tabs`/`.alert` son
-visual-only a propósito (mostrar/ocultar contenido real necesita JS —
-mismo límite que documenta daisyUI para los suyos).
+Recetas CSS puras estilo daisyUI, generadas desde tokens de luz (no
+fijas como un tema) — 49 archivos hoy bajo `src/tools/design/`, cada
+uno self-contained (reset+layout+color+hover/focus/active del
+componente juntos), importados en orden por el manifest `design.css`
+(el orden importa: `_feedback.css` va último para ganarle
+especificidad a `.btn`/`.badge`/`.alert`/`.toast`, ver más abajo).
+Incluye tanto piezas con interactividad nativa (`.accordion` vía
+`<details>`/`<summary>`, `dialog.modal` vía `<dialog>` con
+`@starting-style`+`transition-behavior: allow-discrete`) como
+visual-only a propósito (`.tabs`, `.alert` — mostrar/ocultar contenido
+real necesita JS, mismo límite que documenta daisyUI para los suyos).
 
-Sizing interno vía `calc(var(--size-unit) * N)` (nunca `--size-N`
-directo), `--avatar` usa `--space-N` (es tamaño de layout, no anatomía
-interna de componente chico) — mismo criterio que ya regía el resto de
-`design.css`/`structure.css`.
-
-**Fix D1**: `progress { &::-moz-progress-bar { background-color:
-var(--primary-500) } }` hardcodeaba el literal — no respetaba `name`/
-`prefix` custom. Nuevo alias `--progress-fill` en `themeVariables()`.
-
-**Fix de paso**: `structure.css` (switch/radio) todavía usaba
-`var(--size-6)`/`var(--size-7)` directo — el mismo bug de acoplamiento a
-`sizeSteps` corregido en el resto del reset esta sesión, sin aplicar ahí.
-Corregido a `calc(var(--size-unit) * N)`.
-
-**Hallazgo, no corregido (pre-existente, confirmado con `git stash` — no
-lo introdujo este cambio)**: con `name`/`prefix` custom simultáneos (ej.
-`{ name: "brand", prefix: "luz-" }`), quedan 2 `var()` sin resolver:
-`--luz-brand`/`--luz-secondary` (el alias "base" sin sufijo `-N`). No es
-parte de este batch — anotado para otra pasada.
+Sizing interno siempre vía `calc(var(--size-unit) * N)` (nunca
+`--size-N` directo — ver "Convenciones de tokens"), `--space-N` solo
+para tamaño de layout (ej. `--avatar`), no anatomía interna de
+componente chico.
 
 ## Variantes de componente vía clase modificadora, no componente nuevo
 
@@ -374,28 +457,29 @@ especificidad contra los estilos base de `.btn`/`.badge`/`.alert`/
 `.btn`/`.badge`/`.solid` derivan `--current-bg` de `var(--scheme,
 var(--btn-bg))` (o `--badge-bg`/`--scheme-primary`), cada uno en su propio
 archivo. `--current-color` (`var(--on-scheme, contrast-color(var(--current-bg)))`
-+ fallback `@supports`) ya no se repite por componente — vive una sola vez
-en `_contrast.css`, un `:where(.btn, .button, ..., .badge, .solid) { ... }`
-de especificidad cero que los tres consumen. Sus modificadores
-de color (`.success`, `.danger`, `.warning`, `.neutral`, `.alternative`,
-`[role="contrast"]`, etc.) solo fijan `--scheme`, ya no tienen una regla
-de pintado por variante ni necesitan un `on-*` por color (`on-success`,
-`on-danger`, `on-scheme-*`, `on-primary`/`on-secondary`/`on-tertiary`/
-`on-quaternary`/`on-neutral` — eliminados de `luz.ts`, `contrast-color()`
-calcula el contraste real de cada fondo en vez de tener una tabla
-pre-calculada por color). `--on-scheme` queda como hook opcional — no lo
-emite `luz()`, pero el consumidor puede fijarlo (`.btn.danger { --on-scheme: ... }`)
-para forzar el color de texto de una variante puntual, y gana por estar
-primero en el `var(..., contrast-color(...))`. `contrast-color()` es
-Baseline recién desde abril 2026 (Chrome 147/Firefox 146/Safari 26) — cada
-regla que la usa tiene un bloque hermano `@supports not (color:
+
+- fallback `@supports`) ya no se repite por componente — vive una sola vez
+  en `_contrast.css`, un `:where(.btn, .button, ..., .badge, .solid) { ... }`
+  de especificidad cero que los tres consumen. Sus modificadores
+  de color (`.success`, `.danger`, `.warning`, `.neutral`, `.alternative`,
+  `[role="contrast"]`, etc.) solo fijan `--scheme`, ya no tienen una regla
+  de pintado por variante ni necesitan un `on-*` por color (`on-success`,
+  `on-danger`, `on-scheme-*`, `on-primary`/`on-secondary`/`on-tertiary`/
+  `on-quaternary`/`on-neutral` — eliminados de `luz.ts`, `contrast-color()`
+  calcula el contraste real de cada fondo en vez de tener una tabla
+  pre-calculada por color). `--on-scheme` queda como hook opcional — no lo
+  emite `luz()`, pero el consumidor puede fijarlo (`.btn.danger { --on-scheme: ... }`)
+  para forzar el color de texto de una variante puntual, y gana por estar
+  primero en el `var(..., contrast-color(...))`. `contrast-color()` es
+  Baseline recién desde abril 2026 (Chrome 147/Firefox 146/Safari 26) — cada
+  regla que la usa tiene un bloque hermano `@supports not (color:
 contrast-color(black))` que reescribe `--current-color`/`color` con la
-fórmula `oklch(from var(--current-bg) ...)` de antes (`luzOnColor()` en
-`hue.ts`, ahora solo usada como fallback). El hover/active de `.btn` usa
-`oklch(from var(--current-bg) ...)`, ya no toca `--btn-bg` directo. `.alert`
-y `.toast.<esquema>` usan la fórmula de `.soft` (fallback `--scheme-neutral`
-en `.alert`). `.dot` no necesita reglas propias por esquema: hereda
-`color` de la clase de esquema vía `background-color: currentColor`.
+  fórmula `oklch(from var(--current-bg) ...)` de antes (`luzOnColor()` en
+  `hue.ts`, ahora solo usada como fallback). El hover/active de `.btn` usa
+  `oklch(from var(--current-bg) ...)`, ya no toca `--btn-bg` directo. `.alert`
+  y `.toast.<esquema>` usan la fórmula de `.soft` (fallback `--scheme-neutral`
+  en `.alert`). `.dot` no necesita reglas propias por esquema: hereda
+  `color` de la clase de esquema vía `background-color: currentColor`.
 
 `on-btn`/`on-badge`/`on-kbd`/`on-selection` siguen existiendo como tokens
 globales en `luz.ts` — los consume código fuera del sistema `--scheme`
@@ -411,34 +495,24 @@ semilla crudo), y como `--primary-500` etc. se calculan a partir de esas,
 un choque de nombres crea una referencia circular (ambas quedan inválidas
 en el browser). Por eso el alias fijo usa el prefijo `scheme-`.
 
-## Bloque D4 — `.css` estáticos reales en `dist/`, `@import` directo
+## `.css` estáticos reales en `dist/`, `@import` directo
 
-`reset.css`/`structure.css`/`design.css` (100% estáticos, no dependen de
-config) ahora se copian a `dist/` en cada build (plugin `copy()` de
-bunup) y se publican en `exports` de `package.json`
-(`"./reset.css": "./dist/reset.css"`, etc.) — un consumidor puede hacer
-`@import "@d00m-gui/luz/reset.css";` directo en su propia hoja de
-estilos, sin pasar por los adaptadores de Astro/Vite en absoluto.
+`reset.css`/`design.css` (100% estáticos, no dependen de config) se
+copian a `dist/` en cada build (plugin `copy()` de `bunup.config.ts`,
+lista `staticCss`) y se publican en `exports` de `package.json`
+(`"./reset.css": "./dist/reset.css"`, etc., vía el plugin `exports()`
+con `customExports` — regenerado en cada build, no a mano) — un
+consumidor puede hacer `@import "@d00m-gui/luz/reset.css";` directo en
+su propia hoja de estilos, sin pasar por los adaptadores de Astro/Vite.
 
-Modo `"split"` (`LuzCssOutput`) también escribe copias locales de los 3
+Modo `"split"` (`LuzCssOutput`) también escribe copias locales de los 2
 junto a `theme`/`bridge`/`utilities` — pero el agregador (el archivo con
 los `@import url(...)`) **no** los incluye todavía: `theme.css` sigue
 trayendo el reset inline (vía `buildReset()` dentro de `luz()`), así que
-sumarlos al agregador duplicaría el reset. Deliberadamente no resuelto en
-este batch — requiere tocar `luz()` para sacar el reset del `style` que
-devuelve, que es un cambio más grande, no decidido todavía. Modo
-`"virtual"` sin cambios (fuera de alcance, no verificado).
-
-**Bug de build encontrado y corregido durante la integración** (no lo
-tenía el fork, apareció recién al correr el build 2 veces seguidas):
-`bunup.config.ts` tenía `exports: true` a nivel top **y** el plugin
-`exports()` explícito con `customExports` — dos mecanismos separados
-escribiendo el mismo campo de `package.json`, cada uno "corrigiendo" al
-otro en la corrida siguiente (las 3 entradas de `.css` aparecían y
-desaparecían alternando 0/1/0/1 en corridas consecutivas). Sacar la
-opción top-level redundante lo dejó determinístico (4/4 corridas
-estables, verificado). Sin esto, el publish real podría haber salido sin
-las entradas de `.css` dependiendo de cuántas veces corriera el build.
+sumarlos al agregador duplicaría el reset. Requiere tocar `luz()` para
+sacar el reset del `style` que devuelve — cambio más grande, no
+decidido todavía. Modo `"virtual"` sin cambios (fuera de alcance, no
+verificado).
 
 ## Accesibilidad en `DESIGN`/`RESET` (reglas de Emil Kowalski aplicadas)
 
@@ -472,13 +546,14 @@ string`. El reset vive como archivos `.css` reales en `src/tools/` — son
 `var(--...)`), así que editarlos como `.css` de verdad (syntax
 highlighting/lint reales) tiene sentido y no cuesta nada en runtime.
 
-Dos capas, no tres: `reset.css` (genérico, no-por-componente — `*`,
+Dos capas: `reset.css` (genérico, no-por-componente — `*`,
 `html`/`body`, `img`/`picture`/`video`/`canvas`/`svg`, `br`, `figure`,
 `#root`/`#__next`, `[hidden]`) y `design.css`, que es un manifest corto
 de `@import "./design/nombre.css";` — un archivo **self-contained** por
-componente bajo `src/tools/design/` (48 archivos: reset+structure+design
-de ese componente juntos, ya no repartidos entre 3 capas globales). Dos
-selectores genuinamente compartidos entre componentes (`:focus-visible`
+componente bajo `src/tools/design/` (49 archivos hoy: layout+color+
+hover/focus/active de ese componente juntos, no repartidos entre capas
+globales). Selectores genuinamente compartidos entre componentes
+(`:focus-visible`
 de `a`/`button`/`.btn`/`input[range]`, el estado `[disabled]` de
 `input`/`optgroup`/`select`/`textarea`/`label`/`button`) viven en
 `_focus.css`/`_disabled.css`, prefijados con `_` para distinguirlos de un
@@ -553,7 +628,6 @@ así que texto suelto sin envolver en `<p>` ignoraba la config. Y
 tenía `&::-moz-progress-bar { background-color: var(--primary-500) }`
 hardcodeado — ahora usa el alias `--progress-fill` de `themeVariables()`.
 
-
 ## Adaptadores (`astro/`, `vite/`)
 
 Ambos siguen la misma forma: reciben `LuzConfig & { path?, output? }`,
@@ -603,8 +677,8 @@ al proyecto) matchea sin que luz conozca esa librería específica.
 rampa (curva sin-wave en `hue.ts`), así que cualquier token semántico
 ahí es la versión más saturada posible del hue, siempre. Para
 `anchor`/`anchor-secondary`/`anchor-danger`/`anchor-success`/
-`anchor-warning` (colores de link — el único caso que renderiza *inline
-dentro de párrafos*, compitiendo directo con texto de body ya atenuado)
+`anchor-warning` (colores de link — el único caso que renderiza _inline
+dentro de párrafos_, compitiendo directo con texto de body ya atenuado)
 esto se sentía "gritado"/poco armonioso. Nuevo helper `muted(cssVar)` →
 `oklch(from ${cssVar} l calc(c * 0.6) h)` — reduce el chroma un 40%,
 mantiene `l`/`h` intactos. Factor `0.6` elegido comparando visualmente
@@ -697,3 +771,5 @@ nombre — evita tener que armar el objeto a mano en un array gigante.
 - `README.md` — pitch de producto / API pública documentada para consumidores.
 - `CHANGELOG.md` — historial de cambios, resúmenes cortos (gitignored, referencia interna).
 - `CLAUDE.md` — instrucciones de trabajo para el asistente (gitignored).
+- `TODO.md` — backlog único (librería + `docs/`), gitignored. Reemplaza a
+  los antiguos `HANDOFF.md`/`DOCS.md`, fusionados acá.

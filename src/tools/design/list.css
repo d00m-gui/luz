@@ -6,12 +6,14 @@
     border-inline-start: var(--border-width) solid var(--element-border-color);
     & > .list-row {
       gap: var(--space-2);
-      padding: calc(var(--space-2) * var(--density, 1)) calc(var(--space-3) * var(--density, 1));
+      padding: calc(var(--space-2) * var(--density, 1))
+        calc(var(--space-3) * var(--density, 1));
       border-bottom: none;
     }
     details.list-row > summary {
       gap: var(--space-2);
-      padding: calc(var(--space-2) * var(--density, 1)) calc(var(--space-3) * var(--density, 1));
+      padding: calc(var(--space-2) * var(--density, 1))
+        calc(var(--space-3) * var(--density, 1));
     }
   }
 }
@@ -21,7 +23,8 @@
   grid-auto-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--space-3);
-  padding: calc(var(--space-3) * var(--density, 1)) calc(var(--space-4) * var(--density, 1));
+  padding: calc(var(--space-3) * var(--density, 1))
+    calc(var(--space-4) * var(--density, 1));
   border-bottom: var(--border-width) solid var(--element-border-color);
   color: var(--foreground);
   &:last-child {
@@ -53,7 +56,8 @@ a.list-row {
   --on-table-hover: var(--on-scheme, var(--anchor));
 }
 .list-title {
-  padding: calc(var(--space-2) * var(--density, 1)) calc(var(--space-4) * var(--density, 1));
+  padding: calc(var(--space-2) * var(--density, 1))
+    calc(var(--space-4) * var(--density, 1));
   font-size: calc(var(--size-unit) * 8);
   font-weight: var(--font-bold-weight);
   text-transform: uppercase;
@@ -100,7 +104,8 @@ details.list-row {
     grid-auto-columns: auto minmax(0, 1fr) auto;
     align-items: center;
     gap: var(--space-3);
-    padding: calc(var(--space-3) * var(--density, 1)) calc(var(--space-4) * var(--density, 1));
+    padding: calc(var(--space-3) * var(--density, 1))
+      calc(var(--space-4) * var(--density, 1));
     background-color: var(--element-background);
     list-style: none;
     &::-webkit-details-marker {
@@ -120,7 +125,8 @@ details.list-row {
     content: "−";
   }
   & > :not(summary) {
-    padding: calc(var(--space-4) * var(--density, 1)) calc(var(--space-5) * var(--density, 1));
+    padding: calc(var(--space-4) * var(--density, 1))
+      calc(var(--space-5) * var(--density, 1));
     &.list {
       padding-block: calc(var(--space-2) * var(--density, 1));
       padding-inline-end: 0;

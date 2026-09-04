@@ -46,7 +46,8 @@ function extractField(
         defaultValue = cleanQuotes(text);
       } else if (tag.tagName.text === "param") {
         const match = text.match(/^(`[^`]*`|"[^"]*"|\S+)\s*(.*)$/);
-        if (match) params.push({ value: cleanQuotes(match[1]!), text: match[2]! });
+        if (match)
+          params.push({ value: cleanQuotes(match[1]!), text: match[2]! });
       }
     }
   }
@@ -76,7 +77,8 @@ function extractInterface(
   function visit(node: ts.Node) {
     if (ts.isInterfaceDeclaration(node) && node.name.text === interfaceName) {
       for (const member of node.members) {
-        if (ts.isPropertySignature(member)) fields.push(extractField(member, sourceFile));
+        if (ts.isPropertySignature(member))
+          fields.push(extractField(member, sourceFile));
       }
     }
     ts.forEachChild(node, visit);
@@ -96,4 +98,6 @@ writeFileSync(
   `// Generado por \`bun run gen:content\` (docs/scripts/gen-content.ts) — no editar a mano.\nexport const luzConfigFields = ${JSON.stringify(luzConfigFields, null, 2)} as const;\n`,
 );
 
-console.log(`generado ${OUT_FILE} (${luzConfigFields.length} campos de LuzConfig)`);
+console.log(
+  `generado ${OUT_FILE} (${luzConfigFields.length} campos de LuzConfig)`,
+);

@@ -34,7 +34,10 @@ function walk(dir: string, extensionSet: Set<string>, out: string[]): void {
     if (entry.isDirectory()) {
       if (EXCLUDED_DIRS.has(entry.name)) continue;
       walk(join(dir, entry.name), extensionSet, out);
-    } else if (entry.isFile() && extensionSet.has(extname(entry.name).slice(1))) {
+    } else if (
+      entry.isFile() &&
+      extensionSet.has(extname(entry.name).slice(1))
+    ) {
       out.push(join(dir, entry.name));
     }
   }
