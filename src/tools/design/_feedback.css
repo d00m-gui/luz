@@ -1,14 +1,14 @@
 .success {
-  --scheme: var(--success);
+  --scheme: var(--scheme-success);
 }
 .danger {
-  --scheme: var(--danger);
+  --scheme: var(--scheme-danger);
 }
 .warning {
-  --scheme: var(--warning);
+  --scheme: var(--scheme-warning);
 }
 .info {
-  --scheme: var(--info);
+  --scheme: var(--scheme-info);
 }
 .primary {
   --scheme: var(--scheme-primary);
@@ -28,7 +28,18 @@
 .contrast {
   --scheme: var(--foreground);
 }
-:where(.success, .danger, .warning, .info, .primary, .secondary, .tertiary, .quaternary, .neutral, .contrast) {
+:where(
+  .success,
+  .danger,
+  .warning,
+  .info,
+  .primary,
+  .secondary,
+  .tertiary,
+  .quaternary,
+  .neutral,
+  .contrast
+) {
   color: var(--scheme);
 }
 .solid {
@@ -38,7 +49,9 @@
   color: var(--current-color);
 }
 .soft {
-  background-color: oklch(from var(--scheme, var(--scheme-primary)) l c h / 12%);
+  background-color: oklch(
+    from var(--scheme, var(--scheme-primary)) l c h / 12%
+  );
   border-color: var(--scheme, var(--scheme-primary));
   color: oklch(from var(--scheme, var(--scheme-primary)) calc(l + 0.25) c h);
 }

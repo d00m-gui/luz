@@ -19,6 +19,7 @@ export interface ToolbarState {
   depthSign: number;
   density: number;
   contrastThreshold: number;
+  schemeChroma: number;
 }
 
 export const DEFAULT_STATE: ToolbarState = {
@@ -34,6 +35,7 @@ export const DEFAULT_STATE: ToolbarState = {
   density: siteConfig.density ?? LUZ_DEFAULT_CONFIG.density ?? 1,
   contrastThreshold:
     siteConfig.contrastThreshold ?? LUZ_DEFAULT_CONFIG.contrastThreshold ?? 0.6,
+  schemeChroma: siteConfig.schemeChroma ?? LUZ_DEFAULT_CONFIG.schemeChroma ?? 1,
 };
 
 const CONFIG_SNAPSHOT = JSON.stringify(DEFAULT_STATE);
@@ -70,7 +72,11 @@ export function resetThemeState(): void {
   location.reload();
 }
 
-export function useThemeState(): [ToolbarState, (patch: Partial<ToolbarState>) => void, boolean] {
+export function useThemeState(): [
+  ToolbarState,
+  (patch: Partial<ToolbarState>) => void,
+  boolean,
+] {
   const [state, setState] = useState<ToolbarState>(DEFAULT_STATE);
   const [ready, setReady] = useState(false);
 

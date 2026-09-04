@@ -1,4 +1,5 @@
 import { WEIGHTS } from "./constants";
+import { clampToSrgb, formatOklch, type OklchSeed } from "./gamut";
 
 const CENTER_WEIGHT = 500;
 const MAX_DISTANCE = CENTER_WEIGHT - 50;
@@ -35,7 +36,8 @@ function shadeEntry(
   weight: number,
   reverse: boolean,
 ): [key: string, value: string] {
-  if (weight === CENTER_WEIGHT) return [`${name}-${weight}`, `oklch(from ${color} l c h)`];
+  if (weight === CENTER_WEIGHT)
+    return [`${name}-${weight}`, `oklch(from ${color} l c h)`];
   const offset = lightnessOffset(weight, reverse).toFixed(3);
   return [
     `${name}-${weight}`,
@@ -43,13 +45,60 @@ function shadeEntry(
   ];
 }
 
+/** Resolves a weight to its exact, gamut-mapped OKLCH: same lightness curve as the live formula, but chroma is clamped to the largest value that still fits sRGB at that `l`/`h` — never exceeding the seed's own chroma. */
+export function resolveBakedShade(
+  seed: OklchSeed,
+  weight: number,
+  reverse: boolean,
+): OklchSeed {
+  const l =
+    weight === CENTER_WEIGHT
+      ? seed.l
+      : Math.min(1, Math.max(0, seed.l + lightnessOffset(weight, reverse)));
+  return clampToSrgb({ l, c: seed.c, h: seed.h });
+}
+
+function shadeEntryBaked(
+  seed: OklchSeed,
+  name: string,
+  weight: number,
+  reverse: boolean,
+): [key: string, value: string] {
+  const { l, c, h } = resolveBakedShade(seed, weight, reverse);
+  return [`${name}-${weight}`, formatOklch(l, c, h)];
+}
+
+/** Which generated weight's real lightness lands closest to `target` (0–1) — used to pick a `scheme-*` shade by perceived lightness instead of a fixed nominal weight. */
+export function nearestSchemeWeight(
+  seed: OklchSeed,
+  steps: number,
+  reverse: boolean,
+  target: number,
+): number {
+  const weights = steps === WEIGHTS.length ? WEIGHTS : generateWeights(steps);
+  let best = CENTER_WEIGHT;
+  let bestDiff = Number.POSITIVE_INFINITY;
+  for (const weight of weights) {
+    const { l } = resolveBakedShade(seed, weight, reverse);
+    const diff = Math.abs(l - target);
+    if (diff < bestDiff) {
+      bestDiff = diff;
+      best = weight;
+    }
+  }
+  return best;
+}
+
 /** Auto-contrast text color for a background: near-black or near-white (not pure `0`/`1` — softer against saturated backgrounds) depending on `seed`'s own lightness vs. `--contrast-threshold`, with a slight tint of its hue. Fallback for `contrast-color()` behind `@supports`. */
 export function luzOnColor(seed: string): string {
   return `oklch(from ${seed} clamp(0.12, calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000), 0.92) calc(c * 0.08) h)`;
 }
 
-
-export type ColorHarmony = "complementary" | "analogous" | "triad" | "monochrome";
+export type ColorHarmony =
+  | "complementary"
+  | "analogous"
+  | "triad"
+  | "monochrome";
 
 function hueShift(color: string, degrees: number): string {
   return `oklch(from ${color} l c calc(h + ${degrees}))`;
@@ -71,36 +120,68 @@ const HARMONY_HUE_OFFSETS: Record<ColorHarmony, number[]> = {
 const MONOCHROME_CHROMA_SCALES = [0.45, 0.2];
 
 /** Derives the harmony's extra seed colors from `primary`, in slot order (secondary, tertiary, quaternary) — used for a slot when it isn't set explicitly in config. */
-export function luzHarmonyColors(primaryCSSVar: string, harmony: ColorHarmony): string[] {
+export function luzHarmonyColors(
+  primaryCSSVar: string,
+  harmony: ColorHarmony,
+): string[] {
   if (harmony === "monochrome") {
-    return MONOCHROME_CHROMA_SCALES.map((factor) => chromaScale(primaryCSSVar, factor));
+    return MONOCHROME_CHROMA_SCALES.map((factor) =>
+      chromaScale(primaryCSSVar, factor),
+    );
   }
-  return HARMONY_HUE_OFFSETS[harmony].map((degrees) => hueShift(primaryCSSVar, degrees));
+  return HARMONY_HUE_OFFSETS[harmony].map((degrees) =>
+    hueShift(primaryCSSVar, degrees),
+  );
+}
+
+/** Numeric equivalent of `luzHarmonyColors`, for when `primary`'s exact OKLCH is known at build time (baked shade generation). */
+export function luzHarmonyColorSeeds(
+  primary: OklchSeed,
+  harmony: ColorHarmony,
+): OklchSeed[] {
+  if (harmony === "monochrome") {
+    return MONOCHROME_CHROMA_SCALES.map((factor) => ({
+      ...primary,
+      c: primary.c * factor,
+    }));
+  }
+  return HARMONY_HUE_OFFSETS[harmony].map((degrees) => ({
+    ...primary,
+    h: primary.h + degrees,
+  }));
 }
 
 const HARMONY_SLOT_NAMES = ["secondary", "tertiary", "quaternary"] as const;
 
 /** Palette names (besides `primary`) a harmony actually generates, e.g. `["secondary"]` for `complementary`, `["secondary", "tertiary", "quaternary"]` for `analogous`. */
 export function luzHarmonyColorNames(harmony: ColorHarmony): string[] {
-  const count = harmony === "monochrome" ? MONOCHROME_CHROMA_SCALES.length : HARMONY_HUE_OFFSETS[harmony].length;
+  const count =
+    harmony === "monochrome"
+      ? MONOCHROME_CHROMA_SCALES.length
+      : HARMONY_HUE_OFFSETS[harmony].length;
   return HARMONY_SLOT_NAMES.slice(0, count);
 }
 
+/** `seed` is the color's exact OKLCH, known at build time — when given, shades are baked with real per-shade gamut mapping instead of the live `oklch(from var(...))` formula. */
 export function luzShadesByHue({
   color,
   name,
   reverse = false,
   steps = WEIGHTS.length,
+  seed,
 }: {
   color: string;
   name: string;
   reverse?: boolean;
   steps?: number;
+  seed?: OklchSeed | null;
 }): Record<string, string> {
   const weights = steps === WEIGHTS.length ? WEIGHTS : generateWeights(steps);
   const shades: Record<string, string> = {};
   for (const weight of weights) {
-    const [key, value] = shadeEntry(color, name, weight, reverse);
+    const [key, value] = seed
+      ? shadeEntryBaked(seed, name, weight, reverse)
+      : shadeEntry(color, name, weight, reverse);
     shades[key] = value;
   }
   return shades;

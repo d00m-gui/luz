@@ -2,7 +2,16 @@
  * Luz - Lightweight theming library.
  */
 
-import { luzHarmonyColors, luzOnColor, luzShadesByHue, type ColorHarmony } from "./tools/hue";
+import { formatOklch, parseColorToOklch, type OklchSeed } from "./tools/gamut";
+import {
+  luzHarmonyColorSeeds,
+  luzHarmonyColors,
+  luzOnColor,
+  luzShadesByHue,
+  nearestSchemeWeight,
+  resolveBakedShade,
+  type ColorHarmony,
+} from "./tools/hue";
 import { luzProperty } from "./tools/props";
 import { buildReset } from "./tools/reset";
 import {
@@ -13,7 +22,12 @@ import {
   type FluidRangeName,
   type TypeScaleName,
 } from "./tools/sizes";
-import { luzWheel, WHEEL_HUE_NAMES, type WheelHueName } from "./tools/wheel";
+import {
+  luzWheel,
+  luzWheelHueSeed,
+  WHEEL_HUE_NAMES,
+  type WheelHueName,
+} from "./tools/wheel";
 import { withShadeFallback } from "./tools/shade-fallback";
 
 /** Also accepts any of luz's 12 wheel hue names (`red`, `copper`, `orange`, `yellow`, `green`, `emerald`, `teal`, `cyan`, `blue`, `sky`, `violet`, `pink`) as a raw CSS color. */
@@ -80,6 +94,21 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   neutrals?: string;
   /** Fraction (0–1) of `primary`'s chroma carried into the neutral/gray palette. `0` = pure gray, `1` = full tint. Default `0.2`. */
   neutralTint?: number;
+  /**
+   * Target lightness (0–1, OKLCH `l`) for `scheme-primary`/`-secondary`/`-tertiary`/`-quaternary`/`-neutral` — the shade `.badge`/`.btn`/`.alert` use, both the default (unmodified) look and every variant class (`.secondary`, `.success`, …). Instead of a fixed nominal weight, each palette picks whichever of its generated shades has the real lightness closest to this target — harmonic across hues regardless of how each one's chroma happens to fall. Requires the palette's seed to be a parseable color literal (same as gamut baking); a palette that can't be baked keeps its fixed weight. Overridden per-palette by `schemeShade`. Unset by default — behaves as `schemeShade`'s default (`500`, or `800` for `neutral`).
+   */
+  schemeLightness?: number;
+  /** Forces the exact weight used by `scheme-*` for one or all palettes, overriding `schemeLightness`. A number applies to every palette; an object targets individual ones. Default `{ neutral: 800 }` (`500` for the rest). */
+  schemeShade?:
+    | number
+    | Partial<
+        Record<
+          "primary" | "secondary" | "tertiary" | "quaternary" | "neutral",
+          number
+        >
+      >;
+  /** Chroma multiplier (0–1) applied to every `scheme-*` color on top of whichever shade `schemeShade`/`schemeLightness` picks — the peak-chroma `-500` shade of a saturated hue can read too loud for `.btn`/`.badge`/`.alert`. `1` (default) leaves it untouched; same mechanism as `muted()`'s `anchor-*` (fixed at `0.6`), just a knob instead of a constant. */
+  schemeChroma?: number;
   /** Prepended to every generated custom-property name (e.g. `"luz-"` → `--luz-primary-500`). Default `""`. */
   prefix?: string;
   /** Default `transition` shorthand applied via setup rules. Default `"all ease 200ms"`. */
@@ -172,7 +201,10 @@ export interface LuzResult {
   style: string;
 }
 
-const PRESET_FLUID_RANGE: Record<NonNullable<LuzConfig["preset"]>, FluidRangeName | number> = {
+const PRESET_FLUID_RANGE: Record<
+  NonNullable<LuzConfig["preset"]>,
+  FluidRangeName | number
+> = {
   app: "fixed",
   content: "balanced",
   landing: 2.4,
@@ -195,6 +227,7 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   harmony: "complementary",
   neutrals: "neutral",
   neutralTint: 0.2,
+  schemeShade: { neutral: 800 },
   prefix: "",
   transition: "all ease 200ms",
   "box-shadow": "none",
@@ -209,9 +242,9 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   contrastThreshold: 0.6,
 };
 
-/** Tones down a shade's chroma — inline text (links) reads calmer than the raw peak-chroma shade. */
-function muted(cssVar: string): string {
-  return `oklch(from ${cssVar} l calc(c * 0.6) h)`;
+/** Tones down a shade's chroma by `factor` (default `0.6`) — the live `calc()` fallback for `chromaScaledEntry` when the seed isn't known at build time. */
+function muted(cssVar: string, factor = 0.6): string {
+  return `oklch(from ${cssVar} l calc(c * ${factor}) h)`;
 }
 
 /** Merges a light and a dark color map into one, wrapping each differing entry in `light-dark()`. */
@@ -232,68 +265,51 @@ function mergeLightDark(
 
 function themeVariables(tokens: LuzTokens): Record<string, string> {
   const { name, prefix, neutrals } = { ...tokens.settings };
-  const success = `var(--${prefix}success)`;
-  const danger = `var(--${prefix}danger)`;
-  const warning = `var(--${prefix}warning)`;
-  const info = `var(--${prefix}info)`;
   return {
     success: `var(--${prefix}green-200)`,
     danger: `var(--${prefix}red-200)`,
     warning: `var(--${prefix}yellow-200)`,
     info: `var(--${prefix}blue-200)`,
-    "scheme-primary": `var(--${prefix}${name}-500)`,
-    "scheme-secondary": `var(--${prefix}secondary-500)`,
-    "scheme-tertiary": `var(--${prefix}tertiary-500, var(--${prefix}secondary-500))`,
-    "scheme-quaternary": `var(--${prefix}quaternary-500, var(--${prefix}tertiary-500, var(--${prefix}secondary-500)))`,
-    "scheme-neutral": `var(--${prefix}${neutrals}-500)`,
-    anchor: muted(info),
-    "anchor-secondary": muted(`var(--${prefix}secondary-500)`),
-    "anchor-tertiary": muted(`var(--${prefix}tertiary-500, var(--${prefix}secondary-500))`),
-    "anchor-quaternary": muted(
-      `var(--${prefix}quaternary-500, var(--${prefix}tertiary-500, var(--${prefix}secondary-500)))`,
-    ),
     "anchor-contrast": `var(--${prefix}${neutrals}-500)`,
-    "anchor-danger": muted(danger),
-    "anchor-success": muted(success),
-    "anchor-warning": muted(warning),
-    "hr-color": `var(--${prefix}${name}-500)`,
+    "hr-color": `var(--scheme-primary)`,
     "kbd-border-color": `var(--${prefix}${neutrals}-950)`,
     "kbd-bg": `var(--${prefix}${neutrals}-900)`,
     "on-kbd": `var(--on-scheme, ${luzOnColor("var(--kbd-bg)")})`,
     "kbd-shadow": `var(--${prefix}${neutrals}-500)`,
     "table-hover-bg": `var(--${prefix}${neutrals}-900)`,
     "on-table-hover": `var(--${prefix}${neutrals}-300)`,
-    "selection-bg": `var(--${prefix}${name}-500)`,
+    "selection-bg": `var(--scheme-primary)`,
     "on-selection": `var(--on-scheme, ${luzOnColor("var(--selection-bg)")})`,
     "file-input-border-top": `var(--${prefix}${name}-200)`,
     "range-track-bg": `var(--element-background)`,
-    "range-track-shadow": `var(--${prefix}${name}-500)`,
-    "range-thumb-active-bg": `var(--${prefix}${name}-500)`,
+    "range-track-shadow": `var(--scheme-primary)`,
+    "range-thumb-active-bg": `var(--scheme-primary)`,
     "range-tick-color": `var(--element-border-color)`,
-    accent: `var(--${prefix}${name}-500)`,
-    "progress-shadow": `var(--${prefix}${name}-500)`,
-    "progress-fill": `var(--${prefix}${name}-500)`,
+    accent: `var(--scheme-primary)`,
+    "progress-shadow": `var(--scheme-primary)`,
+    "progress-fill": `var(--scheme-primary)`,
     "on-checkbox": `var(--${prefix}${name}-100)`,
-    "checkbox-checked-bg": `var(--${prefix}${name}-500)`,
+    "checkbox-checked-bg": `var(--scheme-primary)`,
     "checkbox-checked-border": `transparent`,
-    "switch-bg": `var(--${prefix}${name}-500)`,
-    "radio-dot-bg": success,
-    "radio-checked-bg": `var(--${prefix}${name}-500)`,
-    "radio-checked-border": `var(--${prefix}${name}-500)`,
+    "switch-bg": `var(--scheme-primary)`,
+    "radio-dot-bg": `var(--${prefix}green-200)`,
+    "radio-checked-bg": `var(--scheme-primary)`,
+    "radio-checked-border": `var(--scheme-primary)`,
     "blockquote-border": `var(--${prefix}${name}-200)`,
-    "on-blockquote-footer": `var(--${prefix}${name}-500)`,
-    "btn-bg": `var(--${prefix}${name}-500)`,
+    "on-blockquote-footer": `var(--scheme-primary)`,
+    "btn-bg": `var(--scheme-primary)`,
     "on-btn": `var(--on-scheme, ${luzOnColor("var(--btn-bg)")})`,
     "btn-bg-hover": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,
+    "btn-box-shadow": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,
     "on-btn-ghost": `oklch(from var(--foreground) l c h / 65%)`,
     "tooltip-bg": `var(--${prefix}${neutrals}-950)`,
     "on-tooltip": `var(--${prefix}${neutrals}-300)`,
-    "badge-bg": `var(--${prefix}${name}-500)`,
+    "badge-bg": `var(--scheme-primary)`,
     "on-badge": `var(--on-scheme, ${luzOnColor("var(--badge-bg)")})`,
     "on-badge-ghost": `var(--${prefix}${name}-400)`,
     "on-tab": `oklch(from var(--foreground) l c h / 65%)`,
     "on-tab-active": `var(--foreground)`,
-    "tab-border-active": `var(--${prefix}${name}-500)`,
+    "tab-border-active": `var(--scheme-primary)`,
     "modal-backdrop": `oklch(from var(--${prefix}${neutrals}-950) l c h / 60%)`,
     "on-breadcrumb": `oklch(from var(--foreground) l c h / 65%)`,
     "breadcrumb-separator": `oklch(from var(--foreground) l c h / 35%)`,
@@ -328,6 +344,9 @@ export function luz(config?: LuzConfig): LuzResult {
     prefix,
     neutrals,
     neutralTint,
+    schemeLightness,
+    schemeShade,
+    schemeChroma,
     power,
     secondary,
     tertiary,
@@ -360,7 +379,10 @@ export function luz(config?: LuzConfig): LuzResult {
   const primaryName: string = `${prefix}${normalName}`;
   const primaryCSSVar: string = `var(--${primaryName})`;
 
-  const harmonyColors = luzHarmonyColors(primaryCSSVar, harmony as ColorHarmony);
+  const harmonyColors = luzHarmonyColors(
+    primaryCSSVar,
+    harmony as ColorHarmony,
+  );
 
   const secondaryColor: string = secondary ?? (harmonyColors[0] as string);
   const secondaryName: string = `${prefix}secondary`;
@@ -378,6 +400,73 @@ export function luz(config?: LuzConfig): LuzResult {
   const neutralCSSVar: string = `var(--${neutralsName})`;
   const neutralColor: string = `oklch(from ${primaryCSSVar} l calc(c * ${normalNeutralTint}) h)`;
 
+  const primarySeed = parseColorToOklch(primary);
+  const harmonySeeds = primarySeed
+    ? luzHarmonyColorSeeds(primarySeed, harmony as ColorHarmony)
+    : [];
+  const secondarySeed = secondary
+    ? parseColorToOklch(secondary)
+    : (harmonySeeds[0] ?? null);
+  const tertiarySeed = tertiary
+    ? parseColorToOklch(tertiary)
+    : (harmonySeeds[1] ?? null);
+  const quaternarySeed = quaternary
+    ? parseColorToOklch(quaternary)
+    : (harmonySeeds[2] ?? null);
+  const neutralSeed: OklchSeed | null = primarySeed
+    ? { ...primarySeed, c: primarySeed.c * normalNeutralTint }
+    : null;
+
+  const infoSeed = primarySeed ? luzWheelHueSeed("blue", primarySeed) : null;
+  const dangerSeed = primarySeed ? luzWheelHueSeed("red", primarySeed) : null;
+  const successSeed = primarySeed
+    ? luzWheelHueSeed("green", primarySeed)
+    : null;
+  const warningSeed = primarySeed
+    ? luzWheelHueSeed("yellow", primarySeed)
+    : null;
+
+  type SchemeSlot =
+    | "primary"
+    | "secondary"
+    | "tertiary"
+    | "quaternary"
+    | "neutral";
+  /** Resolves the weight `scheme-{slot}` picks: an explicit `schemeShade` wins outright; otherwise `schemeLightness` picks the closest real shade when the palette's seed is known; otherwise the historical fixed default (`500`, `800` for `neutral`). */
+  function resolveSchemeWeight(
+    slot: SchemeSlot,
+    seed: OklchSeed | null,
+    reverse: boolean,
+  ): number {
+    const explicit =
+      typeof schemeShade === "number" ? schemeShade : schemeShade?.[slot];
+    if (explicit !== undefined) return explicit;
+    if (schemeLightness !== undefined && seed) {
+      return nearestSchemeWeight(
+        seed,
+        colorSteps as number,
+        reverse,
+        schemeLightness,
+      );
+    }
+    return slot === "neutral" ? 800 : 500;
+  }
+
+  /** A shade with its chroma scaled by `factor` (`1` = untouched): gamut-baked literal when `seed` is known, otherwise the live `calc()` formula against `liveVarRef` (a plain `var()`, or one with a fallback chain). Shared by `scheme-*` (`factor: schemeChroma`, weight picked by `resolveSchemeWeight`) and `anchor-*`/`muted()` (`factor: 0.6`, fixed weight `500`) — same operation, different factor/weight. */
+  function chromaScaledEntry(
+    seed: OklchSeed | null,
+    weight: number,
+    reverse: boolean,
+    factor: number,
+    liveVarRef: string,
+  ): string {
+    if (!seed) return factor === 1 ? liveVarRef : muted(liveVarRef, factor);
+    const { l, c, h } = resolveBakedShade(seed, weight, reverse);
+    return formatOklch(l, c * factor, h);
+  }
+
+  const normalSchemeChroma = schemeChroma ?? 1;
+
   /** Full `colors` token record for one shade direction (light or dark). */
   function buildColors(reverse: boolean): Record<string, string> {
     const primaryShades = luzShadesByHue({
@@ -385,16 +474,24 @@ export function luz(config?: LuzConfig): LuzResult {
       name: primaryName,
       reverse,
       steps: colorSteps,
+      seed: primarySeed,
     });
     const secondaryShades = luzShadesByHue({
       color: secondaryCSSVar,
       name: secondaryName,
       reverse,
       steps: colorSteps,
+      seed: secondarySeed,
     });
 
     const tertiaryShades = tertiaryColor
-      ? luzShadesByHue({ color: tertiaryCSSVar, name: tertiaryName, reverse, steps: colorSteps })
+      ? luzShadesByHue({
+          color: tertiaryCSSVar,
+          name: tertiaryName,
+          reverse,
+          steps: colorSteps,
+          seed: tertiarySeed,
+        })
       : {};
 
     const quaternaryShades = quaternaryColor
@@ -403,6 +500,7 @@ export function luz(config?: LuzConfig): LuzResult {
           name: quaternaryName,
           reverse,
           steps: colorSteps,
+          seed: quaternarySeed,
         })
       : {};
 
@@ -411,6 +509,7 @@ export function luz(config?: LuzConfig): LuzResult {
       name: neutralsName,
       reverse,
       steps: colorSteps,
+      seed: neutralSeed,
     });
 
     const wheel: Record<string, string> = luzWheel(
@@ -419,7 +518,37 @@ export function luz(config?: LuzConfig): LuzResult {
       prefix,
       colorSteps,
       wheelOverrides,
+      primarySeed,
     );
+
+    const primaryWeight = resolveSchemeWeight("primary", primarySeed, reverse);
+    const secondaryWeight = resolveSchemeWeight(
+      "secondary",
+      secondarySeed,
+      reverse,
+    );
+    const tertiaryWeight = resolveSchemeWeight(
+      "tertiary",
+      tertiarySeed,
+      reverse,
+    );
+    const quaternaryWeight = resolveSchemeWeight(
+      "quaternary",
+      quaternarySeed,
+      reverse,
+    );
+    const neutralWeight = resolveSchemeWeight("neutral", neutralSeed, reverse);
+
+    const tertiaryAnchorSeed = tertiaryColor ? tertiarySeed : secondarySeed;
+    const tertiaryEffectiveWeight = tertiaryColor
+      ? tertiaryWeight
+      : secondaryWeight;
+    const quaternaryAnchorSeed = quaternaryColor
+      ? quaternarySeed
+      : tertiaryAnchorSeed;
+    const quaternaryEffectiveWeight = quaternaryColor
+      ? quaternaryWeight
+      : tertiaryEffectiveWeight;
 
     return {
       [primaryName]: primary,
@@ -435,6 +564,118 @@ export function luz(config?: LuzConfig): LuzResult {
       background: `var(--${neutralsName}-900)`,
       foreground: `var(--${neutralsName}-100)`,
       ...wheel,
+      "scheme-primary": chromaScaledEntry(
+        primarySeed,
+        primaryWeight,
+        reverse,
+        normalSchemeChroma,
+        `var(--${primaryName}-${primaryWeight})`,
+      ),
+      "scheme-secondary": chromaScaledEntry(
+        secondarySeed,
+        secondaryWeight,
+        reverse,
+        normalSchemeChroma,
+        `var(--${secondaryName}-${secondaryWeight})`,
+      ),
+      "scheme-tertiary": chromaScaledEntry(
+        tertiaryAnchorSeed,
+        tertiaryEffectiveWeight,
+        reverse,
+        normalSchemeChroma,
+        `var(--${tertiaryName}-${tertiaryWeight}, var(--${secondaryName}-${secondaryWeight}))`,
+      ),
+      "scheme-quaternary": chromaScaledEntry(
+        quaternaryAnchorSeed,
+        quaternaryEffectiveWeight,
+        reverse,
+        normalSchemeChroma,
+        `var(--${quaternaryName}-${quaternaryWeight}, var(--${tertiaryName}-${tertiaryWeight}, var(--${secondaryName}-${secondaryWeight})))`,
+      ),
+      "scheme-neutral": chromaScaledEntry(
+        neutralSeed,
+        neutralWeight,
+        reverse,
+        normalSchemeChroma,
+        `var(--${neutralsName}-${neutralWeight})`,
+      ),
+      "scheme-info": chromaScaledEntry(
+        infoSeed,
+        200,
+        reverse,
+        normalSchemeChroma,
+        `var(--${prefix}info)`,
+      ),
+      "scheme-danger": chromaScaledEntry(
+        dangerSeed,
+        200,
+        reverse,
+        normalSchemeChroma,
+        `var(--${prefix}danger)`,
+      ),
+      "scheme-success": chromaScaledEntry(
+        successSeed,
+        200,
+        reverse,
+        normalSchemeChroma,
+        `var(--${prefix}success)`,
+      ),
+      "scheme-warning": chromaScaledEntry(
+        warningSeed,
+        200,
+        reverse,
+        normalSchemeChroma,
+        `var(--${prefix}warning)`,
+      ),
+      anchor: chromaScaledEntry(
+        infoSeed,
+        200,
+        reverse,
+        0.6,
+        `var(--${prefix}info)`,
+      ),
+      "anchor-secondary": chromaScaledEntry(
+        secondarySeed,
+        500,
+        reverse,
+        0.6,
+        `var(--${secondaryName}-500)`,
+      ),
+      "anchor-tertiary": chromaScaledEntry(
+        tertiaryAnchorSeed,
+        500,
+        reverse,
+        0.6,
+        `var(--${tertiaryName}-500, var(--${secondaryName}-500))`,
+      ),
+      "anchor-quaternary": chromaScaledEntry(
+        quaternaryAnchorSeed,
+        500,
+        reverse,
+        0.6,
+        `var(--${quaternaryName}-500, var(--${tertiaryName}-500, var(--${secondaryName}-500)))`,
+      ),
+      "anchor-danger": chromaScaledEntry(
+        dangerSeed,
+        200,
+        reverse,
+        0.6,
+        `var(--${prefix}danger)`,
+      ),
+      "anchor-success": chromaScaledEntry(
+        successSeed,
+        200,
+        reverse,
+        0.6,
+        `var(--${prefix}success)`,
+      ),
+      "anchor-warning": chromaScaledEntry(
+        warningSeed,
+        200,
+        reverse,
+        0.6,
+        `var(--${prefix}warning)`,
+      ),
       border: `var(--border-width) solid var(--element-border-color)`,
       "depth-base": `${depth}`,
       "depth-max": `${depthMax}`,
@@ -488,7 +729,6 @@ export function luz(config?: LuzConfig): LuzResult {
     }
     return lines.join("\n");
   }
-
 
   const shadedNames = [
     primaryName,

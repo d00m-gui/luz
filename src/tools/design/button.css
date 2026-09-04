@@ -23,20 +23,23 @@ button {
   text-decoration: none;
   background-color: var(--current-bg);
   color: var(--current-color);
-  box-shadow: 0 0.05rem 0 var(--size-unit) oklch(from var(--current-color) 100% c h / 6%) inset,
-  0 -0.7ch 3px -2px color-mix(in oklch, var(--current-bg) 90%, var(--neutral-800)) inset,
-  0 3px 2px -2px color-mix(in oklch, var(--neutral-500) 30%, transparent);
   transition: var(--transition);
+  box-shadow:
+    0 0.3px 0 1px oklch(from var(--current-color) 100% c h / 6%) inset,
+    0 -0.5px 3px -2px
+      color-mix(in oklch, var(--current-bg) 90%, var(--neutral-950)) inset,
+    0 3px 1px -2px color-mix(in oklch, var(--neutral-950) 30%, transparent);
+  text-shadow: 0 0.5px oklch(100% 0 0 / 6%);
   &[role="secondary"],
   &[role="alternative"],
   &.alternative {
-    --scheme: var(--secondary);
+    --scheme: var(--scheme-secondary);
   }
   &[role="tertiary"] {
-    --scheme: var(--tertiary, var(--secondary));
+    --scheme: var(--scheme-tertiary);
   }
   &[role="quaternary"] {
-    --scheme: var(--quaternary, var(--tertiary, var(--secondary)));
+    --scheme: var(--scheme-quaternary);
   }
   &[type="reset"],
   &[role="cancel"],
@@ -46,19 +49,21 @@ button {
   }
   &[role="apply"],
   &.apply {
-    --scheme: var(--success);
+    --scheme: var(--scheme-success);
   }
   &[role="contrast"] {
     --scheme: var(--foreground);
   }
   &.cta {
     gap: var(--space-1);
-    padding: calc(var(--element-vertical) * 2) calc(var(--element-horizontal) * 2);
-    .text-xs, .text-sm {
+    padding: calc(var(--element-vertical) * 2)
+      calc(var(--element-horizontal) * 2);
+    .text-xs,
+    .text-sm {
       font-size: var(--font-size-base);
       text-transform: uppercase;
       font-weight: var(--font-bold-weight);
-      opacity: 0.80;
+      opacity: 0.8;
     }
     .text-lg {
       display: block;
@@ -66,7 +71,6 @@ button {
       line-height: 90%;
       font-weight: var(--font-bold-weight);
     }
-
   }
   &.badge {
     box-shadow: none;
@@ -121,9 +125,11 @@ button {
   &:active {
     transform: translateY(0.1ch);
     background-color: oklch(from var(--current-bg) calc(l - 0.02) c h);
-    box-shadow: 0 0 0 var(--size-unit) oklch(from var(--neutral-950) l c h / 10%) inset,
-    0 -4ch 3px -2px color-mix(in oklch, var(--current-bg) 90%, var(--neutral-800)) inset,
-    0 3px 2px -2px color-mix(in oklch, var(--neutral-950) 30%, transparent)
+    box-shadow:
+      0 0 0 var(--size-unit) oklch(from var(--neutral-950) l c h / 10%) inset,
+      0 -4ch 3px -2px
+        color-mix(in oklch, var(--current-bg) 90%, var(--neutral-800)) inset,
+      0 3px 2px -2px color-mix(in oklch, var(--neutral-950) 30%, transparent);
   }
   &.badge:active {
     box-shadow: none;
