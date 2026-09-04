@@ -3,18 +3,29 @@ title: Grid
 category: Layout
 covers:
   - grid
-  - grid-cols-3
-  - col-span-1
-  - col-span-2
-  - col-span-full
 span: 2
-wip: true
 ---
 
-<div class="grid grid-cols-3" style="gap: var(--space-2)">
-  <div class="card col-span-2">col-span-2</div>
-  <div class="card">col-span-1</div>
-  <div class="card">col-span-1</div>
-  <div class="card">col-span-1</div>
-  <div class="card col-span-full">col-span-full</div>
+<div class="grid">
+  <div class="card">card</div>
+  <div class="card">card</div>
+  <div class="card">card</div>
+  <div class="card">card</div>
+  <div class="card">card</div>
+</div>
+
+## Grid Overflow
+
+<div class="grid overflow">
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/001-w.png" />
+    </figure>
+    <div class="card-title">Luz #Image</div>
+    <p>Description</p>
+    <div class="card-footer">Footer</div>
+  </div>
 </div>

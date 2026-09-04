@@ -8,9 +8,21 @@ import {
   type ToolbarState,
 } from "../lib/theme-state";
 
+function resolveHex(color: string): string {
+  const probe = document.createElement("div");
+  probe.style.color = color;
+  document.body.appendChild(probe);
+  const rgb = getComputedStyle(probe).color;
+  probe.remove();
+  const m = rgb.match(/\d+/g);
+  if (!m) return "#000000";
+  const [r, g, b] = m.map(Number);
+  return `#${[r, g, b].map((n) => n.toString(16).padStart(2, "0")).join("")}`;
+}
+
 function formatConfig(state: ToolbarState): string {
   return `luz({
-  primary: "${state.primary}",
+  primary: "${state.primary}",${state.background ? `\n  background: "${state.background}",` : ""}
   mode: "${state.mode}",
   harmony: "${state.harmony}",
   preset: "${state.preset}",
@@ -29,7 +41,7 @@ export function ThemeToolbar() {
   const [state, update, ready] = useThemeState();
 
   const config: LuzConfig = useMemo(
-    () => ({ ...siteConfig, ...state }),
+    () => ({ ...siteConfig, ...state, background: state.background || undefined }),
     [state],
   );
   const variables = useMemo(() => luz(config).variables, [config]);
@@ -43,7 +55,19 @@ export function ThemeToolbar() {
         <div className="components-toolbar-controls">
           <label>
             Primary
-            <code>{state.primary}</code>
+            <input
+              type="color"
+              value={resolveHex(state.primary)}
+              onChange={(e) => update({ primary: e.target.value })}
+            />
+          </label>
+          <label>
+            Background
+            <input
+              type="color"
+              value={resolveHex(state.background || "var(--background)")}
+              onChange={(e) => update({ background: e.target.value })}
+            />
           </label>
           <label>
             Mode
@@ -97,18 +121,6 @@ export function ThemeToolbar() {
             <span>{state.neutralTint.toFixed(1)}</span>
           </label>
           <label>
-            Depth
-            <input
-              type="range"
-              min={0}
-              max={4}
-              step={1}
-              value={state.depth}
-              onChange={(e) => update({ depth: Number(e.target.value) })}
-            />
-            <span>{state.depth}</span>
-          </label>
-          <label>
             Depth max
             <input
               type="range"
@@ -150,7 +162,7 @@ export function ThemeToolbar() {
               type="range"
               min={0.7}
               max={1.75}
-              step={0.01}
+              step={0.1}
               data-ticks
               style={{ "--range-steps": 10 } as CSSProperties}
               value={state.density}
@@ -164,7 +176,7 @@ export function ThemeToolbar() {
               type="range"
               min={0.3}
               max={0.8}
-              step={0.01}
+              step={0.05}
               data-ticks
               style={{ "--range-steps": 10 } as CSSProperties}
               value={state.contrastThreshold}
@@ -180,7 +192,7 @@ export function ThemeToolbar() {
               type="range"
               min={0.2}
               max={1}
-              step={0.05}
+              step={0.1}
               data-ticks
               style={{ "--range-steps": 8 } as CSSProperties}
               value={state.schemeChroma}

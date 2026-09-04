@@ -9,6 +9,7 @@ export const THEME_SCOPE_SELECTOR = ":root";
 
 export interface ToolbarState {
   primary: string;
+  background: string;
   mode: "light" | "dark" | "auto";
   preset: "app" | "content" | "landing";
   neutralTint: number;
@@ -24,6 +25,7 @@ export interface ToolbarState {
 
 export const DEFAULT_STATE: ToolbarState = {
   primary: siteConfig.primary,
+  background: siteConfig.background ?? "",
   mode: siteConfig.mode ?? LUZ_DEFAULT_CONFIG.mode ?? "dark",
   preset: siteConfig.preset ?? "content",
   neutralTint: siteConfig.neutralTint ?? LUZ_DEFAULT_CONFIG.neutralTint ?? 0,

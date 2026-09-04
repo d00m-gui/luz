@@ -46,11 +46,38 @@ export interface ComponentDoc {
   variants?: { title: string; desc?: string; html: string; preview?: string }[];
 }
 
+const PREVIEW_RE = /<!--\s*preview\s*-->([\s\S]*?)<!--\s*\/preview\s*-->/;
+
+/** Pulls a `<!--preview-->…<!--/preview-->` override out of a section, leaving the rest as copyable `html`. */
+function splitPreview(section: string): { html: string; preview?: string } {
+  const match = section.match(PREVIEW_RE);
+  if (!match || match.index === undefined) return { html: section.trim() };
+  return {
+    preview: match[1].trim(),
+    html: (section.slice(0, match.index) + section.slice(match.index + match[0].length)).trim(),
+  };
+}
+
+/** Splits a component's body on `## Title — desc` headings into the base entry and its variants. */
+function parseBody(body: string) {
+  const [base, ...sections] = body.split(/\n(?=## )/);
+  const variants = sections.map((section) => {
+    const newline = section.indexOf("\n");
+    const heading = section.slice(2, newline === -1 ? undefined : newline).trim();
+    const content = newline === -1 ? "" : section.slice(newline + 1);
+    const sep = heading.indexOf(" — ");
+    const title = sep === -1 ? heading : heading.slice(0, sep);
+    const desc = sep === -1 ? undefined : heading.slice(sep + 3);
+    return { title: title.trim(), desc: desc?.trim(), ...splitPreview(content) };
+  });
+  return { ...splitPreview(base ?? ""), variants: variants.length ? variants : undefined };
+}
+
 export async function loadComponents() {
   const entries = await getCollection("components");
   const components: ComponentDoc[] = entries.map((entry) => ({
     id: entry.id,
-    html: entry.body?.trim() ?? "",
+    ...parseBody(entry.body?.trim() ?? ""),
     ...entry.data,
   }));
 

@@ -18,17 +18,17 @@ span: 2
     <tr>
       <td>Ada Lovelace</td>
       <td>Admin</td>
-      <td><span class="dot success"></span> Active</td>
+      <td><span class="status success"></span> Active</td>
     </tr>
     <tr>
       <td>Grace Hopper</td>
       <td>Editor</td>
-      <td><span class="dot warning"></span> Pending</td>
+      <td><span class="status warning"></span> Pending</td>
     </tr>
     <tr>
       <td>Alan Turing</td>
       <td>Viewer</td>
-      <td><span class="dot neutral"></span> Invited</td>
+      <td><span class="status neutral"></span> Invited</td>
     </tr>
   </tbody>
 </table>

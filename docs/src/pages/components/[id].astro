@@ -25,32 +25,30 @@ const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
   breadcrumb={component.title}
   hue={hue}
 >
-  <h2 style={`color: var(--${hue}-500)`}>
+  <!-- <h2 style={`color: var(--${hue}-500)`}>
     {component.title}
-    {component.desc && <small set:html={` — ${component.desc}`} />}
-  </h2>
+  </h2> -->
+  {component.desc && <p set:html={` — ${component.desc}`} />}
   <div class="docs-sections">
-    <section class="card">
-      <article class="component-doc">
-        <div class={`component-preview elevate ${component.id}-preview`}>
-          <Fragment set:html={component.preview ?? component.html} />
-        </div>
-        <CodeBlock code={component.html} />
-      </article>
-      {
-        component.variants?.map((variant) => (
-          <article class="component-doc">
-            <h3 class="component-doc-title">
-              {variant.title}
-              {variant.desc && <small set:html={` — ${variant.desc}`} />}
-            </h3>
-            <div class={`component-preview elevate ${component.id}-variant-preview`}>
-              <Fragment set:html={variant.preview ?? variant.html} />
-            </div>
-            <CodeBlock code={variant.html} />
-          </article>
-        ))
-      }
-    </section>
+    <article class="component-doc">
+      <div class={`component-preview elevate ${component.id}-preview`}>
+        <Fragment set:html={component.preview ?? component.html} />
+      </div>
+      <CodeBlock code={component.html} />
+    </article>
+    {
+      component.variants?.map((variant) => (
+        <article class="component-doc">
+          <h3 class="component-doc-title">{variant.title}</h3>
+          {variant.desc && <p set:html={` — ${variant.desc}`} />}
+          <div
+            class={`component-preview elevate ${component.id}-variant-preview`}
+          >
+            <Fragment set:html={variant.preview ?? variant.html} />
+          </div>
+          <CodeBlock code={variant.html} />
+        </article>
+      ))
+    }
   </div>
 </Layout>

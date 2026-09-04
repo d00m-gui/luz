@@ -9,18 +9,25 @@ import { loadComponents } from "../content/components";
 
 interface Props {
   activeId: string;
+  title: string;
 }
 
-const { activeId } = Astro.props;
+const { activeId, title } = Astro.props;
 const features = (await getCollection("features")).sort(
   (a, b) => a.data.order - b.data.order,
 );
 const { visibleComponents } = await loadComponents();
-const componentsByCategory = Object.groupBy(visibleComponents, (c) => c.category);
+const componentsByCategory = Object.groupBy(
+  visibleComponents,
+  (c) => c.category,
+);
 ---
 
 <nav class="sidebar drawer-sidebar">
   <div class="sidebar-scroll scrollbar-thin">
+    <h2 class="main-title">
+      {title}
+    </h2>
     <div class="list">
       <a
         href="/"
@@ -39,15 +46,21 @@ const componentsByCategory = Object.groupBy(visibleComponents, (c) => c.category
               <summary>{category}</summary>
               <div class="list">
                 {entries!.map((c) => {
-                  const hue = COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
+                  const hue =
+                    COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
                   return (
                     <a
                       href={`/components/${c.id}`}
                       class="list-row"
-                      aria-current={activeId === `component-${c.id}` ? "page" : undefined}
+                      aria-current={
+                        activeId === `component-${c.id}` ? "page" : undefined
+                      }
                       style={`--sidebar-bg: var(--${hue}-400)`}
                     >
-                      <span class="sidebar-dot" style={`background: var(--${hue}-400)`} />
+                      <span
+                        class="sidebar-dot"
+                        style={`background: var(--${hue}-400)`}
+                      />
                       {c.title}
                     </a>
                   );
@@ -71,10 +84,15 @@ const componentsByCategory = Object.groupBy(visibleComponents, (c) => c.category
                   <a
                     href={`/api/${entry.id}`}
                     class="list-row"
-                    aria-current={activeId === `api-${entry.id}` ? "page" : undefined}
+                    aria-current={
+                      activeId === `api-${entry.id}` ? "page" : undefined
+                    }
                     style={`--sidebar-bg: var(--${hue}-400)`}
                   >
-                    <span class="sidebar-dot" style={`background: var(--${hue}-400)`} />
+                    <span
+                      class="sidebar-dot"
+                      style={`background: var(--${hue}-400)`}
+                    />
                     {entry.data.title}
                   </a>
                 );

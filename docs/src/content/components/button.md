@@ -7,18 +7,6 @@ covers:
   - icon
   - cta
 span: 2
-variants:
-  - title: CTA
-    desc: .btn.cta
-    html: |2-
-
-        <button class="cta">
-          <i class="icon text-2xl nf nf-fa-github"></i>
-          <div>
-            <span class="text-lg">Sin tarjeta de crédito</span>
-            <span class="text-sm">Empezar gratis</span>
-          </div>
-        </button>
 ---
 
 <button>Default</button>
@@ -37,3 +25,13 @@ variants:
 <button class="loading">Saving</button>
 
 <button class="block"><i class="icon nf nf-fa-github"></i> Continue with GitHub</button>
+
+## CTA — .btn.cta
+
+<button class="cta">
+  <i class="icon text-2xl nf nf-fa-github"></i>
+  <div>
+    <span class="text-lg">Sin tarjeta de crédito</span>
+    <span class="text-sm">Empezar gratis</span>
+  </div>
+</button>

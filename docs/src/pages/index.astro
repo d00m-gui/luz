@@ -2,9 +2,7 @@
 import Layout from "../layouts/Layout.astro";
 import { luz } from "../../../src/luz";
 import { WHEEL_HUE_NAMES } from "../../../src/tools/wheel";
-import { config } from "../../luz.config.ts";
 import { ThemeToolbar } from "../components/ThemeToolbar";
-import { ColorPicker } from "../components/ColorPicker";
 import { BrandColors } from "../components/BrandColors";
 import { Swatches } from "../components/Swatches";
 import { GamutLegend } from "../components/GamutLegend";
@@ -14,7 +12,6 @@ import {
   DEFAULT_CATEGORY_HUE,
 } from "../lib/category-colors";
 
-const { tokens } = luz(config);
 const { visibleComponents, uncoveredFiles } = await loadComponents();
 
 if (uncoveredFiles.length > 0) {
@@ -24,14 +21,12 @@ if (uncoveredFiles.length > 0) {
 }
 
 const WEIGHTS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
-const SHADE_SCALES = ["primary", "secondary", "neutral"];
 const WHEEL_HUES = WHEEL_HUE_NAMES;
-
-const TEXT_SCALE_NAMES = ["xs", "sm", "base", "lg", "xl", "2xl", "3xl"];
 
 function swatchStyle(name: string, weight: number) {
   return `background: var(--${name}-${weight}); color: contrast-color(var(--${name}-${weight}));`;
 }
+console.log("visible", visibleComponents);
 ---
 
 <Layout
@@ -45,16 +40,19 @@ function swatchStyle(name: string, weight: number) {
       <BrandColors client:load />
       <div class="hue">
         <GamutLegend client:load />
-        <Swatches names={["neutral", ...WHEEL_HUES]} weights={WEIGHTS} client:load />
+        <Swatches
+          names={["neutral", ...WHEEL_HUES]}
+          weights={WEIGHTS}
+          client:load
+        />
       </div>
     </div>
     <div class="card flex-1">
       <ThemeToolbar client:load />
-      <ColorPicker client:load />
     </div>
   </div>
   <div class="docs-sections">
-    <div class="grid components-index-grid">
+    <div class="components-index-grid">
       {
         visibleComponents.map((component) => {
           const hue =
@@ -78,58 +76,5 @@ function swatchStyle(name: string, weight: number) {
         })
       }
     </div>
-
-    <section class="card">
-      <div class="html fluid">
-        <h1>Un sistema de diseño que vive en tu CSS</h1>
-        <p>
-          luz genera colores, tipografía y espaciado a partir de un solo color <strong
-            >primary</strong
-          > — sin build step propio, sin runtime: el resultado es CSS plano que corre
-          en cualquier framework, o en ninguno.
-        </p>
-        <div class="kitchen-sink-row">
-          <button>Empezar</button>
-          <a href="/components/button" class="ghost">Ver componentes</a>
-        </div>
-
-        <hr />
-
-        <h1>Make it easy to read</h1>
-        <h2>Make it easy to read</h2>
-        <h3>Make it easy to read</h3>
-        <h4>Make it easy to read</h4>
-        <h5>Make it easy to read</h5>
-        <h6>Make it easy to read</h6>
-
-        <h3>Un color, una paleta completa</h3>
-        <p>
-          Cada paleta nace de una <a href="#" class="secondary"
-            >rueda armonizada</a
-          > de doce hues, pensada para que el contraste funcione en modo{" "}
-          <em>claro</em> y <em>oscuro</em> sin retocar nada a mano. El resultado:
-          componentes coherentes entre sí incluso cuando cambiás el color base.
-        </p>
-        <h3>La config siempre gana</h3>
-        <p>
-          La regla que gobierna todo el proyecto es simple:{" "}
-          <mark>cualquier valor que luz calcule puede overridearse</mark>,
-          aplicado al final del pipeline, sin pisadas de cálculos internos
-          posteriores. Si un <a href="#" class="danger">rojo</a> queda muy saturado
-          o un <a href="#" class="success">verde</a> poco legible, se ajusta en la
-          config — no en el CSS generado.
-        </p>
-        <blockquote>
-          "La mejor config es la que no tenés que tocar dos veces."
-          <cite>— filosofía de luz</cite>
-        </blockquote>
-        <p>
-          Buscá cualquier token, clase o variable con <kbd>Ctrl</kbd> +{" "}
-          <kbd>K</kbd>.
-        </p>
-        <hr />
-        <hr class="dashed" />
-      </div>
-    </section>
   </div>
 </Layout>

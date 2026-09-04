@@ -39,7 +39,7 @@
 @import "./design/overlay.css";
 @import "./design/stat.css";
 @import "./design/empty.css";
-@import "./design/dot.css";
+@import "./design/status.css";
 @import "./design/icon.css";
 @import "./design/fluid.css";
 @import "./design/_feedback.css";
@@ -48,3 +48,4 @@
 @import "./design/_scroll.css";
 @import "./design/grid.css";
 @import "./design/gradient.css";
+@import "./design/join.css";

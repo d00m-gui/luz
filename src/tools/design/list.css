@@ -1,9 +1,10 @@
 .list {
   display: flex;
   flex-direction: column;
+  width: 100%;
+  flex: 1 1 auto;
   .list {
-    padding-inline-start: var(--space-3);
-    border-inline-start: var(--border-width) solid var(--element-border-color);
+    padding-inline-start: var(--space-1);
     & > .list-row {
       gap: var(--space-2);
       padding: calc(var(--space-2) * var(--density, 1))
@@ -135,6 +136,26 @@ details.list-row {
 }
 .list {
   &.filetree {
-    background-color: red;
+    --density: 0.5;
+    --anchor: var(--on-table-hover);
+    .list {
+      margin-inline-start: var(--space-3);
+      border-inline-start: var(--border-width) solid var(--element-border-color);
+    }
+    .list-row {
+      border: none;
+    }
+    details.list-row {
+      summary {
+        background: transparent;
+        &:hover {
+          background-color: var(--table-hover-bg);
+          color: var(--on-table-hover);
+        }
+        &:after {
+          display: none;
+        }
+      }
+    }
   }
 }

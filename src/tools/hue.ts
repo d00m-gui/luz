@@ -3,8 +3,8 @@ import { clampToSrgb, formatOklch, type OklchSeed } from "./gamut";
 
 const CENTER_WEIGHT = 500;
 const MAX_DISTANCE = CENTER_WEIGHT - 50;
-/** Max signed `l` delta (0–1) from the 500 shade, reached at 50/950. */
-const MAX_OFFSET = 0.42;
+/** Fraction of the remaining headroom to `l=1`/`l=0` covered at 50/950 — never the full headroom, so no shade ever reaches pure white/black. Calibrated so a seed at `l=0.5` reproduces the old fixed `±0.42` curve exactly. */
+const LIGHTNESS_FRACTION = 0.84;
 
 function easeIn(t: number): number {
   return t * t;
@@ -21,13 +21,16 @@ function generateWeights(steps: number): number[] {
   return result;
 }
 
-/** Signed `l` delta from the 500 shade for a weight, eased toward the extremes. */
-function lightnessOffset(weight: number, reverse: boolean): number {
-  if (weight === CENTER_WEIGHT) return 0;
+/** Direction (`+1` lighten, `-1` darken, `0` unchanged) and eased fraction (0–`LIGHTNESS_FRACTION`) of the headroom to `l=1`/`l=0` a weight reaches, relative to the 500 shade. */
+function lightnessFactor(
+  weight: number,
+  reverse: boolean,
+): { sign: 1 | -1 | 0; fraction: number } {
+  if (weight === CENTER_WEIGHT) return { sign: 0, fraction: 0 };
   const t = (weight - CENTER_WEIGHT) / MAX_DISTANCE;
-  const magnitude = easeIn(Math.abs(t)) * MAX_OFFSET;
-  const sign = Math.sign(t) * (reverse ? -1 : 1);
-  return sign * magnitude;
+  const fraction = easeIn(Math.abs(t)) * LIGHTNESS_FRACTION;
+  const sign = (Math.sign(t) * (reverse ? -1 : 1)) as 1 | -1;
+  return { sign, fraction };
 }
 
 function shadeEntry(
@@ -38,10 +41,15 @@ function shadeEntry(
 ): [key: string, value: string] {
   if (weight === CENTER_WEIGHT)
     return [`${name}-${weight}`, `oklch(from ${color} l c h)`];
-  const offset = lightnessOffset(weight, reverse).toFixed(3);
+  const { sign, fraction } = lightnessFactor(weight, reverse);
+  const f = fraction.toFixed(3);
+  const lExpr =
+    sign > 0
+      ? `calc(l * ${(1 - fraction).toFixed(3)} + ${f})`
+      : `calc(l * ${(1 - fraction).toFixed(3)})`;
   return [
     `${name}-${weight}`,
-    `oklch(from var(--${name}-${CENTER_WEIGHT}) clamp(0, calc(l + (${offset})), 1) c h)`,
+    `oklch(from var(--${name}-${CENTER_WEIGHT}) ${lExpr} c h)`,
   ];
 }
 
@@ -51,10 +59,13 @@ export function resolveBakedShade(
   weight: number,
   reverse: boolean,
 ): OklchSeed {
+  const { sign, fraction } = lightnessFactor(weight, reverse);
   const l =
-    weight === CENTER_WEIGHT
+    sign === 0
       ? seed.l
-      : Math.min(1, Math.max(0, seed.l + lightnessOffset(weight, reverse)));
+      : sign > 0
+        ? seed.l * (1 - fraction) + fraction
+        : seed.l * (1 - fraction);
   return clampToSrgb({ l, c: seed.c, h: seed.h });
 }
 

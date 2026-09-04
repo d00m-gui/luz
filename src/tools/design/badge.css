@@ -8,7 +8,8 @@
   font-size: var(--font-size-small);
   font-weight: var(--font-bold-weight);
   line-height: var(--line-height);
-  background-color: var(--current-bg);
+  background-color: oklch(from var(--current-bg) l c h / 46%);
+  border: var(--border-width) solid var(--current-bg);
   color: var(--current-color);
   &.ghost {
     background-color: transparent;

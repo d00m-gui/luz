@@ -36,19 +36,8 @@ const components = defineCollection({
       "Identity",
     ]),
     covers: z.array(z.string()),
-    preview: z.string().optional(),
     span: z.union([z.literal(2), z.literal(3)]).optional(),
     wip: z.boolean().optional(),
-    variants: z
-      .array(
-        z.object({
-          title: z.string(),
-          desc: z.string().optional(),
-          html: z.string(),
-          preview: z.string().optional(),
-        }),
-      )
-      .optional(),
   }),
 });
 

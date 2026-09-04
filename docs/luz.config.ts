@@ -9,7 +9,22 @@ export const config: LuzAstroConfig = {
   "font-monospace": "var(--dm-mono)",
   "font-emphasis": "var(--eb-serif)",
   properties: true,
+  depth: 0,
+  depthMax: 0,
+  depthDecay: 0,
+  depthSign: 0,
   neutralTint: 0,
   contrastThreshold: 0.67,
   schemeChroma: 0.9,
+  density: 0.95
 };
+
+
+// neutralTint: 0.8,
+// depth: 0,
+// depthMax: 0,
+// depthDecay: 0,
+// depthSign: 0,
+// density: 1.3,
+// contrastThreshold: 0.5,
+// schemeChroma: 1
