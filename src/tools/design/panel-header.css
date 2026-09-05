@@ -2,13 +2,16 @@
   display: flex;
   align-items: center;
   gap: var(--space-4);
-  .panel-header-title {
+  .panel-header-title, .panel-auto {
     flex: 1 1 auto;
   }
+  .panel-shrink {
+    flex: 0 0 auto;
+  }
+
 }
 .panel-header.top,
 .panel-header.bottom {
-  justify-content: space-between;
   padding: var(--space-3) var(--space-5);
   background-color: var(--element-background);
 }

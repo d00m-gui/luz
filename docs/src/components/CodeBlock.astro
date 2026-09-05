@@ -4,9 +4,10 @@ import { Code } from "astro:components";
 interface Props {
   code: string;
   lang?: string;
+  component: string;
 }
 
-const { code, lang = "html" } = Astro.props;
+const { code, lang = "html", component } = Astro.props;
 
 const luzShikiTheme = {
   name: "luz",
@@ -16,7 +17,10 @@ const luzShikiTheme = {
     "editor.foreground": "var(--shiki-token-text)",
   },
   tokenColors: [
-    { scope: ["comment"], settings: { foreground: "var(--shiki-token-comment)" } },
+    {
+      scope: ["comment"],
+      settings: { foreground: "var(--shiki-token-comment)" },
+    },
     {
       scope: ["string", "string.quoted"],
       settings: { foreground: "var(--shiki-token-string)" },
@@ -41,7 +45,14 @@ const luzShikiTheme = {
 };
 ---
 
-<div class="component-code">
-  <button class="copy-btn ghost" data-copy type="button">Copy</button>
-  <Code code={code} lang={lang} theme={luzShikiTheme} />
+<div class="list filetree component-code">
+  <details class="list-row">
+    <summary class="btn ghost"
+      ><i class="icon nf nf-md-file_code"></i> Code</summary
+    >
+    <div class="code">
+      <button class="copy-btn ghost" data-copy type="button">Copy</button>
+      <Code code={code} lang={lang} theme={luzShikiTheme} />
+    </div>
+  </details>
 </div>

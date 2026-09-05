@@ -7,12 +7,15 @@ import {
 } from "../lib/category-colors";
 import { loadComponents } from "../content/components";
 
+import LuzLogo from "./LuzLogo.astro";
+
 interface Props {
   activeId: string;
   title: string;
+  hue: string;
 }
 
-const { activeId, title } = Astro.props;
+const { activeId, title, hue } = Astro.props;
 const features = (await getCollection("features")).sort(
   (a, b) => a.data.order - b.data.order,
 );
@@ -25,9 +28,12 @@ const componentsByCategory = Object.groupBy(
 
 <nav class="sidebar drawer-sidebar">
   <div class="sidebar-scroll scrollbar-thin">
-    <h2 class="main-title">
-      {title}
-    </h2>
+    <div class="main-title">
+      <figure class="logo">
+        <LuzLogo color={`var(--${hue}-500)`} />
+      </figure>
+      <h5 class="component-name" style={`color: var(--${hue}-200)`}>{title}</h5>
+    </div>
     <div class="list">
       <a
         href="/"

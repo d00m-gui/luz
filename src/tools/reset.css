@@ -9,11 +9,10 @@
   font-weight: var(--font-weight);
   line-height: var(--line-height);
   font-size: inherit;
-  box-sizing: inherit;
+  box-sizing: border-box;
 }
 html,
 body {
-  box-sizing: border-box;
   -webkit-font-smoothing: antialiased;
   height: 100%;
   margin: 0;

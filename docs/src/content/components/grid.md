@@ -7,11 +7,26 @@ span: 2
 ---
 
 <div class="grid">
-  <div class="card">card</div>
-  <div class="card">card</div>
-  <div class="card">card</div>
-  <div class="card">card</div>
-  <div class="card">card</div>
+  <div class="card">
+    <figure class="card-feature">
+      <img src="/samples/009-w.png" />
+    </figure>
+  </div>
+  <div class="card">
+    <figure class="card-feature">
+      <img src="/samples/010-w.png" />
+    </figure>
+  </div>
+  <div class="card">
+    <figure class="card-feature">
+      <img src="/samples/004-w.png" />
+    </figure>
+  </div>
+  <div class="card">
+    <figure class="card-feature">
+      <img src="/samples/006-w.png" />
+    </figure>
+  </div>
 </div>
 
 ## Grid Overflow
@@ -24,8 +39,127 @@ span: 2
     <figure class="card-feature">
       <img src="/samples/001-w.png" />
     </figure>
-    <div class="card-title">Luz #Image</div>
-    <p>Description</p>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
+    <div class="card-footer">Footer</div>
+  </div>
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/002-w.png" />
+    </figure>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
+    <div class="card-footer">Footer</div>
+  </div>
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/003-w.png" />
+    </figure>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
+    <div class="card-footer">Footer</div>
+  </div>
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/004-w.png" />
+    </figure>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
+    <div class="card-footer">Footer</div>
+  </div>
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/005-w.png" />
+    </figure>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
+    <div class="card-footer">Footer</div>
+  </div>
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/006-w.png" />
+    </figure>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
+    <div class="card-footer">Footer</div>
+  </div>
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/007-w.png" />
+    </figure>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
+    <div class="card-footer">Footer</div>
+  </div>
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/008-w.png" />
+    </figure>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
+    <div class="card-footer">Footer</div>
+  </div>
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/009-w.png" />
+    </figure>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
+    <div class="card-footer">Footer</div>
+  </div>
+  <div class="card">
+    <div class="card-meta">
+      <span class="badge neutral">Overflow</span>
+    </div>
+    <figure class="card-feature">
+      <img src="/samples/010-w.png" />
+    </figure>
+    <div class="card-content">
+      <h4>Luz #Image</h4>
+      <p>Description</p>
+    </div>
     <div class="card-footer">Footer</div>
   </div>
 </div>

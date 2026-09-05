@@ -250,7 +250,7 @@
   height: var(--space-12);
   color: var(--neutral-950);
   font-family: var(--font-monospace);
-  font-size: var(--size-10);
+  font-size: var(--space-10);
   padding-bottom: var(--space-1);
   mix-blend-mode: difference;
 }

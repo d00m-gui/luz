@@ -5,6 +5,7 @@ covers:
   - code
   - pre
   - samp
+wip: true
 ---
 
 <p>Install with <code>bun add luz</code>, then call <code>luz(config)</code>.</p>

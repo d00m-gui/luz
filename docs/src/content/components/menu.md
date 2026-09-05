@@ -13,10 +13,10 @@ covers:
   <a class="list-row danger"><i class="icon nf nf-fa-trash_can"></i><span class="list-col-grow">Delete</span><span><kbd>Meta</kbd>+<kbd>D</kbd></span></a>
 </div>
 
-## Menú contextual — click derecho
+## Menú contextual
 
-<div class="card" style="anchor-name: --ctx-anchor; text-align: center; cursor: context-menu" oncontextmenu="event.preventDefault(); this.nextElementSibling.showPopover()">
-  Right-click here
+<div class="card" style="anchor-name: --ctx-anchor;" oncontextmenu="event.preventDefault(); this.nextElementSibling.showPopover()">
+  <div class="card-content">Right-click here</div>
 </div>
 <div popover id="menu-ctx" class="menu" style="position-anchor: --ctx-anchor">
   <a class="list-row">Cut</a>

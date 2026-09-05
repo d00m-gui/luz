@@ -3,6 +3,7 @@ import { Font } from "astro:assets";
 import { ClientRouter } from "astro:transitions";
 import Sidebar from "../components/Sidebar.astro";
 import Header from "../components/Header.astro";
+import Statusbar from "../components/Statusbar.astro";
 import { CrtIntroMount } from "../components/CrtIntroMount";
 import { DEFAULT_CATEGORY_HUE } from "../lib/category-colors";
 import "../styles/luz.css";
@@ -37,7 +38,6 @@ const {
   </head>
   <body>
     <div class="layout">
-      <Header breadcrumb={breadcrumb} />
       <div class="container main-row">
         <input
           type="checkbox"
@@ -46,22 +46,14 @@ const {
           checked
           hidden
         />
-        <Sidebar activeId={activeId} title={title} />
-        <main class="main">
-          <div class:list={["content", contentClass]}>
-            <slot />
-            <!-- <CrtIntroMount client:load transition:persist /> -->
-          </div>
+        <Sidebar activeId={activeId} title={title} hue={hue} />
+        <main class:list={["main", contentClass]}>
+          <Header breadcrumb={breadcrumb} />
+          <slot />
+          <!-- <CrtIntroMount client:load transition:persist /> -->
         </main>
       </div>
-      <div class="main-statusbar panel-header bottom">
-        <span>All systems nominal</span>
-        <div class="space"></div>
-        <span>palette</span>
-        <span>size</span>
-        <span>performance</span>
-        <span>luz v0.1.0</span>
-      </div>
+      <Statusbar />
     </div>
   </body>
 </html>

@@ -1,0 +1,24 @@
+---
+import LuzLogo from "./LuzLogo.astro";
+---
+
+<div class="main-statusbar panel-header bottom">
+  <figure class="small-logo">
+    <LuzLogo color={`var(--element-border-color)`} />
+  </figure>
+  <div class="panel-auto"><span>All systems nominal</span></div>
+  <span>palette</span>
+  <span>size</span>
+  <span>performance</span>
+  <span>luz v0.1.0</span>
+</div>
+
+<style>
+  .small-logo {
+    flex: 0 0 auto;
+    svg {
+      width: 24px;
+      height: 24px;
+    }
+  }
+</style>

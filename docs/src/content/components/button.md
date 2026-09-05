@@ -10,6 +10,9 @@ span: 2
 ---
 
 <button>Default</button>
+
+## Variants
+
 <button class="neutral">Neutral</button>
 <button class="success">Success</button>
 <button class="contrast">Contrast</button>

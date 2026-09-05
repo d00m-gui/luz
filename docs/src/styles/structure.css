@@ -13,17 +13,47 @@
   .main-row {
     flex: 1 1 auto;
     min-height: 0;
+    display: flex;
     .sidebar {
       height: 100%;
       overflow: hidden;
       border-right: var(--border-width) solid var(--element-border-color);
+      container-type: inline-size;
       .main-title {
-        padding: var(--space-8) var(--space-4) var(--space-4);
+        padding: var(--space-4);
+        position: relative;
+      }
+      .logo svg {
+        width: min(70px, 100%);
+        height: min(70px, 100%);
+        path {
+          stroke-width: 5px;
+          stroke: var(--background);
+        }
+      }
+      .component-name {
+        position: absolute;
+        bottom: 1ch;
+        font-weight: var(--font-bold-weight);
+        color: var(--neutral-800);
+        z-index: -1;
+        scale: 1.75;
+        transform-origin: 0 100%;
+        text-indent: 0.5ch;
       }
       .sidebar-scroll > .list {
         border-top: var(--border-width) solid var(--element-border-color);
         border-bottom: var(--border-width) solid var(--element-border-color);
       }
+    }
+    .main {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
+      overflow-y: auto;
+      gap: var(--space-8);
     }
   }
   .main-statusbar {
@@ -52,8 +82,6 @@
   --tab-border-active: var(--background);
   align-items: center;
   background-color: var(--element-background);
-  padding: var(--space-2) var(--space-4);
-  border-bottom: var(--border-width) solid var(--element-border-color);
   .inner-location {
     display: flex;
     gap: var(--space-4);
@@ -64,15 +92,6 @@
   }
 }
 
-.main-row {
-  display: flex;
-  .main {
-    flex: 1 1 auto;
-    min-width: 0;
-    overflow: hidden;
-    overflow-y: auto;
-  }
-}
 
 .sidebar {
   container-type: inline-size;
@@ -326,9 +345,7 @@
   position: relative;
   gap: var(--space-4);
   padding: var(--space-5);
-  margin: 0 0 var(--space-5);
   border: var(--border-width) solid var(--preview-grid-color);
-  /*background-color: oklch(from var(--background) calc(l - 0.2) c h / 26%);*/
   opacity: 0.8;
   background-image:
     repeating-linear-gradient(
@@ -384,20 +401,14 @@
   &.button-preview,
   &.toast-preview,
   &.avatar-preview,
-  &.badge-preview {
+  &.badge-preview, &.badge-variant-preview {
     display: flex;
     flex-wrap: wrap;
   }
-  &.alert-preview,
+  &.alert-preview, &.alert-variant-preview,
   &.card-variant-preview {
     display: flex;
     flex-direction: column;
-    max-width: 40cqi;
-    margin: 0 auto var(--space-5);
-  }
-  &.card-preview {
-    max-width: 50cqi;
-    margin: 0 auto var(--space-5);
   }
 }
 
@@ -435,34 +446,38 @@
 
 .component-code {
   position: relative;
-  padding: var(--space-4);
-  border: var(--border-width) solid var(--element-border-color);
-  border-radius: var(--border-radius);
+  /*padding: var(--space-4);*/
+  margin: var(--space-4) 0;
+  background-color: var(--element-background);
   /* Tokens leídos por el tema custom de Shiki en CodeBlock.astro. */
   --shiki-token-text: var(--foreground);
-  --shiki-token-keyword: var(--orange-700);
+  --shiki-token-keyword: var(--primary-500);
   --shiki-token-parameter: var(--primary-200);
-  --shiki-token-string: var(--secondary-500);
+  --shiki-token-string: var(--green-600);
   --shiki-token-constant: var(--primary-50);
   --shiki-token-comment: var(--primary-100);
-  --shiki-token-punctuation: var(--primary-400);
-}
-
-.component-code pre {
-  margin: 0;
-  overflow-x: auto;
-  overflow-y: hidden;
-  font-family: var(--font-monospace);
-  code {
-    display: block;
-    font-size: 110%;
+  --shiki-token-punctuation: var(--primary-800);
+  .code {
+    position: relative;
+    background: oklch(from var(--background) calc(l * 0.5) c h / 26%);
+    width: 100%;
+    margin: var(--space-1) 0;
+    code {
+      padding: var(--space-5);
+      display: block;
+    }
+  }
+  .copy-btn {
+    position: absolute;
+    top: var(--space-2);
+    right: var(--space-2);
+    font-size: var(--font-size-small);
+    padding: var(--space-1) var(--space-3);
   }
 }
 
-.copy-btn {
-  position: absolute;
-  top: var(--space-2);
-  right: var(--space-2);
-  font-size: var(--font-size-small);
-  padding: var(--space-1) var(--space-3);
+.components-grid {
+  .components-item {
+
+  }
 }

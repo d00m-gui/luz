@@ -8,9 +8,9 @@
   font-size: var(--font-size-small);
   font-weight: var(--font-bold-weight);
   line-height: var(--line-height);
-  background-color: oklch(from var(--current-bg) l c h / 46%);
+  background-color: oklch(from var(--current-bg) l c h / 26%);
   border: var(--border-width) solid var(--current-bg);
-  color: var(--current-color);
+  color: var(--on-scheme);
   &.ghost {
     background-color: transparent;
     color: var(--on-badge-ghost);
@@ -19,5 +19,8 @@
   &.pill {
     border-radius: calc(var(--size-unit) * 40);
     padding-inline: var(--space-4);
+  }
+  &:hover {
+    color: var(--current-color);
   }
 }

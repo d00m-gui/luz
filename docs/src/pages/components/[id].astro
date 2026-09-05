@@ -46,7 +46,7 @@ const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
           >
             <Fragment set:html={variant.preview ?? variant.html} />
           </div>
-          <CodeBlock code={variant.html} />
+          <CodeBlock code={variant.html} component={component.id} />
         </article>
       ))
     }

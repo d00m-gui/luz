@@ -30,51 +30,51 @@ console.log("visible", visibleComponents);
 ---
 
 <Layout
-  title="Luz"
+  title="Sumario"
   activeId="luz-defaults"
   breadcrumb="Sumario"
   contentClass="luz-defaults"
 >
-  <div class="header flex gap-5">
-    <div class="luz-intro flex-1">
-      <BrandColors client:load />
-      <div class="hue">
-        <GamutLegend client:load />
-        <Swatches
-          names={["neutral", ...WHEEL_HUES]}
-          weights={WEIGHTS}
-          client:load
-        />
+  <div class="card list">
+    <p class="list-title">Luz Settings</p>
+    <details class="list-row">
+      <summary><i class="icon nf nf-fae-palette_color"></i> colors</summary>
+      <div class="list">
+        <BrandColors client:load />
+        <div class="hue">
+          <!-- <GamutLegend client:load /> -->
+          <Swatches
+            names={["neutral", ...WHEEL_HUES]}
+            weights={WEIGHTS}
+            client:load
+          />
+        </div>
       </div>
-    </div>
-    <div class="card flex-1">
-      <ThemeToolbar client:load />
-    </div>
+    </details>
+    <details class="list-row">
+      <summary><i class="icon nf nf-seti-config"></i> luz.config.ts</summary>
+      <div class="list">
+        <ThemeToolbar client:load />
+      </div>
+    </details>
   </div>
-  <div class="docs-sections">
-    <div class="components-index-grid">
-      {
-        visibleComponents.map((component) => {
-          const hue =
-            COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
-          const spanClass = component.span ? ` col-span-${component.span}` : "";
-          return (
-            <article
-              class={`card components-index-item lazy-render${spanClass}`}
-            >
-              <a
-                href={`/components/${component.id}`}
-                style={`color: var(--${hue}-500)`}
-              >
-                {component.title}
-              </a>
-              <div class={`component-preview elevate ${component.id}-preview`}>
-                <Fragment set:html={component.preview ?? component.html} />
-              </div>
-            </article>
-          );
-        })
-      }
-    </div>
+  <div class="components-grid grid">
+    {
+      visibleComponents.map((component) => {
+        const hue =
+          COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
+        return (
+          <article class={`card card-formula components-item lazy-render`}>
+            <div class={`card-content component-preview elevate ${component.id}-preview`}>
+              <Fragment set:html={component.preview ?? component.html} />
+            </div>
+            <div class="card-footer" style={`color: var(--${hue}-500)`}>
+              {component.title}
+              <!-- <a href={`/components/${component.id}`} /> -->
+            </div>
+          </article>
+        );
+      })
+    }
   </div>
 </Layout>
