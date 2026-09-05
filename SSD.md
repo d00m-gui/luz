@@ -397,7 +397,7 @@ inline-size` en un ancestro amplio (`body`) quedó descartado — convierte
 ## Capa de componentes curados (`design/*.css`)
 
 Recetas CSS puras estilo daisyUI, generadas desde tokens de luz (no
-fijas como un tema) — 49 archivos hoy bajo `src/tools/design/`, cada
+fijas como un tema) — 51 archivos hoy bajo `src/tools/design/`, cada
 uno self-contained (reset+layout+color+hover/focus/active del
 componente juntos), importados en orden por el manifest `design.css`
 (el orden importa: `_feedback.css` va último para ganarle
@@ -433,6 +433,40 @@ modificador, en vez de vivir como CSS separados. Aplicado:
 `_depth.css` (elevación por anidamiento) referencia estas clases por
 nombre en su lista `:where(...)` — actualizar ahí también si se agregan/
 renombran variantes.
+
+## `.join` — agrupar/fusionar elementos (`join.css`)
+
+Fusiona los hijos directos de `.join` en un solo bloque visual (fila u
+horizontal por default, `.join.vertical` para columna), sin agregar
+clases a los hijos — mismo criterio que `.tabs`. Colapsa bordes/radios
+entre elementos adyacentes (`margin-inline-start`/`margin-block-start`
+negativo del ancho del borde, radios solo en los extremos vía
+`border-start-start-radius`/etc. lógicas), sube `z-index` en
+`:hover`/`:focus`/`:focus-within` para que el foco/hover gane sobre el
+vecino. Soporta tipos mixtos (`[icon][input][button]`) porque el
+selector genérico (`.join > *`) da a cualquier hijo un borde/fondo/
+padding base — los componentes con su propio fondo (`.btn`/`.badge`)
+lo pisan por especificidad. El borde lee `--scheme` primero
+(`var(--scheme, var(--element-border-color))`), así una clase de
+`_feedback.css` en el propio `.join` (`.join.danger`, etc.) tiñe el
+grupo entero.
+
+## `.card` — `.card-content`/`.card-meta`/`.card-formula`
+
+`.card` deja de asumir un único bloque de contenido: `.card-content`/
+`.card-meta`/`.card-footer` son wrappers con su propio padding
+(`.card-meta`/`.card-footer` comparten el fondo/color del scheme de la
+card). `.card-formula` (flex column) fija `.card-meta`/`.card-footer`
+y deja `.card-content` como el único bloque flexible — pensado para
+grillas de tiles uniformes (usado en la grilla de componentes de
+`docs/`).
+
+## `.grid` — una sola regla auto-fit
+
+Se retiran las utilities `.grid-cols-N`/`.col-span-N` (sin uso real
+fuera de `docs/`) — `.grid` pasa a `repeat(auto-fit, minmax(min(25rem,
+100%), 1fr))` fijo, vía `--grid-col-size-min` overrideable por
+instancia.
 
 ## `_feedback.css` — esquema × tratamiento, 2 ejes combinables
 
