@@ -9,6 +9,7 @@
   pointer-events: none;
   width: 1px;
   height: 1px;
+  z-index: -1;
 }
 .tab {
   display: flex;
@@ -96,20 +97,21 @@
 }
 
 .tabs.bottom {
-  position: fixed;
-  inset-inline: 0;
-  inset-block-end: 0;
-  justify-content: space-around;
-  border-bottom: none;
-  border-top: var(--border-width) solid var(--element-border-color);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background-color: var(--element-background);
-  padding: calc(var(--space-3) * var(--density, 1)) 0;
+  margin: 0 auto;
+  border: none;
+  justify-content: space-evenly;
   .tab {
+    flex: 0 0 60px;
     flex-direction: column;
-    gap: var(--space-1);
-    padding: 0;
+    gap: 0;
+    padding: calc(var(--space-1) * var(--density, 1));
+    font-size: var(--font-size-base-fluid);
     border-bottom: none;
-    font-size: var(--font-size-small);
   }
   .tab[aria-current="page"] {
     color: var(--tab-border-active);

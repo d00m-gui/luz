@@ -5,10 +5,11 @@ covers:
   - alert
 ---
 
-<div class="alert success">Changes saved</div>
-
-## Variants
 <div class="alert">Default alert</div>
+
+## Feedback
+
+<div class="alert success">Changes saved</div>
 <div class="alert danger">Something went wrong</div>
 <div class="alert warning">Check your input</div>
 <div class="alert info">New version available</div>

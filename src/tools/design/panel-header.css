@@ -23,3 +23,6 @@
   font-size: var(--font-size-small);
   color: var(--on-element-placeholder);
 }
+.space {
+  flex: 1 1 auto;
+}

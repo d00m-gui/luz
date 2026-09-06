@@ -1,16 +1,29 @@
 ---
 import LuzLogo from "./LuzLogo.astro";
+import { GamutLegend } from "./GamutLegend";
 ---
 
 <div class="main-statusbar panel-header bottom">
+  <label
+    for="sidebar-drawer"
+    class="grow-0 btn ghost icon"
+    aria-label="Alternar sidebar"
+  >
+    <i class="nf nf-cod-layout_sidebar_left"></i>
+  </label>
   <figure class="small-logo">
-    <LuzLogo color={`var(--element-border-color)`} />
+    <LuzLogo color={`var(--primary)`} />
   </figure>
-  <div class="panel-auto"><span>All systems nominal</span></div>
-  <span>palette</span>
-  <span>size</span>
+  <GamutLegend client:load />
+  <div class="palette">
+    <span class="status" style={`color: var(--red-400)`}></span>
+    <span class="status" style={`color: var(--green-400)`}></span>
+    <span class="status" style={`color: var(--blue-400)`}></span>
+  </div>
+  <div class="space"></div>
+  <span>105KB</span>
   <span>performance</span>
-  <span>luz v0.1.0</span>
+  <span>v0.1.0</span>
 </div>
 
 <style>
@@ -20,5 +33,9 @@ import LuzLogo from "./LuzLogo.astro";
       width: 24px;
       height: 24px;
     }
+  }
+  .palette {
+    display: flex;
+    gap: var(--space-1);
   }
 </style>

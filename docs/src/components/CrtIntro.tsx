@@ -712,7 +712,7 @@ interface ModeTiming {
   showOsd: boolean;
 }
 
-const EXIT_MS = 900; // fade de salida del modo "intro" (original)
+const EXIT_MS = 1200; // fade de salida del modo "intro" (original)
 const END_TRIGGER = TOTAL + 0.4; // "intro": mantener negro antes de revelar, luego salir
 
 const TRANSITION_DURATION_S = 1.0;
@@ -865,11 +865,6 @@ export function CrtIntro({
   if (gone) return null;
 
   const overlayStyle: CSSProperties = {
-    position: "fixed",
-    top: 0,
-    right: 0,
-    left: 0,
-    zIndex: 2147483000,
     background: mode === "intro" ? "var(--background)" : "transparent",
     cursor: "pointer",
     opacity: exiting ? 0 : 1,
@@ -882,47 +877,15 @@ export function CrtIntro({
       ref={overlayRef}
       style={overlayStyle}
       onClick={skip}
-      aria-label="Intro luz"
+      aria-label="Luz Intro"
+      className="canvas-demo"
     >
-      {mode === "intro" && (
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background:
-              "radial-gradient(120% 90% at 50% 45%, rgba(30,90,140,0.10), rgba(0,0,0,0) 70%)",
-          }}
-        />
-      )}
       <canvas
         ref={canvasRef}
+        className="canvas-load"
         width={1200}
         height={720}
-        style={{
-          position: "absolute",
-          top: "5vw",
-          right: "5vw",
-          width: "1100px",
-          pointerEvents: "none",
-          mixBlendMode: mode === "transition" ? "overlay" : "normal",
-        }}
       />
-      {mode === "intro" && (
-        <div
-          style={{
-            position: "absolute",
-            right: 22,
-            bottom: 18,
-            font: "500 12px ui-monospace, 'SFMono-Regular', Menlo, monospace",
-            letterSpacing: "0.08em",
-            color: "oklch(from var(--foreground) l c h / 38%)",
-            pointerEvents: "none",
-            userSelect: "none",
-          }}
-        >
-          clic para entrar
-        </div>
-      )}
     </div>
   );
 }
@@ -983,24 +946,14 @@ export function CrtDockedOverlay({ sectionName }: CrtDockedOverlayProps) {
 
   return (
     <div
-      style={{
-        position: "absolute",
-        inset: 0,
-        zIndex: -1,
-        pointerEvents: "none",
-      }}
       aria-hidden="true"
+      className="canvas-demo"
     >
       <canvas
         ref={canvasRef}
+        className="canvas-static"
         width={1200}
         height={720}
-        style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          mixBlendMode: "overlay",
-        }}
       />
     </div>
   );

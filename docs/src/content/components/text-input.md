@@ -5,12 +5,16 @@ covers:
   - input
   - textarea
   - select
+wip: true
 ---
 
 <label>
   Text input
   <input type="text" placeholder="Type here" />
 </label>
+
+## Variantes
+
 <label>
   Invalid input
   <input type="text" aria-invalid="true" value="Something's off" />

@@ -140,6 +140,7 @@ export function luzSizes(
     spacing: `${((base / 10) * 3).toFixed(0)}vw`,
     "element-vertical": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
     "element-horizontal": `calc(${(base / 24).toFixed(3)}rem * var(--density, 1))`,
+    "element-width": `min(${(base * 1.78).toFixed(0)}rem, 100%)`,
   };
 }
 

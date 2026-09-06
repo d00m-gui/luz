@@ -12,8 +12,7 @@ export function GamutLegend() {
 
   return (
     <p className="gamut-legend">
-      Tu pantalla {p3 ? "soporta" : "no soporta"} Display P3.{" "}
-      <span className="gamut-legend-dot" /> marca shades fuera de sRGB.
+      {p3 ? (<strong>Display P3</strong>) : (<strong> sRGB</strong>)}
     </p>
   );
 }

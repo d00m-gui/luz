@@ -6,9 +6,8 @@ covers:
 ---
 
 <div class="join">
-  <button class="btn">One</button>
-  <button class="btn">Two</button>
-  <button class="btn">Three</button>
+  <input type="text" placeholder="Search..." />
+  <button class="badge"><i class="icon nf nf-seti-search"></i></button>
 </div>
 
 ## With extra elements — icon + input + button
@@ -16,13 +15,13 @@ covers:
 <div class="join">
   <i class="icon nf nf-fa-search"></i>
   <input type="text" placeholder="Search…" />
-  <button class="btn">Go</button>
+  <button>Go</button>
 </div>
 
 ## Vertical — .join.vertical
 
 <div class="join vertical">
-  <button class="btn">Top</button>
-  <button class="btn">Middle</button>
-  <button class="btn">Bottom</button>
+  <button>Top</button>
+  <button>Middle</button>
+  <button>Bottom</button>
 </div>

@@ -3,6 +3,7 @@ title: light-dark()
 category: Feedback
 covers: []
 span: 2
+wip: true
 ---
 
 <p><code>mode: "auto"</code> emits every color token as <code>light-dark(light, dark)</code> instead of a separate <code>@media (prefers-color-scheme: dark)</code> block. Each box below forces its own <code>color-scheme</code> to prove both branches resolve, regardless of your system preference — try <code>mode: "auto"</code> in the toolbar at <a href="/components">/components</a> to see it with your own tokens.</p>

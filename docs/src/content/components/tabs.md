@@ -21,7 +21,7 @@ covers:
   <label class="tab" for="ks-tab-c">Settings</label>
 </div>
 
-## Segmented control — .tabs.segmented
+## tabs segmented
 
 <div class="tabs segmented">
   <input class="tab-input" type="radio" name="ks-segmented" id="ks-seg-day" checked />
@@ -32,7 +32,7 @@ covers:
   <label class="tab" for="ks-seg-month">Month</label>
 </div>
 
-## Toggle — .tabs.toggle
+## tabs toggle
 
 <div class="tabs toggle">
   <input class="tab-input" type="checkbox" id="format-bold" />
@@ -43,26 +43,30 @@ covers:
   <label class="tab" for="format-underline"><u>U</u></label>
 </div>
 
-## Pagination — .tabs.pagination
+## tabs pagination
 
 <nav class="tabs pagination">
   <a class="tab">1</a>
-  <a class="tab" aria-current="page">2</a>
+  <span class="tab" aria-current="page">2</span>
   <a class="tab">3</a>
 </nav>
 
-## Bottom tab bar — .tabs.bottom
-
-<!--preview-->
-<div class="preview-frame"><nav class="tabs bottom" style="position: absolute">
-  <a class="tab" aria-current="page">Home</a>
-  <a class="tab">Search</a>
-  <a class="tab">Profile</a>
-</nav></div>
-<!--/preview-->
+## tabs bottom
 
 <nav class="tabs bottom">
-  <a class="tab" aria-current="page">Home</a>
-  <a class="tab">Search</a>
-  <a class="tab">Profile</a>
+  <a class="tab">
+    <div class="icon nf nf-fa-home text-lg">
+    </div>
+    <p>Home</p>
+  </a>
+  <a class="tab" aria-current="page">
+    <div class="icon nf nf-fa-search text-lg">
+    </div>
+    <p>Search</p>
+  </a>
+  <a class="tab">
+    <div class="icon nf nf-fa-user_astronaut text-lg">
+    </div>
+    <p>Profile</p>
+  </a>
 </nav>

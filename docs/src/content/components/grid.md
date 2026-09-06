@@ -9,21 +9,6 @@ span: 2
 <div class="grid">
   <div class="card">
     <figure class="card-feature">
-      <img src="/samples/009-w.png" />
-    </figure>
-  </div>
-  <div class="card">
-    <figure class="card-feature">
-      <img src="/samples/010-w.png" />
-    </figure>
-  </div>
-  <div class="card">
-    <figure class="card-feature">
-      <img src="/samples/004-w.png" />
-    </figure>
-  </div>
-  <div class="card">
-    <figure class="card-feature">
       <img src="/samples/006-w.png" />
     </figure>
   </div>

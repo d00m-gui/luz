@@ -1,11 +1,9 @@
 ---
 import Layout from "../layouts/Layout.astro";
-import { luz } from "../../../src/luz";
 import { WHEEL_HUE_NAMES } from "../../../src/tools/wheel";
 import { ThemeToolbar } from "../components/ThemeToolbar";
 import { BrandColors } from "../components/BrandColors";
 import { Swatches } from "../components/Swatches";
-import { GamutLegend } from "../components/GamutLegend";
 import { loadComponents } from "../content/components";
 import {
   COMPONENT_CATEGORY_HUES,
@@ -26,7 +24,6 @@ const WHEEL_HUES = WHEEL_HUE_NAMES;
 function swatchStyle(name: string, weight: number) {
   return `background: var(--${name}-${weight}); color: contrast-color(var(--${name}-${weight}));`;
 }
-console.log("visible", visibleComponents);
 ---
 
 <Layout
@@ -42,7 +39,6 @@ console.log("visible", visibleComponents);
       <div class="list">
         <BrandColors client:load />
         <div class="hue">
-          <!-- <GamutLegend client:load /> -->
           <Swatches
             names={["neutral", ...WHEEL_HUES]}
             weights={WEIGHTS}

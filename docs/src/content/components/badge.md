@@ -16,6 +16,8 @@ covers:
 <span class="badge contrast">Contrast</span>
 <span class="badge ghost">Ghost</span>
 
+## Joined
+
 <div class="join">
   <button class="badge"><i class="icon nf nf-md-eye"></i></button>
   <span class="badge">View</span>
