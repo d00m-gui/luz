@@ -21,6 +21,22 @@ export function virtualCssIds(path: string): {
   return { id, resolvedId: `\0${id}` };
 }
 
+/** Resolves `id` against a virtual CSS module, passing through any query (e.g. `?url`) so Vite's own CSS pipeline can still act on it. `undefined` if `id` isn't the virtual module. */
+export function resolveVirtualCssId(
+  id: string,
+  virtualId: string,
+  resolvedId: string,
+): string | undefined {
+  const [bareId, query] = id.split("?", 2);
+  if (bareId !== virtualId) return undefined;
+  return query === undefined ? resolvedId : `${resolvedId}?${query}`;
+}
+
+/** Whether `id` (ignoring any query string) is the resolved virtual CSS module. */
+export function isVirtualCssLoad(id: string, resolvedId: string): boolean {
+  return id.split("?", 1)[0] === resolvedId;
+}
+
 export function writeCss(
   outputPath: string,
   sections: CssSections,

@@ -18,13 +18,3 @@ export const config: LuzAstroConfig = {
   schemeChroma: 0.9,
   density: 0.95
 };
-
-
-// neutralTint: 0.8,
-// depth: 0,
-// depthMax: 0,
-// depthDecay: 0,
-// depthSign: 0,
-// density: 1.3,
-// contrastThreshold: 0.5,
-// schemeChroma: 1

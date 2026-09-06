@@ -63,6 +63,7 @@
     "bunup": "NODE_ENV=production bunup",
     "dev:watch": "bunup --watch",
     "docs": "bun run --cwd docs dev",
+    "fixture:tanstack": "bun run bunup && bun pm pack --destination fixtures --quiet && bun install --cwd fixtures/tanstack-dashboard && bun run --cwd fixtures/tanstack-dashboard dev",
     "format": "oxfmt",
     "gen": "bun run gen:reset && bun run --cwd docs gen:components",
     "gen:reset": "bun run scripts/generate-reset.ts",

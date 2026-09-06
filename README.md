@@ -18,7 +18,7 @@ luz doesn't try to be a full Tailwind replacement, and it doesn't try to be a co
 - **Named type scale, numbered spacing scale** — `text-xs`…`text-3xl` (exponential, for font-size) and `space-N` (linear, for padding/margin/gap/width/height) are kept separate rather than one scale awkwardly serving both.
 - **A closed-vocabulary utility engine** — Tailwind-nomenclature-compatible classes (`p-4`, `bg-primary-600`, `open:bg-primary-600`), scanned from your source and emitted as static CSS at build time. No arbitrary values, no bracket syntax, nothing shipped that isn't used. Variant selectors also parse Tailwind's arbitrary `data-[attr=value]:`/`aria-[attr=value]:` syntax generically, so component source copied from Radix- or Base UI-based kits (shadcn, animate-ui, ...) matches without luz needing to know which library it came from.
 - **A shadcn/ui token bridge** — real, unmodified shadcn component source (Base UI variant) can consume luz's tokens directly, via a small `:root` alias block generated automatically.
-- **Framework adapters** — Static CSS generation for Astro (`luz/astro`) and Vite (`luz/vite`).
+- **Framework adapters** — Astro (`luz/astro`) and Vite (`luz/vite`), either as a static `.css` file or as a virtual module (`output: "virtual"`, no file on disk — see `fixtures/tanstack-dashboard`).
 - **Tiny & typed** — ships ESM with full TypeScript types, no runtime CSS framework required.
 
 ## Installation
@@ -27,6 +27,10 @@ luz doesn't try to be a full Tailwind replacement, and it doesn't try to be a co
 bun add @d00m-gui/luz
 # or: npm install @d00m-gui/luz / pnpm add @d00m-gui/luz
 ```
+
+## Examples
+
+`fixtures/` holds standalone apps that install `@d00m-gui/luz` as a real package (via `bun pm pack`, not the source tree) — e.g. a TanStack Start dashboard (`bun run fixture:tanstack`). See each fixture's own `README.md`.
 
 ## License
 

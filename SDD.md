@@ -677,6 +677,40 @@ confirmado empíricamente) — ese es exactamente el tipo de comentario que
 sí corresponde bajo la convención de comments nueva (ver `CLAUDE.md`): no
 describe qué hace el código, advierte sobre un problema no obvio.
 
+### `LuzCssOutput: "virtual"` — estado real, sin default decidido
+
+`resolveVirtualCssId`/`isVirtualCssLoad` (`tools/write-css.ts`) hacen que
+`resolveId`/`load` del módulo virtual pasen cualquier querystring al id
+resuelto en vez de fallar en un match exacto de string — corrige el caso
+general, pero **no** habilita el patrón `?url` + `<link>` manual contra el
+módulo virtual: eso pega contra el mecanismo interno de Vite
+`vite:css-post`/`?transform-only`, que no está pensado para CSS virtual
+servido por el `load()` de un plugin de terceros. No hay fix de nuestro
+lado sin pelear contra internals no documentados de Vite.
+
+Lo que sí funciona, validado con build+SSR real (ver
+`fixtures/tanstack-dashboard`): un import de efecto plano
+(`import "virtual:luz.css"`, sin `?url`). En build de producción, React 19
+hoistea ese import a `<link rel="stylesheet">` solo — sin FOUC. En dev el
+CSS se inyecta por JS (comportamiento estándar de Vite para cualquier CSS
+importado sin `?url`, no específico de `luzVite`) — FOUC breve. El chunk
+de CSS es del entry, no por-ruta: sobrevive a la navegación client-side
+del router sin re-fetch (confirmado con dos rutas, mismo `<link>`/hash en
+SSR directo de ambas).
+
+Con esto, `"virtual"` vs. `"file"` es un trade-off explícito (sin archivo
+en disco + FOUC en dev, vs. archivo real + sin FOUC en ningún lado) — cuál
+de los dos pasa a ser el default de `LuzCssOutput` sigue sin decidirse.
+
+## Fixtures de consumidor (`fixtures/`)
+
+A diferencia de `docs/` (importa el código fuente de luz directo, no lo
+"consume"), `fixtures/*` instalan `@d00m-gui/luz` desde un tarball real
+(`bun pm pack`) — mismo camino que tomaría un usuario final. Primero:
+`fixtures/tanstack-dashboard` (TanStack Start + `@tanstack/charts`,
+`luzVite` en modo `"virtual"`, ver su `README.md`). Script de arranque en
+la raíz: `bun run fixture:tanstack`.
+
 ## Motor de utility classes (`tools/utilities.ts`)
 
 Vocabulario cerrado, no Tailwind completo: un `registry` de namespaces

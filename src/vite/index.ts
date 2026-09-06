@@ -5,7 +5,9 @@ import { scanAndEmitUtilities } from "../tools/utilities";
 import {
   composeCss,
   type CssSections,
+  isVirtualCssLoad,
   type LuzCssOutput,
+  resolveVirtualCssId,
   virtualCssIds,
   writeCss,
 } from "../tools/write-css";
@@ -54,10 +56,10 @@ export const luzVite = (config: LuzViteConfig): Plugin => {
       generateFile();
     },
     resolveId(id) {
-      if (mode === "virtual" && id === virtualId) return resolvedVirtualId;
+      if (mode === "virtual") return resolveVirtualCssId(id, virtualId, resolvedVirtualId);
     },
     load(id) {
-      if (mode === "virtual" && id === resolvedVirtualId) {
+      if (mode === "virtual" && isVirtualCssLoad(id, resolvedVirtualId)) {
         return { code: composeCss(cached!), moduleType: "css" };
       }
     },

@@ -6,7 +6,9 @@ import { scanAndEmitUtilities } from "../tools/utilities";
 import {
   composeCss,
   type CssSections,
+  isVirtualCssLoad,
   type LuzCssOutput,
+  resolveVirtualCssId,
   virtualCssIds,
   writeCss,
 } from "../tools/write-css";
@@ -79,10 +81,10 @@ export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
               {
                 name: "luz-virtual-css",
                 resolveId(id: string) {
-                  if (id === virtualId) return resolvedVirtualId;
+                  return resolveVirtualCssId(id, virtualId!, resolvedVirtualId!);
                 },
                 load(id: string) {
-                  if (id === resolvedVirtualId) {
+                  if (isVirtualCssLoad(id, resolvedVirtualId!)) {
                     return { code: composeCss(cached!), moduleType: "css" };
                   }
                 },
