@@ -10,7 +10,7 @@
   line-height: var(--line-height);
   background-color: oklch(from var(--current-bg) l c h / 26%);
   border: var(--border-width) solid var(--current-bg);
-  color: var(--on-scheme);
+  color: oklch(from var(--current-bg) calc(l + 0.25) c h);
   transition: var(--transition);
   &.ghost {
     background-color: transparent;

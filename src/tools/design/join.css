@@ -7,7 +7,7 @@
     padding: var(--element-vertical) var(--element-horizontal);
     border: var(--border-width) solid var(--scheme, var(--element-border-color));
     background-color: var(--element-background);
-    color: var(--on-scheme);
+    color: var(--scheme, var(--element-border-color));
     border-radius: 0;
     box-shadow: none;
     &:not(:first-child) {

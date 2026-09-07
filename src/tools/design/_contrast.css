@@ -1,17 +1,4 @@
-:where(
-  .btn,
-  .button,
-  [role="button"],
-  [type="button"],
-  [type="file"]::file-selector-button,
-  [type="reset"],
-  [type="submit"],
-  button,
-  .badge,
-  .card,
-  .solid,
-  .alert
-) {
+* {
   --current-color: var(
     --on-scheme,
     oklch(

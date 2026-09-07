@@ -3,8 +3,9 @@
   padding: var(--space-5);
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
-  background-color: var(--scheme, var(--element-background));
-  color: var(--on-scheme);
+  --current-bg: var(--scheme, var(--element-background));
+  background-color: var(--current-bg);
+  color: var(--current-color);
 }
 .stat-value {
   display: block;
