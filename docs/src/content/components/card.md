@@ -16,7 +16,7 @@ covers:
 
 ## Full Card
 
-<div class="card demo-card outline">
+<div class="card demo-card surface-primary">
   <div class="card-meta">
     <span class="badge primary">36 tags</span>
     <span class="badge secondary">32 attrs</span>

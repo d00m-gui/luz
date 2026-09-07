@@ -118,7 +118,7 @@ export function ThemeToolbar() {
               type="range"
               min={0}
               max={0.8}
-              step={0.01}
+              step={0.1}
               value={state.neutralTint}
               onChange={(e) => update({ neutralTint: Number(e.target.value) })}
             />

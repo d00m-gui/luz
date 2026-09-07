@@ -4,8 +4,6 @@ import Layout from "../layouts/Layout.astro";
 const VARIANTS = [
   "primary",
   "secondary",
-  "tertiary",
-  "quaternary",
   "neutral",
   "info",
   "danger",
@@ -15,6 +13,8 @@ const VARIANTS = [
 ];
 
 const SHAPES = ["solid", "soft", "outline"];
+
+const SURFACE_VARIANTS = ["primary", "secondary", "tertiary", "quaternary"];
 
 const ANCHOR_VARIANTS = [
   "secondary",
@@ -33,12 +33,58 @@ const ANCHOR_VARIANTS = [
   breadcrumb="Styleguide"
   contentClass="styleguide"
 >
+  <div class="element row">
+    <div class="element">
+      <div class="card">
+        <figure class="card-feature">
+          <img src="/luz-logo-rgb.svg" />
+        </figure>
+      </div>
+      <div class="element row">
+        <div class="card">
+          <figure class="card-feature">
+            <img src="/luz-logo-rgb.svg" />
+          </figure>
+        </div>
+        <div class="card">
+          <figure class="card-feature">
+            <img src="/samples/004-w.png" />
+          </figure>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div id="main-matrix" class="scheme-matrix">
+        {
+          VARIANTS.map((variant) => (
+            <div class="scheme-row">
+              <div class={`card ${variant}`}>{variant}</div>
+            </div>
+          ))
+        }
+        {
+          SURFACE_VARIANTS.map((variant) => (
+            <div class="scheme-row">
+              <div class={`card surface-${variant}`}>surface-{variant}</div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="card">demo ui</div>
+    <div class="card">demo copytext</div>
+    <div class="card">demo buttons</div>
+    <div class="card">demo font</div>
+  </div>
+
   <h1>Styleguide</h1>
   <h2>Esquemas</h2>
   <p>
-    Cada variante setea <code>--scheme</code>; cada forma
-    (<code>.solid</code> / <code>.soft</code> / <code>.outline</code>)
-    decide cómo se pinta con esa variable.
+    Cada variante setea <code>--scheme</code>; cada forma (<code>.solid</code> / <code
+      >.soft</code
+    > / <code>.outline</code>) decide cómo se pinta con esa variable.
   </p>
 
   <section class="card">
@@ -59,7 +105,10 @@ const ANCHOR_VARIANTS = [
 
   <section class="card">
     <h3 class="card-title">Componentes</h3>
-    <p>Mismo <code>--scheme</code>, cada componente decide su propia forma por defecto.</p>
+    <p>
+      Mismo <code>--scheme</code>, cada componente decide su propia forma por
+      defecto.
+    </p>
     <div class="scheme-matrix">
       {
         VARIANTS.map((variant) => (

@@ -130,7 +130,7 @@ const HARMONY_HUE_OFFSETS: Record<ColorHarmony, number[]> = {
 /** Chroma multipliers from `primary` for `monochrome`'s extra colors, in slot order (secondary, tertiary). */
 const MONOCHROME_CHROMA_SCALES = [0.45, 0.2];
 
-/** Derives the harmony's extra seed colors from `primary`, in slot order (secondary, tertiary, quaternary) — used for a slot when it isn't set explicitly in config. */
+/** Derives the harmony's extra seed colors from `primary`, in slot order (secondary, tertiary, quaternary) — a slot missing from the result means this harmony doesn't define one, and the caller falls back to its own default for that slot. */
 export function luzHarmonyColors(
   primaryCSSVar: string,
   harmony: ColorHarmony,
@@ -160,17 +160,6 @@ export function luzHarmonyColorSeeds(
     ...primary,
     h: primary.h + degrees,
   }));
-}
-
-const HARMONY_SLOT_NAMES = ["secondary", "tertiary", "quaternary"] as const;
-
-/** Palette names (besides `primary`) a harmony actually generates, e.g. `["secondary"]` for `complementary`, `["secondary", "tertiary", "quaternary"]` for `analogous`. */
-export function luzHarmonyColorNames(harmony: ColorHarmony): string[] {
-  const count =
-    harmony === "monochrome"
-      ? MONOCHROME_CHROMA_SCALES.length
-      : HARMONY_HUE_OFFSETS[harmony].length;
-  return HARMONY_SLOT_NAMES.slice(0, count);
 }
 
 /** `seed` is the color's exact OKLCH, known at build time — when given, shades are baked with real per-shade gamut mapping instead of the live `oklch(from var(...))` formula. */

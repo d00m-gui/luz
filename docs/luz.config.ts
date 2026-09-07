@@ -13,7 +13,6 @@ export const config: LuzAstroConfig = {
   depthMax: 0,
   depthDecay: 0,
   depthSign: 0,
-  neutralTint: 0,
 };
 
 // ,

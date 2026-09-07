@@ -65,3 +65,23 @@
     box-shadow: 0 0 0 var(--border-width) var(--scheme, var(--scheme-primary));
   }
 }
+.surface-primary {
+  --current-bg: var(--neutral-900);
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}
+.surface-secondary {
+  --current-bg: var(--surface-secondary-900);
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}
+.surface-tertiary {
+  --current-bg: var(--surface-tertiary-900);
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}
+.surface-quaternary {
+  --current-bg: var(--surface-quaternary-900);
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}

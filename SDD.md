@@ -554,6 +554,27 @@ semilla crudo), y como `--primary-500` etc. se calculan a partir de esas,
 un choque de nombres crea una referencia circular (ambas quedan inválidas
 en el browser). Por eso el alias fijo usa el prefijo `scheme-`.
 
+## `surface-*` — tercer eje, fondo muteado por hue
+
+`secondary`/`tertiary`/`quaternary` generan además una escala
+`surface-{secondary,tertiary,quaternary}-*` (`luz.ts`, junto a `neutral`):
+misma curva de lightness/contraste que `neutral`, pero tinteada con el
+hue de ese accent en vez del de `primary`. Intensidad propia,
+`surfaceTint` (default `0.4`), independiente de `neutralTint` — no
+comparten knob porque `neutral` alimenta `background`/`foreground`
+globales y necesita poder ir a `0` (gris puro) sin apagar `surface-*`.
+
+Se consume como tercer eje de clase combinable en `_feedback.css`,
+mismo nivel que `.solid`/`.soft`/`.outline`: `.surface-primary`/
+`.surface-secondary`/`.surface-tertiary`/`.surface-quaternary` fijan
+`--current-bg` al shade `-900` de esa escala (`.surface-primary` usa
+`--neutral-900` directo — `primary` ya tiene su "surface" en `neutral`,
+no se generó una escala aparte) y pintan `background-color`/`color`
+usando el mismo `--current-color` universal de `_contrast.css`. No
+depende de `--scheme` ni lo pisa — es ortogonal a esquema×tratamiento,
+pensado para fondos de contenedor (`card`/`stat`) que necesitan verse
+"de marca" sin la saturación plena de `scheme-*`.
+
 ## `.css` estáticos reales en `dist/`, `@import` directo
 
 `reset.css`/`design.css` (100% estáticos, no dependen de config) se

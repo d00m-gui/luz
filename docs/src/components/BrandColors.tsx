@@ -1,17 +1,16 @@
-import { luzHarmonyColorNames } from "../../../src/tools/hue";
 import { useThemeState } from "../lib/theme-state";
 import { Swatches } from "./Swatches";
 
+const NAMES = ["primary", "secondary", "tertiary", "quaternary"];
+
 export function BrandColors() {
-  const [state, , ready] = useThemeState();
+  const [, , ready] = useThemeState();
 
   if (!ready) return null;
 
-  const names = ["primary", ...luzHarmonyColorNames(state.harmony)];
-
   return (
     <div className="hue components-toolbar-brand">
-      <Swatches names={names} />
+      <Swatches names={NAMES} />
     </div>
   );
 }

@@ -71,12 +71,12 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   name?: string;
   /** Base color for the secondary palette. Default: derived from `primary` per `harmony`. */
   secondary?: string;
-  /** Base color for the tertiary palette. Default: derived from `primary` per `harmony`. Only generated for `"monochrome"`, `"triad"`, and `"analogous"` — `"complementary"` has no third color. */
+  /** Base color for the tertiary palette. Default: derived from `primary` per `harmony` when it defines one (`"monochrome"`, `"triad"`, `"analogous"`); otherwise same as `neutrals` (`"complementary"` has no third color). */
   tertiary?: string;
-  /** Base color for the quaternary palette. Default: derived from `primary` per `harmony`. Only generated for `"analogous"`, the only harmony with a fourth color. */
+  /** Base color for the quaternary palette. Default: derived from `primary` per `harmony` when it defines one (only `"analogous"` has a fourth color); otherwise `primary`'s own hue at a fixed low lightness — an "ink" shade in the brand hue. */
   quaternary?: string;
   /**
-   * Color harmony used to derive `secondary`/`tertiary`/`quaternary` from `primary` when they aren't set explicitly.
+   * Color harmony used to derive `secondary`/`tertiary`/`quaternary` from `primary` when they aren't set explicitly. A slot a harmony doesn't define (see `tertiary`/`quaternary`) falls back to `neutrals`/an "ink" shade instead.
    * @default "complementary"
    * @param "complementary" primary + secondary, hue rotated 180°
    * @param "analogous" primary + secondary/tertiary/quaternary, hue rotated 30°/60°/90°
@@ -96,6 +96,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   neutrals?: string;
   /** Fraction (0–1) of `primary`'s chroma carried into the neutral/gray palette. `0` = pure gray, `1` = full tint. Default `0.2`. */
   neutralTint?: number;
+  /** Fraction (0–1) of `secondary`/`tertiary`/`quaternary`'s own chroma carried into their `surface-*` scale (the muted background each feeds to the `.surface-*` utility classes) — independent of `neutralTint`. Default `0.4`. */
+  surfaceTint?: number;
   /**
    * Target lightness (0–1, OKLCH `l`) for `scheme-primary`/`-secondary`/`-tertiary`/`-quaternary`/`-neutral` — the shade `.badge`/`.btn`/`.alert` use, both the default (unmodified) look and every variant class (`.secondary`, `.success`, …). Instead of a fixed nominal weight, each palette picks whichever of its generated shades has the real lightness closest to this target — harmonic across hues regardless of how each one's chroma happens to fall. Requires the palette's seed to be a parseable color literal (same as gamut baking); a palette that can't be baked keeps its fixed weight. Overridden per-palette by `schemeShade`. Unset by default — behaves as `schemeShade`'s default (`500`, or `800` for `neutral`).
    */
@@ -244,7 +246,8 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   mode: "dark",
   harmony: "complementary",
   neutrals: "neutral",
-  neutralTint: 0.2,
+  neutralTint: 0,
+  surfaceTint: 0.4,
   schemeShade: { neutral: 800 },
   prefix: "",
   transition: "all ease 200ms",
@@ -362,6 +365,7 @@ export function luz(config?: LuzConfig): LuzResult {
     prefix,
     neutrals,
     neutralTint,
+    surfaceTint,
     schemeLightness,
     schemeShade,
     schemeChroma,
@@ -391,6 +395,7 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const normalBase = base as number;
   const normalNeutralTint = neutralTint as number;
+  const normalSurfaceTint = surfaceTint as number;
   const isAuto = mode === "auto";
   const isDark: boolean = isAuto ? false : mode === "dark";
 
@@ -407,17 +412,23 @@ export function luz(config?: LuzConfig): LuzResult {
   const secondaryName: string = `${prefix}secondary`;
   const secondaryCSSVar: string = `var(--${secondaryName})`;
 
-  const tertiaryColor: string | undefined = tertiary ?? harmonyColors[1];
-  const tertiaryName: string = `${prefix}tertiary`;
-  const tertiaryCSSVar: string = `var(--${tertiaryName})`;
-
-  const quaternaryColor: string | undefined = quaternary ?? harmonyColors[2];
-  const quaternaryName: string = `${prefix}quaternary`;
-  const quaternaryCSSVar: string = `var(--${quaternaryName})`;
-
   const neutralsName: string = `${prefix}${neutrals}`;
   const neutralCSSVar: string = `var(--${neutralsName})`;
   const neutralColor: string = `oklch(from ${primaryCSSVar} l calc(c * ${normalNeutralTint}) h)`;
+
+  /** Fixed OKLCH lightness for quaternary's "ink" fallback (harmonies without a 4th hue) — `primary`'s hue/chroma at a near-black lightness, evoking `foreground` without literally referencing it (relative-color syntax can't mix one channel from each of two different `var()` sources). */
+  const QUATERNARY_INK_LIGHTNESS = 0.25;
+
+  const tertiaryColor: string = tertiary ?? harmonyColors[1] ?? neutralCSSVar;
+  const tertiaryName: string = `${prefix}tertiary`;
+  const tertiaryCSSVar: string = `var(--${tertiaryName})`;
+
+  const quaternaryColor: string =
+    quaternary ??
+    harmonyColors[2] ??
+    `oklch(from ${primaryCSSVar} ${QUATERNARY_INK_LIGHTNESS} c h)`;
+  const quaternaryName: string = `${prefix}quaternary`;
+  const quaternaryCSSVar: string = `var(--${quaternaryName})`;
 
   const primarySeed = parseColorToOklch(primary);
   const harmonySeeds = primarySeed
@@ -426,15 +437,50 @@ export function luz(config?: LuzConfig): LuzResult {
   const secondarySeed = secondary
     ? parseColorToOklch(secondary)
     : (harmonySeeds[0] ?? null);
-  const tertiarySeed = tertiary
-    ? parseColorToOklch(tertiary)
-    : (harmonySeeds[1] ?? null);
-  const quaternarySeed = quaternary
-    ? parseColorToOklch(quaternary)
-    : (harmonySeeds[2] ?? null);
   const neutralSeed: OklchSeed | null = primarySeed
     ? { ...primarySeed, c: primarySeed.c * normalNeutralTint }
     : null;
+  const tertiarySeed = tertiary
+    ? parseColorToOklch(tertiary)
+    : (harmonySeeds[1] ?? neutralSeed);
+  const quaternarySeed = quaternary
+    ? parseColorToOklch(quaternary)
+    : (harmonySeeds[2] ??
+      (primarySeed ? { ...primarySeed, l: QUATERNARY_INK_LIGHTNESS } : null));
+
+  /** Low-chroma, `neutral`-like surface scale for one accent palette (secondary/tertiary/quaternary) — same lightness curve/contrast as `neutral`, tinted toward that palette's hue instead of `primary`'s. Lets a component opt into `var(--{name}-900)`/`-100` as background/foreground without the full accent saturation. */
+  function surfaceOf(
+    accentCSSVar: string,
+    accentSeed: OklchSeed | null,
+    accentName: string,
+  ): {
+    name: string;
+    cssVar: string;
+    color: string;
+    seed: OklchSeed | null;
+  } {
+    const surfaceName = `${prefix}surface-${accentName}`;
+    return {
+      name: surfaceName,
+      cssVar: `var(--${surfaceName})`,
+      color: `oklch(from ${accentCSSVar} l calc(c * ${normalSurfaceTint}) h)`,
+      seed: accentSeed
+        ? { ...accentSeed, c: accentSeed.c * normalSurfaceTint }
+        : null,
+    };
+  }
+
+  const surfaceSecondary = surfaceOf(
+    secondaryCSSVar,
+    secondarySeed,
+    "secondary",
+  );
+  const surfaceTertiary = surfaceOf(tertiaryCSSVar, tertiarySeed, "tertiary");
+  const surfaceQuaternary = surfaceOf(
+    quaternaryCSSVar,
+    quaternarySeed,
+    "quaternary",
+  );
 
   const infoSeed = primarySeed ? luzWheelHueSeed("blue", primarySeed) : null;
   const dangerSeed = primarySeed ? luzWheelHueSeed("red", primarySeed) : null;
@@ -509,25 +555,21 @@ export function luz(config?: LuzConfig): LuzResult {
       seed: secondarySeed,
     });
 
-    const tertiaryShades = tertiaryColor
-      ? luzShadesByHue({
-          color: tertiaryCSSVar,
-          name: tertiaryName,
-          reverse,
-          steps: colorSteps,
-          seed: tertiarySeed,
-        })
-      : {};
+    const tertiaryShades = luzShadesByHue({
+      color: tertiaryCSSVar,
+      name: tertiaryName,
+      reverse,
+      steps: colorSteps,
+      seed: tertiarySeed,
+    });
 
-    const quaternaryShades = quaternaryColor
-      ? luzShadesByHue({
-          color: quaternaryCSSVar,
-          name: quaternaryName,
-          reverse,
-          steps: colorSteps,
-          seed: quaternarySeed,
-        })
-      : {};
+    const quaternaryShades = luzShadesByHue({
+      color: quaternaryCSSVar,
+      name: quaternaryName,
+      reverse,
+      steps: colorSteps,
+      seed: quaternarySeed,
+    });
 
     const neutralShades = luzShadesByHue({
       color: neutralCSSVar,
@@ -536,6 +578,20 @@ export function luz(config?: LuzConfig): LuzResult {
       steps: colorSteps,
       seed: neutralSeed,
     });
+
+    const surfaceShades = (
+      surface: typeof surfaceSecondary,
+    ): Record<string, string> =>
+      luzShadesByHue({
+        color: surface.cssVar,
+        name: surface.name,
+        reverse,
+        steps: colorSteps,
+        seed: surface.seed,
+      });
+    const surfaceSecondaryShades = surfaceShades(surfaceSecondary);
+    const surfaceTertiaryShades = surfaceShades(surfaceTertiary);
+    const surfaceQuaternaryShades = surfaceShades(surfaceQuaternary);
 
     const wheel: Record<string, string> = luzWheel(
       reverse,
@@ -564,28 +620,9 @@ export function luz(config?: LuzConfig): LuzResult {
     );
     const neutralWeight = resolveSchemeWeight("neutral", neutralSeed, reverse);
     const dangerWeight = resolveSchemeWeight("danger", dangerSeed, reverse);
-    const successWeight = resolveSchemeWeight(
-      "success",
-      successSeed,
-      reverse,
-    );
-    const warningWeight = resolveSchemeWeight(
-      "warning",
-      warningSeed,
-      reverse,
-    );
+    const successWeight = resolveSchemeWeight("success", successSeed, reverse);
+    const warningWeight = resolveSchemeWeight("warning", warningSeed, reverse);
     const infoWeight = resolveSchemeWeight("info", infoSeed, reverse);
-
-    const tertiaryAnchorSeed = tertiaryColor ? tertiarySeed : secondarySeed;
-    const tertiaryEffectiveWeight = tertiaryColor
-      ? tertiaryWeight
-      : secondaryWeight;
-    const quaternaryAnchorSeed = quaternaryColor
-      ? quaternarySeed
-      : tertiaryAnchorSeed;
-    const quaternaryEffectiveWeight = quaternaryColor
-      ? quaternaryWeight
-      : tertiaryEffectiveWeight;
 
     return {
       [primaryName]: primary,
@@ -593,11 +630,17 @@ export function luz(config?: LuzConfig): LuzResult {
       ...secondaryShades,
       [secondaryName]: secondaryColor,
       ...tertiaryShades,
-      ...(tertiaryColor ? { [tertiaryName]: tertiaryColor } : {}),
+      [tertiaryName]: tertiaryColor,
       ...quaternaryShades,
-      ...(quaternaryColor ? { [quaternaryName]: quaternaryColor } : {}),
+      [quaternaryName]: quaternaryColor,
       [neutralsName]: neutralColor,
       ...neutralShades,
+      [surfaceSecondary.name]: surfaceSecondary.color,
+      ...surfaceSecondaryShades,
+      [surfaceTertiary.name]: surfaceTertiary.color,
+      ...surfaceTertiaryShades,
+      [surfaceQuaternary.name]: surfaceQuaternary.color,
+      ...surfaceQuaternaryShades,
       background: `var(--${neutralsName}-900)`,
       foreground: `var(--${neutralsName}-100)`,
       ...wheel,
@@ -616,18 +659,18 @@ export function luz(config?: LuzConfig): LuzResult {
         `var(--${secondaryName}-${secondaryWeight})`,
       ),
       "scheme-tertiary": chromaScaledEntry(
-        tertiaryAnchorSeed,
-        tertiaryEffectiveWeight,
+        tertiarySeed,
+        tertiaryWeight,
         reverse,
         normalSchemeChroma,
-        `var(--${tertiaryName}-${tertiaryWeight}, var(--${secondaryName}-${secondaryWeight}))`,
+        `var(--${tertiaryName}-${tertiaryWeight})`,
       ),
       "scheme-quaternary": chromaScaledEntry(
-        quaternaryAnchorSeed,
-        quaternaryEffectiveWeight,
+        quaternarySeed,
+        quaternaryWeight,
         reverse,
         normalSchemeChroma,
-        `var(--${quaternaryName}-${quaternaryWeight}, var(--${tertiaryName}-${tertiaryWeight}, var(--${secondaryName}-${secondaryWeight})))`,
+        `var(--${quaternaryName}-${quaternaryWeight})`,
       ),
       "scheme-neutral": chromaScaledEntry(
         neutralSeed,
@@ -679,18 +722,18 @@ export function luz(config?: LuzConfig): LuzResult {
         `var(--${secondaryName}-500)`,
       ),
       "anchor-tertiary": chromaScaledEntry(
-        tertiaryAnchorSeed,
+        tertiarySeed,
         500,
         reverse,
         0.6,
-        `var(--${tertiaryName}-500, var(--${secondaryName}-500))`,
+        `var(--${tertiaryName}-500)`,
       ),
       "anchor-quaternary": chromaScaledEntry(
-        quaternaryAnchorSeed,
+        quaternarySeed,
         500,
         reverse,
         0.6,
-        `var(--${quaternaryName}-500, var(--${tertiaryName}-500, var(--${secondaryName}-500)))`,
+        `var(--${quaternaryName}-500)`,
       ),
       "anchor-danger": chromaScaledEntry(
         dangerSeed,
@@ -771,9 +814,12 @@ export function luz(config?: LuzConfig): LuzResult {
   const shadedNames = [
     primaryName,
     secondaryName,
-    ...(tertiaryColor ? [tertiaryName] : []),
-    ...(quaternaryColor ? [quaternaryName] : []),
+    tertiaryName,
+    quaternaryName,
     neutralsName,
+    surfaceSecondary.name,
+    surfaceTertiary.name,
+    surfaceQuaternary.name,
   ];
 
   const variables = withShadeFallback(
