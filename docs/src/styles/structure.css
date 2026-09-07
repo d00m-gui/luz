@@ -252,15 +252,6 @@
   width: var(--space-7);
 }
 
-.swatch,
-.swatch-row-label {
-  --current-color: oklch(
-    from var(--current-bg)
-      clamp(0.12, calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000), 0.92)
-      calc(c * 0.08) h
-  );
-}
-
 .swatch[data-gamut="p3"]::after,
 .swatch[data-gamut="wide"]::after {
   content: "";
@@ -275,6 +266,38 @@
 
 .swatch[data-gamut] {
   position: relative;
+}
+
+.scheme-matrix {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.scheme-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.scheme-row-label {
+  width: 7rem;
+  font-family: var(--font-monospace);
+  font-weight: var(--font-bold-weight);
+  text-transform: uppercase;
+}
+
+.scheme-chip {
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--border-radius);
+  font-family: var(--font-monospace);
+  font-size: var(--font-size-xs-fluid);
+}
+
+.scheme-anchors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
 }
 
 .gamut-legend {

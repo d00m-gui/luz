@@ -43,6 +43,14 @@ const componentsByCategory = Object.groupBy(
       >
         Inicio
       </a>
+      <a
+        href="/styleguide"
+        class="list-row"
+        aria-current={activeId === "styleguide" ? "page" : undefined}
+        style={`--sidebar-bg: var(--primary-400)`}
+      >
+        Styleguide
+      </a>
 
       {
         Object.entries(componentsByCategory).map(([category, entries]) => {
