@@ -26,6 +26,7 @@ import {
 import {
   luzWheel,
   luzWheelHueSeed,
+  WHEEL_CHROMA,
   WHEEL_HUE_NAMES,
   type WheelHueName,
 } from "./tools/wheel";
@@ -104,7 +105,15 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
     | number
     | Partial<
         Record<
-          "primary" | "secondary" | "tertiary" | "quaternary" | "neutral",
+          | "primary"
+          | "secondary"
+          | "tertiary"
+          | "quaternary"
+          | "neutral"
+          | "danger"
+          | "success"
+          | "warning"
+          | "info",
           number
         >
       >;
@@ -432,8 +441,10 @@ export function luz(config?: LuzConfig): LuzResult {
   const successSeed = primarySeed
     ? luzWheelHueSeed("green", primarySeed)
     : null;
+  /** Hue for `scheme-warning` — the wheel's own `yellow` slot (h=115, spaced evenly with its 11 siblings) reads as yellow-green, not yellow. */
+  const WARNING_HUE = 92;
   const warningSeed = primarySeed
-    ? luzWheelHueSeed("yellow", primarySeed)
+    ? { l: primarySeed.l, c: WHEEL_CHROMA, h: WARNING_HUE }
     : null;
 
   type SchemeSlot =
@@ -441,7 +452,11 @@ export function luz(config?: LuzConfig): LuzResult {
     | "secondary"
     | "tertiary"
     | "quaternary"
-    | "neutral";
+    | "neutral"
+    | "danger"
+    | "success"
+    | "warning"
+    | "info";
   /** Resolves the weight `scheme-{slot}` picks: an explicit `schemeShade` wins outright; otherwise `schemeLightness` picks the closest real shade when the palette's seed is known; otherwise the historical fixed default (`500`, `800` for `neutral`). */
   function resolveSchemeWeight(
     slot: SchemeSlot,
@@ -548,6 +563,18 @@ export function luz(config?: LuzConfig): LuzResult {
       reverse,
     );
     const neutralWeight = resolveSchemeWeight("neutral", neutralSeed, reverse);
+    const dangerWeight = resolveSchemeWeight("danger", dangerSeed, reverse);
+    const successWeight = resolveSchemeWeight(
+      "success",
+      successSeed,
+      reverse,
+    );
+    const warningWeight = resolveSchemeWeight(
+      "warning",
+      warningSeed,
+      reverse,
+    );
+    const infoWeight = resolveSchemeWeight("info", infoSeed, reverse);
 
     const tertiaryAnchorSeed = tertiaryColor ? tertiarySeed : secondarySeed;
     const tertiaryEffectiveWeight = tertiaryColor
@@ -611,28 +638,28 @@ export function luz(config?: LuzConfig): LuzResult {
       ),
       "scheme-info": chromaScaledEntry(
         infoSeed,
-        200,
+        infoWeight,
         reverse,
         normalSchemeChroma,
         `var(--${prefix}info)`,
       ),
       "scheme-danger": chromaScaledEntry(
         dangerSeed,
-        200,
+        dangerWeight,
         reverse,
         normalSchemeChroma,
         `var(--${prefix}danger)`,
       ),
       "scheme-success": chromaScaledEntry(
         successSeed,
-        200,
+        successWeight,
         reverse,
         normalSchemeChroma,
         `var(--${prefix}success)`,
       ),
       "scheme-warning": chromaScaledEntry(
         warningSeed,
-        200,
+        warningWeight,
         reverse,
         normalSchemeChroma,
         `var(--${prefix}warning)`,

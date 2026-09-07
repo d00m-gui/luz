@@ -3,7 +3,7 @@ import { luzOnColor, luzShadesByHue } from "./hue";
 
 const WHEEL_STEP = 30;
 const WHEEL_OFFSET = 25;
-const WHEEL_CHROMA = 0.2;
+export const WHEEL_CHROMA = 0.2;
 
 const WHEEL_NAMES = [
   "red",
