@@ -28,7 +28,7 @@ src/
   tools/
     constants.ts        curvas de shade (WEIGHTS) — datos puros
     reset.css            capa RESET: normalize genérico, no-por-componente
-    design.css            manifest de @import de design/*.css (1 archivo por componente, 49 hoy)
+    design.css            manifest de @import de design/*.css (1 archivo por componente, 56 hoy)
     design/*.css          un archivo self-contained por componente (reset+layout+color+estados juntos)
     reset.ts              buildReset(): RESET + COMPONENTS desde reset-css.generated.ts
     gamut.ts              parseColorToOklch/clampToSrgb/formatOklch: color literal → OKLCH numérico, gamut-mapeo real (binary search) contra sRGB
@@ -397,7 +397,7 @@ inline-size` en un ancestro amplio (`body`) quedó descartado — convierte
 ## Capa de componentes curados (`design/*.css`)
 
 Recetas CSS puras estilo daisyUI, generadas desde tokens de luz (no
-fijas como un tema) — 51 archivos hoy bajo `src/tools/design/`, cada
+fijas como un tema) — 56 archivos hoy bajo `src/tools/design/`, cada
 uno self-contained (reset+layout+color+hover/focus/active del
 componente juntos), importados en orden por el manifest `design.css`
 (el orden importa: `_feedback.css` va último para ganarle
@@ -467,6 +467,38 @@ Se retiran las utilities `.grid-cols-N`/`.col-span-N` (sin uso real
 fuera de `docs/`) — `.grid` pasa a `repeat(auto-fit, minmax(min(25rem,
 100%), 1fr))` fijo, vía `--grid-col-size-min` overrideable por
 instancia.
+
+## `.element` — helper de diagramación, responsive sin media queries
+
+`tools/design/element.css`: primitivo de layout genérico (flex/grid) para
+componer diagramas — no un componente visual con estilo propio, solo
+estructura. Base `.element` (`display: inline-grid`) + modificadores:
+`.row`/`.column` (flex), `.auto`/`.fixed` (`flex-grow`/`flex-shrink`),
+`.pair` (grid de 2 columnas responsive).
+
+**`.pair` no usa `@container`/`@media`** — evaluado y descartado: una
+condición de `@container`/`@media` no puede leer un `var()`, así que un
+breakpoint "configurable" ahí necesitaría hardcodear el valor en el CSS
+estático o depender de un compilador del lado del consumidor
+(`postcss-custom-media`/`lightningcss`) para `@custom-media` — ver
+`TODO.md` (`LuzConfig.breakpoints`, wip, sin consumidor todavía). En
+cambio,
+`grid-template-columns: repeat(auto-fit, minmax(min(var(--element-pair-min,
+var(--element-width)), 100%), 1fr))`: con exactamente 2 hijos, `auto-fit`
+da 1 columna (ancho completo) mientras no entre un segundo
+`--element-width`, y pasa a 2 columnas balanceadas apenas entra — el
+"breakpoint" es una consecuencia del layout intrínseco, no una condición
+explícita, y queda 100% reactivo a `base`/`--element-width` sin
+compilador extra.
+
+Knobs vía custom property, no campos de `LuzConfig` (mismo criterio que
+`--grid-col-size-min` en `.grid`):
+
+- `--element-gap` (fallback `--space-3`) — gap del grid/flex.
+- `--element-pair-min` (fallback `--element-width`) — ancho mínimo por
+  columna que dispara el paso a 2 columnas.
+- `--element-aspect-ratio` (fallback `auto`) — aplicado a los hijos
+  directos de `.pair`.
 
 ## `_feedback.css` — esquema × tratamiento, 2 ejes combinables
 
@@ -584,7 +616,7 @@ Dos capas: `reset.css` (genérico, no-por-componente — `*`,
 `html`/`body`, `img`/`picture`/`video`/`canvas`/`svg`, `br`, `figure`,
 `#root`/`#__next`, `[hidden]`) y `design.css`, que es un manifest corto
 de `@import "./design/nombre.css";` — un archivo **self-contained** por
-componente bajo `src/tools/design/` (49 archivos hoy: layout+color+
+componente bajo `src/tools/design/` (56 archivos hoy: layout+color+
 hover/focus/active de ese componente juntos, no repartidos entre capas
 globales). Selectores genuinamente compartidos entre componentes
 (`:focus-visible`
