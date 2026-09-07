@@ -12,7 +12,7 @@ export function GamutLegend() {
 
   return (
     <p className="gamut-legend">
-      {p3 ? (<strong>Display P3</strong>) : (<strong> sRGB</strong>)}
+      {p3 ? <strong>Display P3</strong> : <strong> sRGB</strong>}
     </p>
   );
 }

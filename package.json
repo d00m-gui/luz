@@ -1,13 +1,36 @@
 {
   "name": "@d00m-gui/luz",
-  "description": "Luz is a lightweight library designed to simplify theming and styling in modern web applications.",
   "version": "0.1.0",
-  "type": "module",
+  "description": "Luz is a lightweight library designed to simplify theming and styling in modern web applications.",
+  "keywords": [
+    "astro",
+    "color-palette",
+    "css",
+    "css-in-ts",
+    "css-variables",
+    "custom-properties",
+    "design-tokens",
+    "oklch",
+    "react",
+    "styling",
+    "theming"
+  ],
+  "homepage": "https://github.com/d00m-gui/luz#readme",
+  "bugs": {
+    "url": "https://github.com/d00m-gui/luz/issues"
+  },
+  "license": "MIT",
+  "author": "d00m-gui",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/d00m-gui/luz.git"
+  },
   "files": [
     "dist",
     "README.md",
     "LICENSE"
   ],
+  "type": "module",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -32,29 +55,6 @@
     "./reset.css": "./dist/reset.css",
     "./design.css": "./dist/design.css",
     "./package.json": "./package.json"
-  },
-  "keywords": [
-    "astro",
-    "color-palette",
-    "css",
-    "css-in-ts",
-    "css-variables",
-    "custom-properties",
-    "design-tokens",
-    "oklch",
-    "react",
-    "styling",
-    "theming"
-  ],
-  "homepage": "https://github.com/d00m-gui/luz#readme",
-  "bugs": {
-    "url": "https://github.com/d00m-gui/luz/issues"
-  },
-  "license": "MIT",
-  "author": "d00m-gui",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/d00m-gui/luz.git"
   },
   "publishConfig": {
     "access": "public"

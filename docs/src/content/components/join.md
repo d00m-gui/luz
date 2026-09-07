@@ -7,10 +7,10 @@ covers:
 
 <div class="join">
   <input type="text" placeholder="Search..." />
-  <button class="badge"><i class="icon nf nf-seti-search"></i></button>
+  <button><i class="icon nf nf-seti-search"></i></button>
 </div>
 
-## With extra elements — icon + input + button
+## Extra elements
 
 <div class="join">
   <i class="icon nf nf-fa-search"></i>
@@ -18,7 +18,7 @@ covers:
   <button>Go</button>
 </div>
 
-## Vertical — .join.vertical
+## Vertical
 
 <div class="join vertical">
   <button>Top</button>

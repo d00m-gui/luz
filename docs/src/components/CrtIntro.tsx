@@ -945,10 +945,7 @@ export function CrtDockedOverlay({ sectionName }: CrtDockedOverlayProps) {
   }, []);
 
   return (
-    <div
-      aria-hidden="true"
-      className="canvas-demo"
-    >
+    <div aria-hidden="true" className="canvas-demo">
       <canvas
         ref={canvasRef}
         className="canvas-static"

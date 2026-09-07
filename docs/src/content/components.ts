@@ -54,7 +54,10 @@ function splitPreview(section: string): { html: string; preview?: string } {
   if (!match || match.index === undefined) return { html: section.trim() };
   return {
     preview: match[1].trim(),
-    html: (section.slice(0, match.index) + section.slice(match.index + match[0].length)).trim(),
+    html: (
+      section.slice(0, match.index) +
+      section.slice(match.index + match[0].length)
+    ).trim(),
   };
 }
 
@@ -63,14 +66,23 @@ function parseBody(body: string) {
   const [base, ...sections] = body.split(/\n(?=## )/);
   const variants = sections.map((section) => {
     const newline = section.indexOf("\n");
-    const heading = section.slice(2, newline === -1 ? undefined : newline).trim();
+    const heading = section
+      .slice(2, newline === -1 ? undefined : newline)
+      .trim();
     const content = newline === -1 ? "" : section.slice(newline + 1);
     const sep = heading.indexOf(" — ");
     const title = sep === -1 ? heading : heading.slice(0, sep);
     const desc = sep === -1 ? undefined : heading.slice(sep + 3);
-    return { title: title.trim(), desc: desc?.trim(), ...splitPreview(content) };
+    return {
+      title: title.trim(),
+      desc: desc?.trim(),
+      ...splitPreview(content),
+    };
   });
-  return { ...splitPreview(base ?? ""), variants: variants.length ? variants : undefined };
+  return {
+    ...splitPreview(base ?? ""),
+    variants: variants.length ? variants : undefined,
+  };
 }
 
 export async function loadComponents() {

@@ -20,16 +20,14 @@ span: 2
 <button class="warning">Warning</button>
 <button class="ghost">Ghost</button>
 <button class="pill">Pill</button>
-<button disabled>Disabled</button>
-
+<button disabled="true">Disabled</button>
 <button class="square" aria-label="Add"><i class="icon nf nf-fa-plus"></i></button>
 <button><i class="icon nf nf-fa-download"></i> Download</button>
 <button>Continue <i class="icon nf nf-fa-download"></i></button>
 <button class="loading">Saving</button>
-
 <button class="block"><i class="icon nf nf-fa-github"></i> Continue with GitHub</button>
 
-## CTA — .btn.cta
+## CTA
 
 <button class="cta">
   <i class="icon text-2xl nf nf-fa-github"></i>

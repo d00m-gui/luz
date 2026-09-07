@@ -7,6 +7,10 @@
   gap: var(--space-3);
   padding: var(--space-10);
   color: var(--on-element-placeholder);
+  &.start {
+    align-items: flex-start;
+    text-align: left;
+  }
 }
 .empty-title {
   color: var(--foreground);

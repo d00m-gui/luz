@@ -1,5 +1,5 @@
 ---
-title: Text emphasis
+title: Emphasis
 category: Primitives
 covers:
   - strong
@@ -11,7 +11,13 @@ covers:
   - p
 ---
 
-<p>
+<p class="demo-emphasis">
   <strong>Strong</strong> and <em>emphasis</em>, <small>small print</small>,
   <abbr title="HyperText Markup Language">HTML</abbr>.
 </p>
+
+<style>
+  .demo-emphasis {
+    font-size: var(--font-size-xl-fluid);
+  }
+</style>

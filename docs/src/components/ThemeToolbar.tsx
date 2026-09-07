@@ -41,7 +41,11 @@ export function ThemeToolbar() {
   const [state, update, ready] = useThemeState();
 
   const config: LuzConfig = useMemo(
-    () => ({ ...siteConfig, ...state, background: state.background || undefined }),
+    () => ({
+      ...siteConfig,
+      ...state,
+      background: state.background || undefined,
+    }),
     [state],
   );
   const variables = useMemo(() => luz(config).variables, [config]);

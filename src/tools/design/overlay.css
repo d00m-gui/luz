@@ -77,6 +77,9 @@
     padding: 0;
     overflow: hidden;
     max-width: var(--element-width);
+    .card-content {
+      flex-direction: column;
+    }
   }
 }
 .popover {
@@ -116,7 +119,6 @@
   transition: var(--transition);
   transition-property: opacity, transform, overlay, display;
   transition-behavior: allow-discrete;
-  transition-duration: 1s;
   pointer-events: none;
   @starting-style {
     opacity: 0;

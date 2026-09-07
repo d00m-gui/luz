@@ -1,6 +1,22 @@
 ---
+import { readFileSync } from "node:fs";
+import { gzipSync } from "node:zlib";
 import LuzLogo from "./LuzLogo.astro";
 import { GamutLegend } from "./GamutLegend";
+import pkg from "../../../package.json" with { type: "json" };
+
+let version = pkg.version;
+try {
+  if (typeof Bun !== "undefined" && !Bun.semver.satisfies(version, "*")) {
+    version = "0.0.0";
+  }
+} catch {}
+
+let cssWeight = "—";
+try {
+  const css = readFileSync(new URL("../styles/luz.css", import.meta.url));
+  cssWeight = `${(gzipSync(css).length / 1024).toFixed(1)}KB`;
+} catch {}
 ---
 
 <div class="main-statusbar panel-header bottom">
@@ -21,9 +37,9 @@ import { GamutLegend } from "./GamutLegend";
     <span class="status" style={`color: var(--blue-400)`}></span>
   </div>
   <div class="space"></div>
-  <span>105KB</span>
-  <span>performance</span>
-  <span>v0.1.0</span>
+  <span title="luz.css, gzip">{cssWeight}</span>
+  <span id="perf-stat" title="first contentful paint / tiempo de transición">—</span>
+  <span>v{version}</span>
 </div>
 
 <style>
@@ -39,3 +55,31 @@ import { GamutLegend } from "./GamutLegend";
     gap: var(--space-1);
   }
 </style>
+
+<script>
+  let navStart = 0;
+  document.addEventListener("astro:before-preparation", () => {
+    navStart = performance.now();
+  });
+  document.addEventListener("astro:page-load", () => {
+    const el = document.getElementById("perf-stat");
+    if (!el) return;
+    if (!navStart) {
+      const report = () => {
+        const fcp = performance
+          .getEntriesByType("paint")
+          .find((entry) => entry.name === "first-contentful-paint");
+        if (fcp) el.textContent = `${Math.round(fcp.startTime)}ms fcp`;
+      };
+      new PerformanceObserver((list, observer) => {
+        if (list.getEntriesByName("first-contentful-paint").length) {
+          report();
+          observer.disconnect();
+        }
+      }).observe({ type: "paint", buffered: true });
+      report();
+    } else {
+      el.textContent = `${Math.round(performance.now() - navStart)}ms nav`;
+    }
+  });
+</script>

@@ -1,0 +1,35 @@
+.element {
+  display: inline-grid;
+  gap: var(--element-gap, var(--space-3));
+  &.row {
+    display: flex;
+    flex-direction: row;
+  }
+  &.column {
+    display: flex;
+    flex-direction: column;
+  }
+  &.auto {
+    flex: 1 1 auto;
+  }
+  &.fixed {
+    flex: 0 0 auto;
+  }
+  &.pair {
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(min(var(--element-pair-min, var(--element-width)), 100%), 1fr)
+    );
+    > * {
+      aspect-ratio: var(--element-aspect-ratio, auto);
+    }
+  }
+  .element-wide {
+    aspect-ratio: 16 / 9;
+  }
+  .element-portrait {
+    aspect-ratio: 9 / 16;
+  }
+}

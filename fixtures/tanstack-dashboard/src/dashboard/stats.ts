@@ -1,45 +1,53 @@
-import { gzipSync } from 'node:zlib'
-import { createServerFn } from '@tanstack/react-start'
-import { luz } from '@d00m-gui/luz'
-import { config } from '../../luz.config'
+import { gzipSync } from "node:zlib";
+import { createServerFn } from "@tanstack/react-start";
+import { luz } from "@d00m-gui/luz";
+import { config } from "../../luz.config";
 
-const RUNS = 24
+const RUNS = 24;
 
 export interface LuzStats {
-  runs: Array<{ run: number; ms: number }>
-  sizes: Array<{ section: string; bytes: number }>
+  runs: Array<{ run: number; ms: number }>;
+  sizes: Array<{ section: string; bytes: number }>;
   totals: {
-    avgMs: number
-    minMs: number
-    cssBytes: number
-    gzipBytes: number
-    colorTokens: number
-    sizeTokens: number
-    hues: number
-  }
+    avgMs: number;
+    minMs: number;
+    cssBytes: number;
+    gzipBytes: number;
+    colorTokens: number;
+    sizeTokens: number;
+    hues: number;
+  };
 }
 
-export const getLuzStats = createServerFn({ method: 'GET' }).handler(
+export const getLuzStats = createServerFn({ method: "GET" }).handler(
   async (): Promise<LuzStats> => {
-    const runs: LuzStats['runs'] = []
-    let result = luz(config)
+    const runs: LuzStats["runs"] = [];
+    let result = luz(config);
     for (let run = 1; run <= RUNS; run++) {
-      const start = performance.now()
-      result = luz(config)
-      runs.push({ run, ms: performance.now() - start })
+      const start = performance.now();
+      result = luz(config);
+      runs.push({ run, ms: performance.now() - start });
     }
 
-    const cssBytes = Buffer.byteLength(result.style, 'utf-8')
-    const gzipBytes = gzipSync(result.style).length
+    const cssBytes = Buffer.byteLength(result.style, "utf-8");
+    const gzipBytes = gzipSync(result.style).length;
 
     return {
       runs,
       sizes: [
-        { section: 'variables', bytes: Buffer.byteLength(result.variables, 'utf-8') },
-        { section: 'properties', bytes: Buffer.byteLength(result.properties, 'utf-8') },
         {
-          section: 'reset+components',
-          bytes: cssBytes - Buffer.byteLength(result.variables + result.properties, 'utf-8'),
+          section: "variables",
+          bytes: Buffer.byteLength(result.variables, "utf-8"),
+        },
+        {
+          section: "properties",
+          bytes: Buffer.byteLength(result.properties, "utf-8"),
+        },
+        {
+          section: "reset+components",
+          bytes:
+            cssBytes -
+            Buffer.byteLength(result.variables + result.properties, "utf-8"),
         },
       ],
       totals: {
@@ -51,6 +59,6 @@ export const getLuzStats = createServerFn({ method: 'GET' }).handler(
         sizeTokens: Object.keys(result.tokens.sizes).length,
         hues: 12,
       },
-    }
+    };
   },
-)
+);

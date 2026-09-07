@@ -6,3 +6,11 @@
   border-radius: 100%;
   background-color: currentColor;
 }
+a.status,
+button.status {
+  border: none;
+  box-shadow: none;
+  background-color: currentColor;
+  color: var(--scheme, currentColor);
+  cursor: pointer;
+}

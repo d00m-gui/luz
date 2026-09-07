@@ -56,7 +56,8 @@ export const luzVite = (config: LuzViteConfig): Plugin => {
       generateFile();
     },
     resolveId(id) {
-      if (mode === "virtual") return resolveVirtualCssId(id, virtualId, resolvedVirtualId);
+      if (mode === "virtual")
+        return resolveVirtualCssId(id, virtualId, resolvedVirtualId);
     },
     load(id) {
       if (mode === "virtual" && isVirtualCssLoad(id, resolvedVirtualId)) {

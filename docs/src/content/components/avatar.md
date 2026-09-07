@@ -5,9 +5,6 @@ covers:
   - avatar
 ---
 
-<span class="avatar">CD</span>
-
-## Variants
-
-<span class="avatar sm">AB</span>
-<span class="avatar lg">EF</span>
+<span class="avatar sm">AM</span>
+<span class="avatar">CE</span>
+<span class="avatar lg">DB</span>

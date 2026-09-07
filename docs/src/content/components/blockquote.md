@@ -6,6 +6,5 @@ covers:
 ---
 
 <blockquote>
-  "The best config is the one you never have to touch twice."
-  <cite>— luz</cite>
+  "Metaphors be with you"
 </blockquote>

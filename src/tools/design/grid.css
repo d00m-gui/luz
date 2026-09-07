@@ -2,5 +2,21 @@
   --grid-col-size-min: 25rem;
   display: grid;
   gap: var(--space-8);
-  grid-template-columns: repeat(auto-fit, minmax(min(var(--grid-col-size-min), 100%), 1fr));
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(var(--grid-col-size-min), 100%), 1fr)
+  );
+  &.overflow {
+    .card {
+      position: relative;
+      .card-meta {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        opacity: 0.4;
+        padding: var(--space-1);
+      }
+    }
+  }
 }

@@ -1,0 +1,5 @@
+.background-blur {
+  background-size: cover;
+  background-position: center;
+  filter: blur(var(--backdrop-blur, 2rem));
+}

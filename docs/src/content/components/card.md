@@ -15,6 +15,7 @@ covers:
 </div>
 
 ## Full Card
+
 <div class="card">
   <div class="card-meta">
     <span class="badge neutral">Overflow</span>

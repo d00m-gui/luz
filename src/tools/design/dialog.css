@@ -1,13 +1,15 @@
 dialog.modal {
   margin: auto;
-  padding: var(--space-6);
+  padding: 0;
   border: var(--border-width) solid var(--element-border-color);
   border-radius: var(--border-radius);
   background-color: var(--element-background);
   color: var(--foreground);
   box-shadow: var(--box-shadow);
-  max-width: min(90vw, 32rem);
+  width: min(90vw, 32rem);
+  max-width: 90vw;
   max-height: 90vh;
+  overflow: hidden;
   opacity: 0;
   transform: scale(0.95);
   transition: var(--transition);
@@ -23,6 +25,13 @@ dialog.modal {
   &[open] {
     opacity: 1;
     transform: scale(1);
+  }
+  .card {
+    border: none;
+    box-shadow: none;
+    .card-content {
+      flex-direction: column;
+    }
   }
 }
 @media (prefers-reduced-motion: reduce) {

@@ -43,7 +43,9 @@ covers:
     </div>
     <div class="card-content">
       <p>The <strong>default</strong> Notification message from <mark>bottom end</mark></p>
-      <h1><i class="icon nf nf-md-hand_wave"></i></h1>
+      <p>Toasts like this one can carry a full <code>.card</code> layout —
+      title, body copy and actions — instead of a single line, useful
+      for updates that need a bit more context before they dismiss.</p>
     </div>
     <div class="card-footer">
       <div class="space"></div>
@@ -61,19 +63,5 @@ covers:
     <span>Delete this file?</span>
     <button popovertarget="toast-confirm" popovertargetaction="hide" class="ghost">Cancelar</button>
     <button popovertarget="toast-confirm" popovertargetaction="hide" class="danger">Eliminar</button>
-  </div>
-</div>
-
-## Stack
-
-<div class="grid stack">
-  <div class="toast success" style="position: static; opacity: 1; transform: none">
-    <i class="icon nf nf-fa-check_circle"></i> Saved successfully
-  </div>
-  <div class="toast" style="position: static; opacity: 0.8; transform: none">
-    <i class="icon nf nf-fa-info_circle"></i> Upload complete
-  </div>
-  <div class="toast" style="position: static; opacity: 0.5; transform: none">
-    <i class="icon nf nf-fa-bell"></i> New message
   </div>
 </div>

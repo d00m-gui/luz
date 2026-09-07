@@ -81,7 +81,11 @@ export const luzAstro = (config: LuzAstroConfig): AstroIntegration => {
               {
                 name: "luz-virtual-css",
                 resolveId(id: string) {
-                  return resolveVirtualCssId(id, virtualId!, resolvedVirtualId!);
+                  return resolveVirtualCssId(
+                    id,
+                    virtualId!,
+                    resolvedVirtualId!,
+                  );
                 },
                 load(id: string) {
                   if (isVirtualCssLoad(id, resolvedVirtualId!)) {

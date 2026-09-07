@@ -55,8 +55,13 @@ function classify(
   if (!isSingleToken(v)) return null;
 
   for (const [re, syntax] of SIMPLE_SYNTAX) {
-    if (re.test(v))
+    if (re.test(v)) {
+      // A `%` inside calc/clamp/min/max isn't computationally independent —
+      // invalid as a typed `<length>` initial-value (percentages need a
+      // containing block). Leave the token unregistered instead.
+      if (syntax === SYNTAX.length && v.includes("%")) break;
       return { syntax, initialValue: v.includes("var(") ? "0px" : v };
+    }
   }
   if (HEX_COLOR.test(v) || COLOR_FN.test(v))
     return {

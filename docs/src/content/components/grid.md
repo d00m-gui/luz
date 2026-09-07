@@ -148,3 +148,17 @@ span: 2
     <div class="card-footer">Footer</div>
   </div>
 </div>
+
+## Stack
+
+<div class="grid stack">
+  <div class="toast success">
+    <i class="icon nf nf-fa-check_circle"></i> Saved successfully
+  </div>
+  <div class="toast">
+    <i class="icon nf nf-fa-info_circle"></i> Upload complete
+  </div>
+  <div class="toast">
+    <i class="icon nf nf-fa-bell"></i> New message
+  </div>
+</div>

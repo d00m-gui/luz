@@ -11,6 +11,7 @@
   background-color: oklch(from var(--current-bg) l c h / 26%);
   border: var(--border-width) solid var(--current-bg);
   color: var(--on-scheme);
+  transition: var(--transition);
   &.ghost {
     background-color: transparent;
     color: var(--on-badge-ghost);
@@ -21,6 +22,12 @@
     padding-inline: var(--space-4);
   }
   &:hover {
-    color: var(--current-color);
+    transform: scale(1.03);
+  }
+  &:not(.ghost):hover {
+    background-color: oklch(from var(--current-bg) l c h / 36%);
+  }
+  &:active {
+    transform: scale(0.97);
   }
 }

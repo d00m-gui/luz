@@ -10,7 +10,7 @@ ul {
   font-weight: var(--font-weight);
 }
 small {
-  font-size: var(--font-size-small);
+  font-size: 60%;
 }
 abbr {
   border-bottom: var(--border-width) dotted var(--foreground);
