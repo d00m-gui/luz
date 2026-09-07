@@ -22,7 +22,7 @@ function IconBase({
   );
 }
 
-/** Close / dismiss. Used by `dialog.tsx`, `toast.tsx`. */
+/** Close / dismiss. Used by `dialog.tsx`, `notice.tsx`. */
 export function XIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>
@@ -41,7 +41,7 @@ export function CheckIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** Checkmark in a circle — toast success. Used by `toast.tsx`. */
+/** Checkmark in a circle — notice success. Used by `notice.tsx`. */
 export function CircleCheckIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>
@@ -51,7 +51,7 @@ export function CircleCheckIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** "i" in a circle — toast info. Used by `toast.tsx`. */
+/** "i" in a circle — notice info. Used by `notice.tsx`. */
 export function InfoIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>
@@ -62,7 +62,7 @@ export function InfoIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** Exclamation triangle — toast warning. Used by `toast.tsx`. */
+/** Exclamation triangle — notice warning. Used by `notice.tsx`. */
 export function TriangleAlertIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>
@@ -73,7 +73,7 @@ export function TriangleAlertIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-/** X in an octagon — toast error. Used by `toast.tsx`. */
+/** X in an octagon — notice error. Used by `notice.tsx`. */
 export function OctagonXIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <IconBase {...props}>
@@ -85,8 +85,8 @@ export function OctagonXIcon(props: SVGProps<SVGSVGElement>) {
 }
 
 /**
- * Spinner glyph (a ~3/4 ring, not a full circle) — toast loading. Used by
- * `toast.tsx`. Static like upstream's usage here: there's no `animate-spin`
+ * Spinner glyph (a ~3/4 ring, not a full circle) — notice loading. Used by
+ * `notice.tsx`. Static like upstream's usage here: there's no `animate-spin`
  * in the closed-vocabulary utility engine, so this doesn't rotate either.
  */
 export function Loader2Icon(props: SVGProps<SVGSVGElement>) {

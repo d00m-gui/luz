@@ -152,13 +152,13 @@ span: 2
 ## Stack
 
 <div class="grid stack">
-  <div class="toast success">
+  <div class="notice success">
     <i class="icon nf nf-fa-check_circle"></i> Saved successfully
   </div>
-  <div class="toast">
+  <div class="notice">
     <i class="icon nf nf-fa-info_circle"></i> Upload complete
   </div>
-  <div class="toast">
+  <div class="notice">
     <i class="icon nf nf-fa-bell"></i> New message
   </div>
 </div>

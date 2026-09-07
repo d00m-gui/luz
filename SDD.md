@@ -401,7 +401,7 @@ fijas como un tema) — 56 archivos hoy bajo `src/tools/design/`, cada
 uno self-contained (reset+layout+color+hover/focus/active del
 componente juntos), importados en orden por el manifest `design.css`
 (el orden importa: `_feedback.css` va último para ganarle
-especificidad a `.btn`/`.badge`/`.alert`/`.toast`, ver más abajo).
+especificidad a `.btn`/`.badge`/`.alert`/`.notice`, ver más abajo).
 Incluye tanto piezas con interactividad nativa (`.accordion` vía
 `<details>`/`<summary>`, `dialog.modal` vía `<dialog>` con
 `@starting-style`+`transition-behavior: allow-discrete`) como
