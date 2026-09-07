@@ -137,11 +137,11 @@ export function luzSizes(
       : "0.1rem",
     "border-radius": `${(base / 78).toFixed(1)}rem`,
     "border-width": `${(base / 128).toFixed(1)}rem`,
-    spacing: `${((base / 10) * 3).toFixed(0)}vw`,
+    spacing: `calc(${(base / 4).toFixed(0)}vw * var(--density, 1))`,
     "element-vertical": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
     "element-horizontal": `calc(${(base / 24).toFixed(3)}rem * var(--density, 1))`,
     "element-width": `min(${(base * 1.78).toFixed(0)}rem, 100%)`,
-    "element-width-min": `${base}rem`,
+    "element-width-min": `${(base * 2)}rem`,
     "element-gap": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
   };
 }
