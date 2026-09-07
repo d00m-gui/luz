@@ -21,13 +21,15 @@
     border-radius: calc(var(--size-unit) * 40);
     padding-inline: var(--space-4);
   }
-  &:hover {
-    transform: scale(1.03);
-  }
-  &:not(.ghost):hover {
-    background-color: oklch(from var(--current-bg) l c h / 36%);
-  }
-  &:active {
-    transform: scale(0.97);
+  a, button, .btn, .button {
+    &:hover {
+      transform: scale(1.03);
+    }
+    &:not(.ghost):hover {
+      background-color: oklch(from var(--current-bg) l c h / 36%);
+    }
+    &:active {
+      transform: scale(0.97);
+    }
   }
 }

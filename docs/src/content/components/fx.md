@@ -1,9 +1,14 @@
 ---
-title: Fx
-category: Primitives
+title: Blend Modes
+category: Surfaces
 covers:
-  - fx
+  - background-blur
+  - background-conic-rainbow
 wip: true
 ---
 
-<!-- TODO: ejemplo de .fx -->
+<div class="demo-fx">
+  <div class="card background-conic-rainbow">
+    <span>conic angle</span>
+  </div>
+</div>

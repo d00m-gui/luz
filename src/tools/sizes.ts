@@ -141,6 +141,8 @@ export function luzSizes(
     "element-vertical": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
     "element-horizontal": `calc(${(base / 24).toFixed(3)}rem * var(--density, 1))`,
     "element-width": `min(${(base * 1.78).toFixed(0)}rem, 100%)`,
+    "element-width-min": `${base}rem`,
+    "element-gap": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
   };
 }
 

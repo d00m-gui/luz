@@ -11,17 +11,16 @@
   .card-content,
   .card-footer,
   .card-meta {
-    padding: var(--space-3);
+    padding: var(--space-1) var(--space-2);
     display: flex;
     gap: var(--space-3);
   }
+  .card-content {
+    flex-direction: column;
+  }
   .card-meta {
-    padding: var(--space-2) var(--space-3) 0;
     background-color: var(--current-bg);
     color: var(--current-color);
-  }
-  .card-footer {
-    padding: 0 var(--space-3) var(--space-2);
   }
   .space {
     flex: 1 1 auto;

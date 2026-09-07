@@ -20,7 +20,7 @@
     display: grid;
     grid-template-columns: repeat(
       auto-fit,
-      minmax(min(var(--element-pair-min, var(--element-width)), 100%), 1fr)
+      minmax(min(var(--element-width-min, var(--element-width)), 100%), 1fr)
     );
     > * {
       aspect-ratio: var(--element-aspect-ratio, auto);
