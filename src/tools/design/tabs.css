@@ -114,6 +114,6 @@
     border-bottom: none;
   }
   .tab[aria-current="page"] {
-    color: var(--tab-border-active);
+    color: var(--on-scheme, var(--on-element));
   }
 }

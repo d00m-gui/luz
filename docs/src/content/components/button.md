@@ -13,6 +13,7 @@ span: 2
 
 ## Variants
 
+<button class="primary">Primary</button>
 <button class="outline">Outline</button>
 <button class="neutral">Neutral</button>
 <button class="success">Success</button>

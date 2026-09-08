@@ -318,7 +318,7 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "radio-checked-border": `var(--scheme-primary)`,
     "blockquote-border": `var(--${prefix}${name}-200)`,
     "on-blockquote-footer": `var(--scheme-primary)`,
-    "btn-bg": `var(--scheme-primary)`,
+    "btn-bg": `var(--scheme-neutral)`,
     "on-btn": `var(--on-scheme, ${luzOnColor("var(--btn-bg)")})`,
     "btn-bg-hover": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,
     "btn-box-shadow": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,

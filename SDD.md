@@ -337,15 +337,25 @@ gamut-clamp ya lo reduce solo) — elegir otro peso vía
 `schemeShade`/`schemeLightness` no alcanza para bajar la saturación de
 `.btn`/`.badge`/`.alert`, hace falta el factor.
 
-`btn-bg`/`badge-bg`/`accent`/`checkbox-checked-bg`/`switch-bg`/
+`badge-bg`/`accent`/`checkbox-checked-bg`/`switch-bg`/
 `radio-checked-bg`/`progress-fill`/`tab-border-active`/`hr-color`/
 `selection-bg`/`range-track-shadow`/`range-thumb-active-bg` — la
 variante _default_ (sin clase) de estos tokens pasó de apuntar a
 `var(--{name}-500)` fijo a `var(--scheme-primary)`. Antes
 `schemeShade`/`schemeLightness`/`schemeChroma` solo afectaban a las
 variantes con clase (`.secondary`, `.success`, …, vía `--scheme` en
-`button.css`/`_feedback.css`) — el botón/badge default los ignoraba por
+`button.css`/`_feedback.css`) — el badge default los ignoraba por
 completo. Ahora un solo mecanismo gobierna los dos casos.
+
+`btn-bg` es la excepción: su default (sin clase) apunta a
+`--scheme-neutral`, no a `--scheme-primary` — un `<button>` sin variante
+es neutral, `.primary`/`[role="primary"]` (vía `--scheme` en
+`_feedback.css`) es opt-in explícito. Decisión de diseño: la mayoría de
+los botones en una app conviven en la misma pantalla y no deberían
+competir por atención; forzar `primary` como default hace que cada
+pantalla necesite apagar el ruido a mano (`.neutral` en el 90% de los
+botones). El costo de marcar el único CTA que sí necesita destacar es
+el mismo en ambos esquemas.
 
 Nuevos tokens `scheme-success`/`-danger`/`-warning`/`-info` (mismo
 `chromaScaledEntry`, peso `200`) — hacían falta porque `_feedback.css`

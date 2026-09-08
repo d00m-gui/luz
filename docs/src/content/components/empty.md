@@ -11,18 +11,20 @@ covers:
   <span>Try adjusting your filters.</span>
 </div>
 
-## 404 — alineado a la izquierda
+## 404
 
-<div class="empty start">
-  <span class="empty-title">404 — Página no encontrada</span>
-  <span>La página que buscás no existe o fue movida.</span>
-  <button class="btn" type="button">Volver al inicio</button>
+<div class="empty start card soft info">
+  <code class="badge">404: Not Found</code>
+  <span class="empty-title">Hey, whats up? <i>where</i> does this page go?~</span>
+  <h4>Its all a conspiracy, they are trying to hide information</h4>
+  <button class="pill" type="button">Pill</button>
 </div>
 
-## 500 — centrado
+## 500
 
-<div class="empty">
-  <span class="empty-title">500 — Error del servidor</span>
-  <span>Algo salió mal de nuestro lado. Intentá de nuevo en unos minutos.</span>
+<div class="empty card soft danger">
+  <code class="badge">500: Server error</code>
+  <span class="empty-title">Error serio, esto no deberia estar pasando</span>
+  <h4>Algo salió mal de nuestro lado. Intentá de nuevo en unos minutos.</h4>
   <button class="btn" type="button">Reintentar</button>
 </div>

@@ -15,7 +15,7 @@ covers:
 <div class="join">
   <i class="icon nf nf-fa-search"></i>
   <input type="text" placeholder="Search…" />
-  <button>Go</button>
+  <button class="neutral">Go</button>
 </div>
 
 ## Vertical
