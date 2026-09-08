@@ -59,10 +59,10 @@
   background-color: transparent;
   border-width: 0;
   color: var(--scheme, var(--scheme-primary));
-  box-shadow: 0 0 0 var(--border-width) var(--scheme, var(--scheme-primary));
+  box-shadow: inset 0 0 0 var(--border-width) var(--scheme, var(--scheme-primary));
   &:hover, &:active {
     background-color: transparent;
-    box-shadow: 0 0 0 var(--border-width) var(--scheme, var(--scheme-primary));
+    box-shadow: inset 0 0 0 var(--border-width) var(--scheme, var(--scheme-primary));
   }
 }
 .surface-primary {

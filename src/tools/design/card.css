@@ -1,19 +1,20 @@
 .card {
   --current-bg: var(--scheme, var(--element-background));
   border: var(--border-width) solid var(--element-border-color);
-  border-radius: var(--border-radius);
+  border-radius: calc(var(--border-radius) * 1.75 * var(--density));
   background-color: var(--current-bg);
   color: var(--current-color);
   box-shadow: var(--box-shadow);
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--element-vertical);
+  overflow: hidden;
   .card-content,
   .card-footer,
   .card-meta {
-    padding: var(--space-1) var(--space-2);
+    padding: var(--element-vertical) calc(var(--element-horizontal) * 1.75 * var(--density));
     display: flex;
-    gap: var(--space-3);
+    gap: var(--space-2);
   }
   .card-content {
     flex-direction: column;

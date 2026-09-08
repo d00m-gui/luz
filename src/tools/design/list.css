@@ -31,10 +31,6 @@
   &:last-child {
     border-bottom: none;
   }
-  & > :nth-child(2) {
-    justify-self: start;
-    width: 100%;
-  }
   @media (hover: hover) and (pointer: fine) {
     &:is(a, button):hover,
     &.hover:hover {
@@ -54,15 +50,7 @@
 }
 a.list-row {
   text-decoration: none;
-  --on-table-hover: var(--on-scheme, var(--anchor));
-}
-.list-title {
-  padding: calc(var(--space-2) * var(--density, 1))
-    calc(var(--space-4) * var(--density, 1));
-  font-size: calc(var(--size-unit) * 8);
-  font-weight: var(--font-bold-weight);
-  text-transform: uppercase;
-  opacity: 0.6;
+  --on-table-hover: var(--on-scheme, var(--foreground));
 }
 .list.horizontal,
 .list.responsive {
@@ -132,6 +120,52 @@ details.list-row {
       padding-block: calc(var(--space-2) * var(--density, 1));
       padding-inline-end: 0;
     }
+  }
+}
+@media (max-width: 48rem) {
+  .list:not(.filetree) details.list-row {
+    &::details-content {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      overflow-y: auto;
+      padding-top: var(--space-12);
+      background-color: var(--element-background);
+      translate: 100% 0;
+      transition: var(--transition);
+      transition-property: translate, content-visibility, display;
+      transition-behavior: allow-discrete;
+    }
+    &[open] {
+      &::details-content {
+        translate: 0 0;
+      }
+      & > summary {
+        position: fixed;
+        inset: 0 0 auto 0;
+        z-index: 21;
+        height: var(--space-12);
+        background-color: var(--element-background);
+        border-bottom: var(--border-width) solid var(--element-border-color);
+        &::before {
+          content: "‹";
+          font-size: 1.25em;
+        }
+        &::after {
+          content: none;
+        }
+      }
+    }
+    @starting-style {
+      &[open]::details-content {
+        translate: 100% 0;
+      }
+    }
+  }
+}
+@media (max-width: 48rem) and (prefers-reduced-motion: reduce) {
+  .list:not(.filetree) details.list-row::details-content {
+    transition-duration: 0.01ms !important;
   }
 }
 .list {

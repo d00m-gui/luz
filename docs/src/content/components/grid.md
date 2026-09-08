@@ -1,6 +1,6 @@
 ---
 title: Grid
-category: Layout
+category: Surfaces
 covers:
   - grid
 span: 2

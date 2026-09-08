@@ -6,5 +6,5 @@ covers:
 ---
 
 <blockquote>
-  "Metaphors be with you"
+  "If I had a concussion, I would remember it."
 </blockquote>

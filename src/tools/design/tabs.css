@@ -97,10 +97,6 @@
 }
 
 .tabs.bottom {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
   background-color: var(--element-background);
   margin: 0 auto;
   border: none;

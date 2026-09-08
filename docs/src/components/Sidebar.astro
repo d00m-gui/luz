@@ -26,7 +26,12 @@ const componentsByCategory = Object.groupBy(
 );
 ---
 
-<nav class="sidebar drawer-sidebar">
+<nav
+  id="sidebar-drawer"
+  popover
+  data-placement="fullscreen"
+  class="sidebar drawer fluid main-menu"
+>
   <div class="sidebar-scroll scrollbar-thin">
     <div class="main-title">
       <figure class="logo">
@@ -39,7 +44,6 @@ const componentsByCategory = Object.groupBy(
         href="/"
         class="list-row"
         aria-current={activeId === "luz-defaults" ? "page" : undefined}
-        style={`--sidebar-bg: var(--primary-400)`}
       >
         Inicio
       </a>
@@ -47,7 +51,6 @@ const componentsByCategory = Object.groupBy(
         href="/styleguide"
         class="list-row"
         aria-current={activeId === "styleguide" ? "page" : undefined}
-        style={`--sidebar-bg: var(--primary-400)`}
       >
         Styleguide
       </a>
@@ -55,6 +58,7 @@ const componentsByCategory = Object.groupBy(
       {
         Object.entries(componentsByCategory).map(([category, entries]) => {
           const isOpen = entries!.some((c) => activeId === `component-${c.id}`);
+
           return (
             <details class="list-row" open={isOpen}>
               <summary>{category}</summary>
@@ -62,6 +66,7 @@ const componentsByCategory = Object.groupBy(
                 {entries!.map((c) => {
                   const hue =
                     COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
+                  const selected = activeId === `component-${c.id}`;
                   return (
                     <a
                       href={`/components/${c.id}`}
@@ -69,11 +74,11 @@ const componentsByCategory = Object.groupBy(
                       aria-current={
                         activeId === `component-${c.id}` ? "page" : undefined
                       }
-                      style={`--sidebar-bg: var(--${hue}-400)`}
+                      style={`background-color: ${selected ? `var(--${hue}-800)` : "transparent"}`}
                     >
                       <span
                         class="sidebar-dot"
-                        style={`background: var(--${hue}-400)`}
+                        style={`background: var(--${hue}-200)`}
                       />
                       {c.title}
                     </a>

@@ -12,6 +12,7 @@
   border: var(--border-width) solid var(--current-bg);
   color: oklch(from var(--current-bg) calc(l + 0.25) c h);
   transition: var(--transition);
+  gap: var(--space-1);
   &.ghost {
     background-color: transparent;
     color: var(--on-badge-ghost);

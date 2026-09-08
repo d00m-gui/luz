@@ -12,7 +12,7 @@ try {
   }
 } catch {}
 
-let cssWeight = "—";
+let cssWeight = "loading";
 try {
   const css = readFileSync(new URL("../styles/luz.css", import.meta.url));
   cssWeight = `${(gzipSync(css).length / 1024).toFixed(1)}KB`;
@@ -20,13 +20,6 @@ try {
 ---
 
 <div class="main-statusbar panel-header bottom">
-  <label
-    for="sidebar-drawer"
-    class="grow-0 btn ghost icon"
-    aria-label="Alternar sidebar"
-  >
-    <i class="nf nf-cod-layout_sidebar_left"></i>
-  </label>
   <figure class="small-logo">
     <LuzLogo color={`var(--primary)`} />
   </figure>
@@ -37,9 +30,20 @@ try {
     <span class="status" style={`color: var(--blue-400)`}></span>
   </div>
   <div class="space"></div>
-  <span title="luz.css, gzip">{cssWeight}</span>
-  <span id="perf-stat" title="first contentful paint / tiempo de transición">—</span>
+  <span title="luz.css, gzip"
+    >{cssWeight === "loading" ? <span aria-busy="true" /> : cssWeight}</span
+  >
+  <span id="perf-stat" title="first contentful paint / tiempo de transición"
+    ><span aria-busy="true"></span> fcp</span
+  >
   <span>v{version}</span>
+  <button
+    popovertarget="sidebar-drawer"
+    class="sidebar-drawer-trigger grow-0 btn ghost icon"
+    aria-label="Alternar sidebar"
+  >
+    <i class="nf nf-cod-list_selection"></i>
+  </button>
 </div>
 
 <style>
@@ -53,6 +57,11 @@ try {
   .palette {
     display: flex;
     gap: var(--space-1);
+  }
+  .sidebar-drawer-trigger {
+    @media (min-width: 48rem) {
+      display: none;
+    }
   }
 </style>
 

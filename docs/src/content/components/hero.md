@@ -9,12 +9,12 @@ covers:
 
 <div class="hero">
   <div class="hero-content">
-    <h2 class="hero-heading">Un estilo, todo el espectro</h2>
-    <p class="hero-paragraph">48 componentes, 129 clases, 36 tags, 32 attrs</p>
+    <h2 class="hero-heading">One style, the whole spectrum</h2>
+    <p class="hero-paragraph">48 components, 129 classes, 36 tags, 32 attributes</p>
     <button class="cta">
       <div>
-        <span class="text-sm">Ver</span>
-        <span class="text-lg">Colección</span>
+        <span class="text-sm">View</span>
+        <span class="text-lg">Collection</span>
       </div>
     </button>
   </div>

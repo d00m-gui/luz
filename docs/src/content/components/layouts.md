@@ -1,6 +1,5 @@
 ---
 title: Layouts
-desc: shells de aplicación, compuestos con .shell
 category: Layout
 covers:
   - shell
@@ -8,20 +7,9 @@ covers:
   - shell-body
 ---
 
-`.shell` es el contenedor (borde/radio/overflow, fila u vertical con
-`.vertical`) — separa a sus hijos directos con un borde automático, sin
-tocarlos. `.shell-pane` es cada columna/fila (`.fixed` +
-`--shell-pane-width` para un ancho fijo, flexible por default).
-`.shell-body` es el bloque de contenido con padding dentro de un pane,
-al lado de `.panel-header.top`/`.panel-header.bottom` como titlebar/
-statusbar. El resto del shell (sidebar de escritorio colapsable, drawer
-mobile, bottom nav) sigue siendo `.drawer-sidebar`/`.drawer`/
-`.tabs.bottom` — `.shell` no los reemplaza, los organiza.
-
-<!--preview-->
-<div class="shell" style="height: 16rem;">
+<div class="shell">
   <input type="checkbox" id="ex-shell-toggle" class="drawer-toggle" checked hidden />
-  <nav class="drawer-sidebar" style="--drawer-width: 10rem;">
+  <nav class="drawer-sidebar">
     <div class="list">
       <a class="list-row" aria-current="page">Inicio</a>
       <a class="list-row">Reportes</a>
@@ -64,15 +52,9 @@ mobile, bottom nav) sigue siendo `.drawer-sidebar`/`.drawer`/
     </div>
   </div>
 </div>
-<!--/preview-->
 
-## Dashboard — sidebar + titlebar + grilla de stats
+## Dashboard sidebar + titlebar + grilla de stats
 
-Sidebar fija + titlebar con acciones + grilla de `.stat` + una tabla y
-un panel de actividad reciente debajo. Ver `fixtures/tanstack-dashboard`
-para una versión real con datos y charts.
-
-<!--preview-->
 <div class="shell" style="height: 24rem;">
   <nav class="drawer-sidebar" style="--drawer-width: 9rem;">
     <div class="list">
@@ -109,15 +91,9 @@ para una versión real con datos y charts.
     </div>
   </div>
 </div>
-<!--/preview-->
 
-## Email — 3 columnas (nav + lista + detalle)
+## Email 3 columnas (nav + lista + detalle)
 
-Tres `.shell-pane` — dos `.fixed` (nav, lista) y una flexible
-(detalle). La fila activa usa `aria-current="page"`. Colapsa a una
-columna (solo lista o solo detalle) en mobile, no mostrado acá.
-
-<!--preview-->
 <div class="shell" style="height: 16rem;">
   <nav class="shell-pane fixed list" style="--shell-pane-width: 8rem;">
     <a class="list-row" aria-current="page">Recibidos</a>
@@ -140,15 +116,9 @@ columna (solo lista o solo detalle) en mobile, no mostrado acá.
     </div>
   </div>
 </div>
-<!--/preview-->
 
-## E-commerce — filtros + grilla de productos
+## E-commerce filtros + grilla de productos
 
-`.shell-pane.fixed` de filtros (`.list`/checkboxes) junto a un pane
-flexible con `.grid` de `.card`, cada card con
-`.card-content`/`.card-footer`.
-
-<!--preview-->
 <div class="shell" style="height: 18rem;">
   <nav class="shell-pane fixed list" style="--shell-pane-width: 8rem; padding: var(--space-3);">
     <span class="list-title">Categoría</span>
@@ -180,15 +150,9 @@ flexible con `.grid` de `.card`, cada card con
     </div>
   </div>
 </div>
-<!--/preview-->
 
-## Landing — hero + features + pricing + footer
+## Landing hero + features + pricing + footer
 
-`.hero` para la portada, `.shell-body` para el resto (features,
-pricing), `.panel-header.bottom` como footer. Ver `hero.md` para las
-variantes de `.hero` (con overlay, de dos columnas).
-
-<!--preview-->
 <div class="shell vertical" style="height: 24rem;">
   <div class="shell-pane">
     <div class="shell-body" style="padding: 0; display: flex; flex-direction: column; gap: var(--space-5);">
@@ -226,14 +190,9 @@ variantes de `.hero` (con overlay, de dos columnas).
     </div>
   </div>
 </div>
-<!--/preview-->
 
-## Settings — nav lateral + secciones de formulario
+## Settings nav lateral + secciones de formulario
 
-`.shell-pane.fixed` como nav de secciones, `<form>` en el pane
-flexible — mismo shell del dashboard, sin titlebar.
-
-<!--preview-->
 <div class="shell" style="height: 16rem;">
   <nav class="shell-pane fixed list" style="--shell-pane-width: 8rem;">
     <a class="list-row" aria-current="page">Perfil</a>
@@ -247,16 +206,9 @@ flexible — mismo shell del dashboard, sin titlebar.
     </form>
   </div>
 </div>
-<!--/preview-->
 
-## Chat — asistente de IA
+## Chat
 
-Titlebar con avatar + estado del modelo, burbujas con avatar solo del
-lado del asistente (`.card`, mensaje propio a la derecha sin avatar),
-una respuesta en curso vía `aria-busy="true"` (reusa el spinner de
-`.loading`), compositor fijo abajo.
-
-<!--preview-->
 <div class="shell vertical" style="height: 22rem;">
   <div class="shell-pane">
     <div class="panel-header top">
@@ -294,4 +246,3 @@ una respuesta en curso vía `aria-busy="true"` (reusa el spinner de
     </form>
   </div>
 </div>
-<!--/preview-->

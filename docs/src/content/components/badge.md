@@ -6,9 +6,6 @@ covers:
 ---
 
 <span class="badge">Default</span>
-
-## Variants
-
 <span class="badge success">Success</span>
 <span class="badge danger">Danger</span>
 <span class="badge warning">Warning</span>

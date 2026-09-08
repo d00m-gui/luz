@@ -5,21 +5,29 @@ covers:
   - element
 ---
 
-<div class="element pair" style="--element-aspect-ratio: 16 / 9">
-  <img src="/samples/009-w.png" />
-  <img src="/samples/005-w.png" />
+<div class="element">
+  <div class="card element-wide">
+    <div class="card-content">
+      <p>4/3 ratio</p>
+    </div>
+  </div>
+  <div class="card element-portrait">
+    <div class="card-content">
+      <p>2/3 ratio</p>
+    </div>
+  </div>
 </div>
 
 ## Square
 
-<div class="element pair demo-square" style="--element-aspect-ratio: 1 / 1">
+<div class="element pair demo-square">
   <img src="/luz-logo.svg" />
   <img src="/luz-logo-rgb.svg" />
 </div>
 
 ## Portrait
 
-<div class="element pair demo-portrait" style="--element-aspect-ratio: 9 / 16">
+<div class="element pair demo-portrait">
   <div class="card">
     <p>1</p>
   </div>

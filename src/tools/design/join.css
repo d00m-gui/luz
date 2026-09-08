@@ -42,4 +42,12 @@
       }
     }
   }
+  &.no-border {
+    > * {
+      border-color: transparent;
+    }
+    &.join {
+      padding: 0;
+    }
+  }
 }

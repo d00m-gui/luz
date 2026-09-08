@@ -36,8 +36,13 @@
   transition-property: opacity, transform, overlay, display;
   transition-behavior: allow-discrete;
   @starting-style {
+    --notice-y: calc(var(--space-15) * 2);
+    height: 0;
+    width: 0;
+    min-width: 0;
     opacity: 0;
     transform: translateY(var(--notice-y)) scale(0.95);
+    display: none;
   }
   &:popover-open {
     opacity: 1;
@@ -45,7 +50,7 @@
   }
   &.top-start,
   &.top-end {
-    --notice-y: calc(var(--space-15) * -1);
+    --notice-y: calc(var(--space-15) * -4);
     inset-block-start: var(--space-6);
     inset-block-end: auto;
   }
@@ -71,7 +76,7 @@
       color: var(--scheme);
     }
   }
-  &.notice-card {
+  &.card {
     flex-direction: column;
     align-items: stretch;
     padding: 0;

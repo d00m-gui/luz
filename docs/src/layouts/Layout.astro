@@ -30,6 +30,7 @@ const {
 <html lang="en" data-theme="dark" data-hue={hue}>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title} — luz docs</title>
     <Font cssVariable="--dm-sans" />
     <Font cssVariable="--dm-mono" />
@@ -39,13 +40,6 @@ const {
   <body>
     <div class="layout">
       <div class="container main-row">
-        <input
-          type="checkbox"
-          id="sidebar-drawer"
-          class="drawer-toggle"
-          checked
-          hidden
-        />
         <Sidebar activeId={activeId} title={title} hue={hue} />
         <main class:list={["main", contentClass]}>
           <Header breadcrumb={breadcrumb} />

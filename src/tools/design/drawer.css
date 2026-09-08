@@ -127,8 +127,8 @@
     }
   }
   &[data-placement="fullscreen"] {
-    inset: var(--spacing);
-    background-color: red;
+    padding: var(--spacing);
+    inset: 0;
     width: 100%;
     max-width: none;
     height: 100%;
