@@ -70,7 +70,7 @@
     "lint": "oxlint --ignore-pattern \"dist/**\" .",
     "prepare": "bun simple-git-hooks",
     "prepublishOnly": "bun run lint && bun run type-check && bun run bunup",
-    "release": "bun run bunup && bun pm version && git push --follow-tags",
+    "release": "bash -c 'bun run bunup && bun pm version \"$1\" && git push --follow-tags' _",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
