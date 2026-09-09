@@ -1,0 +1,333 @@
+# luz
+
+> `@d00m-gui/luz` — a lightweight CSS-in-TypeScript theming library. Give it
+> one primary color and it generates a full OKLCH design system: a color
+> palette, a rotated 12-hue wheel, semantic tokens, and two numbered scales,
+> from a single `LuzConfig` object. It ships a classless HTML reset, a
+> closed-vocabulary Tailwind-shaped utility engine, a curated set of
+> zero-JS component classes, and framework adapters for Astro and Vite.
+
+This file is a reference for LLMs/agents configuring `luz` for a project:
+`LuzConfig` fields, the custom properties `luz()` emits, the component/
+utility class vocabulary, and design-system best practices for combining
+them. It does not replace the docs site (human-oriented, with live demos);
+treat this as the machine-readable index.
+
+## Install & basic usage
+
+```bash
+bun add @d00m-gui/luz   # or npm/pnpm
+```
+
+```ts
+// Astro: astro.config.mjs
+import luz from "@d00m-gui/luz/astro";
+export default defineConfig({ integrations: [luz({ primary: "#f28c20" })] });
+```
+
+```ts
+// Vite: vite.config.ts
+import luz from "@d00m-gui/luz/vite";
+export default defineConfig({ plugins: [luz({ primary: "#f28c20" })] });
+```
+
+Both adapters accept `output: "virtual"` to emit a virtual CSS module
+instead of writing a file to disk (see `fixtures/tanstack-dashboard`).
+`primary` is the only required `LuzConfig` field — everything else has a
+default (see `LUZ_DEFAULT_CONFIG` below).
+
+## The four layers
+
+1. **Classless** — plain semantic HTML (`h1`, `button`, `table`, `dialog`,
+   `input`, …), no classes needed, styled by luz's reset.
+2. **Utility classes** — a closed, Tailwind-nomenclature-compatible set
+   (`p-4`, `bg-primary-600`, `text-lg`, `open:bg-primary-600`), scanned
+   from your source and emitted as static CSS at build time. No arbitrary
+   values, nothing shipped unused.
+3. **Component classes** — `.badge`, `.alert`, `.card`, `.btn`, `.tabs`,
+   `.modal`, … — pure CSS on plain HTML, generated from your tokens, zero
+   JS. Interactivity leans on native HTML (`<details>`, `<dialog>`, radio
+   inputs) instead of a JS framework.
+4. **Unstyled behavior primitives** (Base UI/Radix, or kits built on them)
+   for what CSS can't do — combobox, date picker, complex keyboard nav.
+   luz's utility/component classes style them; the primitive only supplies
+   behavior. A shadcn/ui (Base UI variant) token bridge is included —
+   unmodified shadcn source can consume luz's tokens via a generated
+   `:root` alias block.
+
+## `LuzConfig` reference
+
+Only `primary` is required. Defaults below are `LUZ_DEFAULT_CONFIG`.
+
+### Color
+
+| Field | Default | What it does |
+|---|---|---|
+| `primary` | — (required) | Base color for the primary palette, any CSS color. |
+| `name` | `"primary"` | Custom-property name for the primary palette (`--{name}-500`). |
+| `secondary` | derived via `harmony` | Base color for the secondary palette. |
+| `tertiary` | derived via `harmony`, else `neutrals` | Third palette; `"complementary"` harmony has no third color, so it falls back to neutral. |
+| `quaternary` | derived via `harmony`, else an "ink" shade in primary's hue | Fourth palette; only `"analogous"` defines one. |
+| `harmony` | `"complementary"` | `"complementary"` (180° rotation), `"analogous"` (30°/60°/90°), `"triad"` (120°/240°), `"monochrome"` (same hue, lower chroma). Picks how secondary/tertiary/quaternary derive from `primary` when not set explicitly. |
+| `mode` | `"dark"` | `"light"` / `"dark"` (fixed palette) or `"auto"` (both emitted via `light-dark()`, resolved by `prefers-color-scheme`). |
+| `neutrals` | `"neutral"` | Custom-property name for the neutral/gray palette. |
+| `neutralTint` | `0` | Fraction (0–1) of `primary`'s chroma carried into the neutral palette. `0` = pure gray. |
+| `surfaceTint` | `0.4` | Fraction (0–1) of secondary/tertiary/quaternary's own chroma carried into their `surface-*` (muted background for `.surface-*`) — independent of `neutralTint`. |
+| `schemeLightness` | unset | Target OKLCH `l` (0–1) for `scheme-primary/secondary/tertiary/quaternary/neutral` — the shade `.btn`/`.badge`/`.alert` use. Instead of a fixed weight, picks whichever generated shade's real lightness is closest, harmonic across hues. Requires a parseable seed. |
+| `schemeShade` | `{ neutral: 800 }` (else `500`) | Forces the exact weight for `scheme-*`, overriding `schemeLightness`. Number = all palettes, object = per-palette. |
+| `schemeChroma` | `1` | Chroma multiplier on top of the `scheme-*` shade — tones down a loud saturated `-500` for `.btn`/`.badge`/`.alert`. |
+| `colorSteps` | `11` | Shade steps per palette (50–950). |
+| `prefix` | `""` | Prepended to every generated custom-property name (`"luz-"` → `--luz-primary-500`). |
+
+### Typography
+
+| Field | Default | What it does |
+|---|---|---|
+| `font` | `"sans-serif"` | Body font stack. |
+| `font-headings` | `"sans-serif"` | Font stack for `h1`–`h6`. Separate field, no cascade from `font`. |
+| `font-monospace` | `"monospace"` | Font stack for `code`/`pre`/`kbd`. |
+| `font-emphasis` | `"cursive"` | Font stack for `em`/`i`. |
+| `font-weight` | `400` | Base body `font-weight`. |
+| `font-bold-weight` | `800` | `font-weight` for `strong`/`b`. |
+| `line-height` | `"130%"` | Default body `line-height`. |
+| `heading-letter-spacing` | `"-0.02em"` | `letter-spacing` on `h1`–`h6`. |
+| `base` | `16` | Root font size (px) — drives every size/spacing token. |
+| `power` | `"perfect-fourth"` (1.333) | Ratio for the exponential `text-*`/heading scale, or a raw number. Named ratios: `minor-second` 1.067, `major-second` 1.125, `minor-third` 1.2, `major-third` 1.25, `perfect-fourth` 1.333, `augmented-fourth` 1.414, `perfect-fifth` 1.5, `golden` 1.618. |
+| `sizeRelativeToBase` | `false` | Scale `size-unit`/type scale by `base / 16` instead of assuming 16px. |
+
+### Scales & layout
+
+| Field | Default | What it does |
+|---|---|---|
+| `sizeFluidRange` | `"fixed"` (via `preset`) | How far past viewport-min the fluid `clamp()` zone reaches, in scale rungs. Named: `fixed` 0 (no reflow, dense app UI), `tight` 0.35, `balanced` 1, `dramatic` 1.6 (marketing hero text). Or a raw number. |
+| `preset` | unset | Shortcut for `sizeFluidRange`: `"app"` → `fixed`, `"content"` → `balanced`, `"landing"` → 2.4 (steeper than `dramatic`). Explicit `sizeFluidRange` overrides. |
+| `spaceSteps` | `24` | Total `space-N` tokens. Linear and fixed (`N * base/64`), unlike the exponential type scale — the scale `p-`/`m-`/`gap-`/`w-`/`h-` utilities resolve against. |
+| `spacing` | derived from `base` | `--spacing` override (page-level gutter). |
+| `background` / `foreground` | `neutrals` 900/100 or 100/900 by `mode` | Overrides for the base background/foreground tokens. |
+| `transition` | `"all ease 200ms"` | Default `transition` shorthand via setup rules. |
+| `box-shadow` | `"none"` | Default `box-shadow` token. |
+| `density` | `1` | Multiplier on element padding and form-control chrome size. Emitted as a live `--density` `calc()` factor — overridable per subtree/instance. `<1` denser, `>1` looser. |
+| `depth` | `0` | Offset added to the nesting level `.card`/`.popover`/etc. elevation curve counts (1–4, capped). |
+| `depthMax` | `0.125` | Max lightness offset from `background` the elevation curve approaches asymptotically. |
+| `depthDecay` | `0.6` | Per-level falloff (0–1) of the elevation curve — smaller = more contrast between the first few levels. |
+| `depthSign` | auto by `mode` | Forces elevation direction/magnitude. A `.elements-depth-light`/`.elements-depth-dark` class on a subtree still overrides this. |
+| `contrastThreshold` | `0.6` | Lightness above which auto-contrast text (wheel `on-*`, `contrast-color()` fallback) flips from white-ish to black-ish. Live, overridable per subtree. |
+| `breakpoints` | `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem) | Named viewport breakpoints, emitted as `@custom-media --breakpoint-{name}`. A number is rem, a string used as-is. `false` disables emission. |
+
+### Escape hatches
+
+| Field | Default | What it does |
+|---|---|---|
+| `vars` | unset | Raw custom properties, merged **last** — overrides an existing token by name, or adds a new one. The one field guaranteed to win over every internal calculation. |
+| `properties` | `false` | Generate `@property` declarations for every token — required for the browser to animate/transition a custom property (angle, gradient stop, …) instead of snapping. |
+
+## Generated custom properties
+
+Naming follows `--{prefix}{name}-{step}` for color palettes and a fixed
+vocabulary for semantic tokens:
+
+- **Color scales**: `--{name}-50`…`--{name}-950` for primary (`colorSteps`
+  shades, default 11), same shape for `secondary`/`tertiary`/`quaternary`
+  (their own resolved names) and for `{neutrals}` (default `neutral`).
+  Plus a 12-hue wheel, fixed names: `red`, `copper`, `orange`, `yellow`,
+  `green`, `emerald`, `teal`, `cyan`, `blue`, `sky`, `violet`, `pink` —
+  each with its own `-50`…`-950` scale and an `on-{hue}` auto-contrast
+  text color.
+- **Scheme tokens** — `--scheme-primary`/`-secondary`/`-tertiary`/
+  `-quaternary`/`-neutral` (and `-danger`/`-success`/`-warning`/`-info`):
+  the shade component classes actually paint with, picked by
+  `schemeShade`/`schemeLightness`, chroma-scaled by `schemeChroma`.
+- **Surface tokens** — `--surface-{accent}`: a muted background per
+  non-primary palette, tinted by `surfaceTint`, feeding `.surface-*`
+  utility classes.
+- **Anchor tokens** — `--anchor-{secondary,tertiary,quaternary,danger,
+  success,warning,info,contrast}`: fixed-weight (500), chroma scaled by
+  a fixed `0.6` (independent of `schemeChroma`) — used where a color
+  needs to read as a link/accent rather than a scheme fill.
+- **Auto-contrast** — `on-{color}` pattern throughout (`on-scheme`,
+  `on-btn`, `on-badge`, `on-{wheel-hue}`, …): near-black or near-white
+  text color for that background, computed live from `--contrast-
+  threshold`, with a slight hue tint (softer than pure black/white
+  against saturated backgrounds). Backed by CSS `contrast-color()` where
+  supported.
+- **Structural**: `--background`, `--foreground`, `--spacing`,
+  `--density`, `--depth` (per-subtree elevation, see `depth*` fields),
+  `--contrast-threshold`, `--transition`, `--box-shadow`.
+- **Type/space scale**: `--text-xs`…`--text-3xl` (exponential, `power`),
+  `--space-1`…`--space-{spaceSteps}` (linear, `base/64` per step),
+  `--size-unit`.
+- **Breakpoints**: `@custom-media --breakpoint-{name}` (not a custom
+  property — a media-query alias), from `breakpoints`.
+
+`vars` can override or extend any of the above by exact name.
+
+## Utility classes
+
+Closed-vocabulary, Tailwind-nomenclature-compatible, scanned from your
+source (`.astro`/`.tsx`/`.jsx`/`.ts` by default) and emitted as static CSS
+— no arbitrary values, no bracket syntax. Shape: `{property}-{value}`,
+optionally prefixed by a variant (`hover:`, `open:`, `data-[state=on]:`,
+`aria-[expanded=true]:` — Tailwind's arbitrary-attribute syntax is parsed
+generically, so component source copied from Radix-/Base UI-based kits
+matches without luz needing to know the library). Spacing/sizing utilities
+(`p-`, `m-`, `gap-`, `w-`, `h-`) resolve against `space-N`; typography
+utilities (`text-`) resolve against the exponential type scale; color
+utilities (`bg-`, `text-`, `border-`) resolve against `{name}-{step}`
+palettes and semantic tokens.
+
+## Component classes (curated set)
+
+Zero-JS, pure CSS, generated from tokens. One canonical class per
+component; see `covers` below for every class name that component
+family also styles.
+
+| Component | Category | Classes |
+|---|---|---|
+| Alert | Overlays | `.alert` |
+| Avatar | Identity | `.avatar` |
+| Badge | Data | `.badge` |
+| Blockquote | Primitives | `.blockquote` |
+| Breadcrumbs | Navigation | `.breadcrumbs` |
+| Button | Primitives | `.btn`, `.button`, `.icon`, `.cta` |
+| Card | Surfaces | `.card` |
+| Code | Primitives | `.code`, `pre`, `samp` |
+| Collapsable | Surfaces | `.list` |
+| Divider | Primitives | `hr` |
+| Drawer | Overlays | `.drawer`, `.drawer-trigger`, `.drawer-icon`, `.radial-trigger`, `.radial-menu`, `.radial-item` |
+| Editable card | Primitives | `.card` |
+| Element | Surfaces | `.element` |
+| Empty state | Feedback | `.empty`, `.empty-title` |
+| File input | Primitives | native `input[type=file]` |
+| Form | Primitives | `.form`, `fieldset`, `label`, `checkbox`, `radio`, `switch` |
+| Blend Modes | Surfaces | `.background-blur`, `.background-conic-rainbow` |
+| Glass | Surfaces | `.glass` |
+| Grid | Surfaces | `.grid` |
+| Headings | Primitives | `h1`–`h6` |
+| Hero | Surfaces | `.hero`, `.hero-overlay`, `.hero-content` |
+| Hidden utility | Primitives | `.hidden` |
+| Join | Primitives | `.join` |
+| Kbd | Primitives | `.kbd` |
+| Layouts | Layout | `.shell`, `.shell-pane`, `.shell-body` |
+| `light-dark()` | Feedback | (color-scheme helper, no class) |
+| Link | Primitives | `a` |
+| Listable | Surfaces | `.list`, `.listable`, `.horizontal`, `.responsive` |
+| List | Layout | `.list`, `.list-row`, `.list-col-grow`, `.list-col-wrap`, `.list-title`, `.horizontal`, `.responsive` |
+| Loading | Feedback | `.loading` |
+| Mark | Primitives | `mark` |
+| Menu | Overlays | `.menu` |
+| Modal | Overlays | `.modal`, `dialog` |
+| Lists (native) | Data | `ol`, `ul`, `dl` |
+| Tabs Bottom | Navigation | `.bottom`, `.nav` |
+| Notice | Overlays | `.notice` |
+| Pagination | Navigation | `.pagination` |
+| Panel header | Layout | `.panel-header`, `.panel-header-title`, `.top`, `.bottom` |
+| Popover | Overlays | `.popover` |
+| Progress | Primitives | `.progress` |
+| Range | Primitives | `.range` |
+| Sidebar | Layout | `.drawer-toggle`, `.drawer-sidebar`, `.list`, `.list-row` |
+| Skeleton | Feedback | `.skeleton` |
+| Stat | Feedback | `.stat`, `.stat-value`, `.stat-label`, `.stat-delta` |
+| Status | Feedback | `.status` |
+| Table | Data | `table` |
+| Tabs | Navigation | `.tabs`, `.tab`, `.tab-input`, `.segmented`, `.toggle` |
+| Target text | Feedback | `mark` |
+| Emphasis | Primitives | `strong`, `b`, `em`, `i`, `small`, `abbr`, `p` |
+| Text input | Primitives | `input`, `textarea`, `select` |
+| Tooltip | Overlays | `.tooltip` |
+| Wizard | Navigation | `.wizard`, `.wizard-step` |
+
+Shared variant classes across most components: `.primary` (opt-in — the
+unmodified default is neutral), `.secondary`, `.tertiary`, `.quaternary`,
+`.neutral`, `.danger`/`.success`/`.warning`/`.info`, `.outline`, `.ghost`,
+`.contrast`, plus size (`.sm`/`.lg`), shape (`.pill`, `.square`, `.block`)
+and state (`.loading`, `disabled`) modifiers where the component supports
+them.
+
+## Design-system best practices
+
+- **Pick `harmony` for the brand, not by default.** `"complementary"`
+  (the default) is safe for a single-accent product UI. Reach for
+  `"analogous"` when the brand needs a warm/cool family of related
+  accents (marketing sites, editorial). `"triad"` reads playful/
+  energetic — use sparingly, for consumer/entertainment products.
+  `"monochrome"` is the right call when the brand color itself must
+  dominate and a second hue would compete with it (single-color logos,
+  strict brand guidelines).
+- **Let `schemeLightness` do harmony work `schemeShade` can't.** A fixed
+  `schemeShade` (e.g. `500` everywhere) can look inconsistent across
+  hues with very different chroma curves — a saturated yellow's `-500`
+  reads much lighter than a saturated blue's. Set `schemeLightness` to
+  target a perceived lightness instead, and only fall back to
+  `schemeShade` per-palette when one specific hue still needs a manual
+  override.
+- **`neutralTint` and `surfaceTint` are the "does this feel like one
+  brand" knobs.** `neutralTint: 0` (pure gray) reads neutral/enterprise;
+  raising it ties the gray scale to the brand hue for a warmer, more
+  branded feel — use it before reaching for a custom `neutrals` color.
+  `surfaceTint` does the same for secondary/tertiary backgrounds
+  independent of the neutral scale.
+- **Use `preset` before hand-tuning `sizeFluidRange`.** `"app"` (no
+  reflow) for dense, information-heavy UI where layout stability across
+  viewport sizes matters more than typographic drama; `"content"` for
+  docs/blogs; `"landing"` for marketing pages where large fluid type is
+  a deliberate effect. Only drop to a raw `sizeFluidRange` number for a
+  case none of the three presets fit.
+- **`density`/`depth*` are per-context overrides, not just top-level
+  config.** Both compile to live custom properties, so a dense data
+  table or a modal that needs an extra elevation step can redeclare
+  `--density`/`--depth` locally instead of forcing every page through
+  one global value.
+- **`schemeChroma` before per-color hacks.** If every `.btn`/`.badge`/
+  `.alert` reads too loud against a muted UI, reach for `schemeChroma`
+  globally before overriding individual palettes — it's the same
+  mechanism `anchor-*` uses internally, exposed as a knob.
+- **`vars` is the last-resort override, not the first tool.** Prefer
+  expressing a design decision through the semantic `LuzConfig` field
+  that produces it (harmony, tints, shades) so it stays coherent as
+  other fields change; drop to `vars` only for a token no field
+  controls, or a hard pin that must survive every other calculation
+  (it's merged last, unconditionally).
+- **Config always wins, but not everything is wired yet.** The intended
+  end state for `luz.ts` is that any `vars` override always wins over
+  internal computation, applied at the very end of the pipeline — see
+  `SDD.md` in the luz repo for what's implemented vs. still in progress
+  if you're contributing to luz itself rather than just consuming it.
+
+## Generating a project's `DESIGN.md`
+
+When configuring `luz` for a consuming project, produce a `DESIGN.md` in
+that project documenting the *decisions*, not the mechanism (the
+mechanism is this file / the luz docs site). Suggested sections:
+
+1. **Brand seed** — the `primary` color and why (brand guideline, existing
+   asset, etc.), plus `mode` and the reasoning (product UI → usually
+   fixed `"dark"` or `"light"`; user-facing app with a system-theme
+   expectation → `"auto"`).
+2. **Palette derivation** — `harmony` chosen and why, any explicit
+   `secondary`/`tertiary`/`quaternary` overrides and what each is used
+   for in the product (not just "the accent color").
+3. **Neutral & surface tuning** — `neutralTint`/`surfaceTint` values and
+   the intended feel (neutral/enterprise vs. warm/branded).
+4. **Scheme tuning** — `schemeShade`/`schemeLightness`/`schemeChroma` if
+   overridden, and which components they affect.
+5. **Type & space scale** — `power`/`base`/`preset` (or `sizeFluidRange`)
+   chosen for the product's density/reading-context, and `spaceSteps` if
+   non-default.
+6. **Structural knobs** — `density`, `depth*`, `contrastThreshold`,
+   `breakpoints` if customized, and why.
+7. **Escape hatches used** — every `vars` entry, with a one-line reason
+   each (a `vars` entry with no documented reason is a smell — it
+   usually means a `LuzConfig` field should have been used instead).
+8. **Component/utility conventions** — any project-specific rule for
+   which components to prefer, custom compositions built from the
+   utility classes, and known component classes deliberately left
+   unused.
+
+Keep it short and decision-focused, like `luz`'s own `SDD.md` — a record
+of *what's true now and why*, not a changelog or a todo list.
+
+## Full docs
+
+Human-oriented docs with live demos: the `docs/` app in the `luz`
+repository (component pages under `/components/*`, config reference
+under `/api/*`, plus `settings.astro` for a live theme playground).
