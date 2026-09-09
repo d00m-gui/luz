@@ -4,7 +4,7 @@ import { WHEEL_HUE_NAMES } from "../../../src/tools/wheel";
 import { ThemeToolbar } from "../components/ThemeToolbar";
 import { BrandColors } from "../components/BrandColors";
 import { Swatches } from "../components/Swatches";
-import { loadComponents } from "../content/components";
+import { loadComponents, withBase } from "../content/components";
 import {
   COMPONENT_CATEGORY_HUES,
   DEFAULT_CATEGORY_HUE,
@@ -64,7 +64,7 @@ function swatchStyle(name: string, weight: number) {
             <div
               class={`card-feature component-preview elevate ${component.id}-preview`}
             >
-              <Fragment set:html={component.preview ?? component.html} />
+              <Fragment set:html={withBase(component.preview ?? component.html)} />
             </div>
             <div
               class="card-footer"

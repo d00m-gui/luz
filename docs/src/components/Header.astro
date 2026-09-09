@@ -6,7 +6,7 @@ const { breadcrumb } = Astro.props;
   <div class="inner-location">
     <nav class="breadcrumbs">
       <ol>
-        <li><a href="/">Inicio</a></li>
+        <li><a href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/`}>Inicio</a></li>
         <li>{breadcrumb}</li>
       </ol>
     </nav>
