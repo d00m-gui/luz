@@ -70,7 +70,7 @@
     "lint": "oxlint --ignore-pattern \"dist/**\" .",
     "prepare": "bun simple-git-hooks",
     "prepublishOnly": "bun run lint && bun run type-check && bun run bunup",
-    "release": "bun run bunup && bumpp --commit --push --tag",
+    "release": "bun run bunup && bun pm version && git push --follow-tags",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
@@ -78,7 +78,6 @@
     "@types/node": "^26.2.0",
     "@types/react": "^19.2.18",
     "astro": "7.2.7",
-    "bumpp": "^12.2.1",
     "bunup": "^0.16.32",
     "oxfmt": "^0.59.0",
     "oxlint": "^1.79.0",
