@@ -129,26 +129,31 @@
   &[data-placement="fullscreen"] {
     padding: var(--spacing);
     inset: 0;
-    width: 100%;
     max-width: none;
-    height: 100%;
-    translate: none;
+    translate: -100% 0;
     opacity: 0;
-    scale: 0.97;
-    transition-property: opacity, scale, overlay, display;
+    scale: 1;
+    transition-property: opacity, scale, overlay, display, translate;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    gap: 0;
+    overflow: hidden;
+    width: 100%;
     &:popover-open {
       opacity: 1;
       scale: 1;
+      translate: 0 0;
     }
     @starting-style {
       &:popover-open {
         opacity: 0;
         scale: 0.97;
+        translate: -100% 0;
       }
     }
-    .list {
-      gap: var(--space-4);
-      padding: var(--space-8) 0;
+    &::backdrop {
+      display: none;
     }
   }
 }

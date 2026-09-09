@@ -9,10 +9,14 @@ export const config: LuzAstroConfig = {
   "font-monospace": "var(--dm-mono)",
   "font-emphasis": "var(--eb-serif)",
   properties: true,
+  neutralTint: 0,
   depth: 0,
-  depthMax: 0,
-  depthDecay: 0,
-  depthSign: 0,
+  depthMax: 0.175,
+  depthDecay: 0.8,
+  depthSign: -0.3,
+  density: 1,
+  contrastThreshold: 0.6,
+  schemeChroma: 0.7,
 };
 
 // ,

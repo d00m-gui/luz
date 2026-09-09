@@ -32,94 +32,60 @@ const componentsByCategory = Object.groupBy(
   data-placement="fullscreen"
   class="sidebar drawer fluid main-menu"
 >
-  <div class="sidebar-scroll scrollbar-thin">
-    <div class="main-title">
-      <figure class="logo">
-        <LuzLogo color={`var(--${hue}-500)`} />
-      </figure>
-      <h5 class="component-name" style={`color: var(--${hue}-200)`}>{title}</h5>
-    </div>
-    <div class="list">
-      <a
-        href="/"
-        class="list-row"
-        aria-current={activeId === "luz-defaults" ? "page" : undefined}
-      >
-        Inicio
-      </a>
-      <a
-        href="/styleguide"
-        class="list-row"
-        aria-current={activeId === "styleguide" ? "page" : undefined}
-      >
-        Styleguide
-      </a>
+  <div class="list">
+    <a
+      href="/"
+      class="list-row"
+      aria-current={activeId === "styleguide" ? "page" : undefined}
+    >
+      Summary
+    </a>
+    {
+      Object.entries(componentsByCategory).map(([category, entries]) => {
+        const isOpen = entries!.some((c) => activeId === `component-${c.id}`);
 
-      {
-        Object.entries(componentsByCategory).map(([category, entries]) => {
-          const isOpen = entries!.some((c) => activeId === `component-${c.id}`);
-
-          return (
-            <details class="list-row" open={isOpen}>
-              <summary>{category}</summary>
-              <div class="list">
-                {entries!.map((c) => {
-                  const hue =
-                    COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
-                  const selected = activeId === `component-${c.id}`;
-                  return (
-                    <a
-                      href={`/components/${c.id}`}
-                      class="list-row"
-                      aria-current={
-                        activeId === `component-${c.id}` ? "page" : undefined
-                      }
-                      style={`background-color: ${selected ? `var(--${hue}-800)` : "transparent"}`}
-                    >
-                      <span
-                        class="sidebar-dot"
-                        style={`background: var(--${hue}-200)`}
-                      />
-                      {c.title}
-                    </a>
-                  );
-                })}
-              </div>
-            </details>
-          );
-        })
-      }
-      {
-        features.length > 0 && (
-          <details
-            class="list-row"
-            open={features.some((f) => activeId === `api-${f.id}`)}
-          >
-            <summary>API</summary>
+        return (
+          <details class="list-row" open={isOpen}>
+            <summary>{category}</summary>
             <div class="list">
-              {features.map((entry) => {
-                const hue = CATEGORY_HUES[entry.id] ?? DEFAULT_CATEGORY_HUE;
+              {entries!.map((c) => {
+                const hue =
+                  COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
+                const selected = activeId === `component-${c.id}`;
                 return (
                   <a
-                    href={`/api/${entry.id}`}
+                    href={`/components/${c.id}`}
                     class="list-row"
                     aria-current={
-                      activeId === `api-${entry.id}` ? "page" : undefined
+                      activeId === `component-${c.id}` ? "page" : undefined
                     }
-                    style={`--sidebar-bg: var(--${hue}-400)`}
+                    style={`background-color: ${selected ? `var(--${hue}-800)` : "transparent"}`}
                   >
                     <span
                       class="sidebar-dot"
-                      style={`background: var(--${hue}-400)`}
+                      style={`background: var(--${hue}-200)`}
                     />
-                    {entry.data.title}
+                    {c.title}
                   </a>
                 );
               })}
             </div>
           </details>
-        )
-      }
-    </div>
+        );
+      })
+    }
+  </div>
+  <div class="mobile-nav panel-header bottom">
+    <figure class="small-logo">
+      <LuzLogo color={`var(--primary)`} />
+    </figure>
+    <div class="space"></div>
+    <button
+      popovertarget="sidebar-drawer"
+      class="sidebar-drawer-trigger grow-0 btn ghost icon"
+      aria-label="Alternar sidebar"
+    >
+      <i class="nf nf-md-window_close"></i>
+    </button>
   </div>
 </nav>

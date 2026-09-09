@@ -53,7 +53,7 @@ covers:
   </div>
 </div>
 
-## Dashboard sidebar + titlebar + grilla de stats
+## Dashboard
 
 <div class="shell" style="height: 24rem;">
   <nav class="drawer-sidebar" style="--drawer-width: 9rem;">
@@ -92,7 +92,7 @@ covers:
   </div>
 </div>
 
-## Email 3 columnas (nav + lista + detalle)
+## Email
 
 <div class="shell" style="height: 16rem;">
   <nav class="shell-pane fixed list" style="--shell-pane-width: 8rem;">
@@ -117,7 +117,7 @@ covers:
   </div>
 </div>
 
-## E-commerce filtros + grilla de productos
+## E-commerce
 
 <div class="shell" style="height: 18rem;">
   <nav class="shell-pane fixed list" style="--shell-pane-width: 8rem; padding: var(--space-3);">
@@ -151,7 +151,7 @@ covers:
   </div>
 </div>
 
-## Landing hero + features + pricing + footer
+## Landing
 
 <div class="shell vertical" style="height: 24rem;">
   <div class="shell-pane">
@@ -191,7 +191,7 @@ covers:
   </div>
 </div>
 
-## Settings nav lateral + secciones de formulario
+## Settings
 
 <div class="shell" style="height: 16rem;">
   <nav class="shell-pane fixed list" style="--shell-pane-width: 8rem;">

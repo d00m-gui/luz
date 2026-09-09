@@ -507,7 +507,7 @@ Knobs vía custom property, no campos de `LuzConfig` (mismo criterio que
 - `--element-gap` (fallback `--space-3`) — gap del grid/flex.
 - `--element-pair-min` (fallback `--element-width`) — ancho mínimo por
   columna que dispara el paso a 2 columnas.
-- `--element-aspect-ratio` (fallback `auto`) — aplicado a los hijos
+- `--ratio` (fallback `auto`) — aplicado a los hijos
   directos de `.pair`.
 
 ## `_feedback.css` — esquema × tratamiento, 2 ejes combinables

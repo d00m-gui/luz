@@ -4,6 +4,9 @@
   &.row {
     display: flex;
     flex-direction: row;
+    > * {
+      aspect-ratio: var(--ratio, auto);
+    }
   }
   &.column {
     display: flex;
@@ -23,13 +26,7 @@
       minmax(min(var(--element-width-min, var(--element-width)), 100%), 1fr)
     );
     > * {
-      aspect-ratio: var(--element-aspect-ratio, auto);
+      aspect-ratio: var(--ratio, auto);
     }
-  }
-  .element-wide {
-    aspect-ratio: 4 / 3;
-  }
-  .element-portrait {
-    aspect-ratio: 2 / 3;
   }
 }

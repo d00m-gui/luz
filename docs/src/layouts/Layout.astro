@@ -31,7 +31,7 @@ const {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>{title} — luz docs</title>
+    <title>{title} / luz</title>
     <Font cssVariable="--dm-sans" />
     <Font cssVariable="--dm-mono" />
     <Font cssVariable="--eb-serif" />
@@ -40,12 +40,12 @@ const {
   <body>
     <div class="layout">
       <div class="container main-row">
-        <Sidebar activeId={activeId} title={title} hue={hue} />
         <main class:list={["main", contentClass]}>
           <Header breadcrumb={breadcrumb} />
           <!-- <CrtIntroMount client:load transition:persist /> -->
           <slot />
         </main>
+        <Sidebar activeId={activeId} title={title} hue={hue} />
       </div>
       <Statusbar />
     </div>
