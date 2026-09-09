@@ -6,6 +6,8 @@ import { config } from "./luz.config.ts";
 
 // https://astro.build/config
 export default defineConfig({
+  site: "https://d00m-gui.github.io",
+  base: "/luz",
   integrations: [react(), luzAstro({ ...config })],
   fonts: [
     {

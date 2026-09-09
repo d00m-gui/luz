@@ -61,6 +61,14 @@ function splitPreview(section: string): { html: string; preview?: string } {
   };
 }
 
+const ROOT_PATH_RE = /((?:src|href)=")\/(?!\/)/g;
+
+/** Rewrites root-relative `src`/`href` paths in a preview snippet to the site's base path — the copyable `html` a user pastes into their own project stays untouched. */
+export function withBase(html: string): string {
+  const base = import.meta.env.BASE_URL.replace(/\/$/, "");
+  return html.replace(ROOT_PATH_RE, `$1${base}/`);
+}
+
 /** Splits a component's body on `## Title — desc` headings into the base entry and its variants. */
 function parseBody(body: string) {
   const [base, ...sections] = body.split(/\n(?=## )/);
