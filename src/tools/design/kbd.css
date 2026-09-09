@@ -1,0 +1,11 @@
+kbd {
+  padding: calc(var(--size-unit) * 2) calc(var(--size-unit) * 4);
+  padding-bottom: calc(var(--size-unit) * 2);
+  border-radius: calc(var(--size-unit) * 2);
+  font-weight: var(--font-bold-weight);
+  background-color: var(--kbd-bg);
+  color: var(--on-kbd);
+  font-size: calc(var(--size-unit) * 7);
+  font-family: var(--font-monospace);
+  box-shadow: 0 0 var(--size-unit) var(--kbd-shadow) inset;
+}

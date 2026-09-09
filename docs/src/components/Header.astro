@@ -1,0 +1,14 @@
+---
+const { breadcrumb } = Astro.props;
+---
+
+<div class="main-location">
+  <div class="inner-location">
+    <nav class="breadcrumbs">
+      <ol>
+        <li><a href="/">Inicio</a></li>
+        <li>{breadcrumb}</li>
+      </ol>
+    </nav>
+  </div>
+</div>

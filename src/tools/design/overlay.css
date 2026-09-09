@@ -1,0 +1,150 @@
+.popover {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  height: fit-content;
+  max-width: min(90vw, 32rem);
+  max-height: 90vh;
+  padding: var(--space-6);
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  color: var(--foreground);
+  box-shadow: var(--box-shadow);
+}
+.notice {
+  --notice-y: var(--space-15);
+  position: fixed;
+  inset-block-start: auto;
+  inset-block-end: var(--space-6);
+  inset-inline-start: auto;
+  inset-inline-end: var(--space-6);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: calc(var(--space-4) * var(--density, 1))
+    calc(var(--space-5) * var(--density, 1));
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  color: var(--foreground);
+  box-shadow: var(--box-shadow);
+  opacity: 0;
+  transform: translateY(var(--notice-y)) scale(0.95);
+  transition: var(--transition);
+  transition-property: opacity, transform, overlay, display;
+  transition-behavior: allow-discrete;
+  @starting-style {
+    --notice-y: calc(var(--space-15) * 2);
+    height: 0;
+    width: 0;
+    min-width: 0;
+    opacity: 0;
+    transform: translateY(var(--notice-y)) scale(0.95);
+    display: none;
+  }
+  &:popover-open {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  &.top-start,
+  &.top-end {
+    --notice-y: calc(var(--space-15) * -4);
+    inset-block-start: var(--space-6);
+    inset-block-end: auto;
+  }
+  &.bottom-start,
+  &.top-start {
+    inset-inline-start: var(--space-6);
+    inset-inline-end: auto;
+  }
+  &.success,
+  &.danger,
+  &.warning,
+  &.info,
+  &.primary,
+  &.secondary,
+  &.tertiary,
+  &.quaternary,
+  &.neutral {
+    background-color: oklch(from var(--scheme) l c h / 26%);
+    border-color: oklch(from var(--scheme) calc(l + 0.25) c h);
+    color: oklch(from var(--scheme) calc(l + 0.25) c h);
+    backdrop-filter: blur(var(--space-1));
+    .icon {
+      color: var(--scheme);
+    }
+  }
+  &.card {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 0;
+    overflow: hidden;
+    max-width: var(--element-width);
+    .card-content {
+      flex-direction: column;
+    }
+  }
+}
+.popover {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: var(--transition);
+  transition-property: opacity, transform, overlay, display;
+  transition-behavior: allow-discrete;
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  &:popover-open {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.menu {
+  position: fixed;
+  position-anchor: auto;
+  position-area: block-end span-inline-end;
+  position-try-fallbacks: flip-block, flip-inline;
+  margin: var(--space-2) 0 0;
+  min-width: 10rem;
+  max-width: 20rem;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-2);
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  color: var(--foreground);
+  box-shadow: var(--box-shadow);
+  opacity: 0;
+  transform: scale(1);
+  transition: var(--transition);
+  transition-property: opacity, transform, overlay, display;
+  transition-behavior: allow-discrete;
+  pointer-events: none;
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  &:popover-open {
+    pointer-events: all;
+    opacity: 1;
+    transform: scale(1);
+  }
+  @supports not (position-area: block-end) {
+    inset: 0;
+    margin: auto;
+    width: fit-content;
+    height: fit-content;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .popover,
+  .notice,
+  .menu {
+    transition-duration: 0.01ms !important;
+  }
+}

@@ -1,0 +1,24 @@
+label[for="file"],
+[role="file"],
+[file-] {
+  & input[type="file"] {
+    padding: calc(var(--size-unit) * 10);
+    padding-bottom: calc(var(--size-unit) * 30);
+    text-align: center;
+    display: block;
+    position: relative;
+    border-style: dashed;
+    font-weight: var(--font-bold-weight);
+    &::file-selector-button {
+      font-size: calc(var(--size-unit) * 10);
+      border-radius: 0 0 var(--border-radius) var(--border-radius);
+      text-align: center;
+      width: 100%;
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      border-top: var(--border-width) solid var(--file-input-border-top);
+    }
+  }
+}

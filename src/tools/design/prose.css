@@ -1,0 +1,17 @@
+address,
+blockquote,
+dl,
+ol,
+p,
+pre,
+table,
+ul {
+  color: currentColor;
+  font-weight: var(--font-weight);
+}
+small {
+  font-size: 60%;
+}
+abbr {
+  border-bottom: var(--border-width) dotted var(--foreground);
+}

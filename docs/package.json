@@ -1,0 +1,27 @@
+{
+  "name": "luz-docs",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "gen:content": "bun run scripts/gen-content.ts",
+    "gen:components": "bun run scripts/gen-components.ts",
+    "gen:nerd-icons": "bun run scripts/gen-nerd-icons.ts"
+  },
+  "dependencies": {
+    "@astrojs/react": "6.0.4",
+    "astro": "7.2.4",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "lightningcss": "^1.32.0",
+    "wawoff2": "^2.0.1"
+  }
+}

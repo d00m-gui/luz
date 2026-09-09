@@ -1,0 +1,153 @@
+.btn,
+.button,
+[role="button"],
+[type="button"],
+[type="file"]::file-selector-button,
+[type="reset"],
+[type="submit"],
+button {
+  --current-bg: var(--scheme, var(--btn-bg));
+  display: inline-flex;
+  align-items: center;
+  font: inherit;
+  padding: var(--element-vertical) var(--element-horizontal);
+  border-radius: var(--border-radius);
+  font-weight: var(--font-weight);
+  font-size: calc(var(--size-unit) * 10);
+  line-height: var(--line-height);
+  text-align: left;
+  cursor: pointer;
+  user-select: none;
+  will-change: transform;
+  outline: 0;
+  text-decoration: none;
+  background-color: var(--current-bg);
+  color: var(--current-color);
+  transition: var(--transition);
+  box-shadow:
+    0 0.3px 0 1px oklch(from var(--current-color) 100% c h / 6%) inset,
+    0 -0.5px 3px -2px
+      color-mix(in oklch, var(--current-bg) 90%, var(--neutral-950)) inset,
+    0 3px 1px -2px color-mix(in oklch, var(--neutral-950) 30%, transparent);
+  text-shadow: 0 0.5px oklch(100% 0 0 / 6%);
+  &[role="secondary"],
+  &[role="alternative"],
+  &.alternative {
+    --scheme: var(--scheme-secondary);
+  }
+  &[role="tertiary"] {
+    --scheme: var(--scheme-tertiary);
+  }
+  &[role="quaternary"] {
+    --scheme: var(--scheme-quaternary);
+  }
+  &[type="reset"],
+  &[role="cancel"],
+  &.cancel,
+  &.reset {
+    --scheme: var(--scheme-neutral);
+  }
+  &[role="apply"],
+  &.apply {
+    --scheme: var(--scheme-success);
+  }
+  &[role="contrast"] {
+    --scheme: var(--foreground);
+  }
+  &.cta {
+    gap: var(--space-1);
+    padding: calc(var(--element-vertical) * 2)
+      calc(var(--element-horizontal) * 2);
+    .text-xs,
+    .text-sm {
+      font-size: var(--font-size-base);
+      text-transform: uppercase;
+      font-weight: var(--font-bold-weight);
+      opacity: 0.8;
+    }
+    .text-lg {
+      display: block;
+      font-size: var(--font-size-lg-fluid);
+      line-height: 90%;
+      font-weight: var(--font-bold-weight);
+    }
+  }
+  &.badge {
+    box-shadow: none;
+  }
+  &.ghost {
+    --current-bg: transparent;
+    color: var(--on-btn-ghost);
+  }
+  &.pill {
+    border-radius: calc(var(--size-unit) * 40);
+    padding: var(--element-vertical) calc(var(--element-horizontal) * 2);
+  }
+  &.square {
+    padding: var(--element-vertical) calc(var(--element-vertical) * 1.5);
+  }
+  &.block {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+  }
+  &.glass {
+    background-color: color-mix(in oklch, var(--current-bg) 60%, transparent);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    @supports not (backdrop-filter: blur(1px)) {
+      background-color: var(--current-bg);
+    }
+  }
+  &.loading {
+    pointer-events: none;
+    opacity: 0.7;
+    &::before {
+      content: "⠙";
+      animation: loading 1s steps(1, end) infinite;
+    }
+  }
+  .icon {
+    margin: 0 0.5ch;
+    &:first-child {
+      margin-inline-start: 0.5ch;
+    }
+    &:last-child {
+      margin-inline-end: 0.5ch;
+    }
+    &:last-child:not(:only-child) {
+      margin-inline-start: auto;
+    }
+  }
+  &:hover {
+    background-color: oklch(from var(--current-bg) calc(l + 0.02) c h);
+  }
+  &:active {
+    transform: translateY(0.1ch);
+    background-color: oklch(from var(--current-bg) calc(l - 0.02) c h);
+    box-shadow:
+      0 0 0 var(--size-unit) oklch(from var(--neutral-950) l c h / 10%) inset,
+      0 -4ch 3px -2px
+        color-mix(in oklch, var(--current-bg) 90%, var(--neutral-800)) inset,
+      0 3px 2px -2px color-mix(in oklch, var(--neutral-950) 30%, transparent);
+  }
+  &.badge:active {
+    box-shadow: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn,
+  .button,
+  [role="button"],
+  [type="button"],
+  [type="file"]::file-selector-button,
+  [type="reset"],
+  [type="submit"],
+  button {
+    transition-duration: 0.01ms !important;
+  }
+  .btn.loading::before,
+  .button.loading::before {
+    animation: none;
+  }
+}

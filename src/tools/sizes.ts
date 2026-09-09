@@ -1,8 +1,7 @@
-// Fluid sizes interpolate linearly between these two container inline-sizes.
 const MIN_CONTAINER_REM = 20; // 320px
 const MAX_CONTAINER_REM = 77.5; // 1240px
 
-/** Named ratios for the exponential `size-N` scale — common typographic scale steps. */
+/** Named ratios for luz's exponential type scales (`text-*`, headings) — common typographic scale steps. */
 export const TYPE_SCALES = {
   "minor-second": 1.067,
   "major-second": 1.125,
@@ -14,6 +13,7 @@ export const TYPE_SCALES = {
   golden: 1.618,
 } as const;
 
+/** Preset name for the exponential type scale ratio — see `TYPE_SCALES`. */
 export type TypeScaleName = keyof typeof TYPE_SCALES;
 
 /** Resolves a preset name or a raw ratio number to a numeric ratio. */
@@ -21,13 +21,6 @@ export function resolveScale(scale: TypeScaleName | number): number {
   return typeof scale === "number" ? scale : TYPE_SCALES[scale];
 }
 
-/**
- * How far each fluid step's viewport-max value reaches past its viewport-min
- * value, in scale rungs. `1` = a full rung (marketing-site drama). Dense app
- * UIs usually want less viewport-driven reflow: `"tight"` keeps growth
- * subtle, `"fixed"` locks the size so it doesn't change with viewport width
- * at all (only the step-to-step scale ratio still applies).
- */
 export const FLUID_RANGES = {
   fixed: 0,
   tight: 0.35,
@@ -35,6 +28,7 @@ export const FLUID_RANGES = {
   dramatic: 1.6,
 } as const;
 
+/** Preset name for how far a fluid size step's viewport-max reaches past its viewport-min — see `FLUID_RANGES`. */
 export type FluidRangeName = keyof typeof FLUID_RANGES;
 
 /** Resolves a preset name or a raw exponent-offset number to a number. */
@@ -49,50 +43,117 @@ function generateFluidTagSize(minSize: number, maxSize: number): string {
   return `clamp(${minSize.toFixed(3)}rem, ${yIntercept.toFixed(3)}rem + ${(slope * 100).toFixed(3)}cqi, ${maxSize.toFixed(3)}rem)`;
 }
 
-export function luzSizes(
+/** Scales a font-size value by the live `--density` factor. */
+function withDensity(value: string): string {
+  return `calc(${value} * var(--density, 1))`;
+}
+
+/** Consecutive rungs — `small` is the anchor (rung 0), `h1` six steps up. */
+const TYPE_LANDMARK_RUNGS = [
+  ["small", 0],
+  ["h6", 1],
+  ["h5", 2],
+  ["h4", 3],
+  ["h3", 4],
+  ["h2", 5],
+  ["h1", 6],
+] as const;
+
+/**
+ * Returns `font-size-small`..`font-size-h1` (static rem, no `clamp()`) plus
+ * `font-size-{name}-fluid` (the `clamp()`/`cqi` variant, consumed by `.fluid`).
+ * Its own rungs, independent of `luzTextScale`.
+ */
+export function luzTypeLandmarks(
   base: number,
   scale: TypeScaleName | number = "perfect-fourth",
-  steps: number = 22,
-  dynamicFrom: number = 13,
   relativeToBase: boolean = false,
   fluidRange: FluidRangeName | number = "balanced",
 ): Record<string, string> {
   const ratio = resolveScale(scale);
   const range = resolveFluidRange(fluidRange);
   const unit = relativeToBase ? base / 16 : 1;
-  const anchorRem = (dynamicFrom / 10) * unit;
+  const anchorRem = 0.75 * unit;
 
-  const computedSizes: Record<string, string> = {};
-  for (let i = 1; i <= steps; i++) {
-    if (i < dynamicFrom) {
-      const refRem = (i / 10) * unit;
-      computedSizes[`size-${i}`] = relativeToBase
-        ? `${parseFloat(refRem.toFixed(3))}rem`
-        : `${i / 10}rem`;
-      continue;
-    }
-    // The viewport-min value sits at ratio^n; the viewport-max value reaches
-    // `fluidRange` rungs further (1 = a full rung, 0 = locked/no fluid
-    // growth) — a real compounding exponential scale, not a flat multiplier
-    // reapplied at every step.
-    const n = i - dynamicFrom;
+  const landmarks: Record<string, string> = {};
+  for (const [name, n] of TYPE_LANDMARK_RUNGS) {
     const minSize = anchorRem * ratio ** n;
     const maxSize = anchorRem * ratio ** (n + range);
-    computedSizes[`size-${i}`] = generateFluidTagSize(minSize, maxSize);
+    landmarks[`font-size-${name}`] = withDensity(`${minSize.toFixed(3)}rem`);
+    landmarks[`font-size-${name}-fluid`] = withDensity(
+      generateFluidTagSize(minSize, maxSize),
+    );
   }
+  return landmarks;
+}
+
+/** Consecutive rungs for the `text-*` utility scale — `base` is the anchor (rung 0). */
+const TEXT_SCALE_RUNGS = [
+  ["xs", -2],
+  ["sm", -1],
+  ["base", 0],
+  ["lg", 1],
+  ["xl", 2],
+  ["2xl", 3],
+  ["3xl", 4],
+] as const;
+
+/**
+ * Named type scale backing the `text-xs`..`text-3xl` utility classes —
+ * static rem by default, plus `font-size-{name}-fluid` for `.fluid`.
+ */
+export function luzTextScale(
+  base: number,
+  scale: TypeScaleName | number = "perfect-fourth",
+  relativeToBase: boolean = false,
+  fluidRange: FluidRangeName | number = "balanced",
+): Record<string, string> {
+  const ratio = resolveScale(scale);
+  const range = resolveFluidRange(fluidRange);
+  const unit = relativeToBase ? base / 16 : 1;
+  const anchorRem = 1 * unit;
+
+  const textSizes: Record<string, string> = {};
+  for (const [name, n] of TEXT_SCALE_RUNGS) {
+    const minSize = anchorRem * ratio ** n;
+    const maxSize = anchorRem * ratio ** (n + range);
+    textSizes[`font-size-${name}`] = withDensity(`${minSize.toFixed(3)}rem`);
+    textSizes[`font-size-${name}-fluid`] = withDensity(
+      generateFluidTagSize(minSize, maxSize),
+    );
+  }
+  return textSizes;
+}
+
+export function luzSizes(
+  base: number,
+  relativeToBase: boolean = false,
+): Record<string, string> {
+  const unit = relativeToBase ? base / 16 : 1;
 
   return {
-    ...computedSizes,
-    "border-radius": `${(base / 32).toFixed(1)}rem`,
+    "size-unit": relativeToBase
+      ? `${parseFloat((0.1 * unit).toFixed(3))}rem`
+      : "0.1rem",
+    "border-radius": `${(base / 78).toFixed(1)}rem`,
     "border-width": `${(base / 128).toFixed(1)}rem`,
-    spacing: `${((base / 10) * 3).toFixed(0)}rem`,
-    "element-vertical": `${(base / 20).toFixed(1)}rem`,
-    "element-horizontal": `${(base / 10).toFixed(1)}rem`,
-    "transform-origin": `50% 50%`,
-    "toast-index": `0`,
-    "toast-offset-y": `0`,
-    "toast-swipe-movement-y": `0`,
-    "toast-swipe-movement-x": `0`,
-    "toast-height": `15.5rem`,
+    spacing: `calc(${(base / 4).toFixed(0)}vw * var(--density, 1))`,
+    "element-vertical": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
+    "element-horizontal": `calc(${(base / 24).toFixed(3)}rem * var(--density, 1))`,
+    "element-width": `min(${(base * 1.78).toFixed(0)}rem, 100%)`,
+    "element-width-min": `${(base * 2)}rem`,
+    "element-gap": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
   };
+}
+
+export function luzSpace(
+  base: number,
+  steps: number = 24,
+): Record<string, string> {
+  const unit = base / 64;
+  const spaceTokens: Record<string, string> = {};
+  for (let i = 1; i <= steps; i++) {
+    spaceTokens[`space-${i}`] = `${parseFloat((i * unit).toFixed(3))}rem`;
+  }
+  return spaceTokens;
 }

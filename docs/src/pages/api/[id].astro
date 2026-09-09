@@ -1,0 +1,77 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getCollection, render } from "astro:content";
+import { luzConfigFields } from "../../content/api.generated";
+import { CATEGORY_HUES, DEFAULT_CATEGORY_HUE } from "../../lib/category-colors";
+
+export async function getStaticPaths() {
+  const entries = await getCollection("features");
+  return entries.map((entry) => ({ params: { id: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const fields = entry.data.fields
+  .map((name) => luzConfigFields.find((f) => f.name === name))
+  .filter((f) => f !== undefined);
+const hue = CATEGORY_HUES[entry.id] ?? DEFAULT_CATEGORY_HUE;
+---
+
+<Layout
+  title={entry.data.title}
+  activeId={`api-${entry.id}`}
+  breadcrumb={entry.data.title}
+  contentClass="api-field-page"
+  hue={hue}
+>
+  <h2 style={`color: var(--${hue}-500)`}>{entry.data.title}</h2>
+
+  <div class="docs-sections">
+    <section class="card">
+      <h3 class="card-title">Campos</h3>
+      {
+        fields.map((field) => (
+          <div class="api-field">
+            <code>
+              {field.name}
+              {field.required ? "" : "?"}: {field.type}
+            </code>
+            {"default" in field && (
+              <p>
+                Default: <code>{field.default}</code>
+              </p>
+            )}
+            <p>{field.description}</p>
+            {"params" in field && (
+              <ul>
+                {field.params.map((p) => (
+                  <li>
+                    <code>{p.value}</code> — {p.text}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))
+      }
+    </section>
+
+    {
+      entry.data.examples.length > 0 && (
+        <section class="card">
+          <h3 class="card-title">Ejemplos</h3>
+          {entry.data.examples.map((example) => (
+            <div class="api-example">
+              <h4>{example.label}</h4>
+              <pre>
+                <code class={`language-${example.lang}`}>{example.code}</code>
+              </pre>
+            </div>
+          ))}
+        </section>
+      )
+    }
+
+    <Content />
+  </div>
+</Layout>

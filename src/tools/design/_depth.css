@@ -1,0 +1,289 @@
+:root {
+  --depth: 0;
+  --element-background: var(--background);
+}
+/* Nesting counted via explicit levels (1–4, capped) — a custom property that reads another
+   resolves once where it's declared, not per consumer, so --element-background can't be a
+   single formula at :root; each level bakes its own literal exponent. */
+:where(
+  .card,
+  .elevate,
+  .popover,
+  .notice,
+  dialog.modal,
+  .list-row > summary,
+  .drawer[popover],
+  .panel-header.top,
+  .panel-header.bottom,
+  .tabs.bottom,
+  .tabs.segmented,
+  .stat,
+  .tabs.toggle,
+  .avatar,
+  table th,
+  input,
+  select,
+  textarea,
+  [type="checkbox"],
+  [type="radio"]
+) {
+  --depth: calc(var(--depth-base, 0) + 1);
+  --element-background: oklch(
+    from var(--background)
+      clamp(
+        0,
+        calc(
+          l + var(--depth-sign, 1) * var(--depth-max, 0.125) *
+            (1 - pow(var(--depth-decay, 0.6), 1))
+        ),
+        1
+      )
+      c h
+  );
+}
+:where(
+    .card,
+    .elevate,
+    .popover,
+    .notice,
+    dialog.modal,
+    .list-row > summary,
+    .drawer[popover],
+    .panel-header.top,
+    .panel-header.bottom,
+    .tabs.bottom,
+    .tabs.segmented,
+    .stat,
+    .tabs.toggle,
+    .avatar,
+    table th,
+    input,
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"]
+  )
+  :where(
+    .card,
+    .elevate,
+    .popover,
+    .notice,
+    dialog.modal,
+    .list-row > summary,
+    .drawer[popover],
+    .panel-header.top,
+    .panel-header.bottom,
+    .tabs.bottom,
+    .tabs.segmented,
+    .stat,
+    .tabs.toggle,
+    .avatar,
+    table th,
+    input,
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"]
+  ) {
+  --depth: calc(var(--depth-base, 0) + 2);
+  --element-background: oklch(
+    from var(--background)
+      clamp(
+        0,
+        calc(
+          l + var(--depth-sign, 1) * var(--depth-max, 0.125) *
+            (1 - pow(var(--depth-decay, 0.6), 2))
+        ),
+        1
+      )
+      c h
+  );
+}
+:where(
+    .card,
+    .elevate,
+    .popover,
+    .notice,
+    dialog.modal,
+    .list-row > summary,
+    .drawer[popover],
+    .panel-header.top,
+    .panel-header.bottom,
+    .tabs.bottom,
+    .tabs.segmented,
+    .stat,
+    .tabs.toggle,
+    .avatar,
+    table th,
+    input,
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"]
+  )
+  :where(
+    .card,
+    .elevate,
+    .popover,
+    .notice,
+    dialog.modal,
+    .list-row > summary,
+    .drawer[popover],
+    .panel-header.top,
+    .panel-header.bottom,
+    .tabs.bottom,
+    .tabs.segmented,
+    .stat,
+    .tabs.toggle,
+    .avatar,
+    table th,
+    input,
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"]
+  )
+  :where(
+    .card,
+    .elevate,
+    .popover,
+    .notice,
+    dialog.modal,
+    .list-row > summary,
+    .drawer[popover],
+    .panel-header.top,
+    .panel-header.bottom,
+    .tabs.bottom,
+    .tabs.segmented,
+    .stat,
+    .tabs.toggle,
+    .avatar,
+    table th,
+    input,
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"]
+  ) {
+  --depth: calc(var(--depth-base, 0) + 3);
+  --element-background: oklch(
+    from var(--background)
+      clamp(
+        0,
+        calc(
+          l + var(--depth-sign, 1) * var(--depth-max, 0.125) *
+            (1 - pow(var(--depth-decay, 0.6), 3))
+        ),
+        1
+      )
+      c h
+  );
+}
+:where(
+    .card,
+    .elevate,
+    .popover,
+    .notice,
+    dialog.modal,
+    .list-row > summary,
+    .drawer[popover],
+    .panel-header.top,
+    .panel-header.bottom,
+    .tabs.bottom,
+    .tabs.segmented,
+    .stat,
+    .tabs.toggle,
+    .avatar,
+    table th,
+    input,
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"]
+  )
+  :where(
+    .card,
+    .elevate,
+    .popover,
+    .notice,
+    dialog.modal,
+    .list-row > summary,
+    .drawer[popover],
+    .panel-header.top,
+    .panel-header.bottom,
+    .tabs.bottom,
+    .tabs.segmented,
+    .stat,
+    .tabs.toggle,
+    .avatar,
+    table th,
+    input,
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"]
+  )
+  :where(
+    .card,
+    .elevate,
+    .popover,
+    .notice,
+    dialog.modal,
+    .list-row > summary,
+    .drawer[popover],
+    .panel-header.top,
+    .panel-header.bottom,
+    .tabs.bottom,
+    .tabs.segmented,
+    .stat,
+    .tabs.toggle,
+    .avatar,
+    table th,
+    input,
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"]
+  )
+  :where(
+    .card,
+    .elevate,
+    .popover,
+    .notice,
+    dialog.modal,
+    .list-row > summary,
+    .drawer[popover],
+    .panel-header.top,
+    .panel-header.bottom,
+    .tabs.bottom,
+    .tabs.segmented,
+    .stat,
+    .tabs.toggle,
+    .avatar,
+    table th,
+    input,
+    select,
+    textarea,
+    [type="checkbox"],
+    [type="radio"]
+  ) {
+  --depth: calc(var(--depth-base, 0) + 4);
+  --element-background: oklch(
+    from var(--background)
+      clamp(
+        0,
+        calc(
+          l + var(--depth-sign, 1) * var(--depth-max, 0.125) *
+            (1 - pow(var(--depth-decay, 0.6), 4))
+        ),
+        1
+      )
+      c h
+  );
+}
+.elements-depth-light {
+  --depth-sign: 1;
+}
+.elements-depth-dark {
+  --depth-sign: -1;
+}

@@ -1,0 +1,49 @@
+.loading::before,
+[aria-busy="true"]:not(input, select, textarea, html, form)::before {
+  content: "⠙";
+  display: inline-block;
+  font-family: var(--font-monospace);
+  font-weight: bold;
+  text-align: center;
+  padding: 0;
+  flex: 1 1 auto;
+  color: currentColor;
+  margin: 0 calc(var(--size-unit) * 5);
+  cursor: wait;
+  animation: loading 1s steps(1, end) infinite;
+}
+@keyframes loading {
+  0% {
+    content: "⠋";
+  }
+  10% {
+    content: "⠙";
+  }
+  20% {
+    content: "⠹";
+  }
+  30% {
+    content: "⠸";
+  }
+  40% {
+    content: "⠼";
+  }
+  50% {
+    content: "⠴";
+  }
+  60% {
+    content: "⠦";
+  }
+  70% {
+    content: "⠧";
+  }
+  80% {
+    content: "⠇";
+  }
+  90% {
+    content: "⠏";
+  }
+  100% {
+    content: "⠋";
+  }
+}

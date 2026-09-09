@@ -1,0 +1,80 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { WHEEL_HUE_NAMES } from "../../../src/tools/wheel";
+import { ThemeToolbar } from "../components/ThemeToolbar";
+import { BrandColors } from "../components/BrandColors";
+import { Swatches } from "../components/Swatches";
+import { loadComponents } from "../content/components";
+import {
+  COMPONENT_CATEGORY_HUES,
+  DEFAULT_CATEGORY_HUE,
+} from "../lib/category-colors";
+
+const { visibleComponents, uncoveredFiles } = await loadComponents();
+
+if (uncoveredFiles.length > 0) {
+  console.warn(
+    `[components] componentes sin doc en src/content/components/: ${uncoveredFiles.join(", ")} — correr "bun run gen:components" para generar el stub`,
+  );
+}
+
+const WEIGHTS = [50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950];
+const WHEEL_HUES = WHEEL_HUE_NAMES;
+
+function swatchStyle(name: string, weight: number) {
+  return `background: var(--${name}-${weight}); color: contrast-color(var(--${name}-${weight}));`;
+}
+---
+
+<Layout
+  title="Summary"
+  activeId="luz-defaults"
+  breadcrumb="Summary"
+  contentClass="luz-defaults"
+>
+  <div class="card list">
+    <p class="list-title">Luz Settings</p>
+    <details class="list-row">
+      <summary><i class="icon nf nf-fae-palette_color"></i> colors</summary>
+      <div class="list">
+        <BrandColors client:load />
+        <div class="hue">
+          <Swatches
+            names={["neutral", ...WHEEL_HUES]}
+            weights={WEIGHTS}
+            client:load
+          />
+        </div>
+      </div>
+    </details>
+    <details class="list-row">
+      <summary><i class="icon nf nf-seti-config"></i> luz.config.ts</summary>
+      <div class="list">
+        <ThemeToolbar client:load />
+      </div>
+    </details>
+  </div>
+  <div class="components-grid grid">
+    {
+      visibleComponents.map((component) => {
+        const hue =
+          COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
+        return (
+          <article class={`card components-item lazy-render`}>
+            <div
+              class={`card-feature component-preview elevate ${component.id}-preview`}
+            >
+              <Fragment set:html={component.preview ?? component.html} />
+            </div>
+            <div
+              class="card-footer"
+              style={`background-color: var(--${hue}-200)`}
+            >
+              {component.title}
+            </div>
+          </article>
+        );
+      })
+    }
+  </div>
+</Layout>

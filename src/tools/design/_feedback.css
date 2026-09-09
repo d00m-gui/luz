@@ -1,0 +1,87 @@
+.success {
+  --scheme: var(--scheme-success);
+}
+.danger {
+  --scheme: var(--scheme-danger);
+}
+.warning {
+  --scheme: var(--scheme-warning);
+}
+.info {
+  --scheme: var(--scheme-info);
+}
+.primary {
+  --scheme: var(--scheme-primary);
+}
+.secondary {
+  --scheme: var(--scheme-secondary);
+}
+.tertiary {
+  --scheme: var(--scheme-tertiary);
+}
+.quaternary {
+  --scheme: var(--scheme-quaternary);
+}
+.neutral {
+  --scheme: var(--scheme-neutral);
+}
+.contrast {
+  --scheme: var(--foreground);
+}
+:where(
+  .success,
+  .danger,
+  .warning,
+  .info,
+  .primary,
+  .secondary,
+  .tertiary,
+  .quaternary,
+  .neutral,
+  .contrast
+) {
+  color: var(--scheme);
+}
+.solid {
+  --current-bg: var(--scheme, var(--scheme-primary));
+  background-color: var(--current-bg);
+  border-color: var(--current-bg);
+  color: var(--current-color);
+}
+.soft {
+  background-color: oklch(
+    from var(--scheme, var(--scheme-primary)) l c h / 12%
+  );
+  border-color: var(--scheme, var(--scheme-primary));
+  color: oklch(from var(--scheme, var(--scheme-primary)) calc(l + 0.25) c h);
+}
+.outline {
+  background-color: transparent;
+  border-width: 0;
+  color: var(--scheme, var(--scheme-primary));
+  box-shadow: inset 0 0 0 var(--border-width) var(--scheme, var(--scheme-primary));
+  &:hover, &:active {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 var(--border-width) var(--scheme, var(--scheme-primary));
+  }
+}
+.surface-primary {
+  --current-bg: var(--neutral-900);
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}
+.surface-secondary {
+  --current-bg: var(--surface-secondary-900);
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}
+.surface-tertiary {
+  --current-bg: var(--surface-tertiary-900);
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}
+.surface-quaternary {
+  --current-bg: var(--surface-quaternary-900);
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}

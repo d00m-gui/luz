@@ -1,0 +1,31 @@
+.hero {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  padding: var(--space-8) var(--space-6);
+
+  overflow: hidden;
+}
+.hero-paragraph {
+  font-weight: var(--font-weight);
+  font-size: var(--font-size-h4);
+}
+.hero-heading {
+  font-size: var(--font-size-3xl-fluid);
+}
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background-color: oklch(from var(--background) l c h / 60%);
+}
+.hero-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  max-width: var(--element-width);
+}

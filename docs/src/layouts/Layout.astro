@@ -1,0 +1,73 @@
+---
+import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
+import Sidebar from "../components/Sidebar.astro";
+import Header from "../components/Header.astro";
+import Statusbar from "../components/Statusbar.astro";
+import { CrtIntroMount } from "../components/CrtIntroMount";
+import { DEFAULT_CATEGORY_HUE } from "../lib/category-colors";
+import "../styles/luz.css";
+import "../styles/structure.css";
+import "../styles/nerd-icons.generated.css";
+
+interface Props {
+  title: string;
+  activeId: string;
+  breadcrumb: string;
+  contentClass?: string;
+  hue?: string;
+}
+
+const {
+  title,
+  activeId,
+  breadcrumb,
+  contentClass,
+  hue = DEFAULT_CATEGORY_HUE,
+} = Astro.props;
+---
+
+<html lang="en" data-theme="dark" data-hue={hue}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} / luz</title>
+    <Font cssVariable="--dm-sans" />
+    <Font cssVariable="--dm-mono" />
+    <Font cssVariable="--eb-serif" />
+    <ClientRouter />
+  </head>
+  <body>
+    <div class="layout">
+      <div class="container main-row">
+        <main class:list={["main", contentClass]}>
+          <Header breadcrumb={breadcrumb} />
+          <!-- <CrtIntroMount client:load transition:persist /> -->
+          <slot />
+        </main>
+        <Sidebar activeId={activeId} title={title} hue={hue} />
+      </div>
+      <Statusbar />
+    </div>
+  </body>
+</html>
+
+<script>
+  document.addEventListener("click", async (event) => {
+    const btn = (event.target as HTMLElement).closest<HTMLButtonElement>(
+      "[data-copy]",
+    );
+    if (!btn) return;
+    const code = btn.nextElementSibling?.textContent ?? "";
+    const original = btn.textContent;
+    try {
+      await navigator.clipboard.writeText(code);
+      btn.textContent = "Copied";
+    } catch {
+      btn.textContent = "Error";
+    }
+    setTimeout(() => {
+      btn.textContent = original;
+    }, 1500);
+  });
+</script>

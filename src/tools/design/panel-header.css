@@ -1,0 +1,28 @@
+.panel-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  .panel-header-title,
+  .panel-auto {
+    flex: 1 1 auto;
+  }
+  .panel-shrink {
+    flex: 0 0 auto;
+  }
+}
+.panel-header.top,
+.panel-header.bottom {
+  padding: var(--space-3) var(--space-5);
+  background-color: var(--element-background);
+}
+.panel-header.top {
+  border-bottom: var(--border-width) solid var(--element-border-color);
+}
+.panel-header.bottom {
+  border-top: var(--border-width) solid var(--element-border-color);
+  font-size: var(--font-size-small);
+  color: var(--on-element-placeholder);
+}
+.space {
+  flex: 1 1 auto;
+}

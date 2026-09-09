@@ -1,0 +1,91 @@
+---
+import { getCollection } from "astro:content";
+import {
+  CATEGORY_HUES,
+  COMPONENT_CATEGORY_HUES,
+  DEFAULT_CATEGORY_HUE,
+} from "../lib/category-colors";
+import { loadComponents } from "../content/components";
+
+import LuzLogo from "./LuzLogo.astro";
+
+interface Props {
+  activeId: string;
+  title: string;
+  hue: string;
+}
+
+const { activeId, title, hue } = Astro.props;
+const features = (await getCollection("features")).sort(
+  (a, b) => a.data.order - b.data.order,
+);
+const { visibleComponents } = await loadComponents();
+const componentsByCategory = Object.groupBy(
+  visibleComponents,
+  (c) => c.category,
+);
+---
+
+<nav
+  id="sidebar-drawer"
+  popover
+  data-placement="fullscreen"
+  class="sidebar drawer fluid main-menu"
+>
+  <div class="list">
+    <a
+      href="/"
+      class="list-row"
+      aria-current={activeId === "styleguide" ? "page" : undefined}
+    >
+      Summary
+    </a>
+    {
+      Object.entries(componentsByCategory).map(([category, entries]) => {
+        const isOpen = entries!.some((c) => activeId === `component-${c.id}`);
+
+        return (
+          <details class="list-row" open={isOpen}>
+            <summary>{category}</summary>
+            <div class="list">
+              {entries!.map((c) => {
+                const hue =
+                  COMPONENT_CATEGORY_HUES[c.category] ?? DEFAULT_CATEGORY_HUE;
+                const selected = activeId === `component-${c.id}`;
+                return (
+                  <a
+                    href={`/components/${c.id}`}
+                    class="list-row"
+                    aria-current={
+                      activeId === `component-${c.id}` ? "page" : undefined
+                    }
+                    style={`background-color: ${selected ? `var(--${hue}-800)` : "transparent"}`}
+                  >
+                    <span
+                      class="sidebar-dot"
+                      style={`background: var(--${hue}-200)`}
+                    />
+                    {c.title}
+                  </a>
+                );
+              })}
+            </div>
+          </details>
+        );
+      })
+    }
+  </div>
+  <div class="mobile-nav panel-header bottom">
+    <figure class="small-logo">
+      <LuzLogo color={`var(--primary)`} />
+    </figure>
+    <div class="space"></div>
+    <button
+      popovertarget="sidebar-drawer"
+      class="sidebar-drawer-trigger grow-0 btn ghost icon"
+      aria-label="Alternar sidebar"
+    >
+      <i class="nf nf-md-window_close"></i>
+    </button>
+  </div>
+</nav>

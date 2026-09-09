@@ -1,0 +1,15 @@
+hr {
+  clear: both;
+  float: none;
+  height: 1px;
+  margin: calc(var(--size-unit) * 10) 0;
+  border: none;
+  width: 100%;
+  background: var(--hr-color);
+  color: var(--hr-color);
+  &.dashed {
+    background: none;
+    border: none;
+    border-top: var(--border-width) dashed var(--hr-color);
+  }
+}

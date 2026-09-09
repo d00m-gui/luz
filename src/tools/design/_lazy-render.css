@@ -1,0 +1,5 @@
+.lazy-render {
+  content-visibility: auto;
+  /* px, tamaño estimado del contenido fuera de viewport */
+  contain-intrinsic-size: auto var(--lazy-render-size, 300px);
+}
