@@ -16,6 +16,7 @@ interface Props {
 }
 
 const { activeId, title, hue } = Astro.props;
+const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const features = (await getCollection("features")).sort(
   (a, b) => a.data.order - b.data.order,
 );
@@ -34,7 +35,7 @@ const componentsByCategory = Object.groupBy(
 >
   <div class="list">
     <a
-      href={`${import.meta.env.BASE_URL.replace(/\/$/, "")}/`}
+      href={`${base}/`}
       class="list-row"
       aria-current={activeId === "styleguide" ? "page" : undefined}
     >
@@ -54,7 +55,7 @@ const componentsByCategory = Object.groupBy(
                 const selected = activeId === `component-${c.id}`;
                 return (
                   <a
-                    href={`/components/${c.id}`}
+                    href={`${base}/components/${c.id}`}
                     class="list-row"
                     aria-current={
                       activeId === `component-${c.id}` ? "page" : undefined
