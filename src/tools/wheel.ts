@@ -44,35 +44,30 @@ export function luzWheelHueSeed(
 export function luzWheel(
   reverse: boolean,
   primaryCSSVar: string,
-  prefix?: string,
   steps?: number,
   overrides?: Partial<Record<WheelHueName, string>>,
   primarySeed?: OklchSeed | null,
 ): Record<string, string> {
-  let wheel: Record<string, string> = {};
+  const wheel: Record<string, string> = {};
   for (let i = 0; i < WHEEL_NAMES.length; i++) {
     const name = WHEEL_NAMES[i]!;
     const hue = i * WHEEL_STEP + WHEEL_OFFSET;
-    const key = `${prefix ?? ""}${name}`;
-    const seedKey = `${key}-seed`;
+    const seedKey = `${name}-seed`;
     const override = overrides?.[name];
-    const seed =
+    wheel[seedKey] =
       override ?? `oklch(from ${primaryCSSVar} l ${WHEEL_CHROMA} ${hue})`;
-    const seedNumeric = luzWheelHueSeed(name, primarySeed ?? null, override);
-    const shades = luzShadesByHue({
-      color: `var(--${seedKey})`,
-      name: key,
-      reverse,
-      steps,
-      seed: seedNumeric,
-    });
-    wheel = {
-      ...wheel,
-      [seedKey]: seed,
-      ...shades,
-      [key]: `var(--${key}-500)`,
-      [`on-${key}`]: luzOnColor(`var(--${seedKey})`),
-    };
+    Object.assign(
+      wheel,
+      luzShadesByHue({
+        color: `var(--${seedKey})`,
+        name,
+        reverse,
+        steps,
+        seed: luzWheelHueSeed(name, primarySeed ?? null, override),
+      }),
+    );
+    wheel[name] = `var(--${name}-500)`;
+    wheel[`on-${name}`] = luzOnColor(`var(--${seedKey})`);
   }
   return wheel;
 }

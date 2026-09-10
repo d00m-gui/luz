@@ -1,6 +1,4 @@
-import { luz as createLuz } from "./luz";
-
-export const luz: typeof createLuz = createLuz;
+export { luz, LUZ_DEFAULT_CONFIG } from "./luz";
 
 export type {
   LuzConfig,

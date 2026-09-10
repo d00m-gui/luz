@@ -1,0 +1,63 @@
+.background-blur {
+  background-size: cover;
+  background-position: center;
+  filter: blur(var(--backdrop-blur, 2rem));
+}
+.background-conic-rainbow {
+  &:where(:not(.hero-background, .card-cover)) {
+    position: relative;
+  }
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: conic-gradient(
+      var(--red),
+      var(--copper),
+      var(--orange),
+      var(--yellow),
+      var(--green),
+      var(--emerald),
+      var(--teal),
+      var(--cyan),
+      var(--blue),
+      var(--sky),
+      var(--violet),
+      var(--pink),
+      var(--red)
+    );
+    filter: blur(var(--fx-blur, calc(var(--size-unit) * 8)));
+  }
+  &.sharp::before {
+    filter: none;
+  }
+}
+.background-raised {
+  --fx-surface: var(--current-bg, var(--element-background));
+  background-image: linear-gradient(
+    180deg,
+    oklch(from var(--fx-surface) calc(l + var(--fx-lift, 0.02)) c h),
+    var(--fx-surface)
+  );
+  box-shadow:
+    inset 0 var(--border-width) 0 oklch(from var(--foreground) l c h / 6%),
+    var(--box-shadow);
+  > .card-meta {
+    background-color: transparent;
+  }
+}
+.background-glow {
+  --current-bg: var(--element-background);
+  background-color: var(--current-bg);
+  background-image: radial-gradient(
+    120% 90% at 0% 0%,
+    oklch(
+      from var(--scheme, var(--scheme-primary)) l c h / var(--fx-glow, 14%)
+    ),
+    transparent 60%
+  );
+  color: var(--foreground);
+  > .card-meta {
+    background-color: transparent;
+  }
+}

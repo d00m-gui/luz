@@ -1,0 +1,18 @@
+.alert {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  border: var(--border-width) solid var(--scheme, var(--scheme-neutral));
+  border-radius: var(--border-radius);
+  --current-bg: color-mix(
+    in oklab,
+    var(--scheme, var(--scheme-neutral)) 12%,
+    var(--background)
+  );
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}
+:where(.alert) > :where(.btn, button) {
+  --scheme: initial;
+}

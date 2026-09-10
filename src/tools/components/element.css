@@ -1,0 +1,42 @@
+.element {
+  display: block;
+  gap: var(--element-gap, var(--space-3));
+  &.row {
+    display: flex;
+    flex-direction: row;
+    > * {
+      aspect-ratio: var(--ratio, auto);
+    }
+  }
+  &.column {
+    display: flex;
+    flex-direction: column;
+  }
+  &.auto {
+    flex: 1 1 auto;
+  }
+  &.fixed {
+    position: static;
+    flex: 0 0 auto;
+  }
+  &.pair {
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(
+      auto-fit,
+      minmax(min(var(--element-width-min, var(--element-width)), 100%), 1fr)
+    );
+    > * {
+      aspect-ratio: var(--ratio, auto);
+    }
+  }
+  &.wire > * {
+    min-height: var(--space-12);
+    border: var(--border-width) dashed var(--element-border-color);
+    border-radius: var(--border-radius);
+    display: grid;
+    place-items: center;
+    font-size: var(--font-size-small);
+    color: oklch(from var(--foreground) l c h / 65%);
+  }
+}

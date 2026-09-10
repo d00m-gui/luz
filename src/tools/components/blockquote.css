@@ -1,0 +1,24 @@
+q:before,
+q:after,
+blockquote:before,
+blockquote:after {
+  content: "";
+}
+blockquote {
+  padding: calc(var(--size-unit) * 10);
+  border-right: none;
+  border-inline-end: none;
+  display: block;
+  font-size: var(--blockquote-font-size, var(--font-size-h5));
+  font-weight: var(--font-weight);
+  margin: calc(var(--size-unit) * 10) 0;
+  border-left: calc(var(--size-unit) * 2) solid var(--blockquote-border);
+  border-inline-start: calc(var(--size-unit) * 2) solid var(--blockquote-border);
+  & > * {
+    display: block;
+  }
+  & cite {
+    margin-top: var(--element-vertical);
+    color: var(--on-blockquote-footer);
+  }
+}

@@ -1,0 +1,3 @@
+:where(body, main) > section {
+  padding: var(--spacing);
+}

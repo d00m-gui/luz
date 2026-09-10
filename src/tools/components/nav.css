@@ -1,0 +1,21 @@
+nav {
+  display: flex;
+  overflow: visible;
+  > :is(ul, ol):not(.list) {
+    align-items: center;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    & li {
+      margin: 0;
+      display: inline-block;
+    }
+  }
+}
+nav:not(.breadcrumbs)
+  :is(a, button):not(.tab, .list-row)[aria-current]:not(
+    [aria-current="false"]
+  ) {
+  color: var(--on-tab-active);
+  box-shadow: inset 0 calc(var(--border-width) * -2) 0 var(--tab-border-active);
+}

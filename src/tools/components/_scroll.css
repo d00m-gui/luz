@@ -1,0 +1,12 @@
+.scroll-y {
+  overflow-y: auto;
+  scrollbar-gutter: stable;
+  max-height: var(--scroll-max, none);
+}
+.scrollbar-thin {
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+  &:hover {
+    scrollbar-color: oklch(from var(--foreground) l c h / 30%) transparent;
+  }
+}

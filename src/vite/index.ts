@@ -1,68 +1,83 @@
-import type { Plugin } from "vite";
-import { luz, type LuzConfig } from "../luz";
+import { extname } from "node:path";
+import { isCSSRequest, type Plugin } from "vite";
+import { luz, type LuzConfig, type LuzTokens } from "../luz";
+import { expandLuzCss, type LuzSection } from "../tools/css";
+import { DEFAULT_EXTENSIONS, scanSources } from "../tools/scan";
 import { shadcnBridgeCSS } from "../tools/shadcn-bridge";
-import { scanAndEmitUtilities } from "../tools/scan";
-import {
-  composeCss,
-  type CssSections,
-  isVirtualCssLoad,
-  type LuzCssOutput,
-  resolveVirtualCssId,
-  virtualCssIds,
-  writeCss,
-} from "../tools/write-css";
+import { emitUtilitiesCSS } from "../tools/utilities";
 
-export type LuzViteConfig = LuzConfig & {
-  path: string;
-  output?: LuzCssOutput;
-};
+export interface LuzViteOptions {
+  /** Directory scanned for utility candidates. Default Vite `root`. */
+  root?: string;
+}
 
-export const luzVite = (config: LuzViteConfig): Plugin => {
+interface Generated {
+  theme: string;
+  bridge: string;
+  tokens: LuzTokens;
+}
+
+const RAW_QUERY_RE = /[?&]raw(?:[=&]|$)/;
+
+export const luzVite = (
+  config: LuzConfig,
+  options?: LuzViteOptions,
+): Plugin => {
   let root: string | undefined;
-  let cached: CssSections | undefined;
+  let generated: Generated | undefined;
+  const utilityModules = new Set<string>();
 
-  const mode: LuzCssOutput = config.output ?? "file";
-  const { id: virtualId, resolvedId: resolvedVirtualId } = virtualCssIds(
-    config.path,
-  );
-
-  const generate = (): CssSections => {
-    const { path: _path, output: _output, ...luzConfig } = config;
-    const { style, tokens } = luz(luzConfig);
-    const bridgeCss = shadcnBridgeCSS(tokens);
-    const utilityCss = scanAndEmitUtilities({ root: root!, tokens });
-    return { theme: style, bridge: bridgeCss, utilities: utilityCss };
-  };
-
-  const generateFile = () => {
-    if (!config.path) {
-      throw new Error("luzVite: `path` is required in config");
-    }
-    cached = generate();
-    if (mode !== "virtual") {
-      writeCss(config.path, cached, mode);
-    }
+  const generate = (): Generated => {
+    const { theme, tokens } = luz(config);
+    return { theme, bridge: shadcnBridgeCSS(tokens), tokens };
   };
 
   return {
     name: "luz",
+    enforce: "pre",
     configResolved(resolved) {
-      root = resolved.root;
+      root = options?.root ?? resolved.root;
     },
     buildStart() {
-      generateFile();
+      generated = generate();
     },
-    configureServer(_server) {
-      generateFile();
+    configureServer(server) {
+      const onFileListChange = (file: string): void => {
+        if (
+          !file.startsWith(root!) ||
+          !DEFAULT_EXTENSIONS.includes(extname(file).slice(1))
+        )
+          return;
+        for (const id of utilityModules) {
+          const mod = server.moduleGraph.getModuleById(id);
+          if (mod) void server.reloadModule(mod);
+        }
+      };
+      server.watcher.on("add", onFileListChange);
+      server.watcher.on("unlink", onFileListChange);
     },
-    resolveId(id) {
-      if (mode === "virtual")
-        return resolveVirtualCssId(id, virtualId, resolvedVirtualId);
-    },
-    load(id) {
-      if (mode === "virtual" && isVirtualCssLoad(id, resolvedVirtualId)) {
-        return { code: composeCss(cached!), moduleType: "css" };
+    transform(code, id) {
+      if (!isCSSRequest(id) || RAW_QUERY_RE.test(id)) return undefined;
+      if (!code.includes("@d00m-gui/luz/") && !code.includes("@luz "))
+        return undefined;
+
+      const { theme, bridge, tokens } = (generated ??= generate());
+      let files: string[] = [];
+      const provide = (section: LuzSection): string => {
+        if (section === "theme") return theme;
+        if (section === "bridge") return bridge;
+        const scanned = scanSources(root!);
+        files = scanned.files;
+        return emitUtilitiesCSS(scanned.candidates, tokens);
+      };
+
+      const expanded = expandLuzCss(code, provide);
+      if (expanded === undefined) return undefined;
+      if (expanded.sections.has("utilities")) {
+        utilityModules.add(id);
+        for (const file of files) this.addWatchFile(file);
       }
+      return { code: expanded.code, map: null };
     },
   };
 };

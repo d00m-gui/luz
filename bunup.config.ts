@@ -1,17 +1,26 @@
 import { defineConfig } from "bunup";
 import { copy, exports, unused } from "bunup/plugins";
 
-const staticCss = ["reset.css", "design.css"];
+const staticCss = [
+  "reset.css",
+  "components.css",
+  "luz.css",
+  "theme.css",
+  "bridge.css",
+  "utilities.css",
+];
 
 export default defineConfig({
   plugins: [
     copy(staticCss.map((name) => `src/tools/${name}`)).to("."),
-    copy("src/tools/design").to("design"),
+    copy("src/tools/components").to("components"),
     exports({
-      customExports: () =>
-        Object.fromEntries(
+      customExports: () => ({
+        ...Object.fromEntries(
           staticCss.map((name) => [`./${name}`, `./dist/${name}`]),
         ),
+        "./components/*": "./dist/components/*",
+      }),
     }),
     unused(),
   ],
@@ -22,9 +31,6 @@ export default defineConfig({
     "src/color/index.ts",
   ],
   format: ["esm"],
-  jsx: {
-    development: false,
-  },
   unused: true,
   minify: true,
 });

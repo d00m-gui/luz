@@ -1,0 +1,30 @@
+code,
+pre,
+samp {
+  font-family: var(--font-monospace);
+}
+code:not(pre > code),
+samp {
+  padding: var(--size-unit) calc(var(--size-unit) * 3);
+  border-radius: var(--border-radius);
+  background-color: var(--code-bg);
+  color: var(--on-code);
+  font-size: 0.9em;
+}
+samp {
+  color: oklch(from var(--on-code) l c h / 65%);
+}
+pre {
+  padding: var(--element-vertical) var(--element-horizontal);
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--code-bg);
+  color: var(--on-code);
+  overflow-x: auto;
+  & > code {
+    display: block;
+  }
+}
+kbd + kbd {
+  margin-inline-start: var(--space-1);
+}
