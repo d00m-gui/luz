@@ -24,12 +24,13 @@ propia — ver `README.md` para el pitch de producto.
 ```
 src/
   luz.ts              orquestador: config → tokens → CSS string
-  index.ts             entry pública (re-exports)
+  index.ts             entry pública (re-exports: luz, emitUtilitiesCSS, tipos)
+  color/index.ts       entry `@d00m-gui/luz/color`: motor OKLCH puro (gamut.ts/hue.ts/wheel.ts) sin luz()
   tools/
     constants.ts        curvas de shade (WEIGHTS) — datos puros
     reset.css            capa RESET: normalize genérico, no-por-componente
-    design.css            manifest de @import de design/*.css (1 archivo por componente, 56 hoy)
-    design/*.css          un archivo self-contained por componente (reset+layout+color+estados juntos)
+    design.css            manifest de @import de design/*.css (1 archivo por componente, 58 hoy)
+    design/*.css          un archivo self-contained por componente (reset+layout+color+estados juntos); theme.css (contenedor scopeado), _print.css (capa @media print)
     reset.ts              buildReset(): RESET + COMPONENTS desde reset-css.generated.ts
     gamut.ts              parseColorToOklch/clampToSrgb/formatOklch: color literal → OKLCH numérico, gamut-mapeo real (binary search) contra sRGB
     hue.ts                luzShadesByHue: 1 seed → N shades oklch (50–950 garantizados + steps custom); baked (gamut.ts) o live (calc()) según si el seed parsea
@@ -38,8 +39,8 @@ src/
     props.ts             luzProperty: infiere @property por token (syntax/initial-value) — opt-in
     shade-fallback.ts    var(--x-500) → var(--x-500, var(--x)) para paletas custom incompletas
     shadcn-bridge.ts     shadcnBridgeCSS: alias de tokens shadcn ← tokens luz
-    utilities.ts         registry de utility classes + scan + emisión de CSS
-    scan.ts               scanCandidates: walk de archivos fuente, extrae candidatos de clase
+    utilities.ts         registry de utility classes + emisión de CSS (puro, sin I/O)
+    scan.ts               scanCandidates/scanAndEmitUtilities: walk de archivos fuente (node:fs), extrae candidatos de clase
     variants.ts           VARIANTS: prefijos data-*/pseudo-clase → selector
     write-css.ts          composeCss/writeCss: ensamblado y escritura a disco (file/split/virtual)
   astro/index.ts        integración Astro (luzAstro)
@@ -63,15 +64,19 @@ luz(config)                         src/luz.ts
    │                        ├─ luzWheel           (12 hues fijos)
    │                        └─ scheme-*/anchor-*  chromaScaledEntry: peso (resolveSchemeWeight) × chroma (schemeChroma/0.6)
    │        (llamado 2 veces + mergeLightDark si mode: "auto")
+   ├─ buildPalettes(reverse) ── luzPaletteSeeds por paleta con seed parseable → tokens.palettes.{light,dark}
    ├─ luzSizes()/luzSpace()/luzTextScale()/luzTypeLandmarks()   escalas size-N / space-N / font-size-*
    ├─ themeVariables(tokens)           alias semánticos (btn-bg, kbd-*, ... — casi todos vía scheme-primary)
    └─ luzProperty(tokens)              @property inferidas (opt-in)
         │
         ▼
-   { tokens, variables, properties, style }
+   { tokens, variables, properties, customMedia, reset, theme, style }
+        │        reset  = buildReset()                       (estático)
+        │        theme  = customMedia + properties + `${selector} { color-scheme?; variables }`
+        │        style  = reset + theme
         │
-        ├─ shadcnBridgeCSS(tokens)     :root { --card: ...; ... }
-        └─ scanAndEmitUtilities()      scanCandidates() + utilities.ts registry
+        ├─ shadcnBridgeCSS(tokens)     `${selector} { --card: ...; ... }`
+        └─ scanAndEmitUtilities()      scanCandidates() + emitUtilitiesCSS() (utilities.ts registry)
         │
         ▼
    writeCss() / virtual module         src/astro/index.ts, src/vite/index.ts
@@ -589,20 +594,81 @@ pensado para fondos de contenedor (`card`/`stat`) que necesitan verse
 
 `reset.css`/`design.css` (100% estáticos, no dependen de config) se
 copian a `dist/` en cada build (plugin `copy()` de `bunup.config.ts`,
-lista `staticCss`) y se publican en `exports` de `package.json`
+lista `staticCss`), junto con `src/tools/design/` → `dist/design/` (los
+`@import "./design/*.css"` del manifest tienen que resolver en el
+paquete publicado), y se publican en `exports` de `package.json`
 (`"./reset.css": "./dist/reset.css"`, etc., vía el plugin `exports()`
-con `customExports` — regenerado en cada build, no a mano) — un
-consumidor puede hacer `@import "@d00m-gui/luz/reset.css";` directo en
-su propia hoja de estilos, sin pasar por los adaptadores de Astro/Vite.
+con `customExports`) — un consumidor puede hacer `@import
+"@d00m-gui/luz/reset.css";` directo en su propia hoja de estilos, sin
+pasar por los adaptadores de Astro/Vite. El plugin `exports()` solo
+reescribe `package.json` cuando el mapa cambia (y al hacerlo reordena
+las claves — si pasa, restaurar el orden a mano).
 
 Modo `"split"` (`LuzCssOutput`) también escribe copias locales de los 2
 junto a `theme`/`bridge`/`utilities` — pero el agregador (el archivo con
-los `@import url(...)`) **no** los incluye todavía: `theme.css` sigue
-trayendo el reset inline (vía `buildReset()` dentro de `luz()`), así que
-sumarlos al agregador duplicaría el reset. Requiere tocar `luz()` para
-sacar el reset del `style` que devuelve — cambio más grande, no
-decidido todavía. Modo `"virtual"` sin cambios (fuera de alcance, no
-verificado).
+los `@import url(...)`) **no** los incluye todavía: la sección `theme`
+de `CssSections` sigue siendo `LuzResult.style` (reset incluido), así
+que sumarlos duplicaría el reset. Ahora que `luz()` devuelve `reset` y
+`theme` separados, los adaptadores podrían pasar `theme` y sumar el
+reset al agregador — no hecho todavía, sin consumidor que lo pida.
+
+## Superficie pública sin adaptador — `reset`/`theme`, `selector`, `palettes`, `/color`
+
+Motivado por un consumidor server-side (Bun, sin Astro/Vite) que genera
+CSS por tenant en caliente y necesita N temas en una misma página.
+
+- **`LuzResult.reset` / `LuzResult.theme`**: `reset` es `buildReset()`
+  (idéntico para cualquier config, ~60 KB); `theme` es lo que depende
+  de la config (`customMedia` + `properties` + el bloque
+  `${selector} { … }`). `style` sigue siendo la concatenación
+  `reset + theme`, sin cambio de superficie para los adaptadores.
+  `emitUtilitiesCSS(candidates, tokens)` se exporta desde `.` — puro;
+  `scanAndEmitUtilities` (la versión con `node:fs`) vive en `scan.ts`,
+  no en `utilities.ts`, para que el entry raíz no arrastre `node:fs`
+  (verificado sobre los chunks de `dist/`).
+- **`LuzConfig.selector`** (default `":root"`): selector del bloque de
+  tema. `color-scheme: light dark` (modo `auto`) va dentro del mismo
+  bloque, así `light-dark()` resuelve contra el contenedor.
+  `shadcnBridgeCSS` lee `tokens.settings.selector` y emite bajo el
+  mismo selector. La clase `.theme` (`design/theme.css`) aplica al
+  contenedor lo que `body` recibe del reset (`font-family`,
+  `font-weight`, `font-size`, `background-color`, `color`) — es la
+  pareja de `selector` para temas scopeados. Forzar claro/oscuro por
+  sección es `color-scheme: light|dark` inline o por clase, no un campo
+  nuevo.
+- **`LuzTokens.palettes`**: `{ light?, dark? }` → `Record<nombre,
+  Record<weight, OklchSeed>>`, mismos nombres (con `prefix`) que
+  `colors`; solo paletas cuyo seed parsea (primary/secondary/tertiary/
+  quaternary/neutral/surface-*/12 hues de la rueda). En `mode: "auto"`
+  vienen las dos; en `light`/`dark` solo la activa. Sale de
+  `luzPaletteSeeds` (`hue.ts`), la misma rampa/gamut-mapeo que el
+  camino baked de `luzShadesByHue` — el `{l,c,h}` coincide con el
+  literal `oklch()` emitido en `colors` (verificado contra `dist/`).
+- **`@d00m-gui/luz/color`** (`src/color/index.ts`, entry propio en
+  `bunup.config.ts`): `parseColorToOklch`/`formatOklch`/`clampToSrgb`/
+  `maxSrgbChroma`/`isInSrgbGamut`/`OklchSeed` (gamut.ts),
+  `resolveBakedShade`/`luzPaletteSeeds`/`nearestSchemeWeight`/
+  `luzHarmonyColorSeeds`/`ColorHarmony` (hue.ts),
+  `luzWheelHueSeed`/`WHEEL_HUE_NAMES`/`WHEEL_CHROMA` (wheel.ts) y
+  `WEIGHTS`. Es TS puro sin dependencias; permite que un preview en
+  cliente coincida numéricamente con el CSS que `luz()` emite. Congela
+  esas firmas como API pública — el replanteo pendiente de
+  `resolveBakedShade` (anclaje en 500, ver `TODO.md`) pasa a ser un
+  cambio de comportamiento público, no interno.
+- **`design/_print.css`** (último `@import` del manifest): `@media
+  print` genérico — `color-scheme: light !important` en `:root`/`.theme`
+  (`!important` porque el bloque de tema, más tarde en cascada, declara
+  `light dark`; solo aplica a `mode: "auto"`, un `mode: "dark"` fijo son
+  literales y no se puede dar vuelta), oculta overlays/top-layer
+  (`.drawer[popover]`, `.drawer-trigger`, `.menu`, `.popover`, `.notice`,
+  `.radial-*`, tooltip/spinner `::before`), `print-color-adjust: exact`
+  en componentes cuyo significado es el color (`.badge`/`.alert`/`.card`/
+  `.btn`/`kbd`/`.stat`/…), quita `backdrop-filter`/`filter` de
+  `.glass`/`.background-*`, abre `<details>` cerrados (`> :not(summary)`
+  para Firefox, `::details-content { content-visibility: visible }` para
+  Chromium), `overflow: visible` en `.shell*`/`.scroll-y`,
+  `break-inside: avoid` en bloques. Verificado con
+  `page.emulateMediaType("print")` en Chromium real.
 
 ## Accesibilidad en `DESIGN`/`RESET` (reglas de Emil Kowalski aplicadas)
 

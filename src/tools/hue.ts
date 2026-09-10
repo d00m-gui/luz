@@ -10,8 +10,9 @@ function easeIn(t: number): number {
   return t * t;
 }
 
-/** Evenly spaced weight labels 50→950, rounded to the nearest 10. */
+/** Evenly spaced weight labels 50→950, rounded to the nearest 10 (`WEIGHTS` itself for the default 11 steps). */
 function generateWeights(steps: number): number[] {
+  if (steps === WEIGHTS.length) return WEIGHTS;
   if (steps === 1) return [CENTER_WEIGHT];
   const result: number[] = [];
   for (let i = 0; i < steps; i++) {
@@ -67,6 +68,19 @@ export function resolveBakedShade(
         ? seed.l * (1 - fraction) + fraction
         : seed.l * (1 - fraction);
   return clampToSrgb({ l, c: seed.c, h: seed.h });
+}
+
+/** Baked OKLCH per weight — the numeric counterpart of `luzShadesByHue`'s baked path (same weights, same gamut mapping). */
+export function luzPaletteSeeds(
+  seed: OklchSeed,
+  reverse: boolean,
+  steps: number = WEIGHTS.length,
+): Record<number, OklchSeed> {
+  const shades: Record<number, OklchSeed> = {};
+  for (const weight of generateWeights(steps)) {
+    shades[weight] = resolveBakedShade(seed, weight, reverse);
+  }
+  return shades;
 }
 
 function shadeEntryBaked(
@@ -176,7 +190,7 @@ export function luzShadesByHue({
   steps?: number;
   seed?: OklchSeed | null;
 }): Record<string, string> {
-  const weights = steps === WEIGHTS.length ? WEIGHTS : generateWeights(steps);
+  const weights = generateWeights(steps);
   const shades: Record<string, string> = {};
   for (const weight of weights) {
     const [key, value] = seed

@@ -1,0 +1,7 @@
+.theme {
+  font-family: var(--font);
+  font-weight: var(--font-weight);
+  font-size: calc(var(--size-unit) * 10);
+  background-color: var(--background);
+  color: var(--foreground);
+}

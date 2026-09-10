@@ -1,7 +1,6 @@
 import type { LuzTokens } from "../luz";
 import { withShadeFallback } from "./shade-fallback";
 import { resolveVariant } from "./variants";
-import { scanCandidates } from "./scan";
 
 interface ScaleNamespace {
   kind: "scale";
@@ -503,14 +502,4 @@ export function emitUtilitiesCSS(
       return `${selector} { ${css} }`;
     })
     .join("\n");
-}
-
-export function scanAndEmitUtilities(options: {
-  root: string;
-  tokens: LuzTokens;
-  extensions?: string[];
-}): string {
-  const { root, tokens, extensions } = options;
-  const candidates = scanCandidates(root, extensions);
-  return emitUtilitiesCSS(candidates, tokens);
 }

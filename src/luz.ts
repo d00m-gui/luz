@@ -7,6 +7,7 @@ import {
   luzHarmonyColorSeeds,
   luzHarmonyColors,
   luzOnColor,
+  luzPaletteSeeds,
   luzShadesByHue,
   nearestSchemeWeight,
   resolveBakedShade,
@@ -94,7 +95,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   mode?: "light" | "dark" | "auto";
   /** Custom-property name for the neutral/gray palette. Default `"neutral"`. */
   neutrals?: string;
-  /** Fraction (0–1) of `primary`'s chroma carried into the neutral/gray palette. `0` = pure gray, `1` = full tint. Default `0.2`. */
+  /** Fraction (0–1) of `primary`'s chroma carried into the neutral/gray palette. `0` = pure gray, `1` = full tint. Default `0`. */
   neutralTint?: number;
   /** Fraction (0–1) of `secondary`/`tertiary`/`quaternary`'s own chroma carried into their `surface-*` scale (the muted background each feeds to the `.surface-*` utility classes) — independent of `neutralTint`. Default `0.4`. */
   surfaceTint?: number;
@@ -123,6 +124,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   schemeChroma?: number;
   /** Prepended to every generated custom-property name (e.g. `"luz-"` → `--luz-primary-500`). Default `""`. */
   prefix?: string;
+  /** Selector the theme block (`color-scheme` + every custom property) is emitted under. Default `":root"`. */
+  selector?: string;
   /** Default `transition` shorthand applied via setup rules. Default `"all ease 200ms"`. */
   transition?: string;
   /** Default `box-shadow` token. Default `"none"`. */
@@ -154,7 +157,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   /**
    * How many scale rungs (see `power`) the fluid zone's viewport-max value
    * reaches past its viewport-min value, or a raw number for a custom offset.
-   * @default "balanced"
+   * @default "fixed"
    * @param "fixed" 0 — locked, no reflow with viewport width (dense app UI)
    * @param "tight" 0.35 — subtle reflow
    * @param "balanced" 1 — one full scale rung
@@ -179,8 +182,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   vars?: Record<string, string | number>;
   /**
    * Named viewport breakpoints, emitted as `@custom-media --breakpoint-{name} (min-width: ...)`.
-   * A number is rem, a string is used as-is (e.g. `"1200px"`). Merged over the default set. `false` disables emission entirely.
-   * @default `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem)
+   * A number is rem, a string is used as-is (e.g. `"1200px"`). Merged over `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem) — pass `{}` for just the defaults. Unset by default: nothing is emitted (`@custom-media` needs a consumer-side compiler such as `postcss-custom-media`).
    */
   breakpoints?: BreakpointsConfig;
 }
@@ -193,15 +195,22 @@ export interface TokenSettings {
   prefix?: string;
   /** Resolved `config.neutrals` palette name. */
   neutrals?: string;
+  /** Resolved `config.selector`. */
+  selector: string;
 }
+
+/** Baked OKLCH shades keyed by palette name (as in `colors`, prefix included) then weight. */
+export type LuzPalettes = Record<string, Record<number, OklchSeed>>;
 
 /** Full token set used by all downstream consumers. */
 export interface LuzTokens {
-  /** Metadata about the resolved palette (name/prefix/neutrals). */
+  /** Metadata about the resolved palette (name/prefix/neutrals/selector). */
   settings: TokenSettings;
   /** Generated color variable map (primary/secondary/neutral shades, wheel, semantic aliases). */
   colors: Record<string, string>;
-  /** Generated size variable map (`--size-1` → `0.1rem`, etc.). */
+  /** Numeric OKLCH per palette/weight for every palette whose seed parsed, per scheme — both in `mode: "auto"`, only the active one otherwise. */
+  palettes: Partial<Record<"light" | "dark", LuzPalettes>>;
+  /** Generated size variable map (`--size-unit`, `--border-radius`, `--element-*`, `--space-N`, `--text-*`, …). */
   sizes: Record<string, string>;
   /** Non-color, non-size config fields (fonts, weights, line-height, …), echoed back as tokens. */
   typography: Partial<LuzConfig>;
@@ -217,7 +226,11 @@ export interface LuzResult {
   properties: string;
   /** `@custom-media --breakpoint-*` declarations */
   customMedia: string;
-  /** Complete CSS as a string */
+  /** Static reset + component layer, identical for every config. */
+  reset: string;
+  /** Config-dependent CSS: `customMedia` + `properties` + the `selector { … }` block. */
+  theme: string;
+  /** Complete CSS as a string (`reset` + `theme`). */
   style: string;
 }
 
@@ -250,6 +263,7 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   surfaceTint: 0.4,
   schemeShade: { neutral: 800 },
   prefix: "",
+  selector: ":root",
   transition: "all ease 200ms",
   "box-shadow": "none",
   colorSteps: 11,
@@ -363,6 +377,7 @@ export function luz(config?: LuzConfig): LuzResult {
     mode,
     base,
     prefix,
+    selector,
     neutrals,
     neutralTint,
     surfaceTint,
@@ -777,6 +792,37 @@ export function luz(config?: LuzConfig): LuzResult {
     ? mergeLightDark(buildColors(false), buildColors(true))
     : buildColors(isDark);
 
+  /** Baked OKLCH per weight for every palette whose seed is known, keyed like `colors`. */
+  function buildPalettes(reverse: boolean): LuzPalettes {
+    const named: [string, OklchSeed | null][] = [
+      [primaryName, primarySeed],
+      [secondaryName, secondarySeed],
+      [tertiaryName, tertiarySeed],
+      [quaternaryName, quaternarySeed],
+      [neutralsName, neutralSeed],
+      [surfaceSecondary.name, surfaceSecondary.seed],
+      [surfaceTertiary.name, surfaceTertiary.seed],
+      [surfaceQuaternary.name, surfaceQuaternary.seed],
+    ];
+    for (const hueName of WHEEL_HUE_NAMES) {
+      named.push([
+        `${prefix}${hueName}`,
+        luzWheelHueSeed(hueName, primarySeed, wheelOverrides[hueName]),
+      ]);
+    }
+    const palettes: LuzPalettes = {};
+    for (const [paletteName, seed] of named) {
+      if (seed) {
+        palettes[paletteName] = luzPaletteSeeds(seed, reverse, colorSteps);
+      }
+    }
+    return palettes;
+  }
+
+  const palettes: LuzTokens["palettes"] = {};
+  if (isAuto || !isDark) palettes.light = buildPalettes(false);
+  if (isAuto || isDark) palettes.dark = buildPalettes(true);
+
   const sizeTokens: Record<string, string> = {
     ...luzSizes(normalBase, sizeRelativeToBase),
     ...luzTextScale(normalBase, power, sizeRelativeToBase, sizeFluidRange),
@@ -791,8 +837,10 @@ export function luz(config?: LuzConfig): LuzResult {
       name: normalName,
       prefix,
       neutrals,
+      selector: selector as string,
     },
     colors,
+    palettes,
     sizes: sizeTokens,
     typography: { ...typography } as Partial<LuzConfig>,
   };
@@ -835,14 +883,15 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const colorScheme = isAuto ? "color-scheme: light dark;\n    " : "";
 
-  const style = `
+  const reset = buildReset();
+  const theme = `
   ${customMedia}
-  ${buildReset()}
   ${properties}
-  :root {
+  ${selector} {
     ${colorScheme}${variables}
   }
   `;
+  const style = `${reset}\n${theme}`;
 
-  return { tokens, variables, style, properties, customMedia };
+  return { tokens, variables, properties, customMedia, reset, theme, style };
 }

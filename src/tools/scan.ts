@@ -1,5 +1,7 @@
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
+import type { LuzTokens } from "../luz";
+import { emitUtilitiesCSS } from "./utilities";
 
 export const DEFAULT_EXTENSIONS = ["astro", "tsx", "jsx", "ts"];
 
@@ -72,4 +74,13 @@ export function scanCandidates(
   }
 
   return all;
+}
+
+export function scanAndEmitUtilities(options: {
+  root: string;
+  tokens: LuzTokens;
+  extensions?: string[];
+}): string {
+  const { root, tokens, extensions } = options;
+  return emitUtilitiesCSS(scanCandidates(root, extensions), tokens);
 }

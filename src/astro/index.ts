@@ -2,7 +2,7 @@ import type { AstroIntegration, AstroIntegrationLogger } from "astro";
 import { fileURLToPath } from "node:url";
 import { luz, type LuzConfig } from "../luz";
 import { shadcnBridgeCSS } from "../tools/shadcn-bridge";
-import { scanAndEmitUtilities } from "../tools/utilities";
+import { scanAndEmitUtilities } from "../tools/scan";
 import {
   composeCss,
   type CssSections,

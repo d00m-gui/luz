@@ -1,0 +1,62 @@
+@media print {
+  :root,
+  .theme {
+    color-scheme: light !important;
+  }
+  .drawer[popover],
+  .drawer-trigger,
+  .menu,
+  .popover,
+  .notice,
+  .radial-menu,
+  .radial-trigger,
+  [data-tooltip]::before,
+  .loading::before,
+  [aria-busy="true"]::before {
+    display: none !important;
+  }
+  .badge,
+  .alert,
+  .card,
+  .btn,
+  .button,
+  kbd,
+  .stat,
+  .avatar,
+  .status,
+  .skeleton,
+  .hero,
+  .tab,
+  progress {
+    print-color-adjust: exact;
+  }
+  .glass,
+  .background-blur,
+  .background-conic-rainbow::before {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    filter: none;
+  }
+  details > :not(summary) {
+    display: block;
+  }
+  details::details-content {
+    content-visibility: visible;
+  }
+  .shell,
+  .shell-pane,
+  .shell-body,
+  .scroll-y {
+    overflow: visible;
+    height: auto;
+  }
+  .card,
+  .alert,
+  .stat,
+  blockquote,
+  figure,
+  pre,
+  table {
+    break-inside: avoid;
+  }
+}

@@ -6,6 +6,7 @@ const staticCss = ["reset.css", "design.css"];
 export default defineConfig({
   plugins: [
     copy(staticCss.map((name) => `src/tools/${name}`)).to("."),
+    copy("src/tools/design").to("design"),
     exports({
       customExports: () =>
         Object.fromEntries(
@@ -14,7 +15,12 @@ export default defineConfig({
     }),
     unused(),
   ],
-  entry: ["src/index.ts", "src/astro/index.ts", "src/vite/index.ts"],
+  entry: [
+    "src/index.ts",
+    "src/astro/index.ts",
+    "src/vite/index.ts",
+    "src/color/index.ts",
+  ],
   format: ["esm"],
   jsx: {
     development: false,

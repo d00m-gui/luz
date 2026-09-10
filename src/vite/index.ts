@@ -1,7 +1,7 @@
 import type { Plugin } from "vite";
 import { luz, type LuzConfig } from "../luz";
 import { shadcnBridgeCSS } from "../tools/shadcn-bridge";
-import { scanAndEmitUtilities } from "../tools/utilities";
+import { scanAndEmitUtilities } from "../tools/scan";
 import {
   composeCss,
   type CssSections,

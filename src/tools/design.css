@@ -1,3 +1,4 @@
+@import "./design/theme.css";
 @import "./design/selection.css";
 @import "./design/typography.css";
 @import "./design/prose.css";
@@ -52,3 +53,4 @@
 @import "./design/hero.css";
 @import "./design/fx.css";
 @import "./design/element.css";
+@import "./design/_print.css";

@@ -24,11 +24,14 @@ export type WheelHueName = (typeof WHEEL_NAMES)[number];
 
 export const WHEEL_HUE_NAMES: WheelHueName[] = [...WHEEL_NAMES];
 
-/** Numeric seed for one wheel hue, derived from `primarySeed` the same way `luzWheel`'s default (non-overridden) seeds are: `primary`'s own `l`, the hue's fixed chroma/hue. */
+/** Numeric seed for one wheel hue: an `override` that parses as a literal color wins; otherwise `primary`'s own `l` with the hue's fixed chroma/angle; `null` when neither is known. */
 export function luzWheelHueSeed(
   name: WheelHueName,
-  primarySeed: OklchSeed,
-): OklchSeed {
+  primarySeed: OklchSeed | null,
+  override?: string,
+): OklchSeed | null {
+  if (override) return parseColorToOklch(override);
+  if (!primarySeed) return null;
   const index = WHEEL_NAMES.indexOf(name);
   return {
     l: primarySeed.l,
@@ -55,11 +58,7 @@ export function luzWheel(
     const override = overrides?.[name];
     const seed =
       override ?? `oklch(from ${primaryCSSVar} l ${WHEEL_CHROMA} ${hue})`;
-    const seedNumeric = override
-      ? parseColorToOklch(override)
-      : primarySeed
-        ? { l: primarySeed.l, c: WHEEL_CHROMA, h: hue }
-        : null;
+    const seedNumeric = luzWheelHueSeed(name, primarySeed ?? null, override);
     const shades = luzShadesByHue({
       color: `var(--${seedKey})`,
       name: key,

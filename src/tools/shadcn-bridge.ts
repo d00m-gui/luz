@@ -29,5 +29,5 @@ export function shadcnBridgeCSS(tokens: LuzTokens): string {
     .map(([name, value]) => `--${name}: ${value};`)
     .join("\n");
 
-  return `:root {\n${lines}\n}`;
+  return `${tokens.settings.selector} {\n${lines}\n}`;
 }

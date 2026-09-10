@@ -42,7 +42,7 @@ const {
       <div class="container main-row">
         <main class:list={["main", contentClass]}>
           <Header breadcrumb={breadcrumb} />
-          <!-- <CrtIntroMount client:load transition:persist /> -->
+          <CrtIntroMount client:load transition:persist />
           <slot />
         </main>
         <Sidebar activeId={activeId} title={title} hue={hue} />

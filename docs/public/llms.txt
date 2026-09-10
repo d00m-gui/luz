@@ -21,20 +21,37 @@ bun add @d00m-gui/luz   # or npm/pnpm
 
 ```ts
 // Astro: astro.config.mjs
-import luz from "@d00m-gui/luz/astro";
-export default defineConfig({ integrations: [luz({ primary: "#f28c20" })] });
+import { luzAstro } from "@d00m-gui/luz/astro";
+export default defineConfig({ integrations: [luzAstro({ primary: "#f28c20" })] });
 ```
 
 ```ts
 // Vite: vite.config.ts
-import luz from "@d00m-gui/luz/vite";
-export default defineConfig({ plugins: [luz({ primary: "#f28c20" })] });
+import { luzVite } from "@d00m-gui/luz/vite";
+export default defineConfig({ plugins: [luzVite({ primary: "#f28c20", path: "src/luz.css" })] });
 ```
 
 Both adapters accept `output: "virtual"` to emit a virtual CSS module
 instead of writing a file to disk (see `fixtures/tanstack-dashboard`).
 `primary` is the only required `LuzConfig` field — everything else has a
 default (see `LUZ_DEFAULT_CONFIG` below).
+
+Without an adapter (server-side, any runtime — `luz()` is pure, no
+`node:fs`):
+
+```ts
+import { luz, emitUtilitiesCSS } from "@d00m-gui/luz";
+const { reset, theme, tokens } = luz({ primary: "#f28c20", selector: ".brand" });
+// reset  — static reset + component classes, identical for every config: emit once
+// theme  — this config's `@property`s + `.brand { color-scheme; --tokens… }`: emit per theme
+// style  — reset + theme, what the adapters write
+const utilities = emitUtilitiesCSS(new Set(["p-4", "bg-primary-600"]), tokens);
+```
+
+`@d00m-gui/luz/color` exports the numeric OKLCH engine luz bakes shades
+with (`parseColorToOklch`, `resolveBakedShade`, `luzPaletteSeeds`,
+`clampToSrgb`, `formatOklch`, `luzHarmonyColorSeeds`, `WEIGHTS`, …), so a
+client-side preview can match the emitted CSS exactly.
 
 ## The four layers
 
@@ -112,7 +129,7 @@ Only `primary` is required. Defaults below are `LUZ_DEFAULT_CONFIG`.
 | `depthDecay` | `0.6` | Per-level falloff (0–1) of the elevation curve — smaller = more contrast between the first few levels. |
 | `depthSign` | auto by `mode` | Forces elevation direction/magnitude. A `.elements-depth-light`/`.elements-depth-dark` class on a subtree still overrides this. |
 | `contrastThreshold` | `0.6` | Lightness above which auto-contrast text (wheel `on-*`, `contrast-color()` fallback) flips from white-ish to black-ish. Live, overridable per subtree. |
-| `breakpoints` | `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem) | Named viewport breakpoints, emitted as `@custom-media --breakpoint-{name}`. A number is rem, a string used as-is. `false` disables emission. |
+| `breakpoints` | unset (nothing emitted) | Named viewport breakpoints, emitted as `@custom-media --breakpoint-{name}` — needs a consumer-side compiler (`postcss-custom-media`), lightningcss warns on it. An object merges over `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem; `{}` = just the defaults). A number is rem, a string used as-is. |
 
 ### Escape hatches
 
@@ -120,6 +137,20 @@ Only `primary` is required. Defaults below are `LUZ_DEFAULT_CONFIG`.
 |---|---|---|
 | `vars` | unset | Raw custom properties, merged **last** — overrides an existing token by name, or adds a new one. The one field guaranteed to win over every internal calculation. |
 | `properties` | `false` | Generate `@property` declarations for every token — required for the browser to animate/transition a custom property (angle, gradient stop, …) instead of snapping. |
+| `selector` | `":root"` | Selector the theme block (`color-scheme` + every token) is emitted under. Set it to scope a theme to a container; add `.theme` to that container so it gets what `body` gets from the reset (font, background, color). Force light/dark per section with `color-scheme: light|dark` on the container. |
+
+`luz().tokens.palettes` — `{ light?, dark? }` → `Record<paletteName,
+Record<weight, { l, c, h }>>` — carries the numeric OKLCH of every baked
+shade (palettes whose seed parsed: primary/secondary/tertiary/quaternary/
+neutral/surface-*/12 wheel hues), for swatches, diffs, or hex export.
+`mode: "auto"` gives both schemes; `"light"`/`"dark"` only the active one.
+
+Printing: `design/_print.css` ships a generic `@media print` layer —
+forces `color-scheme: light` (so `mode: "auto"` prints dark-on-white),
+hides overlays (`.drawer`, `.menu`, `.popover`, `.notice`, tooltips),
+opens `<details>`, keeps fills on `.badge`/`.alert`/`.card`/`.btn`/`kbd`
+(`print-color-adjust: exact`), drops `backdrop-filter`. A fixed
+`mode: "dark"` bakes literal dark colors and cannot be flipped for print.
 
 ## Generated custom properties
 
@@ -157,7 +188,7 @@ vocabulary for semantic tokens:
   `--space-1`…`--space-{spaceSteps}` (linear, `base/64` per step),
   `--size-unit`.
 - **Breakpoints**: `@custom-media --breakpoint-{name}` (not a custom
-  property — a media-query alias), from `breakpoints`.
+  property — a media-query alias), only when `breakpoints` is set.
 
 `vars` can override or extend any of the above by exact name.
 
