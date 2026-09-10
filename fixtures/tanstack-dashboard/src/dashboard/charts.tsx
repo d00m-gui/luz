@@ -89,8 +89,8 @@ export function RunsDistributionChart({ runs }: { runs: LuzStats["runs"] }) {
       boxY(rows, {
         x: "group",
         y: "value",
-        fill: "oklch(from var(--secondary-500) l c h / 30%)",
-        stroke: "var(--secondary-500)",
+        fill: "oklch(from var(--neutral-500) l c h / 30%)",
+        stroke: "var(--neutral-500)",
       }),
     ],
     scales: {
@@ -221,7 +221,7 @@ export function TimingChart({ runs }: { runs: LuzStats["runs"] }) {
       lineY(runs, {
         x: "run",
         y: "ms",
-        stroke: "var(--secondary-500)",
+        stroke: "var(--primary-400)",
         points: true,
       }),
     ],
