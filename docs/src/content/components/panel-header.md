@@ -13,7 +13,7 @@ covers:
   <button class="ghost">Action</button>
 </div>
 
-## Titlebar — .panel-header.top
+## Titlebar
 
 <!--preview-->
 <div class="preview-frame"><div class="panel-header top" style="position: absolute; inset-inline: 0">
@@ -27,7 +27,7 @@ covers:
   <span class="status success"></span>
 </div>
 
-## Statusbar — .panel-header.bottom
+## Statusbar
 
 <!--preview-->
 <div class="preview-frame"><div class="panel-header bottom" style="position: absolute; inset-inline: 0">

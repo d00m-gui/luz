@@ -3,6 +3,7 @@ title: Notice
 category: Overlays
 covers:
   - notice
+  - sticky
 ---
 
 <button popovertarget="notice-bottom-end" class="ghost">bottom-end</button>
@@ -81,7 +82,6 @@ covers:
   </div>
 </div>
 
-
 ## Feedback
 
 <button popovertarget="notice" class="success">Show notice</button>
@@ -96,6 +96,17 @@ covers:
 <button popovertarget="notice-info" class="info">Show info notice</button>
 <div id="notice-info" popover class="notice info"><i class="icon nf nf-fa-info_circle"></i> New version available</div>
 
+## Duración
+
+<button popovertarget="notice-short" class="ghost">2 segundos</button>
+<div id="notice-short" popover class="notice info" style="--notice-duration: 2s;"><i class="icon nf nf-fa-clock_o"></i> Me voy en 2s</div>
+
+<button popovertarget="notice-sticky" class="ghost">Sticky</button>
+<div id="notice-sticky" popover class="notice sticky">
+  <i class="icon nf nf-fa-thumb_tack"></i>
+  <span>Me quedo hasta que me cierres.</span>
+  <button popovertarget="notice-sticky" popovertargetaction="hide" class="ghost">Cerrar</button>
+</div>
 ## Quick Actions
 
 <div>

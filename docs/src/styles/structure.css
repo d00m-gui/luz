@@ -106,26 +106,25 @@ body {
   }
 }
 
-
 .sidebar[popover] {
   .mobile-nav {
     position: relative;
     z-index: 100;
   }
   &[data-placement="fullscreen"] {
-      height: min-content;
-      top: auto;
-      & .list {
-        position: relative;
-        display: block;
-        justify-content: flex-end;
-        padding: 0;
-        height: 100%;
-        overflow: hidden;
-        overflow-y: auto;
-      }
+    height: min-content;
+    top: auto;
+    & .list {
+      position: relative;
+      display: block;
+      justify-content: flex-end;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      overflow-y: auto;
+    }
   }
-  .list details.list-row {
+  .list.drilldown details.list-row {
     &[open] {
       & > summary {
         position: absolute;
@@ -161,10 +160,9 @@ body {
         top: auto;
         bottom: 0;
         border: none;
-
       }
     }
-    .list details.list-row {
+    .list.drilldown details.list-row {
       &[open] {
         & > summary {
           position: relative;

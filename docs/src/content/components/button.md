@@ -35,6 +35,15 @@ span: 2
   </button>
 </div>
 
+## Roles
+
+<div class="demo-buttons">
+  <button data-role="secondary">Secondary</button>
+  <button data-role="tertiary">Tertiary</button>
+  <button data-role="apply">Apply</button>
+  <button data-role="cancel">Cancel</button>
+  <button data-role="contrast">Contrast</button>
+</div>
 
 <style>
   .demo-buttons {

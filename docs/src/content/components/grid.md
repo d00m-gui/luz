@@ -3,6 +3,11 @@ title: Grid
 category: Surfaces
 covers:
   - grid
+  - xs
+  - sm
+  - md
+  - lg
+  - overflow
 span: 2
 ---
 
@@ -12,6 +17,24 @@ span: 2
       <img src="/samples/006-w.png" />
     </figure>
   </div>
+</div>
+
+## Tamaños
+
+<div class="grid xs">
+  <div class="stat"><span class="stat-label">xs</span><span class="stat-value">9rem</span></div>
+  <div class="stat"><span class="stat-label">xs</span><span class="stat-value">9rem</span></div>
+  <div class="stat"><span class="stat-label">xs</span><span class="stat-value">9rem</span></div>
+  <div class="stat"><span class="stat-label">xs</span><span class="stat-value">9rem</span></div>
+</div>
+<div class="grid sm" style="margin-top: var(--space-4);">
+  <div class="card"><div class="card-content"><strong>sm</strong><span class="stat-label">12rem</span></div></div>
+  <div class="card"><div class="card-content"><strong>sm</strong><span class="stat-label">12rem</span></div></div>
+  <div class="card"><div class="card-content"><strong>sm</strong><span class="stat-label">12rem</span></div></div>
+</div>
+<div class="grid md" style="margin-top: var(--space-4);">
+  <div class="card"><div class="card-content"><strong>md</strong><span class="stat-label">18rem</span></div></div>
+  <div class="card"><div class="card-content"><strong>md</strong><span class="stat-label">18rem</span></div></div>
 </div>
 
 ## Grid Overflow

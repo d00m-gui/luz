@@ -8,6 +8,8 @@ covers:
   - checkbox
   - radio
   - switch
+  - form-actions
+  - sticky
 span: 2
 ---
 
@@ -41,3 +43,39 @@ span: 2
 
   </fieldset>
 </form>
+
+## Acciones
+
+<form class="form form-fit demo-form-actions">
+  <div class="scroll-y" style="--scroll-max: 12rem;">
+    <label class="field">
+      <span>Nombre del proyecto</span>
+      <input type="text" placeholder="luz" />
+    </label>
+    <label class="field">
+      <span>Descripción</span>
+      <textarea rows="3" placeholder="Qué hace y para quién."></textarea>
+    </label>
+    <label class="field">
+      <span>Visibilidad</span>
+      <select>
+        <option>Privado</option>
+        <option>Público</option>
+      </select>
+    </label>
+    <label class="field row">
+      <input type="checkbox" checked />
+      <span>Crear README inicial</span>
+    </label>
+    <div class="form-actions sticky">
+      <button type="reset">Cancelar</button>
+      <button type="submit">Guardar</button>
+    </div>
+  </div>
+</form>
+
+<style>
+  .demo-form-actions .scroll-y > * + * {
+    margin-block-start: var(--space-3);
+  }
+</style>

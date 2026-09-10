@@ -14,7 +14,7 @@ const CSS_OUT = fileURLToPath(
   new URL("../src/styles/nerd-icons.generated.css", import.meta.url),
 );
 const FONT_OUT = fileURLToPath(
-  new URL("../public/fonts/nerd-icons.woff2", import.meta.url),
+  new URL("../src/styles/nerd-icons.woff2", import.meta.url),
 );
 
 const glyphnames: Record<string, { code: string }> = await fetch(
@@ -44,7 +44,7 @@ writeFileSync(
   `/* Generado por \`bun run gen:nerd-icons\` desde ryanoasis/nerd-fonts (NerdFontsSymbolsOnly). No editar a mano. */
 @font-face {
   font-family: "NerdFontsSymbols Nerd Font";
-  src: url("/fonts/nerd-icons.woff2") format("woff2");
+  src: url("./nerd-icons.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
 }

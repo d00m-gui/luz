@@ -1,4 +1,5 @@
 // @ts-check
+import { fileURLToPath } from "node:url";
 import { defineConfig, fontProviders } from "astro/config";
 import react from "@astrojs/react";
 import { luzAstro } from "../src/astro/index.ts";
@@ -30,6 +31,16 @@ export default defineConfig({
     },
   ],
   vite: {
+    resolve: {
+      alias: [
+        {
+          find: /^@d00m-gui\/luz\/(.+\.css)$/,
+          replacement: fileURLToPath(
+            new URL("../src/tools/$1", import.meta.url),
+          ),
+        },
+      ],
+    },
     server: {
       fs: {
         allow: [".."],

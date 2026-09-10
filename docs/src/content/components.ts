@@ -1,5 +1,5 @@
 import { getCollection } from "astro:content";
-import { DESIGN_FILES } from "./components.generated";
+import { COMPONENT_FILES } from "./components.generated";
 
 /** Reset-only/structural tags with no meaningful standalone demo. */
 const EXEMPT_ELEMENTS = [
@@ -32,7 +32,7 @@ export interface ComponentDoc {
     | "Surfaces"
     | "Data"
     | "Identity";
-  /** Class names or bare tag selectors from luz's CSS this entry demonstrates — checked against each `DESIGN_FILES` entry's `classes`/`elements`. */
+  /** Class names or bare tag selectors from luz's CSS this entry demonstrates — checked against each `COMPONENT_FILES` entry's `classes`/`elements`. */
   covers: string[];
   /** Copyable source, also used as the live preview unless `preview` is set. */
   html: string;
@@ -102,7 +102,7 @@ export async function loadComponents() {
   }));
 
   const covered = new Set(components.flatMap((c) => c.covers));
-  const uncoveredFiles = DESIGN_FILES.filter((f) => {
+  const uncoveredFiles = COMPONENT_FILES.filter((f) => {
     const tokens = [...f.classes, ...f.elements, ...f.attrs];
     if (tokens.length > 0 && tokens.every((t) => EXEMPT_ELEMENTS.includes(t)))
       return false;
