@@ -46,6 +46,10 @@ ul li {
   margin-left: var(--element-vertical);
   list-style: inside square;
 }
+ol li {
+  margin-left: var(--element-vertical);
+  list-style: inside decimal;
+}
 br {
   float: none;
   clear: both;

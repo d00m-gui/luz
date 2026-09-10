@@ -181,7 +181,7 @@ export function parseColorToOklch(value: string): OklchSeed | null {
     const c = pct(oklch[2]!, 0.4);
     const h = Number.parseFloat(oklch[3]!);
     if ([l, c, h].some(Number.isNaN)) return null;
-    return { l, c, h };
+    return { l: Math.min(1, Math.max(0, l)), c: Math.max(0, c), h };
   }
 
   const oklab = OKLAB_RE.exec(input);
@@ -190,7 +190,11 @@ export function parseColorToOklch(value: string): OklchSeed | null {
     const a = pct(oklab[2]!, 0.4);
     const b = pct(oklab[3]!, 0.4);
     if ([l, a, b].some(Number.isNaN)) return null;
-    return { l, c: Math.hypot(a, b), h: (Math.atan2(b, a) * 180) / Math.PI };
+    return {
+      l: Math.min(1, Math.max(0, l)),
+      c: Math.hypot(a, b),
+      h: (Math.atan2(b, a) * 180) / Math.PI,
+    };
   }
 
   return null;

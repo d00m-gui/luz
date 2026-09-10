@@ -1,3 +1,5 @@
+import { DEFAULT_BREAKPOINTS } from "./breakpoints";
+
 export const VARIANTS: Record<string, string> = {
   open: "[data-open]",
   closed: "[data-closed]",
@@ -34,3 +36,19 @@ export function resolveVariant(name: string): string | undefined {
     ? `[${prefix}-${attr}]`
     : `[${prefix}-${attr}="${value}"]`;
 }
+
+const BREAKPOINT_NAMES = Object.keys(DEFAULT_BREAKPOINTS);
+
+/** Media queries for `sm:`…`2xl:` then `max-sm:`…`max-2xl:`, in emit order. */
+export const MEDIA_VARIANTS: Record<string, string> = Object.fromEntries([
+  ...BREAKPOINT_NAMES.map((name) => [
+    name,
+    `(min-width: ${DEFAULT_BREAKPOINTS[name]}rem)`,
+  ]),
+  ...BREAKPOINT_NAMES.map((name) => [
+    `max-${name}`,
+    `(max-width: calc(${DEFAULT_BREAKPOINTS[name]}rem - 0.02rem))`,
+  ]),
+]);
+
+export const MEDIA_QUERIES: readonly string[] = Object.values(MEDIA_VARIANTS);

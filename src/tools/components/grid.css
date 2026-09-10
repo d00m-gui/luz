@@ -1,0 +1,37 @@
+.grid {
+  --grid-col-size-min: 25rem;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(min(var(--grid-col-size-min), 100%), 1fr)
+  );
+  &.xs {
+    --grid-col-size-min: 9rem;
+  }
+  &.sm {
+    --grid-col-size-min: 12rem;
+  }
+  &.md {
+    --grid-col-size-min: 18rem;
+  }
+  &.lg {
+    --grid-col-size-min: 32rem;
+  }
+  &.overflow {
+    .card {
+      position: relative;
+      .card-meta {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        opacity: 0.4;
+        padding: var(--space-1);
+      }
+      > .card-meta + .card-content {
+        padding-top: calc(var(--space-8) * var(--density));
+      }
+    }
+  }
+}

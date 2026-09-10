@@ -1,6 +1,6 @@
-import type { LuzAstroConfig } from "../src/astro";
+import type { LuzConfig } from "../src";
 
-export const config: LuzAstroConfig = {
+export const config: LuzConfig = {
   primary: "oklch(0.6691 0.1828 40.61)",
   mode: "dark",
   preset: "app",

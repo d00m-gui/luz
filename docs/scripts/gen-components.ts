@@ -163,7 +163,7 @@ function bareTokens(selectors: string[]): {
   };
 }
 
-interface DesignFile {
+interface ComponentFile {
   file: string;
   selectors: string[];
   classes: string[];
@@ -187,7 +187,9 @@ function processCss(css: string): {
 const resetFile = join(TOOLS_DIR, "reset.css");
 const resetResult = processCss(readFileSync(resetFile, "utf8"));
 
-const designFiles: DesignFile[] = listImports(join(TOOLS_DIR, "design.css"))
+const componentFiles: ComponentFile[] = listImports(
+  join(TOOLS_DIR, "components.css"),
+)
   .filter((path) => !basename(path).startsWith("_"))
   .map((path) => ({
     file: basename(path, ".css"),
@@ -197,20 +199,20 @@ const designFiles: DesignFile[] = listImports(join(TOOLS_DIR, "design.css"))
 const allClasses = new Set(resetResult.classes);
 const allElements = new Set(resetResult.elements);
 const allAttrs = new Set(resetResult.attrs);
-for (const f of designFiles) {
+for (const f of componentFiles) {
   f.classes.forEach((c) => allClasses.add(c));
   f.elements.forEach((e) => allElements.add(e));
   f.attrs.forEach((a) => allAttrs.add(a));
 }
-const DESIGN_CLASSES = [...allClasses].sort();
-const DESIGN_ELEMENTS = [...allElements].sort();
-const DESIGN_ATTRS = [...allAttrs].sort();
+const COMPONENT_CLASSES = [...allClasses].sort();
+const COMPONENT_ELEMENTS = [...allElements].sort();
+const COMPONENT_ATTRS = [...allAttrs].sort();
 
 writeFileSync(
   OUT_FILE,
-  `// Generado por \`bun run gen:components\` desde src/tools/{reset,design}.css. No editar a mano.
+  `// Generado por \`bun run gen:components\` desde src/tools/{reset,components}.css. No editar a mano.
 
-export interface DesignFile {
+export interface ComponentFile {
   file: string;
   selectors: readonly string[];
   classes: readonly string[];
@@ -218,15 +220,15 @@ export interface DesignFile {
   attrs: readonly string[];
 }
 
-export const DESIGN_FILES: readonly DesignFile[] = ${JSON.stringify(designFiles, null, 2)};
-export const DESIGN_CLASSES: readonly string[] = ${JSON.stringify(DESIGN_CLASSES, null, 2)};
-export const DESIGN_ELEMENTS: readonly string[] = ${JSON.stringify(DESIGN_ELEMENTS, null, 2)};
-export const DESIGN_ATTRS: readonly string[] = ${JSON.stringify(DESIGN_ATTRS, null, 2)};
+export const COMPONENT_FILES: readonly ComponentFile[] = ${JSON.stringify(componentFiles, null, 2)};
+export const COMPONENT_CLASSES: readonly string[] = ${JSON.stringify(COMPONENT_CLASSES, null, 2)};
+export const COMPONENT_ELEMENTS: readonly string[] = ${JSON.stringify(COMPONENT_ELEMENTS, null, 2)};
+export const COMPONENT_ATTRS: readonly string[] = ${JSON.stringify(COMPONENT_ATTRS, null, 2)};
 `,
 );
 
 console.log(
-  `generated ${OUT_FILE} (${designFiles.length} componentes, ${DESIGN_CLASSES.length} clases, ${DESIGN_ELEMENTS.length} tags, ${DESIGN_ATTRS.length} attrs)`,
+  `generated ${OUT_FILE} (${componentFiles.length} componentes, ${COMPONENT_CLASSES.length} clases, ${COMPONENT_ELEMENTS.length} tags, ${COMPONENT_ATTRS.length} attrs)`,
 );
 
 function titleize(file: string): string {
@@ -247,7 +249,7 @@ for (const name of readdirSync(COMPONENTS_DIR)) {
 }
 
 const stubs: string[] = [];
-for (const f of designFiles) {
+for (const f of componentFiles) {
   const tokens = [...f.classes, ...f.elements, ...f.attrs];
   if (tokens.length > 0 && tokens.every((t) => EXEMPT_ELEMENTS.includes(t)))
     continue;

@@ -8,6 +8,7 @@ covers:
   - radial-trigger
   - radial-menu
   - radial-item
+  - fixed
 ---
 
 <div class="element row">
@@ -57,3 +58,41 @@ covers:
     <i class="icon nf nf-fa-plus"></i>
   </button>
 </div>
+
+## FAB
+
+<div id="radial-fab" popover class="radial-menu fixed">
+  <button popovertarget="radial-fab" popovertargetaction="hide" class="radial-item" style="--radial-angle: -150deg;">
+    <i class="icon nf nf-fa-pencil"></i><span>Nota</span>
+  </button>
+  <button popovertarget="radial-fab" popovertargetaction="hide" class="radial-item" style="--radial-angle: -90deg;">
+    <i class="icon nf nf-fa-camera"></i><span>Foto</span>
+  </button>
+</div>
+<button popovertarget="radial-fab" class="radial-trigger fixed primary" aria-label="Crear">
+  <i class="icon nf nf-fa-plus"></i>
+</button>
+<!--preview-->
+<div class="demo-fab">
+  <div id="radial-fab" popover class="radial-menu fixed">
+    <button popovertarget="radial-fab" popovertargetaction="hide" class="radial-item" style="--radial-angle: -150deg;">
+      <i class="icon nf nf-fa-pencil"></i><span>Nota</span>
+    </button>
+    <button popovertarget="radial-fab" popovertargetaction="hide" class="radial-item" style="--radial-angle: -90deg;">
+      <i class="icon nf nf-fa-camera"></i><span>Foto</span>
+    </button>
+  </div>
+  <button popovertarget="radial-fab" class="radial-trigger fixed primary" aria-label="Crear">
+    <i class="icon nf nf-fa-plus"></i>
+  </button>
+</div>
+<style>
+  .demo-fab {
+    position: relative;
+    height: 12rem;
+    contain: paint;
+    border: var(--border-width) dashed var(--element-border-color);
+    border-radius: var(--border-radius);
+  }
+</style>
+<!--/preview-->

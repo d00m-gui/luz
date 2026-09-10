@@ -1,0 +1,32 @@
+.stat {
+  min-width: 0;
+  padding: var(--space-5);
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  --current-bg: var(--scheme, var(--element-background));
+  background-color: var(--current-bg);
+  color: var(--current-color);
+}
+.stat-value {
+  display: block;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-bold-weight);
+}
+.stat-label {
+  display: block;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-bold-weight);
+}
+.stat-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  font-size: var(--font-size-h5);
+  font-weight: var(--font-weight);
+  &.up {
+    color: var(--green-50);
+  }
+  &.down {
+    color: var(--red-50);
+  }
+}

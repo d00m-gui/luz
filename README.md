@@ -18,7 +18,7 @@ luz doesn't try to be a full Tailwind replacement, and it doesn't try to be a co
 - **Named type scale, numbered spacing scale** — `text-xs`…`text-3xl` (exponential, for font-size) and `space-N` (linear, for padding/margin/gap/width/height) are kept separate rather than one scale awkwardly serving both.
 - **A closed-vocabulary utility engine** — Tailwind-nomenclature-compatible classes (`p-4`, `bg-primary-600`, `open:bg-primary-600`), scanned from your source and emitted as static CSS at build time. No arbitrary values, no bracket syntax, nothing shipped that isn't used. Variant selectors also parse Tailwind's arbitrary `data-[attr=value]:`/`aria-[attr=value]:` syntax generically, so component source copied from Radix- or Base UI-based kits (shadcn, animate-ui, ...) matches without luz needing to know which library it came from.
 - **A shadcn/ui token bridge** — real, unmodified shadcn component source (Base UI variant) can consume luz's tokens directly, via a small `:root` alias block generated automatically.
-- **Framework adapters** — Astro (`luz/astro`) and Vite (`luz/vite`), either as a static `.css` file or as a virtual module (`output: "virtual"`, no file on disk — see `fixtures/tanstack-dashboard`).
+- **One `@import`, any Vite framework** — add `luzVite(config)` (or `luzAstro(config)` in Astro) and write `@import "@d00m-gui/luz/luz.css";` in your CSS; the plugin expands the theme, bridge and scanned utilities right there, Tailwind v4 style — nothing written to disk. Compose your own bundle from `reset.css`, `components/<name>.css`, `theme.css`, `bridge.css` and `utilities.css` instead (see `fixtures/tanstack-dashboard`).
 - **Tiny & typed** — ships ESM with full TypeScript types, no runtime CSS framework required.
 
 ## Installation
@@ -27,6 +27,41 @@ luz doesn't try to be a full Tailwind replacement, and it doesn't try to be a co
 bun add @d00m-gui/luz
 # or: npm install @d00m-gui/luz / pnpm add @d00m-gui/luz
 ```
+
+## Usage
+
+Register the plugin (any Vite-based framework) or the Astro integration:
+
+```ts
+// vite.config.ts
+import { luzVite } from "@d00m-gui/luz/vite";
+export default defineConfig({ plugins: [luzVite({ primary: "#f28c20" })] });
+
+// astro.config.mjs
+import { luzAstro } from "@d00m-gui/luz/astro";
+export default defineConfig({ integrations: [luzAstro({ primary: "#f28c20" })] });
+```
+
+Then import luz from your own stylesheet — the plugin expands the theme, the shadcn bridge and the utilities scanned from your source right where the import sits:
+
+```css
+/* app.css */
+@import "@d00m-gui/luz/luz.css";
+```
+
+`luz.css` is the everything bundle (reset + components + theme + bridge + utilities). Pick pieces instead when you want less:
+
+```css
+@import "@d00m-gui/luz/reset.css";
+@import "@d00m-gui/luz/theme.css";
+@import "@d00m-gui/luz/components/button.css";
+@import "@d00m-gui/luz/components/card.css";
+@import "@d00m-gui/luz/utilities.css";
+```
+
+`reset.css`, `components.css` and `components/<name>.css` are static files; `theme.css`, `bridge.css` and `utilities.css` are generated from your config and code. The lower-level form is the `@luz theme;` / `@luz bridge;` / `@luz utilities;` directive, which you can place anywhere in your CSS. `@import … layer(name)` is honored.
+
+`luz(config)` itself is pure and runs anywhere (browser, edge) if you need the tokens or the theme CSS without a bundler.
 
 ## Examples
 

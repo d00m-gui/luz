@@ -1,0 +1,55 @@
+.skeleton {
+  border-radius: var(--border-radius);
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-bg) 25%,
+    var(--skeleton-shine) 50%,
+    var(--skeleton-bg) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  &.text {
+    height: 1em;
+    width: var(--skeleton-width, 100%);
+  }
+  &.avatar,
+  &.badge {
+    display: inline-block;
+    padding: 0;
+    border: 0;
+    color: transparent;
+  }
+  &.avatar {
+    width: var(--space-10);
+    height: var(--space-10);
+    border-radius: 100%;
+    &.sm {
+      width: var(--space-8);
+      height: var(--space-8);
+    }
+    &.lg {
+      width: var(--space-14);
+      height: var(--space-14);
+    }
+  }
+  &.badge {
+    width: var(--space-16);
+    font-size: var(--font-size-small);
+    line-height: var(--line-height);
+    height: calc(1lh + var(--size-unit) * 2 + var(--border-width) * 2);
+    border-radius: calc(var(--size-unit) * 20);
+  }
+}
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+  }
+}

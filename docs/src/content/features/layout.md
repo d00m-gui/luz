@@ -19,7 +19,7 @@ examples:
       })
 ---
 
-`background`/`foreground` sobreescriben los shades de `neutrals` que
+`background`/`foreground` sobreescriben los shades de `neutral` que
 `luz` usa por defecto (900/100 o 100/900 según `mode`) — útil para fijar
 un fondo que no siga la escala de grises generada. `spacing` reemplaza
 el gutter derivado de `base` sin afectar el resto de la escala de

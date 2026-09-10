@@ -35,3 +35,14 @@ covers:
   <input class="tab-input" type="checkbox" id="format-underline" />
   <label class="tab" for="format-underline"><u>U</u></label>
 </div>
+
+## Con icono y badge
+
+<div class="tabs">
+  <input class="tab-input" type="radio" name="ks-tabs-badge" id="ks-tab-inbox" checked />
+  <label class="tab" for="ks-tab-inbox"><i class="icon nf nf-fa-inbox"></i> Inbox <span class="badge">3</span></label>
+  <input class="tab-input" type="radio" name="ks-tabs-badge" id="ks-tab-sent" />
+  <label class="tab" for="ks-tab-sent"><i class="icon nf nf-fa-paper_plane"></i> Enviados</label>
+  <input class="tab-input" type="radio" name="ks-tabs-badge" id="ks-tab-spam" />
+  <label class="tab" for="ks-tab-spam"><i class="icon nf nf-fa-ban"></i> Spam <span class="badge neutral">12</span></label>
+</div>

@@ -3,6 +3,12 @@ title: Element
 category: Surfaces
 covers:
   - element
+  - pair
+  - row
+  - column
+  - wire
+  - auto
+  - fixed
 wip: true
 ---
 
@@ -35,6 +41,18 @@ wip: true
   <div class="card">
     <p>2</p>
   </div>
+</div>
+
+## Wire
+
+<div class="element row wire">
+  <div class="fixed" style="flex-basis: 6rem;">Sidebar</div>
+  <div class="auto">Content</div>
+  <div class="fixed" style="flex-basis: 6rem;">Aside</div>
+</div>
+<div class="element column wire" style="margin-top: var(--space-3);">
+  <div>Header</div>
+  <div>Footer</div>
 </div>
 
 <style>

@@ -5,6 +5,10 @@ covers:
   - shell
   - shell-pane
   - shell-body
+  - fixed
+  - vertical
+  - app
+  - responsive
 ---
 
 <div class="shell">
@@ -53,9 +57,58 @@ covers:
   </div>
 </div>
 
+## App
+
+<div class="demo-shell-app">
+  <div class="shell app">
+    <nav class="shell-pane fixed" style="--shell-pane-width: 11rem;">
+      <div class="list nav">
+        <a class="list-row" aria-current="page"><span class="list-col-grow">Resumen</span><span class="status success"></span></a>
+        <a class="list-row"><span class="list-col-grow">Equipos</span></a>
+        <a class="list-row"><span class="list-col-grow">Ajustes</span></a>
+      </div>
+    </nav>
+    <div class="shell-pane">
+      <div class="panel-header top">
+        <span class="panel-header-title"><strong>Resumen</strong></span>
+        <span class="panel-shrink avatar sm">CS</span>
+      </div>
+      <div class="shell-body">
+        <div class="page" style="padding: 0;">
+          <header class="page-header">
+            <div class="page-header-title">
+              <h1>Hola, Carlos</h1>
+              <p>Un vistazo a la semana.</p>
+            </div>
+          </header>
+          <div class="grid xs">
+            <div class="stat"><span class="stat-label">deploys</span><span class="stat-value">12</span></div>
+            <div class="stat"><span class="stat-label">errores</span><span class="stat-value">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+## Responsive
+
+<div class="shell responsive" style="--shell-height: 14rem;">
+  <nav class="shell-pane fixed list" style="--shell-pane-width: 9rem;">
+    <a class="list-row" aria-current="page">Recibidos</a>
+    <a class="list-row">Enviados</a>
+  </nav>
+  <div class="shell-pane">
+    <div class="shell-body">
+      <p><strong>Angostá la ventana</strong></p>
+      <p class="stat-label">La barra lateral pasa arriba y el separador se vuelve horizontal.</p>
+    </div>
+  </div>
+</div>
+
 ## Dashboard
 
-<div class="shell" style="height: 24rem;">
+<div class="shell" style="--shell-height: 24rem;">
   <nav class="drawer-sidebar" style="--drawer-width: 9rem;">
     <div class="list">
       <a class="list-row" aria-current="page">Resumen</a>
@@ -71,7 +124,7 @@ covers:
       <span class="panel-shrink avatar sm">CS</span>
     </div>
     <div class="shell-body" style="display: flex; flex-direction: column; gap: var(--space-4);">
-      <div class="grid" style="--grid-col-size-min: 8rem;">
+      <div class="grid xs">
         <div class="stat solid primary"><span class="stat-label">ventas</span><span class="stat-value">312</span></div>
         <div class="stat"><span class="stat-label">activos</span><span class="stat-value">48</span></div>
         <div class="stat"><span class="stat-label">errores</span><span class="stat-value">2</span></div>
@@ -94,7 +147,7 @@ covers:
 
 ## Email
 
-<div class="shell" style="height: 16rem;">
+<div class="shell" style="--shell-height: 16rem;">
   <nav class="shell-pane fixed list" style="--shell-pane-width: 8rem;">
     <a class="list-row" aria-current="page">Recibidos</a>
     <a class="list-row">Enviados</a>
@@ -119,7 +172,7 @@ covers:
 
 ## E-commerce
 
-<div class="shell" style="height: 18rem;">
+<div class="shell" style="--shell-height: 18rem;">
   <nav class="shell-pane fixed list" style="--shell-pane-width: 8rem; padding: var(--space-3);">
     <span class="list-title">Categoría</span>
     <label class="list-row"><input type="checkbox" checked /> <span class="list-col-grow">Sillas</span></label>
@@ -127,7 +180,7 @@ covers:
   </nav>
   <div class="shell-pane">
     <div class="shell-body">
-      <div class="grid" style="--grid-col-size-min: 9rem;">
+      <div class="grid xs">
         <div class="card">
           <div class="card-content">
             <strong>Silla Oslo</strong>
@@ -153,7 +206,7 @@ covers:
 
 ## Landing
 
-<div class="shell vertical" style="height: 24rem;">
+<div class="shell vertical" style="--shell-height: 24rem;">
   <div class="shell-pane">
     <div class="shell-body" style="padding: 0; display: flex; flex-direction: column; gap: var(--space-5);">
       <div class="hero" style="padding-block: var(--space-6);">
@@ -167,7 +220,7 @@ covers:
         </div>
       </div>
       <div style="padding: 0 var(--space-4);">
-        <div class="grid" style="--grid-col-size-min: 8rem;">
+        <div class="grid xs">
           <div class="card"><div class="card-content"><strong>Rápido</strong><span class="stat-label">Sin config.</span></div></div>
           <div class="card"><div class="card-content"><strong>Liviano</strong><span class="stat-label">CSS puro.</span></div></div>
           <div class="card"><div class="card-content"><strong>Tipado</strong><span class="stat-label">Tokens con TS.</span></div></div>
@@ -193,7 +246,7 @@ covers:
 
 ## Settings
 
-<div class="shell" style="height: 16rem;">
+<div class="shell" style="--shell-height: 16rem;">
   <nav class="shell-pane fixed list" style="--shell-pane-width: 8rem;">
     <a class="list-row" aria-current="page">Perfil</a>
     <a class="list-row">Notificaciones</a>
@@ -209,7 +262,7 @@ covers:
 
 ## Chat
 
-<div class="shell vertical" style="height: 22rem;">
+<div class="shell vertical" style="--shell-height: 22rem;">
   <div class="shell-pane">
     <div class="panel-header top">
       <span class="avatar sm">AI</span>
@@ -246,3 +299,10 @@ covers:
     </form>
   </div>
 </div>
+
+<style>
+  .demo-shell-app {
+    height: 20rem;
+    border: var(--border-width) dashed var(--element-border-color);
+  }
+</style>

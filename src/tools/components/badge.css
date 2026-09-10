@@ -1,0 +1,39 @@
+.badge {
+  --current-bg: var(--scheme, var(--badge-bg));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: calc(var(--size-unit) * 1) calc(var(--size-unit) * 6);
+  border-radius: calc(var(--size-unit) * 20);
+  font-size: var(--font-size-small);
+  font-weight: var(--font-bold-weight);
+  line-height: var(--line-height);
+  background-color: oklch(from var(--current-bg) l c h / 26%);
+  border: var(--border-width) solid var(--current-bg);
+  color: oklch(from var(--current-bg) calc(l + 0.25) c h);
+  transition: var(--transition);
+  gap: var(--space-1);
+  &.ghost {
+    background-color: transparent;
+    color: var(--on-badge-ghost);
+    border: var(--border-width) solid var(--border-color);
+  }
+  &.pill {
+    border-radius: calc(var(--size-unit) * 40);
+    padding-inline: var(--space-4);
+  }
+  a,
+  button,
+  .btn,
+  .button {
+    &:hover {
+      transform: scale(1.03);
+    }
+    &:not(.ghost):hover {
+      background-color: oklch(from var(--current-bg) l c h / 36%);
+    }
+    &:active {
+      transform: scale(0.97);
+    }
+  }
+}

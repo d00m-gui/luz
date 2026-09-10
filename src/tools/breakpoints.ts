@@ -12,9 +12,9 @@ export type BreakpointsConfig =
   | Partial<Record<string, string | number>>
   | false;
 
-/** Renders `@custom-media --breakpoint-{name} (min-width: ...);` for each entry, merging `config` over `DEFAULT_BREAKPOINTS`. `false` disables emission. */
+/** Renders `@custom-media --breakpoint-{name} (min-width: ...);` for each entry, merging `config` over `DEFAULT_BREAKPOINTS`. Emits nothing unless `config` is an object (`@custom-media` needs a consumer-side compiler; lightningcss warns on it). */
 export function luzCustomMedia(config: BreakpointsConfig | undefined): string {
-  if (config === false) return "";
+  if (config === undefined || config === false) return "";
   const merged: Record<string, string | number | undefined> = {
     ...DEFAULT_BREAKPOINTS,
     ...config,

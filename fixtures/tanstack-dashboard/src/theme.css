@@ -1,0 +1,113 @@
+:is(.btn, button):where(
+  :not(
+    .ghost,
+    .outline,
+    .badge,
+    .tab,
+    .menu-item,
+    .list-row,
+    .status,
+    .drawer-trigger,
+    .radial-trigger,
+    .radial-item
+  )
+) {
+  box-shadow:
+    inset 0 1px 0 oklch(from var(--foreground) l c h / 8%),
+    0 3px 1px -2px color-mix(in oklch, var(--neutral-950) 30%, transparent);
+}
+:is(.btn, button):is([data-role="apply"], .apply, .cta) {
+  background-image: linear-gradient(
+    180deg,
+    oklch(from var(--current-bg) calc(l + 0.04) c h),
+    var(--current-bg)
+  );
+  &:hover {
+    background-image: linear-gradient(
+      180deg,
+      oklch(from var(--current-bg) calc(l + 0.06) c h),
+      oklch(from var(--current-bg) calc(l + 0.02) c h)
+    );
+  }
+}
+
+.hero {
+  --fx-blur: 4rem;
+  --hero-min-height: 14rem;
+}
+
+.panel-header.app-topbar,
+.panel-header.app-statusbar {
+  background-color: oklch(from var(--element-background) l c h / 70%);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.app-sidebar {
+  --shell-pane-width: 15rem;
+  background-color: var(--element-background);
+}
+.list.nav .list-row[aria-current="page"] {
+  background-color: oklch(from var(--scheme, var(--foreground)) l c h / 14%);
+  color: var(--foreground);
+}
+.app-search input {
+  width: 14rem;
+}
+.radial-trigger.fixed {
+  inset-block-end: var(--space-16);
+  width: var(--space-11);
+  height: var(--space-11);
+  padding: 0;
+}
+
+.stat-value {
+  font-family: var(--font-monospace);
+  font-variant-numeric: tabular-nums;
+}
+table td {
+  font-variant-numeric: tabular-nums;
+}
+
+.app-files {
+  --shell-height: 28rem;
+  @media (max-width: 48rem) {
+    --shell-height: auto;
+  }
+  > .shell-pane.fixed {
+    --shell-pane-width: 16rem;
+  }
+}
+.app-projects .card-cover {
+  --ratio: 6 / 1;
+  background-image: linear-gradient(
+    120deg,
+    oklch(from var(--scheme) l c h / 55%),
+    oklch(from var(--scheme) calc(l - 0.2) c h / 15%)
+  );
+}
+.app-composer .element.pair {
+  --element-width-min: 12rem;
+}
+.app-invites {
+  --scroll-max: 18rem;
+  --lazy-render-size: 18rem;
+}
+.app-volume {
+  --range-length: 6rem;
+  --range-steps: 5;
+}
+.app-density {
+  --range-steps: 4;
+}
+.app-quick-actions {
+  --radial-distance: 6.5rem;
+  > .radial-item:nth-child(1) {
+    --radial-angle: 180deg;
+  }
+  > .radial-item:nth-child(2) {
+    --radial-angle: 225deg;
+  }
+  > .radial-item:nth-child(3) {
+    --radial-angle: 270deg;
+  }
+}

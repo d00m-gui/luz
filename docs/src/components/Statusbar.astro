@@ -1,6 +1,8 @@
 ---
-import { readFileSync } from "node:fs";
 import { gzipSync } from "node:zlib";
+import { fileURLToPath } from "node:url";
+import { buildCssSections, composeCss } from "../../../src/tools/css.ts";
+import { config } from "../../luz.config.ts";
 import LuzLogo from "./LuzLogo.astro";
 import { GamutLegend } from "./GamutLegend";
 import pkg from "../../../package.json" with { type: "json" };
@@ -12,11 +14,9 @@ try {
   }
 } catch {}
 
-let cssWeight = "loading";
-try {
-  const css = readFileSync(new URL("../styles/luz.css", import.meta.url));
-  cssWeight = `${(gzipSync(css).length / 1024).toFixed(1)}KB`;
-} catch {}
+const srcDir = fileURLToPath(new URL("..", import.meta.url));
+const luzCss = composeCss(buildCssSections(config, srcDir));
+const cssWeight = `${(gzipSync(luzCss).length / 1024).toFixed(1)}KB`;
 ---
 
 <div class="main-statusbar panel-header bottom">
@@ -30,9 +30,7 @@ try {
     <span class="status" style={`color: var(--blue-400)`}></span>
   </div>
   <div class="space"></div>
-  <span title="luz.css, gzip"
-    >{cssWeight === "loading" ? <span aria-busy="true" /> : cssWeight}</span
-  >
+  <span title="luz.css, gzip">{cssWeight}</span>
   <span id="perf-stat" title="first contentful paint / tiempo de transición"
     ><span aria-busy="true"></span> fcp</span
   >

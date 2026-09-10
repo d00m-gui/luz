@@ -1,7 +1,6 @@
 import type { LuzTokens } from "../luz";
 import { withShadeFallback } from "./shade-fallback";
-import { resolveVariant } from "./variants";
-import { scanCandidates } from "./scan";
+import { MEDIA_QUERIES, MEDIA_VARIANTS, resolveVariant } from "./variants";
 
 interface ScaleNamespace {
   kind: "scale";
@@ -55,10 +54,11 @@ const BRIDGE_COLOR_NAMES = new Set([
   "destructive",
   "destructive-foreground",
   "input",
+  "border",
   "ring",
 ]);
 
-export function buildUtilityRegistry(): UtilityNamespace[] {
+function buildUtilityRegistry(): UtilityNamespace[] {
   return [
     { kind: "scale", prefix: "p", scaleFamily: "space", cssProps: ["padding"] },
     {
@@ -149,6 +149,44 @@ export function buildUtilityRegistry(): UtilityNamespace[] {
     },
     { kind: "scale", prefix: "w", scaleFamily: "space", cssProps: ["width"] },
     { kind: "scale", prefix: "h", scaleFamily: "space", cssProps: ["height"] },
+    {
+      kind: "scale",
+      prefix: "size",
+      scaleFamily: "space",
+      cssProps: ["width", "height"],
+    },
+    {
+      kind: "scale",
+      prefix: "min-h",
+      scaleFamily: "space",
+      cssProps: ["min-height"],
+    },
+    {
+      kind: "scale",
+      prefix: "max-h",
+      scaleFamily: "space",
+      cssProps: ["max-height"],
+    },
+    { kind: "scale", prefix: "top", scaleFamily: "space", cssProps: ["top"] },
+    {
+      kind: "scale",
+      prefix: "right",
+      scaleFamily: "space",
+      cssProps: ["right"],
+    },
+    {
+      kind: "scale",
+      prefix: "bottom",
+      scaleFamily: "space",
+      cssProps: ["bottom"],
+    },
+    { kind: "scale", prefix: "left", scaleFamily: "space", cssProps: ["left"] },
+    {
+      kind: "scale",
+      prefix: "inset",
+      scaleFamily: "space",
+      cssProps: ["inset"],
+    },
     ...TEXT_SCALE_LITERALS,
     { kind: "color", prefix: "bg", cssProps: ["background-color"] },
     { kind: "color", prefix: "text", cssProps: ["color"] },
@@ -166,6 +204,11 @@ export function buildUtilityRegistry(): UtilityNamespace[] {
       className: "rounded-none",
       declarations: [["border-radius", "0"]],
     },
+    {
+      kind: "literal",
+      className: "rounded-full",
+      declarations: [["border-radius", "9999px"]],
+    },
     ...LAYOUT_LITERALS,
     ...MULTI_DECL_LITERALS,
   ];
@@ -180,7 +223,7 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
       ["border-style", "solid"],
     ],
     dynamic: (tokens) => {
-      const primaryFamily = `${tokens.settings.prefix ?? ""}${tokens.settings.name}`;
+      const primaryFamily = tokens.settings.name;
       return [
         ["border-width", "var(--border-width)"],
         ["border-style", "solid"],
@@ -266,6 +309,7 @@ const LAYOUT_LITERALS: LiteralNamespace[] = (
     ["inline-flex", "display", "inline-flex"],
     ["grid", "display", "grid"],
     ["inline-grid", "display", "inline-grid"],
+    ["col-span-full", "grid-column", "1 / -1"],
     ["block", "display", "block"],
     ["inline-block", "display", "inline-block"],
     ["hidden", "display", "none"],
@@ -297,9 +341,18 @@ const LAYOUT_LITERALS: LiteralNamespace[] = (
     ["h-full", "height", "100%"],
     ["h-fit", "height", "fit-content"],
     ["h-auto", "height", "auto"],
+    ["w-screen", "width", "100vw"],
+    ["h-screen", "height", "100vh"],
     ["min-w-0", "min-width", "0"],
     ["max-w-full", "max-width", "100%"],
+    ["min-h-screen", "min-height", "100vh"],
+    ["max-h-full", "max-height", "100%"],
     ["inset-0", "inset", "0"],
+    ["p-0", "padding", "0"],
+    ["m-0", "margin", "0"],
+    ["gap-0", "gap", "0"],
+    ["aspect-square", "aspect-ratio", "1 / 1"],
+    ["aspect-video", "aspect-ratio", "16 / 9"],
     ["overflow-hidden", "overflow", "hidden"],
     ["overflow-auto", "overflow", "auto"],
     ["overflow-visible", "overflow", "visible"],
@@ -318,6 +371,8 @@ const LAYOUT_LITERALS: LiteralNamespace[] = (
   className,
   declarations: [[prop, value]] as const,
 }));
+
+const UTILITY_REGISTRY = buildUtilityRegistry();
 
 const SIZE_STEP_RE = /^[1-9]\d*$/;
 
@@ -371,9 +426,8 @@ function resolveBaseUtility(
   if (opacityPercent !== undefined && opacityPercent > 100) return null;
   const target = opacityMatch ? opacityMatch[1]! : base;
 
-  const registry = buildUtilityRegistry();
-  for (let i = 0; i < registry.length; i++) {
-    const ns = registry[i]!;
+  for (let i = 0; i < UTILITY_REGISTRY.length; i++) {
+    const ns = UTILITY_REGISTRY[i]!;
     if (ns.kind === "literal") {
       if (opacityPercent === undefined && target === ns.className) {
         return {
@@ -427,10 +481,16 @@ function resolveBaseUtility(
 export interface ResolvedUtility {
   selector: string;
   css: string;
+  /** Media query the rule is wrapped in, for breakpoint variants. */
+  media?: string;
+  namespaceIndex: number;
+  hasVariant: boolean;
 }
 
 function escapeClassSelector(candidate: string): string {
-  return candidate.replace(/[:/[\]=]/g, "\\$&");
+  return candidate
+    .replace(/[:/[\]=]/g, "\\$&")
+    .replace(/^\d/, (digit) => `\\3${digit} `);
 }
 
 export function resolveUtility(
@@ -438,6 +498,11 @@ export function resolveUtility(
   tokens: LuzTokens,
 ): ResolvedUtility | null {
   const parts = candidate.split(":");
+  if (parts.length > 3) return null;
+
+  const media: string | undefined =
+    parts.length > 1 ? MEDIA_VARIANTS[parts[0]!] : undefined;
+  if (media !== undefined) parts.shift();
   if (parts.length > 2) return null;
 
   let variantSelector = "";
@@ -460,57 +525,49 @@ export function resolveUtility(
   const css = resolved.declarations
     .map(([prop, value]) => `${prop}: ${value};`)
     .join(" ");
-  return { selector, css };
-}
-
-function sortKey(
-  candidate: string,
-  tokens: LuzTokens,
-): [number, number, string] {
-  const parts = candidate.split(":");
-  const base = parts.length === 2 ? parts[1]! : parts[0]!;
-  const hasVariant = parts.length === 2 ? 1 : 0;
-  const resolved = resolveBaseUtility(base, tokens);
-  return [
-    resolved?.namespaceIndex ?? Number.MAX_SAFE_INTEGER,
-    hasVariant,
-    candidate,
-  ];
+  return {
+    selector,
+    css,
+    media,
+    namespaceIndex: resolved.namespaceIndex,
+    hasVariant: variantSelector.length > 0,
+  };
 }
 
 export function emitUtilitiesCSS(
   candidates: Set<string>,
   tokens: LuzTokens,
 ): string {
-  const resolved = new Map<string, ResolvedUtility>();
+  const resolved: ResolvedUtility[] = [];
   for (const candidate of candidates) {
-    if (resolved.has(candidate)) continue;
     const utility = resolveUtility(candidate, tokens);
-    if (utility) resolved.set(candidate, utility);
+    if (utility) resolved.push(utility);
   }
 
-  const ordered = [...resolved.keys()].sort((a, b) => {
-    const ka = sortKey(a, tokens);
-    const kb = sortKey(b, tokens);
-    if (ka[0] !== kb[0]) return ka[0] - kb[0];
-    if (ka[1] !== kb[1]) return ka[1] - kb[1];
-    return ka[2] < kb[2] ? -1 : ka[2] > kb[2] ? 1 : 0;
+  resolved.sort((a, b) => {
+    const mediaA = a.media === undefined ? -1 : MEDIA_QUERIES.indexOf(a.media);
+    const mediaB = b.media === undefined ? -1 : MEDIA_QUERIES.indexOf(b.media);
+    if (mediaA !== mediaB) return mediaA - mediaB;
+    if (a.namespaceIndex !== b.namespaceIndex)
+      return a.namespaceIndex - b.namespaceIndex;
+    if (a.hasVariant !== b.hasVariant) return a.hasVariant ? 1 : -1;
+    return a.selector < b.selector ? -1 : a.selector > b.selector ? 1 : 0;
   });
 
-  return ordered
-    .map((candidate) => {
-      const { selector, css } = resolved.get(candidate)!;
-      return `${selector} { ${css} }`;
-    })
-    .join("\n");
-}
-
-export function scanAndEmitUtilities(options: {
-  root: string;
-  tokens: LuzTokens;
-  extensions?: string[];
-}): string {
-  const { root, tokens, extensions } = options;
-  const candidates = scanCandidates(root, extensions);
-  return emitUtilitiesCSS(candidates, tokens);
+  const lines: string[] = [];
+  let openMedia: string | undefined;
+  for (const { selector, css, media } of resolved) {
+    if (media !== openMedia) {
+      if (openMedia !== undefined) lines.push("}");
+      if (media !== undefined) lines.push(`@media ${media} {`);
+      openMedia = media;
+    }
+    lines.push(
+      media === undefined
+        ? `${selector} { ${css} }`
+        : `  ${selector} { ${css} }`,
+    );
+  }
+  if (openMedia !== undefined) lines.push("}");
+  return lines.join("\n");
 }

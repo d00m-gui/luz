@@ -1,4 +1,3 @@
-import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 
 import { tanstackStart } from "@tanstack/react-start/plugin/vite";
@@ -12,12 +11,7 @@ const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
-
-    luzVite({
-      ...luzConfig,
-      path: fileURLToPath(new URL("src/luz.css", import.meta.url)),
-      output: "virtual",
-    }),
+    luzVite(luzConfig),
     tanstackStart(),
     viteReact(),
   ],

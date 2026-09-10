@@ -15,6 +15,16 @@ covers:
   <div class="alert contrast">Contrast notice</div>
 </div>
 
+## Con acción
+
+<div class="demo-alerts">
+  <div class="alert warning">
+    <span>Hay cambios sin guardar.</span>
+    <button class="sm">Descartar</button>
+    <button class="sm danger">Guardar</button>
+  </div>
+</div>
+
 <style>
   .demo-alerts {
     display: flex;

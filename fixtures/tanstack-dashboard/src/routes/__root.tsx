@@ -1,7 +1,6 @@
 import { HeadContent, Scripts, createRootRoute } from "@tanstack/react-router";
 
 import appCss from "../styles.css?url";
-import "virtual:luz.css";
 
 export const Route = createRootRoute({
   head: () => ({
@@ -14,7 +13,7 @@ export const Route = createRootRoute({
         content: "width=device-width, initial-scale=1",
       },
       {
-        title: "luz — TanStack Dashboard fixture",
+        title: "luz — dashboard",
       },
     ],
     links: [
@@ -25,7 +24,7 @@ export const Route = createRootRoute({
       },
       {
         rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=Datatype:wght@400;700&display=swap",
+        href: "https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap",
       },
       {
         rel: "stylesheet",

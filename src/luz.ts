@@ -7,6 +7,7 @@ import {
   luzHarmonyColorSeeds,
   luzHarmonyColors,
   luzOnColor,
+  luzPaletteSeeds,
   luzShadesByHue,
   nearestSchemeWeight,
   resolveBakedShade,
@@ -71,12 +72,12 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   name?: string;
   /** Base color for the secondary palette. Default: derived from `primary` per `harmony`. */
   secondary?: string;
-  /** Base color for the tertiary palette. Default: derived from `primary` per `harmony` when it defines one (`"monochrome"`, `"triad"`, `"analogous"`); otherwise same as `neutrals` (`"complementary"` has no third color). */
+  /** Base color for the tertiary palette. Default: derived from `primary` per `harmony` when it defines one (`"monochrome"`, `"triad"`, `"analogous"`); otherwise same as `neutral` (`"complementary"` has no third color). */
   tertiary?: string;
   /** Base color for the quaternary palette. Default: derived from `primary` per `harmony` when it defines one (only `"analogous"` has a fourth color); otherwise `primary`'s own hue at a fixed low lightness — an "ink" shade in the brand hue. */
   quaternary?: string;
   /**
-   * Color harmony used to derive `secondary`/`tertiary`/`quaternary` from `primary` when they aren't set explicitly. A slot a harmony doesn't define (see `tertiary`/`quaternary`) falls back to `neutrals`/an "ink" shade instead.
+   * Color harmony used to derive `secondary`/`tertiary`/`quaternary` from `primary` when they aren't set explicitly. A slot a harmony doesn't define (see `tertiary`/`quaternary`) falls back to `neutral`/an "ink" shade instead.
    * @default "complementary"
    * @param "complementary" primary + secondary, hue rotated 180°
    * @param "analogous" primary + secondary/tertiary/quaternary, hue rotated 30°/60°/90°
@@ -92,9 +93,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
    * @param "auto" both palettes emitted in `:root` via `light-dark()`, resolved per `prefers-color-scheme`
    */
   mode?: "light" | "dark" | "auto";
-  /** Custom-property name for the neutral/gray palette. Default `"neutral"`. */
-  neutrals?: string;
-  /** Fraction (0–1) of `primary`'s chroma carried into the neutral/gray palette. `0` = pure gray, `1` = full tint. Default `0.2`. */
+  /** Fraction (0–1) of `primary`'s chroma carried into the neutral/gray palette. `0` = pure gray, `1` = full tint. Default `0`. */
   neutralTint?: number;
   /** Fraction (0–1) of `secondary`/`tertiary`/`quaternary`'s own chroma carried into their `surface-*` scale (the muted background each feeds to the `.surface-*` utility classes) — independent of `neutralTint`. Default `0.4`. */
   surfaceTint?: number;
@@ -121,17 +120,17 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
       >;
   /** Chroma multiplier (0–1) applied to every `scheme-*` color on top of whichever shade `schemeShade`/`schemeLightness` picks — the peak-chroma `-500` shade of a saturated hue can read too loud for `.btn`/`.badge`/`.alert`. `1` (default) leaves it untouched; same mechanism as `muted()`'s `anchor-*` (fixed at `0.6`), just a knob instead of a constant. */
   schemeChroma?: number;
-  /** Prepended to every generated custom-property name (e.g. `"luz-"` → `--luz-primary-500`). Default `""`. */
-  prefix?: string;
+  /** Selector the theme block (`color-scheme` + every custom property) is emitted under. Default `":root"`. */
+  selector?: string;
   /** Default `transition` shorthand applied via setup rules. Default `"all ease 200ms"`. */
   transition?: string;
   /** Default `box-shadow` token. Default `"none"`. */
   "box-shadow"?: string;
   /** `--spacing` token override (page-level gutter). Default derived from `base`. */
   spacing?: string;
-  /** `--background` override. Default: `neutrals` 900/100 shade depending on `mode`. */
+  /** `--background` override. Default: `neutral` 900/100 shade depending on `mode`. */
   background?: string;
-  /** `--foreground` override. Default: `neutrals` 100/900 shade depending on `mode`. */
+  /** `--foreground` override. Default: `neutral` 100/900 shade depending on `mode`. */
   foreground?: string;
   /**
    * Multiplier on element padding (`--element-vertical`/`--element-horizontal`, buttons/fields/forms) and form-control chrome size (`range` track/thumb). Emitted as `--density`, a live `calc()` factor (not baked at generation time) — overridable per subtree/instance by redeclaring `--density` locally, same as any custom property. `1` = default, `<1` = denser, `>1` = looser. Default `1`.
@@ -154,7 +153,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   /**
    * How many scale rungs (see `power`) the fluid zone's viewport-max value
    * reaches past its viewport-min value, or a raw number for a custom offset.
-   * @default "balanced"
+   * @default "fixed"
    * @param "fixed" 0 — locked, no reflow with viewport width (dense app UI)
    * @param "tight" 0.35 — subtle reflow
    * @param "balanced" 1 — one full scale rung
@@ -179,8 +178,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   vars?: Record<string, string | number>;
   /**
    * Named viewport breakpoints, emitted as `@custom-media --breakpoint-{name} (min-width: ...)`.
-   * A number is rem, a string is used as-is (e.g. `"1200px"`). Merged over the default set. `false` disables emission entirely.
-   * @default `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem)
+   * A number is rem, a string is used as-is (e.g. `"1200px"`). Merged over `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem) — pass `{}` for just the defaults. Unset by default: nothing is emitted (`@custom-media` needs a consumer-side compiler such as `postcss-custom-media`).
    */
   breakpoints?: BreakpointsConfig;
 }
@@ -189,19 +187,22 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
 export interface TokenSettings {
   /** Resolved palette name (falls back to `"primary"` if `config.name` is empty). */
   name: string;
-  /** Resolved `config.prefix`, echoed back for consumers building var names. */
-  prefix?: string;
-  /** Resolved `config.neutrals` palette name. */
-  neutrals?: string;
+  /** Resolved `config.selector`. */
+  selector: string;
 }
+
+/** Baked OKLCH shades keyed by palette name (as in `colors`) then weight. */
+export type LuzPalettes = Record<string, Record<number, OklchSeed>>;
 
 /** Full token set used by all downstream consumers. */
 export interface LuzTokens {
-  /** Metadata about the resolved palette (name/prefix/neutrals). */
+  /** Metadata about the resolved palette (name/selector). */
   settings: TokenSettings;
   /** Generated color variable map (primary/secondary/neutral shades, wheel, semantic aliases). */
   colors: Record<string, string>;
-  /** Generated size variable map (`--size-1` → `0.1rem`, etc.). */
+  /** Numeric OKLCH per palette/weight for every palette whose seed parsed, per scheme — both in `mode: "auto"`, only the active one otherwise. */
+  palettes: Partial<Record<"light" | "dark", LuzPalettes>>;
+  /** Generated size variable map (`--size-unit`, `--border-radius`, `--element-*`, `--space-N`, `--text-*`, …). */
   sizes: Record<string, string>;
   /** Non-color, non-size config fields (fonts, weights, line-height, …), echoed back as tokens. */
   typography: Partial<LuzConfig>;
@@ -217,7 +218,11 @@ export interface LuzResult {
   properties: string;
   /** `@custom-media --breakpoint-*` declarations */
   customMedia: string;
-  /** Complete CSS as a string */
+  /** Static reset + component layer, identical for every config. */
+  reset: string;
+  /** Config-dependent CSS: `customMedia` + `properties` + the `selector { … }` block. */
+  theme: string;
+  /** Complete CSS as a string (`reset` + `theme`). */
   style: string;
 }
 
@@ -245,11 +250,10 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   name: "primary",
   mode: "dark",
   harmony: "complementary",
-  neutrals: "neutral",
   neutralTint: 0,
   surfaceTint: 0.4,
   schemeShade: { neutral: 800 },
-  prefix: "",
+  selector: ":root",
   transition: "all ease 200ms",
   "box-shadow": "none",
   colorSteps: 11,
@@ -285,53 +289,51 @@ function mergeLightDark(
 }
 
 function themeVariables(tokens: LuzTokens): Record<string, string> {
-  const { name, prefix, neutrals } = { ...tokens.settings };
+  const { name } = tokens.settings;
   return {
-    success: `var(--${prefix}green-200)`,
-    danger: `var(--${prefix}red-200)`,
-    warning: `var(--${prefix}yellow-200)`,
-    info: `var(--${prefix}blue-200)`,
-    "anchor-contrast": `var(--${prefix}${neutrals}-500)`,
+    success: `var(--green-200)`,
+    danger: `var(--red-200)`,
+    warning: `var(--yellow-200)`,
+    info: `var(--blue-200)`,
+    "anchor-contrast": `var(--neutral-500)`,
     "hr-color": `var(--scheme-primary)`,
-    "kbd-border-color": `var(--${prefix}${neutrals}-950)`,
-    "kbd-bg": `var(--${prefix}${neutrals}-900)`,
+    "kbd-bg": `var(--neutral-900)`,
     "on-kbd": `var(--on-scheme, ${luzOnColor("var(--kbd-bg)")})`,
-    "kbd-shadow": `var(--${prefix}${neutrals}-500)`,
-    "table-hover-bg": `var(--${prefix}${neutrals}-900)`,
-    "on-table-hover": `var(--${prefix}${neutrals}-300)`,
+    "kbd-shadow": `var(--neutral-500)`,
+    "code-bg": `light-dark(oklch(from var(--element-background) calc(l - 0.03) c h), oklch(from var(--element-background) calc(l + 0.03) c h))`,
+    "on-code": `var(--foreground)`,
+    "table-hover-bg": `var(--neutral-900)`,
+    "on-table-hover": `var(--neutral-300)`,
     "selection-bg": `var(--scheme-primary)`,
     "on-selection": `var(--on-scheme, ${luzOnColor("var(--selection-bg)")})`,
-    "file-input-border-top": `var(--${prefix}${name}-200)`,
+    "file-input-border-top": `var(--${name}-200)`,
     "range-track-bg": `var(--element-background)`,
     "range-track-shadow": `var(--scheme-primary)`,
     "range-thumb-active-bg": `var(--scheme-primary)`,
     "range-tick-color": `var(--element-border-color)`,
-    accent: `var(--scheme-primary)`,
     "progress-shadow": `var(--scheme-primary)`,
     "progress-fill": `var(--scheme-primary)`,
-    "on-checkbox": `var(--${prefix}${name}-100)`,
+    "on-checkbox": `var(--${name}-100)`,
     "checkbox-checked-bg": `var(--scheme-primary)`,
     "checkbox-checked-border": `transparent`,
     "switch-bg": `var(--scheme-primary)`,
-    "radio-dot-bg": `var(--${prefix}green-200)`,
+    "radio-dot-bg": `var(--green-200)`,
     "radio-checked-bg": `var(--scheme-primary)`,
     "radio-checked-border": `var(--scheme-primary)`,
-    "blockquote-border": `var(--${prefix}${name}-200)`,
+    "blockquote-border": `var(--${name}-200)`,
     "on-blockquote-footer": `var(--scheme-primary)`,
     "btn-bg": `var(--scheme-neutral)`,
     "on-btn": `var(--on-scheme, ${luzOnColor("var(--btn-bg)")})`,
-    "btn-bg-hover": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,
-    "btn-box-shadow": `oklch(from var(--btn-bg) calc(l + 0.05) c h)`,
     "on-btn-ghost": `oklch(from var(--foreground) l c h / 65%)`,
-    "tooltip-bg": `var(--${prefix}${neutrals}-950)`,
-    "on-tooltip": `var(--${prefix}${neutrals}-300)`,
+    "tooltip-bg": `var(--neutral-950)`,
+    "on-tooltip": `var(--neutral-300)`,
     "badge-bg": `var(--scheme-primary)`,
     "on-badge": `var(--on-scheme, ${luzOnColor("var(--badge-bg)")})`,
-    "on-badge-ghost": `var(--${prefix}${name}-400)`,
+    "on-badge-ghost": `var(--${name}-400)`,
     "on-tab": `oklch(from var(--foreground) l c h / 65%)`,
     "on-tab-active": `var(--foreground)`,
     "tab-border-active": `var(--scheme-primary)`,
-    "modal-backdrop": `oklch(from var(--${prefix}${neutrals}-950) l c h / 60%)`,
+    "modal-backdrop": `oklch(from var(--neutral-950) l c h / 60%)`,
     "on-breadcrumb": `oklch(from var(--foreground) l c h / 65%)`,
     "breadcrumb-separator": `oklch(from var(--foreground) l c h / 35%)`,
     "skeleton-bg": `oklch(from var(--foreground) l c h / 8%)`,
@@ -362,8 +364,7 @@ export function luz(config?: LuzConfig): LuzResult {
     name,
     mode,
     base,
-    prefix,
-    neutrals,
+    selector,
     neutralTint,
     surfaceTint,
     schemeLightness,
@@ -374,6 +375,8 @@ export function luz(config?: LuzConfig): LuzResult {
     tertiary,
     quaternary,
     harmony,
+    background,
+    foreground,
     properties: generateProperties,
     preset: _preset,
     colorSteps,
@@ -399,8 +402,7 @@ export function luz(config?: LuzConfig): LuzResult {
   const isAuto = mode === "auto";
   const isDark: boolean = isAuto ? false : mode === "dark";
 
-  const normalName: string = name && name.length > 0 ? name : "primary";
-  const primaryName: string = `${prefix}${normalName}`;
+  const primaryName: string = name && name.length > 0 ? name : "primary";
   const primaryCSSVar: string = `var(--${primaryName})`;
 
   const harmonyColors = luzHarmonyColors(
@@ -409,25 +411,25 @@ export function luz(config?: LuzConfig): LuzResult {
   );
 
   const secondaryColor: string = secondary ?? (harmonyColors[0] as string);
-  const secondaryName: string = `${prefix}secondary`;
+  const secondaryName = "secondary";
   const secondaryCSSVar: string = `var(--${secondaryName})`;
 
-  const neutralsName: string = `${prefix}${neutrals}`;
+  const neutralsName = "neutral";
   const neutralCSSVar: string = `var(--${neutralsName})`;
   const neutralColor: string = `oklch(from ${primaryCSSVar} l calc(c * ${normalNeutralTint}) h)`;
 
-  /** Fixed OKLCH lightness for quaternary's "ink" fallback (harmonies without a 4th hue) — `primary`'s hue/chroma at a near-black lightness, evoking `foreground` without literally referencing it (relative-color syntax can't mix one channel from each of two different `var()` sources). */
+  /** OKLCH lightness of quaternary's "ink" fallback (harmonies without a 4th hue). */
   const QUATERNARY_INK_LIGHTNESS = 0.25;
 
   const tertiaryColor: string = tertiary ?? harmonyColors[1] ?? neutralCSSVar;
-  const tertiaryName: string = `${prefix}tertiary`;
+  const tertiaryName = "tertiary";
   const tertiaryCSSVar: string = `var(--${tertiaryName})`;
 
   const quaternaryColor: string =
     quaternary ??
     harmonyColors[2] ??
     `oklch(from ${primaryCSSVar} ${QUATERNARY_INK_LIGHTNESS} c h)`;
-  const quaternaryName: string = `${prefix}quaternary`;
+  const quaternaryName = "quaternary";
   const quaternaryCSSVar: string = `var(--${quaternaryName})`;
 
   const primarySeed = parseColorToOklch(primary);
@@ -448,7 +450,7 @@ export function luz(config?: LuzConfig): LuzResult {
     : (harmonySeeds[2] ??
       (primarySeed ? { ...primarySeed, l: QUATERNARY_INK_LIGHTNESS } : null));
 
-  /** Low-chroma, `neutral`-like surface scale for one accent palette (secondary/tertiary/quaternary) — same lightness curve/contrast as `neutral`, tinted toward that palette's hue instead of `primary`'s. Lets a component opt into `var(--{name}-900)`/`-100` as background/foreground without the full accent saturation. */
+  /** Low-chroma surface scale for one accent palette (secondary/tertiary/quaternary): `neutral`'s lightness curve tinted toward that palette's hue. */
   function surfaceOf(
     accentCSSVar: string,
     accentSeed: OklchSeed | null,
@@ -459,7 +461,7 @@ export function luz(config?: LuzConfig): LuzResult {
     color: string;
     seed: OklchSeed | null;
   } {
-    const surfaceName = `${prefix}surface-${accentName}`;
+    const surfaceName = `surface-${accentName}`;
     return {
       name: surfaceName,
       cssVar: `var(--${surfaceName})`,
@@ -487,7 +489,7 @@ export function luz(config?: LuzConfig): LuzResult {
   const successSeed = primarySeed
     ? luzWheelHueSeed("green", primarySeed)
     : null;
-  /** Hue for `scheme-warning` — the wheel's own `yellow` slot (h=115, spaced evenly with its 11 siblings) reads as yellow-green, not yellow. */
+  /** Hue for `scheme-warning`; the wheel's `yellow` slot (h=115) reads yellow-green. */
   const WARNING_HUE = 92;
   const warningSeed = primarySeed
     ? { l: primarySeed.l, c: WHEEL_CHROMA, h: WARNING_HUE }
@@ -503,7 +505,7 @@ export function luz(config?: LuzConfig): LuzResult {
     | "success"
     | "warning"
     | "info";
-  /** Resolves the weight `scheme-{slot}` picks: an explicit `schemeShade` wins outright; otherwise `schemeLightness` picks the closest real shade when the palette's seed is known; otherwise the historical fixed default (`500`, `800` for `neutral`). */
+  /** Weight `scheme-{slot}` uses: explicit `schemeShade`, else `schemeLightness` against the baked seed, else `500` (`800` for `neutral`). */
   function resolveSchemeWeight(
     slot: SchemeSlot,
     seed: OklchSeed | null,
@@ -523,7 +525,7 @@ export function luz(config?: LuzConfig): LuzResult {
     return slot === "neutral" ? 800 : 500;
   }
 
-  /** A shade with its chroma scaled by `factor` (`1` = untouched): gamut-baked literal when `seed` is known, otherwise the live `calc()` formula against `liveVarRef` (a plain `var()`, or one with a fallback chain). Shared by `scheme-*` (`factor: schemeChroma`, weight picked by `resolveSchemeWeight`) and `anchor-*`/`muted()` (`factor: 0.6`, fixed weight `500`) — same operation, different factor/weight. */
+  /** Shade with chroma scaled by `factor`: gamut-baked literal when `seed` is known, otherwise a live `calc()` against `liveVarRef`. */
   function chromaScaledEntry(
     seed: OklchSeed | null,
     weight: number,
@@ -596,7 +598,6 @@ export function luz(config?: LuzConfig): LuzResult {
     const wheel: Record<string, string> = luzWheel(
       reverse,
       primaryCSSVar,
-      prefix,
       colorSteps,
       wheelOverrides,
       primarySeed,
@@ -641,8 +642,12 @@ export function luz(config?: LuzConfig): LuzResult {
       ...surfaceTertiaryShades,
       [surfaceQuaternary.name]: surfaceQuaternary.color,
       ...surfaceQuaternaryShades,
-      background: `var(--${neutralsName}-900)`,
-      foreground: `var(--${neutralsName}-100)`,
+      background: background ?? `var(--${neutralsName}-900)`,
+      foreground: foreground ?? `var(--${neutralsName}-100)`,
+      [`on-${primaryName}`]: luzOnColor(primaryCSSVar),
+      [`on-${secondaryName}`]: luzOnColor(secondaryCSSVar),
+      [`on-${tertiaryName}`]: luzOnColor(tertiaryCSSVar),
+      [`on-${quaternaryName}`]: luzOnColor(quaternaryCSSVar),
       ...wheel,
       "scheme-primary": chromaScaledEntry(
         primarySeed,
@@ -684,36 +689,30 @@ export function luz(config?: LuzConfig): LuzResult {
         infoWeight,
         reverse,
         normalSchemeChroma,
-        `var(--${prefix}info)`,
+        `var(--info)`,
       ),
       "scheme-danger": chromaScaledEntry(
         dangerSeed,
         dangerWeight,
         reverse,
         normalSchemeChroma,
-        `var(--${prefix}danger)`,
+        `var(--danger)`,
       ),
       "scheme-success": chromaScaledEntry(
         successSeed,
         successWeight,
         reverse,
         normalSchemeChroma,
-        `var(--${prefix}success)`,
+        `var(--success)`,
       ),
       "scheme-warning": chromaScaledEntry(
         warningSeed,
         warningWeight,
         reverse,
         normalSchemeChroma,
-        `var(--${prefix}warning)`,
+        `var(--warning)`,
       ),
-      anchor: chromaScaledEntry(
-        infoSeed,
-        200,
-        reverse,
-        0.6,
-        `var(--${prefix}info)`,
-      ),
+      anchor: chromaScaledEntry(infoSeed, 200, reverse, 0.6, `var(--info)`),
       "anchor-secondary": chromaScaledEntry(
         secondarySeed,
         500,
@@ -740,23 +739,22 @@ export function luz(config?: LuzConfig): LuzResult {
         200,
         reverse,
         0.6,
-        `var(--${prefix}danger)`,
+        `var(--danger)`,
       ),
       "anchor-success": chromaScaledEntry(
         successSeed,
         200,
         reverse,
         0.6,
-        `var(--${prefix}success)`,
+        `var(--success)`,
       ),
       "anchor-warning": chromaScaledEntry(
         warningSeed,
         200,
         reverse,
         0.6,
-        `var(--${prefix}warning)`,
+        `var(--warning)`,
       ),
-      border: `var(--border-width) solid var(--element-border-color)`,
       "depth-base": `${depth}`,
       "depth-max": `${depthMax}`,
       "depth-decay": `${depthDecay}`,
@@ -777,6 +775,37 @@ export function luz(config?: LuzConfig): LuzResult {
     ? mergeLightDark(buildColors(false), buildColors(true))
     : buildColors(isDark);
 
+  /** Baked OKLCH per weight for every palette whose seed is known, keyed like `colors`. */
+  function buildPalettes(reverse: boolean): LuzPalettes {
+    const named: [string, OklchSeed | null][] = [
+      [primaryName, primarySeed],
+      [secondaryName, secondarySeed],
+      [tertiaryName, tertiarySeed],
+      [quaternaryName, quaternarySeed],
+      [neutralsName, neutralSeed],
+      [surfaceSecondary.name, surfaceSecondary.seed],
+      [surfaceTertiary.name, surfaceTertiary.seed],
+      [surfaceQuaternary.name, surfaceQuaternary.seed],
+    ];
+    for (const hueName of WHEEL_HUE_NAMES) {
+      named.push([
+        hueName,
+        luzWheelHueSeed(hueName, primarySeed, wheelOverrides[hueName]),
+      ]);
+    }
+    const palettes: LuzPalettes = {};
+    for (const [paletteName, seed] of named) {
+      if (seed) {
+        palettes[paletteName] = luzPaletteSeeds(seed, reverse, colorSteps);
+      }
+    }
+    return palettes;
+  }
+
+  const palettes: LuzTokens["palettes"] = {};
+  if (isAuto || !isDark) palettes.light = buildPalettes(false);
+  if (isAuto || isDark) palettes.dark = buildPalettes(true);
+
   const sizeTokens: Record<string, string> = {
     ...luzSizes(normalBase, sizeRelativeToBase),
     ...luzTextScale(normalBase, power, sizeRelativeToBase, sizeFluidRange),
@@ -788,11 +817,11 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const tokens: LuzTokens = {
     settings: {
-      name: normalName,
-      prefix,
-      neutrals,
+      name: primaryName,
+      selector: selector as string,
     },
     colors,
+    palettes,
     sizes: sizeTokens,
     typography: { ...typography } as Partial<LuzConfig>,
   };
@@ -833,16 +862,17 @@ export function luz(config?: LuzConfig): LuzResult {
     shadedNames,
   );
 
-  const colorScheme = isAuto ? "color-scheme: light dark;\n    " : "";
+  const colorScheme = `color-scheme: ${isAuto ? "light dark" : mode};\n    `;
 
-  const style = `
+  const reset = buildReset();
+  const theme = `
   ${customMedia}
-  ${buildReset()}
   ${properties}
-  :root {
+  ${selector} {
     ${colorScheme}${variables}
   }
   `;
+  const style = `${reset}\n${theme}`;
 
-  return { tokens, variables, style, properties, customMedia };
+  return { tokens, variables, properties, customMedia, reset, theme, style };
 }

@@ -56,9 +56,6 @@ function classify(
 
   for (const [re, syntax] of SIMPLE_SYNTAX) {
     if (re.test(v)) {
-      // A `%` inside calc/clamp/min/max isn't computationally independent —
-      // invalid as a typed `<length>` initial-value (percentages need a
-      // containing block). Leave the token unregistered instead.
       if (syntax === SYNTAX.length && v.includes("%")) break;
       return { syntax, initialValue: v.includes("var(") ? "0px" : v };
     }
@@ -95,17 +92,12 @@ function mergedTokenValues(tokens: LuzTokens): Map<string, [string, boolean]> {
   };
   add(tokens.sizes, false);
   add(tokens.colors, true);
-  add(tokens.typography as Record<string, unknown>, false);
   return merged;
 }
-
-/** Anything reading `var(--depth...)` (e.g. `element-background`) must stay unregistered: a typed `@property` resolves once where it's declared and inherits that fixed value, instead of re-substituting per consuming element — which is how `--depth` (set per nesting level in `_depth.css`) is meant to work. */
-const READS_DEPTH = /var\(--depth\b/;
 
 function inferProperties(tokens: LuzTokens): PropertyDecl[] {
   const declarations: PropertyDecl[] = [];
   for (const [name, [value, isColor]] of mergedTokenValues(tokens)) {
-    if (READS_DEPTH.test(value)) continue;
     const decl = toDecl(name, value, isColor);
     if (decl) declarations.push(decl);
   }
