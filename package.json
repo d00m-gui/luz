@@ -109,7 +109,7 @@
     }
   },
   "simple-git-hooks": {
-    "pre-commit": "bun run lint && bun run type-check"
+    "pre-commit": "bun install --frozen-lockfile && bun install --frozen-lockfile --cwd docs && bun run lint && bun run type-check"
   },
   "engines": {
     "bun": ">=1.0.0",
