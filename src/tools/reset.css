@@ -32,9 +32,6 @@ canvas {
   max-width: 100%;
   display: block;
 }
-svg {
-  display: block;
-}
 figure {
   & img {
     width: 100%;
