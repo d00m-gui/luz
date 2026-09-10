@@ -29,8 +29,8 @@ src/
   tools/
     constants.ts        curvas de shade (WEIGHTS) — datos puros
     reset.css            capa RESET: normalize genérico, no-por-componente
-    design.css            manifest de @import de design/*.css (1 archivo por componente, 58 hoy)
-    design/*.css          un archivo self-contained por componente (reset+layout+color+estados juntos); theme.css (contenedor scopeado), _print.css (capa @media print)
+    components.css        manifest de @import de components/*.css (1 archivo por componente, 58 hoy)
+    components/*.css      un archivo self-contained por componente (reset+layout+color+estados juntos); theme.css (contenedor scopeado), _print.css (capa @media print)
     reset.ts              buildReset(): RESET + COMPONENTS desde reset-css.generated.ts
     gamut.ts              parseColorToOklch/clampToSrgb/formatOklch: color literal → OKLCH numérico, gamut-mapeo real (binary search) contra sRGB
     hue.ts                luzShadesByHue: 1 seed → N shades oklch (50–950 garantizados + steps custom); baked (gamut.ts) o live (calc()) según si el seed parsea
@@ -40,15 +40,16 @@ src/
     shade-fallback.ts    var(--x-500) → var(--x-500, var(--x)) para paletas custom incompletas
     shadcn-bridge.ts     shadcnBridgeCSS: alias de tokens shadcn ← tokens luz
     utilities.ts         registry de utility classes + emisión de CSS (puro, sin I/O)
-    scan.ts               scanCandidates/scanAndEmitUtilities: walk de archivos fuente (node:fs), extrae candidatos de clase
+    scan.ts               scanSources: walk de archivos fuente (node:fs) → { candidates, files }
     variants.ts           VARIANTS: prefijos data-*/pseudo-clase → selector
-    write-css.ts          composeCss/writeCss: ensamblado y escritura a disco (file/split/virtual)
+    css.ts                buildCssSections/composeCss + expandLuzCss: expansión de `@import "@d00m-gui/luz/*.css"` y `@luz <section>;` (puro)
+    luz.css, theme.css, bridge.css, utilities.css   entries CSS publicados; contienen las directivas `@luz` que el plugin expande
   astro/index.ts        integración Astro (luzAstro)
   vite/index.ts          plugin Vite (luzVite)
 ```
 
 `scripts/generate-reset.ts` (`bun run gen:reset`) resuelve `reset.css`/
-`design.css` (con sus `@import` de `design/*.css`) y escribe
+`components.css` (con sus `@import` de `components/*.css`) y escribe
 `src/tools/reset-css.generated.ts` — ver "`reset.ts`" más abajo para el
 porqué.
 
@@ -76,22 +77,36 @@ luz(config)                         src/luz.ts
         │        style  = reset + theme
         │
         ├─ shadcnBridgeCSS(tokens)     `${selector} { --card: ...; ... }`
-        └─ scanAndEmitUtilities()      scanCandidates() + emitUtilitiesCSS() (utilities.ts registry)
+        └─ emitUtilitiesCSS(scanSources(root).candidates, tokens)
         │
         ▼
-   writeCss() / virtual module         src/astro/index.ts, src/vite/index.ts
+   expandLuzCss(css del usuario)      src/vite/index.ts (transform), src/astro/index.ts lo registra
 ```
 
 `luz()` es puro (config → resultado, sin I/O). Todo el I/O (scan de
-archivos fuente, escritura de CSS) vive en los adaptadores
-(`astro/index.ts`, `vite/index.ts`) y en `tools/scan.ts` /
-`tools/write-css.ts`, nunca en `luz.ts`.
+archivos fuente) vive en `tools/scan.ts` y se dispara desde el plugin de
+Vite (`vite/index.ts`), nunca en `luz.ts`. Nada se escribe a disco.
 
-### Salida de CSS (`LuzCssOutput`)
+### Entrega de CSS: entries + `@luz`
 
-- `"file"` — un solo archivo compuesto (theme + bridge + utilities).
-- `"split"` — tres archivos (`.theme.css`, `.bridge.css`, `.utilities.css`) + un agregador con `@import`.
-- `"virtual"` — módulo virtual de Vite, sin escritura a disco; el pipeline CSS de Vite/Astro minifica.
+El usuario escribe `@import` en su propio CSS y el plugin expande ahí lo
+generado (modelo Tailwind v4). Entries publicados (archivos reales en
+`src/tools/`, copiados a `dist/` raíz y en `exports`):
+
+| Import | Contenido |
+|---|---|
+| `@d00m-gui/luz/luz.css` | todo: `@import "./reset.css"; @import "./components.css"; @luz theme; @luz bridge; @luz utilities;` |
+| `@d00m-gui/luz/reset.css` | estático |
+| `@d00m-gui/luz/components.css`, `components/<x>.css` | estático, todos o uno por componente |
+| `@d00m-gui/luz/theme.css` | `@luz theme;` → `luz(config).theme` |
+| `@d00m-gui/luz/bridge.css` | `@luz bridge;` → `shadcnBridgeCSS(tokens)` |
+| `@d00m-gui/luz/utilities.css` | `@luz utilities;` → utilities escaneadas |
+
+La composición es por `@import` del usuario (reset + theme + los
+componentes que quiera + utilities), no por toggles en `LuzConfig`.
+`@luz <section>;` también puede escribirse a mano en cualquier CSS del
+proyecto (API de bajo nivel); sin plugin es un at-rule desconocido,
+inofensivo.
 
 ## Principio de diseño: **la config siempre gana**
 
@@ -114,7 +129,7 @@ alcanza al bridge de shadcn ni al motor de utility classes.
   convierten en tokens" — es un solo merge, no dos features separadas.
 
 **Fuera de alcance por ahora** (decisión explícita, no descuido): `vars`
-no llega a `shadcnBridgeCSS()` ni a `scanAndEmitUtilities()` — esas dos
+no llega a `shadcnBridgeCSS()` ni a `emitUtilitiesCSS()` — esas dos
 siguen sin poder overridearse desde config. Si hace falta más adelante,
 cada una necesita su propio punto de merge-al-final, o unificarse en un
 merge final en los adaptadores (`astro/index.ts`, `vite/index.ts`) antes
@@ -216,6 +231,14 @@ recalibrarse), no la fórmula del fluid range en sí. El propio Mixin 3
 del artículo solo define 4 niveles compuestos, no una escala numérica
 abierta — reforzó la decisión de ir a niveles nombrados y acotados en
 vez de bajar el default de `sizeSteps` nada más.
+
+**Pasos hacia abajo con √ratio, font-size independiente de `density`**:
+`rungSize()` (`tools/sizes.ts`) aplica `ratio ** n` para `n ≥ 0` y
+`√ratio ** n` para `n < 0` — con `perfect-fourth`, `sm` = 0.866rem y
+`xs` = 0.75rem (antes 0.75/0.563rem, ilegibles). Los `font-size-*` ya no
+se multiplican por `--density`: el contrato documentado de `density` es
+padding/chrome de controles, no tipografía (con `density: 0.9`, `xs`
+bajaba a ~9px).
 
 ## Tipografía fluida como opt-in — clase `.fluid`
 
@@ -342,7 +365,7 @@ gamut-clamp ya lo reduce solo) — elegir otro peso vía
 `schemeShade`/`schemeLightness` no alcanza para bajar la saturación de
 `.btn`/`.badge`/`.alert`, hace falta el factor.
 
-`badge-bg`/`accent`/`checkbox-checked-bg`/`switch-bg`/
+`badge-bg`/`checkbox-checked-bg`/`switch-bg`/
 `radio-checked-bg`/`progress-fill`/`tab-border-active`/`hr-color`/
 `selection-bg`/`range-track-shadow`/`range-thumb-active-bg` — la
 variante _default_ (sin clase) de estos tokens pasó de apuntar a
@@ -394,7 +417,7 @@ inline-size` en un ancestro amplio (`body`) quedó descartado — convierte
   a ese elemento en _containing block_ de sus descendientes, rompiendo
   `position: fixed` de cualquier consumidor (header fijo, botón "volver
   arriba", etc.) en todo el sitio. En cambio, `.card` y `dialog.modal`
-  (`tools/design.css`) llevan `container-type: inline-size` cada uno — son
+  (`tools/components.css`) llevan `container-type: inline-size` cada uno — son
   los únicos dos componentes de la capa curada donde el contenido se
   reusa a anchos variables y se beneficia de tipografía realmente
   reactiva al contenedor, y ninguno de los dos es un lugar razonable para
@@ -409,12 +432,12 @@ inline-size` en un ancestro amplio (`body`) quedó descartado — convierte
   del usuario para no acoplar el preset a la escala pública `size-N`/
   utilities (`power` sigue siendo un knob independiente).
 
-## Capa de componentes curados (`design/*.css`)
+## Capa de componentes curados (`components/*.css`)
 
 Recetas CSS puras estilo daisyUI, generadas desde tokens de luz (no
-fijas como un tema) — 56 archivos hoy bajo `src/tools/design/`, cada
+fijas como un tema) — 56 archivos hoy bajo `src/tools/components/`, cada
 uno self-contained (reset+layout+color+hover/focus/active del
-componente juntos), importados en orden por el manifest `design.css`
+componente juntos), importados en orden por el manifest `components.css`
 (el orden importa: `_feedback.css` va último para ganarle
 especificidad a `.btn`/`.badge`/`.alert`/`.notice`, ver más abajo).
 Incluye tanto piezas con interactividad nativa (`.accordion` vía
@@ -485,7 +508,7 @@ instancia.
 
 ## `.element` — helper de diagramación, responsive sin media queries
 
-`tools/design/element.css`: primitivo de layout genérico (flex/grid) para
+`tools/components/element.css`: primitivo de layout genérico (flex/grid) para
 componer diagramas — no un componente visual con estilo propio, solo
 estructura. Base `.element` (`display: inline-grid`) + modificadores:
 `.row`/`.column` (flex), `.auto`/`.fixed` (`flex-grow`/`flex-shrink`),
@@ -517,7 +540,7 @@ Knobs vía custom property, no campos de `LuzConfig` (mismo criterio que
 
 ## `_feedback.css` — esquema × tratamiento, 2 ejes combinables
 
-`tools/design/_feedback.css` (último `@import` de `design.css`, después
+`tools/components/_feedback.css` (último `@import` de `components.css`, después
 de todos los componentes — así sus clases ganan el empate de
 especificidad contra los estilos base de `.btn`/`.badge`/`.alert`). Dos
 ejes de clases combinables en el HTML:
@@ -533,7 +556,7 @@ ejes de clases combinables en el HTML:
 - **Tratamiento** (`.solid`/`.soft`/`.outline`): lee `--scheme` (fallback
   `--scheme-primary`) y define fondo/borde/texto — combinable con
   cualquier componente (`<span class="badge solid danger">`, `<div
-  class="stat outline success">`, ver `components/stat.md`).
+class="stat outline success">`, ver `components/stat.md`).
 
 Cada componente que pinta con `--scheme` fija su propio `--current-bg`
 (`.card`/`.btn`/`.stat`/`.radial-trigger`: sólido, `var(--scheme,
@@ -592,10 +615,10 @@ pensado para fondos de contenedor (`card`/`stat`) que necesitan verse
 
 ## `.css` estáticos reales en `dist/`, `@import` directo
 
-`reset.css`/`design.css` (100% estáticos, no dependen de config) se
+`reset.css`/`components.css` (100% estáticos, no dependen de config) se
 copian a `dist/` en cada build (plugin `copy()` de `bunup.config.ts`,
-lista `staticCss`), junto con `src/tools/design/` → `dist/design/` (los
-`@import "./design/*.css"` del manifest tienen que resolver en el
+lista `staticCss`), junto con `src/tools/components/` → `dist/components/` (los
+`@import "./components/*.css"` del manifest tienen que resolver en el
 paquete publicado), y se publican en `exports` de `package.json`
 (`"./reset.css": "./dist/reset.css"`, etc., vía el plugin `exports()`
 con `customExports`) — un consumidor puede hacer `@import
@@ -604,13 +627,9 @@ pasar por los adaptadores de Astro/Vite. El plugin `exports()` solo
 reescribe `package.json` cuando el mapa cambia (y al hacerlo reordena
 las claves — si pasa, restaurar el orden a mano).
 
-Modo `"split"` (`LuzCssOutput`) también escribe copias locales de los 2
-junto a `theme`/`bridge`/`utilities` — pero el agregador (el archivo con
-los `@import url(...)`) **no** los incluye todavía: la sección `theme`
-de `CssSections` sigue siendo `LuzResult.style` (reset incluido), así
-que sumarlos duplicaría el reset. Ahora que `luz()` devuelve `reset` y
-`theme` separados, los adaptadores podrían pasar `theme` y sumar el
-reset al agregador — no hecho todavía, sin consumidor que lo pida.
+Los entries generados (`luz.css`, `theme.css`, `bridge.css`,
+`utilities.css`) viajan por la misma lista `staticCss`: son archivos
+reales con directivas `@luz`, así resuelven aun sin plugin.
 
 ## Superficie pública sin adaptador — `reset`/`theme`, `selector`, `palettes`, `/color`
 
@@ -623,21 +642,22 @@ CSS por tenant en caliente y necesita N temas en una misma página.
   `${selector} { … }`). `style` sigue siendo la concatenación
   `reset + theme`, sin cambio de superficie para los adaptadores.
   `emitUtilitiesCSS(candidates, tokens)` se exporta desde `.` — puro;
-  `scanAndEmitUtilities` (la versión con `node:fs`) vive en `scan.ts`,
+  `scanSources` (la versión con `node:fs`) vive en `scan.ts`,
   no en `utilities.ts`, para que el entry raíz no arrastre `node:fs`
   (verificado sobre los chunks de `dist/`).
 - **`LuzConfig.selector`** (default `":root"`): selector del bloque de
-  tema. `color-scheme: light dark` (modo `auto`) va dentro del mismo
-  bloque, así `light-dark()` resuelve contra el contenedor.
+  tema. `color-scheme` (`light dark` en `auto`, `light`/`dark` fijo en
+  los otros modos) va dentro del mismo bloque, así `light-dark()` y los
+  controles nativos resuelven contra el contenedor.
   `shadcnBridgeCSS` lee `tokens.settings.selector` y emite bajo el
-  mismo selector. La clase `.theme` (`design/theme.css`) aplica al
+  mismo selector. La clase `.theme` (`components/theme.css`) aplica al
   contenedor lo que `body` recibe del reset (`font-family`,
   `font-weight`, `font-size`, `background-color`, `color`) — es la
   pareja de `selector` para temas scopeados. Forzar claro/oscuro por
   sección es `color-scheme: light|dark` inline o por clase, no un campo
   nuevo.
 - **`LuzTokens.palettes`**: `{ light?, dark? }` → `Record<nombre,
-  Record<weight, OklchSeed>>`, mismos nombres (con `prefix`) que
+Record<weight, OklchSeed>>`, mismos nombres que
   `colors`; solo paletas cuyo seed parsea (primary/secondary/tertiary/
   quaternary/neutral/surface-*/12 hues de la rueda). En `mode: "auto"`
   vienen las dos; en `light`/`dark` solo la activa. Sale de
@@ -655,8 +675,8 @@ CSS por tenant en caliente y necesita N temas en una misma página.
   esas firmas como API pública — el replanteo pendiente de
   `resolveBakedShade` (anclaje en 500, ver `TODO.md`) pasa a ser un
   cambio de comportamiento público, no interno.
-- **`design/_print.css`** (último `@import` del manifest): `@media
-  print` genérico — `color-scheme: light !important` en `:root`/`.theme`
+- **`components/_print.css`** (último `@import` del manifest): `@media
+print` genérico — `color-scheme: light !important` en `:root`/`.theme`
   (`!important` porque el bloque de tema, más tarde en cascada, declara
   `light dark`; solo aplica a `mode: "auto"`, un `mode: "dark"` fijo son
   literales y no se puede dar vuelta), oculta overlays/top-layer
@@ -704,9 +724,9 @@ highlighting/lint reales) tiene sentido y no cuesta nada en runtime.
 
 Dos capas: `reset.css` (genérico, no-por-componente — `*`,
 `html`/`body`, `img`/`picture`/`video`/`canvas`/`svg`, `br`, `figure`,
-`#root`/`#__next`, `[hidden]`) y `design.css`, que es un manifest corto
-de `@import "./design/nombre.css";` — un archivo **self-contained** por
-componente bajo `src/tools/design/` (56 archivos hoy: layout+color+
+`#root`/`#__next`, `[hidden]`) y `components.css`, que es un manifest corto
+de `@import "./components/nombre.css";` — un archivo **self-contained** por
+componente bajo `src/tools/components/` (56 archivos hoy: layout+color+
 hover/focus/active de ese componente juntos, no repartidos entre capas
 globales). Selectores genuinamente compartidos entre componentes
 (`:focus-visible`
@@ -725,14 +745,14 @@ de acuerdo en cómo importar un `.css` como texto: `bunup` no resuelve
 exported by reset.css` (verificado con un `astro build` real, no
 supuesto). Ninguna sintaxis de import sirve para los dos.
 
-Solución: `scripts/generate-reset.ts` lee `reset.css`/`design.css`,
-resuelve los `@import` locales de `design.css` de forma recursiva, y
+Solución: `scripts/generate-reset.ts` lee `reset.css`/`components.css`,
+resuelve los `@import` locales de `components.css` de forma recursiva, y
 escribe `src/tools/reset-css.generated.ts` (comiteado, no gitignored) con
 `RESET`/`COMPONENTS` como constantes de string planas — un módulo `.ts`
 normal, sin nada especial que ningún bundler necesite entender.
 `reset.ts` importa de ahí. **Hay que correr `bun run gen:reset` después de
-tocar `reset.css`, `design.css`, o cualquier archivo bajo
-`src/tools/design/`** — no es automático todavía (no hay watcher/hook,
+tocar `reset.css`, `components.css`, o cualquier archivo bajo
+`src/tools/components/`** — no es automático todavía (no hay watcher/hook,
 ver `CLAUDE.md`).
 
 **Por qué no `readFileSync` en runtime** (alternativa descartada): rompería
@@ -749,11 +769,9 @@ cuando hoy es JS puro sin I/O. El generado evita ese costo por completo.
   nunca actualizado. `bun run bunup` estaba roto (no lo corrió nadie desde
   entonces). Se sacó esa entrada; no está en `package.json` `exports`
   tampoco, así que no hay nada más que limpiar ahí.
-- **Pendiente de decisión, no implementado**: exponer estos 3 `.css`
-  también en `dist/` para `@import url(...)` real desde consumidores (o
-  para el modo `"split"` de `LuzCssOutput`, que ya usa `@import` hoy para
-  theme/bridge/utilities) — significaría publicarlos en `package.json`
-  `exports` y decidir cómo llegan al modo `"virtual"`. Sigue sin decidir.
+- Los 3 `.css` se publican en `dist/` y en `exports`; `luz.css` los
+  referencia con `@import` relativo y el plugin los deja pasar tal cual
+  (solo expande las directivas `@luz`).
 
 - **`RESET`**: normalize puro y genérico, no-por-componente — box model,
   márgenes, list-style, elementos exentos de catálogo de componentes
@@ -762,9 +780,9 @@ cuando hoy es JS puro sin I/O. El generado evita ese costo por completo.
   `--font-weight`/`--line-height` (restauración semántica, no elección
   visual).
 - **`COMPONENTS`**: todo lo demás — un archivo self-contained por
-  componente en `src/tools/design/` (reset+layout+color+hover/focus/active
+  componente en `src/tools/components/` (reset+layout+color+hover/focus/active
   del componente juntos, ya no repartidos entre capas globales),
-  concatenados según el manifest `design.css`.
+  concatenados según el manifest `components.css`.
 
 No es togglable todavía (decisión explícita — ver `CLAUDE.md`): las 2
 siempre se generan juntas, `buildReset()` no toma parámetros aún. La
@@ -780,49 +798,48 @@ así que texto suelto sin envolver en `<p>` ignoraba la config. Y
 0 propiedades perdidas salvo las 2 corregidas + una duplicación muerta en
 `hr` (`height: 0` pisado por `height: 1px` en la misma regla) que se sacó.
 
-**Corregido en el Bloque B** (ver esa sección más abajo): `design.css`
+**Corregido en el Bloque B** (ver esa sección más abajo): `components.css`
 tenía `&::-moz-progress-bar { background-color: var(--primary-500) }`
 hardcodeado — ahora usa el alias `--progress-fill` de `themeVariables()`.
 
-## Adaptadores (`astro/`, `vite/`)
+## Adaptadores (`vite/`, `astro/`)
 
-Ambos siguen la misma forma: reciben `LuzConfig & { path?, output? }`,
-llaman a `luz()`, arman `shadcnBridgeCSS` + `scanAndEmitUtilities`, y
-entregan el resultado según `output`. Duplican bastante estructura
-(`generate`/`generateFile`, el destructure de `path`/`minify`/`output`) —
-candidato a extraer un helper compartido cuando se toque de nuevo esta
-zona, documentado como decisión pendiente, no bug.
+`luzVite(config: LuzConfig, options?: { root?: string }): Plugin` es el
+único mecanismo. `enforce: "pre"`; `buildStart` cachea `luz(config)` y
+el bridge (dependen solo de config); `transform` corre sobre todo request
+CSS (`isCSSRequest`, excluido `?raw`) que contenga `@d00m-gui/luz/` o
+`@luz ` y aplica `expandLuzCss` (`tools/css.ts`):
 
-`astro/index.ts` tiene un comentario largo explicando por qué usa
-`astro:build:start` en vez de `astro:build:done` (timing bug real,
-confirmado empíricamente) — ese es exactamente el tipo de comentario que
-sí corresponde bajo la convención de comments nueva (ver `CLAUDE.md`): no
-describe qué hace el código, advierte sobre un problema no obvio.
+1. `@import "@d00m-gui/luz/luz.css"[ layer(L)];` → en su lugar los
+   `@import` de `reset.css` y `components.css` (con el mismo `layer(L)`);
+   encola `@luz theme; @luz bridge; @luz utilities;` (envueltas en
+   `@layer L {}` si había layer).
+2. `@import "@d00m-gui/luz/(theme|bridge|utilities).css"` → se quita y
+   encola su directiva.
+3. Lo encolado se inserta después del último statement `@import`/
+   `@charset`/`@layer …;` de nivel superior (escáner mínimo que salta
+   strings, comentarios, paréntesis y bloques) — los `@import` del
+   usuario posteriores siguen siendo CSS válido.
+4. Cada `@luz <section>;` (encolada o escrita a mano) se reemplaza por su
+   CSS. Utilities se escanean en ese momento (`scanSources(root)`, cache
+   por mtime); si no expandió nada devuelve `undefined`.
 
-### `LuzCssOutput: "virtual"` — estado real, sin default decidido
+Vite inlinea los `@import` estáticos con su propio `postcss-import`, que
+lee los archivos importados con `fs.readFile` sin pasar por `transform`
+de plugins — por eso los entries generados se expanden en el CSS que
+los importa y no en el archivo entry (que solo contiene la directiva).
 
-`resolveVirtualCssId`/`isVirtualCssLoad` (`tools/write-css.ts`) hacen que
-`resolveId`/`load` del módulo virtual pasen cualquier querystring al id
-resuelto en vez de fallar en un match exacto de string — corrige el caso
-general, pero **no** habilita el patrón `?url` + `<link>` manual contra el
-módulo virtual: eso pega contra el mecanismo interno de Vite
-`vite:css-post`/`?transform-only`, que no está pensado para CSS virtual
-servido por el `load()` de un plugin de terceros. No hay fix de nuestro
-lado sin pelear contra internals no documentados de Vite.
+Dev: cuando expande `utilities`, `addWatchFile` por cada archivo
+escaneado y registra el id del módulo CSS; `configureServer` escucha
+`add`/`unlink` del watcher bajo `root` (extensiones de
+`DEFAULT_EXTENSIONS`) y hace `server.reloadModule` sobre esos módulos.
+Editar, crear o borrar un archivo fuente regenera las utilities en
+caliente (verificado contra `docs/` en dev).
 
-Lo que sí funciona, validado con build+SSR real (ver
-`fixtures/tanstack-dashboard`): un import de efecto plano
-(`import "virtual:luz.css"`, sin `?url`). En build de producción, React 19
-hoistea ese import a `<link rel="stylesheet">` solo — sin FOUC. En dev el
-CSS se inyecta por JS (comportamiento estándar de Vite para cualquier CSS
-importado sin `?url`, no específico de `luzVite`) — FOUC breve. El chunk
-de CSS es del entry, no por-ruta: sobrevive a la navegación client-side
-del router sin re-fetch (confirmado con dos rutas, mismo `<link>`/hash en
-SSR directo de ambas).
-
-Con esto, `"virtual"` vs. `"file"` es un trade-off explícito (sin archivo
-en disco + FOUC en dev, vs. archivo real + sin FOUC en ningún lado) — cuál
-de los dos pasa a ser el default de `LuzCssOutput` sigue sin decidirse.
+`luzAstro(config: LuzConfig): AstroIntegration`: un solo hook
+`astro:config:setup` que registra `luzVite(config, { root: srcDir })`
+vía `updateConfig`. Cualquier framework sobre Vite usa `luzVite`
+directo. Bundlers sin Vite (Next): CLI pendiente, ver `TODO.md`.
 
 ## Fixtures de consumidor (`fixtures/`)
 
@@ -830,14 +847,15 @@ A diferencia de `docs/` (importa el código fuente de luz directo, no lo
 "consume"), `fixtures/*` instalan `@d00m-gui/luz` desde un tarball real
 (`bun pm pack`) — mismo camino que tomaría un usuario final. Primero:
 `fixtures/tanstack-dashboard` (TanStack Start + `@tanstack/charts`,
-`luzVite` en modo `"virtual"`, ver su `README.md`). Script de arranque en
-la raíz: `bun run fixture:tanstack`.
+`@import "@d00m-gui/luz/luz.css"` en `styles.css` cargado vía `?url` +
+`<link>`, ver su `README.md`). Script de arranque en la raíz: `bun run
+fixture:tanstack`.
 
 ## Motor de utility classes (`tools/utilities.ts`)
 
 Vocabulario cerrado, no Tailwind completo: un `registry` de namespaces
 (`scale`, `color`, `bridge-color`, `literal`) resuelve cada candidato
-escaneado del código fuente (`scanCandidates`) contra los tokens generados.
+escaneado del código fuente (`scanSources`) contra los tokens generados.
 Sin valores arbitrarios (`w-[13px]` no existe), sin JS en runtime — todo se
 resuelve y emite en build time. Soporta un sufijo de opacidad (`/50`) y un
 prefijo de variante (`hover:`, `open:`, ...) resuelto vía `tools/variants.ts`
@@ -846,16 +864,74 @@ prefijo de variante (`hover:`, `open:`, ...) resuelto vía `tools/variants.ts`
 terceros ya escrito (componentes shadcn/Radix/Base UI/animate-ui copiados
 al proyecto) matchea sin que luz conozca esa librería específica.
 
+**Variantes de breakpoint** (`variants.ts` → `MEDIA_VARIANTS`): `sm:`/
+`md:`/`lg:`/`xl:`/`2xl:` (`min-width`, rem de `DEFAULT_BREAKPOINTS`) y
+`max-sm:`…`max-2xl:` (`max-width: calc(N - 0.02rem)`); combinables solo
+en orden `breakpoint:estado:util` (`md:hover:flex`). `ResolvedUtility`
+lleva `media?`; `emitUtilitiesCSS` emite primero las reglas sin media y
+después un bloque `@media` por breakpoint (min ascendente, luego max).
+`escapeClassSelector` escapa el dígito inicial (`.\32 xl\:block`).
+Familias nuevas sobre la escala `space`: `size-N`, `min-h-N`, `max-h-N`,
+`top/right/bottom/left/inset-N`; literals `aspect-square/video`,
+`rounded-full`, `w-screen/h-screen/min-h-screen/max-h-full`.
+
+## Componentes de aplicación (`page.css`, `.shell.app`, `.list.nav`, …)
+
+Nacidos del fixture `tanstack-dashboard` armado solo con clases de luz
+(su `README.md` conserva la lista de shortcomings y qué resolvió cada
+uno). Convención: variante = clase sobre el componente (`.hero.compact`),
+slot = clase hija con prefijo (`.card-cover`), knob = custom property con
+prefijo y fallback al default (`--shell-height`, `--page-width`,
+`--prose-width`, `--range-length`, `--scroll-max`, `--fx-blur`,
+`--hero-min-height`, `--blockquote-font-size`).
+
+- `page.css`: `.page` (`max-width` + gutters + `gap`), `.page-header`/
+  `.page-header-title`, `.page-body` (`.with-aside` → grid con
+  `--page-aside-width`, colapsa bajo 64rem), `.page-aside`, `.stack`
+  (`--stack-gap`); `.page section { padding: 0 }` neutraliza el padding
+  de landing de `section.css`.
+- `shell.css`: `.shell.app` (pantalla completa, sin borde), `.shell.
+  responsive` (apila panes bajo 48rem), `--shell-height`.
+- `list.css`: `.list.nav` (filas sin borde, radio, `.status` con
+  `--scheme`), `ul.list > li` neutralizado, `button.list-row`, último
+  hijo de una fila de 2 alineado a la derecha, icono de `.filetree` rota
+  con `[open]`. El drill-down fullscreen en mobile de `details.list-row`
+  pasó a ser opt-in: `.list.drilldown` (lo usa el sidebar de `docs/`).
+- `field.css` `.field`/`.field.row`/`.field-hint`; `form.css`
+  `.form-actions(.sticky)`; `progress.css` `.meter`; `button.css` acepta
+  `data-role=` además de `role=`; `alert.css` `--scheme: initial` en
+  botones hijos directos.
+- `card.css` `.card-cover`/`.card-toolbar` (y `:where(.card)
+  .card-content` para que utilities lo pisen); `grid.css` `.xs/.sm/.md/
+  .lg`; `hero.css` `.compact`/`.hero-background`; `avatar.css`
+  `.avatar-group`/`.avatar.more`; `skeleton.css` `.text/.avatar/.badge`;
+  `overlay.css` `.menu-item`; `status.css` `background: var(--scheme,
+  currentColor)` + `.pulse`; `element.css` `.wire`; `radial.css`
+  `.fixed`; `_center.css` en grid; `nav.css` acotado a `ul:not(.list)` +
+  `[aria-current]`.
+- Lectura: `.prose` real (ritmo vertical bajo `:where(.prose)`, `ol`
+  numerado también en `reset.css`, `dl`), `code`/`pre`/`samp` con
+  superficie (`--code-bg`/`--on-code` en `themeVariables`, vía
+  `light-dark()`), `kbd + kbd`. `_print.css` oculta el chrome de
+  `.shell.app`.
+
 ## Convenciones de tokens
 
-- Prefijo opcional (`config.prefix`) se antepone a **todo** nombre de
-  variable generado.
+- Nombres fijos: `secondary`/`tertiary`/`quaternary`/`neutral`/`surface-*`
+  y los 12 hues de la rueda. Solo la paleta primaria se renombra
+  (`config.name`). No hay prefijo/namespace configurable — la capa
+  estática (`components/*.css`) referencia `--neutral-N`/`--surface-*-N`
+  directo.
+- Cada paleta de acento emite `on-{name}` (auto-contraste sobre su seed),
+  igual que `on-{hue}` en la rueda; el bridge shadcn los usa para
+  `--primary-foreground`/`--secondary-foreground`.
 - Shades: `{name}-{weight}` con weights fijos `50…950` (`WEIGHTS` en
   `constants.ts`) salvo que `colorSteps` sea distinto del default (11), en
   cuyo caso los weights se recalculan (`generateWeights` en `hue.ts`).
 - `withShadeFallback` reescribe `var(--x-500)` → `var(--x-500, var(--x))`
-  para los tres nombres "shaded" (`primary`/`secondary`/`neutrals`) — cubre
-  paletas custom que no generaron todos los steps.
+  para las 8 paletas "shaded" (primary/secondary/tertiary/quaternary/
+  neutral/surface-*) — cubre paletas custom que no generaron todos los
+  steps.
 - El type scale (`text-*`/headings) es exponencial (ver `power`), `space-N`
   es lineal (spacing) — son escalas distintas a propósito, no una
   consolidación pendiente (ver doc del campo `spaceSteps` en `LuzConfig`).
@@ -917,7 +993,7 @@ detección de colisión real, date picker, navegación por teclado compleja):
 primitivos sin estilizar (Base UI/Radix) + las clases de luz encima, no el
 theming propio de shadcn. Para todo lo demás — badge, alert, card, avatar,
 tabs, accordion, modal, breadcrumbs, skeleton — luz tiene su propia capa
-curada de componentes (ver `tools/design.css`), generada desde tokens,
+curada de componentes (ver `tools/components.css`), generada desde tokens,
 mismo enfoque que daisyUI (CSS puro, HTML nativo para la interactividad
 mínima que haga falta) pero reactiva a la paleta/escala del proyecto en
 vez de un tema fijo. `tools/shadcn-bridge.ts` no se tocó — sigue siendo
