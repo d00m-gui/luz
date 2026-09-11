@@ -6,7 +6,7 @@ interface ScaleNamespace {
   /** Class prefix, e.g. `"p"` for `p-4`. */
   prefix: string;
   /** Which numbered token family the suffix resolves against. */
-  scaleFamily: "space";
+  scaleFamily: "space" | "border-radius";
   /** CSS properties the resolved `var(--{scaleFamily}-N)` value is assigned to. */
   cssProps: string[];
 }
@@ -204,6 +204,12 @@ function buildUtilityRegistry(): UtilityNamespace[] {
     { kind: "bridge-color", prefix: "text", cssProps: ["color"] },
     { kind: "bridge-color", prefix: "border", cssProps: ["border-color"] },
     {
+      kind: "scale",
+      prefix: "rounded",
+      scaleFamily: "border-radius",
+      cssProps: ["border-radius"],
+    },
+    {
       kind: "literal",
       className: "rounded",
       declarations: [["border-radius", "var(--border-radius)"]],
@@ -375,10 +381,10 @@ const UTILITY_REGISTRY = buildUtilityRegistry();
 
 const SIZE_STEP_RE = /^[1-9]\d*$/;
 
-/** `var(--space-N)` while the token exists, otherwise `calc(N * var(--space-1))` (the scale is linear) — `w-56`/`max-w-80` don't need `spaceSteps` raised. */
+/** `var(--{family}-N)` while the token exists, otherwise `calc(N * var(--{family}-1))` (both scales are linear) — `w-56`/`max-w-80`/`rounded-16` don't need `spaceSteps`/`radiusSteps` raised. */
 function resolveSizeSuffix(
   suffix: string,
-  family: "space",
+  family: ScaleNamespace["scaleFamily"],
   tokens: LuzTokens,
 ): string | undefined {
   if (!SIZE_STEP_RE.test(suffix)) return undefined;

@@ -118,6 +118,8 @@ export function luzTextScale(
 export function luzSizes(
   base: number,
   relativeToBase: boolean = false,
+  radius: number | string = 1,
+  radiusSteps: number = 8,
 ): Record<string, string> {
   const unit = relativeToBase ? base / 16 : 1;
 
@@ -125,7 +127,7 @@ export function luzSizes(
     "size-unit": relativeToBase
       ? `${parseFloat((0.1 * unit).toFixed(3))}rem`
       : "0.1rem",
-    "border-radius": `${(base / 78).toFixed(1)}rem`,
+    ...luzRadius(base, radius, radiusSteps),
     "border-width": `${(base / 128).toFixed(1)}rem`,
     spacing: `calc(${(base / 4).toFixed(0)}vw * var(--density, 1))`,
     "element-vertical": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
@@ -134,6 +136,38 @@ export function luzSizes(
     "element-width-min": `${base * 2}rem`,
     "element-gap": `calc(${(base / 32).toFixed(3)}rem * var(--density, 1))`,
   };
+}
+
+/** A CSS length literal split into its numeric part and unit — `"8px"`, `"0"`, `"1.5rem"`. */
+const RADIUS_LITERAL_RE = /^(-?\d*\.?\d+)([a-z]*|%)$/i;
+
+/** `border-radius` (= `border-radius-1`) plus the `border-radius-1..steps` scale. `radius` multiplies the `base / 78` rem unit, or replaces it as a literal CSS value. */
+function luzRadius(
+  base: number,
+  radius: number | string,
+  steps: number,
+): Record<string, string> {
+  const literal = typeof radius === "string" ? radius.trim() : "";
+  const scalar = typeof radius === "number" ? radius : 1;
+  const parsed = literal === "" ? null : RADIUS_LITERAL_RE.exec(literal);
+  const amount = parsed
+    ? parseFloat(parsed[1]!)
+    : parseFloat((base / 78).toFixed(1)) * scalar;
+  const unit = parsed ? parsed[2]! : "rem";
+
+  /** Rung `i` — a non-scalable literal (`calc()`, `var()`) stays symbolic. */
+  const rung = (i: number): string => {
+    if (literal !== "" && !parsed) {
+      return i === 1 ? literal : `calc(${literal} * ${i})`;
+    }
+    return `${parseFloat((amount * i).toFixed(3))}${unit}`;
+  };
+
+  const radiusTokens: Record<string, string> = { "border-radius": rung(1) };
+  for (let i = 1; i <= steps; i++) {
+    radiusTokens[`border-radius-${i}`] = rung(i);
+  }
+  return radiusTokens;
 }
 
 export function luzSpace(

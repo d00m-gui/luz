@@ -141,6 +141,31 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   depthSign?: number;
   /** Lightness (0–1) above which `luzOnColor`'s auto-contrast text (the 12 wheel hues' `on-*`, and the `contrast-color()` fallback) flips from white-ish to black-ish. Emitted as `--contrast-threshold`, live (not baked) — overridable per subtree. Default `0.6`. */
   contrastThreshold?: number;
+  /**
+   * Multiplier on the base radius unit (`base / 78` rem), or a literal CSS value used as `--border-radius` verbatim (`"8px"`, `"0"`). Drives the whole `--border-radius-N` scale.
+   * @default 1
+   */
+  radius?: number | string;
+  /**
+   * Total `border-radius-N` tokens generated (`N * ` the radius unit), the scale `rounded-N` resolves against — linear, same shape as `space-N`.
+   * @default 8
+   */
+  radiusSteps?: number;
+  /**
+   * Lightness (OKLCH `l`) added to `--current-bg` on `:hover`. Emitted as `--state-hover-delta`, live (not baked) — overridable per subtree.
+   * @default 0.02
+   */
+  stateHoverDelta?: number;
+  /**
+   * Lightness (OKLCH `l`) subtracted from `--current-bg` on `:active`. Emitted as `--state-pressed-delta`, live (not baked) — overridable per subtree.
+   * @default 0.02
+   */
+  statePressedDelta?: number;
+  /**
+   * `translateY` applied on `:active`. Emitted as `--state-pressed-shift`, live (not baked) — overridable per subtree.
+   * @default "0.1ch"
+   */
+  statePressedShift?: string;
   /** Generate `@property` declarations for every token. Default `false`. */
   properties?: boolean;
   /**
@@ -198,11 +223,11 @@ export interface LuzTokens {
 export interface LuzResult {
   /** Raw tokens object (structured). */
   tokens: LuzTokens;
-  /** CSS custom property declarations as a single string. */
+  /** CSS custom property declarations as a single string, active scheme only — in `mode: "auto"` the scheme-dependent scalars carry their light value. */
   variables: string;
   /** CSS @property generated via tokens */
   properties: string;
-  /** `properties` + the `selector { … }` block. */
+  /** `properties` + the `selector { … }` block, plus the `prefers-color-scheme: dark` override of the scheme-dependent scalars in `mode: "auto"`. */
   theme: string;
 }
 
@@ -238,6 +263,11 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   sizeRelativeToBase: false,
   sizeFluidRange: "fixed",
   spaceSteps: 24,
+  radius: 1,
+  radiusSteps: 8,
+  stateHoverDelta: 0.02,
+  statePressedDelta: 0.02,
+  statePressedShift: "0.1ch",
   density: 1,
   depth: 0,
   depthMax: 0.125,
@@ -358,6 +388,11 @@ export function luz(config?: LuzConfig): LuzResult {
     sizeRelativeToBase,
     sizeFluidRange,
     spaceSteps,
+    radius,
+    radiusSteps,
+    stateHoverDelta,
+    statePressedDelta,
+    statePressedShift,
     spacing,
     density,
     depth,
@@ -492,6 +527,7 @@ export function luz(config?: LuzConfig): LuzResult {
   function buildScheme(reverse: boolean): {
     palettes: LuzPalettes;
     colors: Record<string, string>;
+    scalars: Record<string, string>;
   } {
     const palettes: LuzPalettes = {};
     for (const palette of [...namedPalettes, ...wheelPalettes]) {
@@ -597,12 +633,22 @@ export function luz(config?: LuzConfig): LuzResult {
       "anchor-danger": shade(p.red, 200, 0.6, "var(--danger)"),
       "anchor-success": shade(p.green, 200, 0.6, "var(--success)"),
       "anchor-warning": shade(warningRamp, 200, 0.6, "var(--warning)"),
+    });
+
+    /** Unitless/length knobs, kept out of the `light-dark()` color merge. */
+    const scalars: Record<string, string> = {
       "depth-base": `${depth}`,
       "depth-max": `${depthMax}`,
       "depth-decay": `${depthDecay}`,
       "depth-sign": `${depthSign ?? (reverse ? -0.3 : 0.3)}`,
       "contrast-threshold": `${contrastThreshold}`,
       density: `${density}`,
+      "state-hover-delta": `${stateHoverDelta}`,
+      "state-pressed-delta": `${statePressedDelta}`,
+      "state-pressed-shift": `${statePressedShift}`,
+    };
+
+    Object.assign(colors, {
       "element-background": "var(--background)",
       "element-border-color": "oklch(from var(--foreground) l c h / 20%)",
       "border-color": "oklch(from var(--foreground) l c h / 50%)",
@@ -612,21 +658,22 @@ export function luz(config?: LuzConfig): LuzResult {
       "on-element-active": "var(--primary-50)",
       "on-element-placeholder": "oklch(from var(--foreground) l c h / 50%)",
     });
-    return { palettes, colors };
+    return { palettes, colors, scalars };
   }
 
   const active = buildScheme(isDark);
   const other = isAuto ? buildScheme(true) : undefined;
-  const colors = other
-    ? mergeLightDark(active.colors, other.colors)
-    : active.colors;
+  const colors = {
+    ...(other ? mergeLightDark(active.colors, other.colors) : active.colors),
+    ...active.scalars,
+  };
   const palettes: LuzTokens["palettes"] = {
     [isDark ? "dark" : "light"]: active.palettes,
   };
   if (other) palettes.dark = other.palettes;
 
   const sizeTokens: Record<string, string> = {
-    ...luzSizes(normalBase, sizeRelativeToBase),
+    ...luzSizes(normalBase, sizeRelativeToBase, radius, radiusSteps),
     ...luzTextScale(normalBase, power, sizeRelativeToBase, sizeFluidRange),
     ...luzTypeLandmarks(normalBase, power, sizeRelativeToBase, sizeFluidRange),
     ...luzSpace(normalBase, spaceSteps),
@@ -665,13 +712,33 @@ export function luz(config?: LuzConfig): LuzResult {
     ...vars,
   });
 
+  /** Dark-scheme values of the scheme-dependent scalars (`--depth-sign`), minus any key `config.vars` sets. */
+  const darkScalars = other
+    ? Object.fromEntries(
+        Object.entries(other.scalars).filter(
+          ([key, value]) =>
+            value !== active.scalars[key] && vars?.[key] === undefined,
+        ),
+      )
+    : {};
+
   const colorScheme = `color-scheme: ${isAuto ? "light dark" : mode};\n    `;
+
+  const darkBlock =
+    Object.keys(darkScalars).length > 0
+      ? `
+  @media (prefers-color-scheme: dark) {
+    ${selector} {
+      ${toVariableLines(darkScalars)}
+    }
+  }`
+      : "";
 
   const theme = `
   ${properties}
   ${selector} {
     ${colorScheme}${variables}
-  }
+  }${darkBlock}
   `;
 
   return { tokens, variables, properties, theme };

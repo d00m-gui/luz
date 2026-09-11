@@ -120,11 +120,15 @@ button {
     }
   }
   &:hover {
-    background-color: oklch(from var(--current-bg) calc(l + 0.02) c h);
+    background-color: oklch(
+      from var(--current-bg) calc(l + var(--state-hover-delta, 0.02)) c h
+    );
   }
   &:active {
-    transform: translateY(0.1ch);
-    background-color: oklch(from var(--current-bg) calc(l - 0.02) c h);
+    transform: translateY(var(--state-pressed-shift, 0.1ch));
+    background-color: oklch(
+      from var(--current-bg) calc(l - var(--state-pressed-delta, 0.02)) c h
+    );
     box-shadow:
       0 0 0 var(--size-unit) oklch(from var(--neutral-950) l c h / 10%) inset,
       0 -4ch 3px -2px
