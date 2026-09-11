@@ -63,6 +63,8 @@ Then import luz from your own stylesheet — the plugin expands the theme, the s
 
 `luz(config)` itself is pure and runs anywhere (browser, edge) if you need the tokens or the theme CSS without a bundler.
 
+`@d00m-gui/luz/color` exposes the OKLCH engine on its own — `srgbToOklch`, `oklchToSrgb`, `contrastRatio`, `parseColorToOklch`, `clampToSrgb`, `maxSrgbChroma`, `formatOklch` — for tooling that needs the same math luz uses to derive palettes.
+
 ## Examples
 
 `fixtures/` holds standalone apps that install `@d00m-gui/luz` as a real package (via `bun pm pack`, not the source tree) — e.g. a TanStack Start dashboard (`bun run fixture:tanstack`). See each fixture's own `README.md`.
