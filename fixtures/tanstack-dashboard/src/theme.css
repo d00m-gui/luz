@@ -98,13 +98,6 @@ table td {
 }
 .app-quick-actions {
   --radial-distance: 6.5rem;
-  > .radial-item:nth-child(1) {
-    --radial-angle: 180deg;
-  }
-  > .radial-item:nth-child(2) {
-    --radial-angle: 225deg;
-  }
-  > .radial-item:nth-child(3) {
-    --radial-angle: 270deg;
-  }
+  --radial-start: 180deg;
+  --radial-step: 45deg;
 }

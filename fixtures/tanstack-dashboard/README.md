@@ -175,8 +175,8 @@ var(--foreground) l c h / 8%)` + la sombra exterior original.
   (`--ratio`), `.app-composer .element.pair` (`--element-width-min`),
   `.app-invites` (`--scroll-max`, `--lazy-render-size`), `.app-volume`
   (`--range-length`, `--range-steps`), `.app-density` (`--range-steps`),
-  `.app-quick-actions` (`--radial-distance` + `--radial-angle` por
-  `nth-child`).
+  `.app-quick-actions` (`--radial-distance`, `--radial-start`,
+  `--radial-step`).
 
 ## Resuelto en luz
 
@@ -229,10 +229,6 @@ Propuestas, no decisiones — cada una requiere confirmación antes de tocar
 `--notice-duration` (default 6s, `.notice.sticky` para desactivarlo) y
 `section` con gutter `vw` solo a nivel de `body`/`main` se resolvieron en luz.
 
-- `.radial-menu` no distribuye los `.radial-item` solo: `--radial-angle`
-  hay que fijarlo por ítem (acá con `:nth-child` en theme.css). Propuesta:
-  `--radial-start`/`--radial-sweep` + `sibling-index()`, o variantes
-  `.radial-menu.quarter/.half`.
 - `.grid.overflow` sigue haciendo absoluto a cualquier `.card-meta`; una
   regla top-level `.card-cover + .card-meta` permitiría superponer la meta
   a la portada sin `.grid.overflow`.

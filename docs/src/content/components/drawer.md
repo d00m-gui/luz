@@ -43,14 +43,14 @@ covers:
   <button popovertarget="drawer-fullscreen" aria-label="Abrir menú de pantalla completa">
     <span>Fullscreen</span>
   </button>
-  <div id="radial-demo" popover class="radial-menu">
-    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item" style="--radial-angle: -150deg;">
+  <div id="radial-demo" popover class="radial-menu" style="--radial-start: -150deg; --radial-step: 60deg;">
+    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item">
       <i class="icon nf nf-fa-pencil"></i><span>Editar</span>
     </button>
-    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item" style="--radial-angle: -90deg;">
+    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item">
       <i class="icon nf nf-fa-share_alt"></i><span>Compartir</span>
     </button>
-    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item" style="--radial-angle: -30deg;">
+    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item">
       <i class="icon nf nf-fa-trash_can"></i><span>Borrar</span>
     </button>
   </div>
