@@ -164,6 +164,18 @@ function buildUtilityRegistry(): UtilityNamespace[] {
       scaleFamily: "space",
       cssProps: ["max-height"],
     },
+    {
+      kind: "scale",
+      prefix: "min-w",
+      scaleFamily: "space",
+      cssProps: ["min-width"],
+    },
+    {
+      kind: "scale",
+      prefix: "max-w",
+      scaleFamily: "space",
+      cssProps: ["max-width"],
+    },
     { kind: "scale", prefix: "top", scaleFamily: "space", cssProps: ["top"] },
     {
       kind: "scale",
@@ -363,13 +375,17 @@ const UTILITY_REGISTRY = buildUtilityRegistry();
 
 const SIZE_STEP_RE = /^[1-9]\d*$/;
 
+/** `var(--space-N)` while the token exists, otherwise `calc(N * var(--space-1))` (the scale is linear) — `w-56`/`max-w-80` don't need `spaceSteps` raised. */
 function resolveSizeSuffix(
   suffix: string,
   family: "space",
   tokens: LuzTokens,
 ): string | undefined {
   if (!SIZE_STEP_RE.test(suffix)) return undefined;
-  return tokens.sizes[`${family}-${suffix}`];
+  const token = `${family}-${suffix}`;
+  return tokens.sizes[token] !== undefined
+    ? `var(--${token})`
+    : `calc(${suffix} * var(--${family}-1))`;
 }
 
 function isPublicColorKey(key: string, tokens: LuzTokens): boolean {
@@ -423,10 +439,7 @@ function resolveBaseUtility(
       const resolved = resolveSizeSuffix(suffix, ns.scaleFamily, tokens);
       if (resolved !== undefined) {
         return {
-          declarations: sameValueDeclarations(
-            ns.cssProps,
-            `var(--${ns.scaleFamily}-${suffix})`,
-          ),
+          declarations: sameValueDeclarations(ns.cssProps, resolved),
           namespaceIndex: i,
         };
       }

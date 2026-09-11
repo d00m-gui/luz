@@ -15,9 +15,12 @@ Las utilities son un vocabulario cerrado con nomenclatura Tailwind —
 `{propiedad}-{valor}`, sin valores arbitrarios ni corchetes — escaneado
 de tu código (`.astro`, `.html`, `.tsx`, `.jsx`, `.ts`) y emitido como
 CSS estático solo para las clases que aparecen. `p-`/`m-`/`gap-`/`w-`/
-`h-`/`size-`/`min-h-`/`max-h-`/`top-`/`right-`/`bottom-`/`left-`/`inset-`
-resuelven contra `space-N`; `text-xs`..`text-3xl` contra la escala
-tipográfica; `bg-`/`text-`/`border-` contra `{paleta}-{paso}` y los
+`h-`/`size-`/`min-w-`/`max-w-`/`min-h-`/`max-h-`/`top-`/`right-`/
+`bottom-`/`left-`/`inset-` resuelven contra `space-N` (`N` es cualquier
+entero positivo: más allá de `spaceSteps` sale como
+`calc(N * var(--space-1))`, la escala es lineal); `text-xs`..`text-3xl`
+contra la escala tipográfica; `bg-`/`text-`/`border-` contra
+`{paleta}-{paso}` y los
 tokens semánticos (`bg-primary-600`, `text-foreground`), con opacidad
 opcional (`bg-primary/20`). Literales de layout: `flex`, `grid`,
 `hidden`, `sticky`, `flex-col`, `items-center`, `justify-between`,

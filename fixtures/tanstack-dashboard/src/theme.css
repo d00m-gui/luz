@@ -50,9 +50,6 @@
   background-color: oklch(from var(--scheme, var(--foreground)) l c h / 14%);
   color: var(--foreground);
 }
-.app-search input {
-  width: 14rem;
-}
 .radial-trigger.fixed {
   inset-block-end: var(--space-16);
   width: var(--space-11);

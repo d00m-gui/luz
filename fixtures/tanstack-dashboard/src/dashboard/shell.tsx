@@ -172,7 +172,12 @@ export function DashboardShell({
             </ol>
           </nav>
           <label className="join panel-shrink app-search max-lg:hidden">
-            <input type="search" placeholder="Buscar…" aria-label="Buscar" />
+            <input
+              type="search"
+              className="w-56"
+              placeholder="Buscar…"
+              aria-label="Buscar"
+            />
             <kbd>⌘K</kbd>
           </label>
         </header>

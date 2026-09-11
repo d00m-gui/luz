@@ -176,7 +176,7 @@ var(--foreground) l c h / 8%)` + la sombra exterior original.
   `.app-invites` (`--scroll-max`, `--lazy-render-size`), `.app-volume`
   (`--range-length`, `--range-steps`), `.app-density` (`--range-steps`),
   `.app-quick-actions` (`--radial-distance` + `--radial-angle` por
-  `nth-child`), `.app-search input` (ancho).
+  `nth-child`).
 
 ## Resuelto en luz
 
@@ -233,8 +233,6 @@ Propuestas, no decisiones — cada una requiere confirmación antes de tocar
   hay que fijarlo por ítem (acá con `:nth-child` en theme.css). Propuesta:
   `--radial-start`/`--radial-sweep` + `sibling-index()`, o variantes
   `.radial-menu.quarter/.half`.
-- Utilities de ancho fijo terminan en `w-24` (6rem) y no hay `max-w-N`:
-  el ancho del buscador del topbar (14rem) vive en theme.css.
 - `.grid.overflow` sigue haciendo absoluto a cualquier `.card-meta`; una
   regla top-level `.card-cover + .card-meta` permitiría superponer la meta
   a la portada sin `.grid.overflow`.
