@@ -67,8 +67,6 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   power?: TypeScaleName | number;
   /** Base color for the primary palette (any CSS color). Required. */
   primary: string;
-  /** Custom-property name for the primary palette, e.g. `--{name}-500`. Default `"primary"`. */
-  name?: string;
   /** Base color for the secondary palette. Default: derived from `primary` per `harmony`. */
   secondary?: string;
   /** Base color for the tertiary palette. Default: derived from `primary` per `harmony` when it defines one (`"monochrome"`, `"triad"`, `"analogous"`); otherwise same as `neutral` (`"complementary"` has no third color). */
@@ -182,8 +180,6 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
 
 /** Settings sub-object within tokens (metadata only). */
 export interface TokenSettings {
-  /** Resolved palette name (falls back to `"primary"` if `config.name` is empty). */
-  name: string;
   /** Resolved `config.selector`. */
   selector: string;
 }
@@ -193,7 +189,7 @@ export type LuzPalettes = Record<string, Record<number, OklchSeed>>;
 
 /** Full token set used by all downstream consumers. */
 export interface LuzTokens {
-  /** Metadata about the resolved palette (name/selector). */
+  /** Metadata about the emitted theme block (selector). */
   settings: TokenSettings;
   /** Generated color variable map (primary/secondary/neutral shades, wheel, semantic aliases). */
   colors: Record<string, string>;
@@ -244,7 +240,6 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   base: 16,
   power: "perfect-fourth",
   primary: "#007dea",
-  name: "primary",
   mode: "dark",
   harmony: "complementary",
   neutralTint: 0,
@@ -284,8 +279,7 @@ function mergeLightDark(
   return merged;
 }
 
-function themeVariables(tokens: LuzTokens): Record<string, string> {
-  const { name } = tokens.settings;
+function themeVariables(): Record<string, string> {
   return {
     success: `var(--green-200)`,
     danger: `var(--red-200)`,
@@ -302,21 +296,21 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "on-table-hover": `var(--neutral-300)`,
     "selection-bg": `var(--scheme-primary)`,
     "on-selection": `var(--on-scheme, ${luzOnColor("var(--selection-bg)")})`,
-    "file-input-border-top": `var(--${name}-200)`,
+    "file-input-border-top": `var(--primary-200)`,
     "range-track-bg": `var(--element-background)`,
     "range-track-shadow": `var(--scheme-primary)`,
     "range-thumb-active-bg": `var(--scheme-primary)`,
     "range-tick-color": `var(--element-border-color)`,
     "progress-shadow": `var(--scheme-primary)`,
     "progress-fill": `var(--scheme-primary)`,
-    "on-checkbox": `var(--${name}-100)`,
+    "on-checkbox": `var(--primary-100)`,
     "checkbox-checked-bg": `var(--scheme-primary)`,
     "checkbox-checked-border": `transparent`,
     "switch-bg": `var(--scheme-primary)`,
     "radio-dot-bg": `var(--green-200)`,
     "radio-checked-bg": `var(--scheme-primary)`,
     "radio-checked-border": `var(--scheme-primary)`,
-    "blockquote-border": `var(--${name}-200)`,
+    "blockquote-border": `var(--primary-200)`,
     "on-blockquote-footer": `var(--scheme-primary)`,
     "btn-bg": `var(--scheme-neutral)`,
     "on-btn": `var(--on-scheme, ${luzOnColor("var(--btn-bg)")})`,
@@ -325,7 +319,7 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "on-tooltip": `var(--neutral-300)`,
     "badge-bg": `var(--scheme-primary)`,
     "on-badge": `var(--on-scheme, ${luzOnColor("var(--badge-bg)")})`,
-    "on-badge-ghost": `var(--${name}-400)`,
+    "on-badge-ghost": `var(--primary-400)`,
     "on-tab": `oklch(from var(--foreground) l c h / 65%)`,
     "on-tab-active": `var(--foreground)`,
     "tab-border-active": `var(--scheme-primary)`,
@@ -357,7 +351,6 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const {
     primary,
-    name,
     mode,
     base,
     selector,
@@ -397,7 +390,7 @@ export function luz(config?: LuzConfig): LuzResult {
   const isAuto = mode === "auto";
   const isDark: boolean = isAuto ? false : mode === "dark";
 
-  const primaryName: string = name && name.length > 0 ? name : "primary";
+  const primaryName = "primary";
   const primaryCSSVar: string = `var(--${primaryName})`;
 
   const harmonyColors = luzHarmonyColors(
@@ -800,7 +793,6 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const tokens: LuzTokens = {
     settings: {
-      name: primaryName,
       selector: selector as string,
     },
     colors,
@@ -827,7 +819,7 @@ export function luz(config?: LuzConfig): LuzResult {
     ...tokens.sizes,
     ...tokens.colors,
     ...tokens.typography,
-    ...themeVariables(tokens),
+    ...themeVariables(),
     ...vars,
   });
 

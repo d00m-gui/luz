@@ -23,8 +23,6 @@ interface LiteralNamespace {
   kind: "literal";
   className: string;
   declarations: readonly (readonly [string, string])[];
-  /** Overrides `declarations` when a value depends on `settings.name`/`prefix`, resolved against `tokens`. */
-  dynamic?: (tokens: LuzTokens) => readonly (readonly [string, string])[];
 }
 
 interface BridgeColorNamespace {
@@ -220,18 +218,8 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
     declarations: [
       ["border-width", "var(--border-width)"],
       ["border-style", "solid"],
+      ["border-color", "oklch(from var(--primary-500) l c h / 50%)"],
     ],
-    dynamic: (tokens) => {
-      const primaryFamily = tokens.settings.name;
-      return [
-        ["border-width", "var(--border-width)"],
-        ["border-style", "solid"],
-        [
-          "border-color",
-          withOpacity(`var(--${primaryFamily}-500)`, 50),
-        ],
-      ];
-    },
   },
   {
     kind: "literal",
@@ -420,7 +408,7 @@ function resolveBaseUtility(
     if (ns.kind === "literal") {
       if (opacityPercent === undefined && target === ns.className) {
         return {
-          declarations: ns.dynamic?.(tokens) ?? ns.declarations,
+          declarations: ns.declarations,
           namespaceIndex: i,
         };
       }
