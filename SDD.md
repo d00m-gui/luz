@@ -31,17 +31,16 @@ src/
     reset.css            capa RESET: normalize genérico, no-por-componente
     components.css        manifest de @import de components/*.css (1 archivo por componente, 58 hoy)
     components/*.css      un archivo self-contained por componente (reset+layout+color+estados juntos); theme.css (contenedor scopeado), _print.css (capa @media print)
-    reset.ts              buildReset(): RESET + COMPONENTS desde reset-css.generated.ts
+    reset.ts              buildReset(): RESET + COMPONENTS desde reset-css.generated.ts — solo lo consume css.ts (buildCssSections), no luz()
     gamut.ts              parseColorToOklch/clampToSrgb/formatOklch: color literal → OKLCH numérico, gamut-mapeo real (binary search) contra sRGB
-    hue.ts                luzShadesByHue: 1 seed → N shades oklch (50–950 garantizados + steps custom); baked (gamut.ts) o live (calc()) según si el seed parsea
-    wheel.ts             luzWheel: 12 hues (red…pink), l heredada de primary (armonía), seed overrideable, vía luzShadesByHue
+    hue.ts                LuzPalette/LuzRamp; luzPaletteSeeds: seed → ramp baked 50–950; luzShades: tokens {name}-N desde el ramp (literal) o live (calc()) si no hay seed; nearestSchemeWeight(ramp, l)
+    wheel.ts             luzWheelPalettes: 12 paletas (red…pink), l heredada de primary, seed overrideable
     sizes.ts             luzSizes/luzSpace/luzTypeLandmarks/luzTextScale: size-N, space-N, font-size-h1..h6/small/xs..3xl
     props.ts             luzProperty: infiere @property por token (syntax/initial-value) — opt-in
-    shade-fallback.ts    var(--x-500) → var(--x-500, var(--x)) para paletas custom incompletas
     shadcn-bridge.ts     shadcnBridgeCSS: alias de tokens shadcn ← tokens luz
     utilities.ts         registry de utility classes + emisión de CSS (puro, sin I/O)
     scan.ts               scanSources: walk de archivos fuente (node:fs) → { candidates, files }
-    variants.ts           VARIANTS: prefijos data-*/pseudo-clase → selector
+    variants.ts           VARIANTS: prefijos data-*/pseudo-clase → selector; BREAKPOINTS fijos (sm…2xl) → MEDIA_VARIANTS
     css.ts                buildCssSections/composeCss + expandLuzCss: expansión de `@import "@d00m-gui/luz/*.css"` y `@luz <section>;` (puro)
     luz.css, theme.css, bridge.css, utilities.css   entries CSS publicados; contienen las directivas `@luz` que el plugin expande
   astro/index.ts        integración Astro (luzAstro)
@@ -61,20 +60,20 @@ LuzConfig
    ▼
 luz(config)                         src/luz.ts
    ├─ parseColorToOklch(primary)      seed numérico si primary es un literal parseable (gamut.ts)
-   ├─ buildColors(reverse)  ── luzShadesByHue ×5 (primary/secondary/tertiary?/quaternary?/neutral)
-   │                        ├─ luzWheel           (12 hues fijos)
-   │                        └─ scheme-*/anchor-*  chromaScaledEntry: peso (resolveSchemeWeight) × chroma (schemeChroma/0.6)
+   ├─ LuzPalette ×8 + luzWheelPalettes ×12   { name, color (CSS vivo), seed | null }
+   ├─ buildScheme(reverse)
+   │     ├─ luzPaletteSeeds por paleta con seed → palettes (ramps baked, tokens.palettes.{light,dark})
+   │     └─ colors derivados de esos ramps: luzShades (shades), scheme-* (peso: schemeShade | nearestSchemeWeight(ramp) | 500/800; × schemeChroma), anchor-* (×0.6)
+   │        sin seed → fórmulas live oklch(from var(--x)) / muted()
    │        (llamado 2 veces + mergeLightDark si mode: "auto")
-   ├─ buildPalettes(reverse) ── luzPaletteSeeds por paleta con seed parseable → tokens.palettes.{light,dark}
    ├─ luzSizes()/luzSpace()/luzTextScale()/luzTypeLandmarks()   escalas size-N / space-N / font-size-*
-   ├─ themeVariables(tokens)           alias semánticos (btn-bg, kbd-*, ... — casi todos vía scheme-primary)
+   ├─ themeVariables()                 alias semánticos (btn-bg, kbd-*, ... — casi todos vía scheme-primary)
    └─ luzProperty(tokens)              @property inferidas (opt-in)
         │
         ▼
-   { tokens, variables, properties, customMedia, reset, theme, style }
-        │        reset  = buildReset()                       (estático)
-        │        theme  = customMedia + properties + `${selector} { color-scheme?; variables }`
-        │        style  = reset + theme
+   { tokens, variables, properties, theme }
+        │        theme  = properties + `${selector} { color-scheme?; variables }`
+        │        (el reset no sale de luz(): es reset.css/components.css como entries; buildCssSections lo compone para docs/CLI)
         │
         ├─ shadcnBridgeCSS(tokens)     `${selector} { --card: ...; ... }`
         └─ emitUtilitiesCSS(scanSources(root).candidates, tokens)
@@ -110,7 +109,7 @@ inofensivo.
 
 ## Principio de diseño: **la config siempre gana**
 
-Implementado para el core de `luz()` (`variables`/`style`); todavía no
+Implementado para el core de `luz()` (`variables`/`theme`); todavía no
 alcanza al bridge de shadcn ni al motor de utility classes.
 
 **Dos mecanismos, según si hay derivación o no:**
@@ -142,54 +141,25 @@ uso del mismo mecanismo (agregar tokens custom que no existen todavía);
 no hay forma de distinguir "typo" de "custom" sin una lista blanca
 separada, que no vale la complejidad hoy.
 
-## `colorSteps`/`sizeSteps` — desacoplados de reset/wiring interno
+## Escalas fijas: 11 shades por paleta, landmarks tipográficos
 
-Hasta este cambio, `colorSteps`/`sizeSteps` distintos del default (11/22)
-rompían silenciosamente casi todo lo que no era la paleta pública: ~40
-alias semánticos en `themeVariables()`/`buildColors()`/`wheel.ts`/
-`shadcn-bridge.ts` referenciaban pesos fijos (500/900/700/...) que dejaban
-de existir, y `reset.ts` referenciaba `size-N` hasta `size-22` para
-tipografía Y estructura (padding/gap/radius/heights) — con `sizeSteps` bajo
-la mayoría de esos tokens desaparecía. `docs/luz.config.ts` con
-`colorSteps: 3, sizeSteps: 5` es el repro que destapó esto.
-
-**Fix — dos mecanismos, `luz()`/adaptadores sin cambios:**
-
-- **Colores** (`hue.ts`): `luzShadesByHue` ahora genera **siempre** los 11
-  pesos default (50–950), sin importar `steps` — es lo que garantiza que
-  `--primary-500`, `--red-500`, etc. existan siempre. Si `steps` difiere de
-  11, se agrega un set adicional resampleado (más o menos resolución para
-  la escala pública `bg-primary-N`), nunca lo reemplaza. `luzWheel` hereda
-  la garantía gratis (usa `luzShadesByHue` internamente) — no se tocó.
-  Efecto secundario a tener presente: `colorSteps` ya no puede _reducir_
-  el total de shades por debajo de 11 — solo puede agregar más.
-- **Sizes** (`sizes.ts`): nuevo `luzTypeLandmarks()` — 7 tokens siempre
-  presentes (`font-size-small`, `h6`…`h1`), en rungs consecutivos 0-6 desde
-  un anchor de `7.5 × --size-unit` (0.75rem, retocado una vez más — ver
-  sección de `preset` — desde un primer intento de `9 × --size-unit` que
-  seguía dando un h1 de 80.8px incluso en `"app"`). Todo heredado del
-  default original (rungs 0,4,5,6,7,8,9 desde 1.3rem, de la numeración
-  vieja de `size-13..22`; daba un h1 de ~276px incluso sin fluidez).
-  Independientes de `sizeSteps`/`sizeDynamicFrom`; `power`/`base`/
-  `sizeFluidRange` los siguen afectando. Además, un nuevo `--size-unit`
-  (siempre `0.1rem`-equivalente, escalado por `base` si
-  `sizeRelativeToBase`) reemplaza el resto de usos estructurales de
-  `size-N` en `reset.ts` (paddings, gaps, radios, alturas) vía
-  `calc(var(--size-unit) * N)`. `reset.ts` ya no referencia `size-N`
-  directo en ningún lado — verificado con un diff automatizado de
-  declaraciones contra el output default (multiset idéntico salvo 2 fixes
-  de bugs, ver sección de `reset.ts` más abajo).
-- `size-N`/`space-N` públicos (para `text-N`/`p-N`/etc. del motor de
-  utilities) no cambiaron en este batch — `sizeSteps`/`sizeDynamicFrom`/
-  `spaceSteps` seguían controlando exactamente lo mismo que antes para
-  esas clases. **`size-N`/`text-N` fueron retirados en una sesión
-  posterior** — ver "Escala de texto con nombre" más abajo, esta nota
-  queda como historial de esta sesión puntual.
-
-**No reactividad rota:** el mecanismo elegido para colores mantiene todo
-como `var(--{name}-N)` (indirección CSS), no valores literales — el modo
-`mode: "auto"` sigue funcionando porque el diffing light/dark ya existente
-en `luz()` sigue operando sobre estas mismas variables, sin cambios.
+- **Colores**: toda paleta tiene exactamente los 11 pesos `50…950`
+  (`WEIGHTS` en `constants.ts`). No hay knob para cambiarlo — los ~40
+  alias semánticos de `themeVariables()`/`buildScheme()`, los
+  `components/*.css` y el bridge de shadcn referencian pesos fijos
+  (`-200`, `-500`, `-900`…), así que cualquier otra cantidad rompía el tema
+  (`colorSteps` existió y se retiró por eso).
+- **Sizes** (`sizes.ts`): `luzTypeLandmarks()` — 7 tokens siempre
+  presentes (`font-size-small`, `h6`…`h1`) en rungs consecutivos 0-6 desde
+  un anchor de 0.75rem; `luzTextScale()` — `xs`…`3xl` en rungs -2…4 desde
+  1rem. Ambos salen del mismo `fluidScale()` (rungs + anchor); `power`/
+  `base`/`sizeFluidRange` los afectan. La estructura de los componentes
+  (paddings, gaps, radios, alturas) usa `calc(var(--size-unit) * N)`
+  (`--size-unit` = `0.1rem`, escalado por `base` si `sizeRelativeToBase`),
+  nunca un `size-N`/`space-N` que dependa de `spaceSteps`.
+- Nada de esto rompe `mode: "auto"`: los tokens siguen siendo
+  `var(--{name}-N)` (indirección CSS) o literales por scheme que
+  `mergeLightDark()` envuelve en `light-dark()`.
 
 ## Escala de texto con nombre — `size-N`/`text-N` retirados
 
@@ -279,7 +249,7 @@ como se veían antes del cambio, sin regresión visual).
 ## Armonía de la rueda de colores — `l` heredada de `primary`
 
 Comportamiento histórico restaurado (default, sin flag en `LuzConfig`) —
-da nombre a la librería. Los 12 hues de `luzWheel` (`tools/wheel.ts`) ya
+da nombre a la librería. Los 12 hues de `luzWheelPalettes` (`tools/wheel.ts`) ya
 no tienen una `l` fija por hue — su seed pasa de
 `oklch(${l}% ${c} ${hue})` a `oklch(from ${primaryCSSVar} l ${c} ${hue})`:
 heredan la luminosidad de `primary` en vivo (CSS relative color syntax,
@@ -334,36 +304,30 @@ picker vuelve a correr el parseo + binary search con el literal nuevo.
 La única vía sin baking, ahí y en cualquier build, es un `primary` no
 parseable (nombre de color, `var()`, etc.) — cae al `calc()` vivo.
 
-### `scheme-*`/`muted()` sobre el mismo pipeline numérico
+### `scheme-*`/`anchor-*` — derivados del mismo ramp baked
+
+`buildScheme(reverse)` (`luz.ts`) es la única fuente de verdad del color
+por scheme: bakea una vez el ramp `50…950` de cada paleta con seed
+conocido (`luzPaletteSeeds`, expuesto como `tokens.palettes`) y deriva
+**todo** `colors` de esos ramps — shades (`luzShades`), `scheme-*`,
+`anchor-*`. Sin seed parseable, cada pieza cae a su fórmula live
+(`oklch(from var(--x) …)`, `muted()`).
 
 `scheme-primary`/`-secondary`/`-tertiary`/`-quaternary`/`-neutral` (el
-peso que consumen `.badge`/`.btn`/`.alert`) y `muted()` (`anchor-*`)
-reusan los seeds numéricos de arriba en vez de tener su propio cálculo.
-`LuzConfig.schemeShade` fuerza un peso exacto por paleta;
-`schemeLightness` (target de `l` OKLCH) elige el shade real más cercano
-a esa luminosidad — así el "scheme" de cada paleta queda armónico entre
-hues aunque cada uno tenga distinto chroma disponible, en vez de asumir
-que el mismo peso nominal (`500`) se ve igual de "intenso" en todos.
-`muted()` bakea a `oklch(L C*0.6 H)` literal con el mismo seed (bajar
-chroma nunca saca de gamut, así que no hace falta re-clampear). Mismo
-límite: sin seed parseable, cae al peso/fórmula fija de siempre.
-`scheme-*`/`anchor-*` viven ahora dentro de `buildColors()` (no en
-`themeVariables()`) porque dependen de `reverse` — se benefician gratis
-del wrapping en `light-dark()` que ya hace `mergeLightDark()` para
-`mode: "auto"`.
-
-Ambos son la misma operación ("shade a un peso, con el chroma escalado
-por un factor") con distinto peso/factor — unificados en un solo
-`chromaScaledEntry()` en `luz.ts` (baked cuando hay seed, `muted()` como
-fallback vivo cuando no). `scheme-*` usa el peso de `resolveSchemeWeight`
-y `LuzConfig.schemeChroma` (default `1`, sin cambio) como factor;
-`anchor-*` sigue fijo en peso `200`/factor `0.6` (el peso que ya usaban
-`success`/`danger`/`warning`/`info` — un bug de la primera pasada lo
-tenía en `500`, corregido). Nuevo `schemeChroma`: el `-500` de un hue
-saturado sale a chroma "completo" salvo en los pesos extremos (donde el
-gamut-clamp ya lo reduce solo) — elegir otro peso vía
-`schemeShade`/`schemeLightness` no alcanza para bajar la saturación de
-`.btn`/`.badge`/`.alert`, hace falta el factor.
+peso que consumen `.badge`/`.btn`/`.alert`) y `scheme-info`/`-danger`/
+`-success`/`-warning`: `LuzConfig.schemeShade` fuerza un peso exacto;
+`schemeLightness` (target de `l` OKLCH) elige con `nearestSchemeWeight(ramp,
+l)` el shade real más cercano a esa luminosidad — armónico entre hues
+aunque cada uno tenga distinto chroma disponible; default `500` (`800`
+para `neutral`). `schemeChroma` (default `1`) escala el chroma del shade
+elegido (bajar chroma nunca saca de gamut). `anchor-*` es la misma
+operación (`shade(ramp, peso, factor, live)`) con peso `200` (`500` para
+`anchor-secondary/-tertiary/-quaternary`) y factor `0.6`.
+`scheme-info`/`-danger`/`-success` salen de los ramps `blue`/`red`/`green`
+de la rueda (respetan un override de ese hue); `scheme-warning` de un ramp
+propio a hue 92 (el slot `yellow`, h=115, lee verdoso). Viven dentro de
+`buildScheme()` porque dependen de `reverse` — `mergeLightDark()` los
+envuelve en `light-dark()` para `mode: "auto"`.
 
 `badge-bg`/`checkbox-checked-bg`/`switch-bg`/
 `radio-checked-bg`/`progress-fill`/`tab-border-active`/`hr-color`/
@@ -499,12 +463,18 @@ y deja `.card-content` como el único bloque flexible — pensado para
 grillas de tiles uniformes (usado en la grilla de componentes de
 `docs/`).
 
-## `.grid` — una sola regla auto-fit
+## `.grid` — una sola regla auto-fit; `.grid.overflow` = carousel sin JS
 
 Se retiran las utilities `.grid-cols-N`/`.col-span-N` (sin uso real
 fuera de `docs/`) — `.grid` pasa a `repeat(auto-fit, minmax(min(25rem,
 100%), 1fr))` fijo, vía `--grid-col-size-min` overrideable por
-instancia.
+instancia. `.grid.overflow` fluye en una sola fila (`grid-auto-flow:
+column`, mismo `--grid-col-size-min`) con `overflow-x: auto` +
+`scroll-snap-type: x mandatory`; donde el navegador lo soporta agrega
+`::scroll-button(inline-start/inline-end)` anclados al grid
+(`anchor-name`/`anchor-scope: --grid-overflow`) y `::scroll-marker` por
+ítem (`:target-current` en `--scheme-primary`) — sin soporte queda el
+scroller con scrollbar fina.
 
 ## `.element` — helper de diagramación, responsive sin media queries
 
@@ -518,9 +488,9 @@ estructura. Base `.element` (`display: inline-grid`) + modificadores:
 condición de `@container`/`@media` no puede leer un `var()`, así que un
 breakpoint "configurable" ahí necesitaría hardcodear el valor en el CSS
 estático o depender de un compilador del lado del consumidor
-(`postcss-custom-media`/`lightningcss`) para `@custom-media` — ver
-`TODO.md` (`LuzConfig.breakpoints`, wip, sin consumidor todavía). En
-cambio,
+(`postcss-custom-media`/`lightningcss`) para `@custom-media` — por eso
+no hay breakpoints configurables en `LuzConfig`; los de las variantes
+`md:` de utilities son fijos (`variants.ts`). En cambio,
 `grid-template-columns: repeat(auto-fit, minmax(min(var(--element-pair-min,
 var(--element-width)), 100%), 1fr))`: con exactamente 2 hijos, `auto-fit`
 da 1 columna (ancho completo) mientras no entre un segundo
@@ -636,11 +606,12 @@ reales con directivas `@luz`, así resuelven aun sin plugin.
 Motivado por un consumidor server-side (Bun, sin Astro/Vite) que genera
 CSS por tenant en caliente y necesita N temas en una misma página.
 
-- **`LuzResult.reset` / `LuzResult.theme`**: `reset` es `buildReset()`
-  (idéntico para cualquier config, ~60 KB); `theme` es lo que depende
-  de la config (`customMedia` + `properties` + el bloque
-  `${selector} { … }`). `style` sigue siendo la concatenación
-  `reset + theme`, sin cambio de superficie para los adaptadores.
+- **`LuzResult.theme`**: lo que depende de la config (`properties` + el
+  bloque `${selector} { … }`). El reset (`reset.css` + `components.css`,
+  ~60 KB, idéntico para cualquier config) **no** sale de `luz()` — llega
+  por los entries CSS, así el bundle JS del consumidor no lo arrastra;
+  `buildCssSections()` (`css.ts`, solo en los adaptadores/docs) lo compone
+  con `buildReset()` cuando hace falta el archivo completo.
   `emitUtilitiesCSS(candidates, tokens)` se exporta desde `.` — puro;
   `scanSources` (la versión con `node:fs`) vive en `scan.ts`,
   no en `utilities.ts`, para que el entry raíz no arrastre `node:fs`
@@ -657,19 +628,19 @@ CSS por tenant en caliente y necesita N temas en una misma página.
   sección es `color-scheme: light|dark` inline o por clase, no un campo
   nuevo.
 - **`LuzTokens.palettes`**: `{ light?, dark? }` → `Record<nombre,
-Record<weight, OklchSeed>>`, mismos nombres que
+  LuzRamp>` (`LuzRamp = Record<weight, OklchSeed>`), mismos nombres que
   `colors`; solo paletas cuyo seed parsea (primary/secondary/tertiary/
   quaternary/neutral/surface-*/12 hues de la rueda). En `mode: "auto"`
-  vienen las dos; en `light`/`dark` solo la activa. Sale de
-  `luzPaletteSeeds` (`hue.ts`), la misma rampa/gamut-mapeo que el
-  camino baked de `luzShadesByHue` — el `{l,c,h}` coincide con el
-  literal `oklch()` emitido en `colors` (verificado contra `dist/`).
+  vienen las dos; en `light`/`dark` solo la activa. Son los mismos ramps
+  de los que `buildScheme()` deriva `colors` — el `{l,c,h}` coincide con
+  el literal `oklch()` emitido, por construcción.
 - **`@d00m-gui/luz/color`** (`src/color/index.ts`, entry propio en
   `bunup.config.ts`): `parseColorToOklch`/`formatOklch`/`clampToSrgb`/
   `maxSrgbChroma`/`isInSrgbGamut`/`OklchSeed` (gamut.ts),
-  `resolveBakedShade`/`luzPaletteSeeds`/`nearestSchemeWeight`/
-  `luzHarmonyColorSeeds`/`ColorHarmony` (hue.ts),
-  `luzWheelHueSeed`/`WHEEL_HUE_NAMES`/`WHEEL_CHROMA` (wheel.ts) y
+  `resolveBakedShade(seed, weight, reverse)`/`luzPaletteSeeds(seed,
+  reverse)`/`nearestSchemeWeight(ramp, l)`/`luzHarmonyColorSeeds`/
+  `ColorHarmony`/`LuzPalette`/`LuzRamp` (hue.ts), `luzWheelHueSeed`/
+  `luzWheelPalettes`/`WHEEL_HUE_NAMES`/`WHEEL_CHROMA` (wheel.ts) y
   `WEIGHTS`. Es TS puro sin dependencias; permite que un preview en
   cliente coincida numéricamente con el CSS que `luz()` emite. Congela
   esas firmas como API pública — el replanteo pendiente de
@@ -865,14 +836,17 @@ terceros ya escrito (componentes shadcn/Radix/Base UI/animate-ui copiados
 al proyecto) matchea sin que luz conozca esa librería específica.
 
 **Variantes de breakpoint** (`variants.ts` → `MEDIA_VARIANTS`): `sm:`/
-`md:`/`lg:`/`xl:`/`2xl:` (`min-width`, rem de `DEFAULT_BREAKPOINTS`) y
-`max-sm:`…`max-2xl:` (`max-width: calc(N - 0.02rem)`); combinables solo
-en orden `breakpoint:estado:util` (`md:hover:flex`). `ResolvedUtility`
-lleva `media?`; `emitUtilitiesCSS` emite primero las reglas sin media y
-después un bloque `@media` por breakpoint (min ascendente, luego max).
-`escapeClassSelector` escapa el dígito inicial (`.\32 xl\:block`).
-Familias nuevas sobre la escala `space`: `size-N`, `min-h-N`, `max-h-N`,
-`top/right/bottom/left/inset-N`; literals `aspect-square/video`,
+`md:`/`lg:`/`xl:`/`2xl:` (`min-width`, rem fijos de `BREAKPOINTS`, no
+configurables) y `max-sm:`…`max-2xl:` (`max-width: calc(N - 0.02rem)`);
+combinables solo en orden `breakpoint:estado:util` (`md:hover:flex`).
+`ResolvedUtility` lleva `media?`; `emitUtilitiesCSS` emite primero las
+reglas sin media y después un bloque `@media` por breakpoint (min
+ascendente, luego max). `escapeClassSelector` escapa el dígito inicial
+(`.\32 xl\:block`). Familias sobre la escala `space`: `p/m/gap`
+(+ ejes/lados), `w/h/size-N`, `min-w/max-w/min-h/max-h-N`,
+`top/right/bottom/left/inset-N` — `N` es cualquier entero positivo:
+`var(--space-N)` mientras el token exista, `calc(N * var(--space-1))` más
+allá de `spaceSteps` (la escala es lineal). Literals `aspect-square/video`,
 `rounded-full`, `w-screen/h-screen/min-h-screen/max-h-full`.
 
 ## Componentes de aplicación (`page.css`, `.shell.app`, `.list.nav`, …)
@@ -887,9 +861,9 @@ prefijo y fallback al default (`--shell-height`, `--page-width`,
 
 - `page.css`: `.page` (`max-width` + gutters + `gap`), `.page-header`/
   `.page-header-title`, `.page-body` (`.with-aside` → grid con
-  `--page-aside-width`, colapsa bajo 64rem), `.page-aside`, `.stack`
-  (`--stack-gap`); `.page section { padding: 0 }` neutraliza el padding
-  de landing de `section.css`.
+  `--page-aside-width`, colapsa bajo 64rem), `.page-aside` (sticky,
+  `--page-aside-top`), `.stack` (`--stack-gap`); `.page section
+  { padding: 0 }` neutraliza el padding de landing de `section.css`.
 - `shell.css`: `.shell.app` (pantalla completa, sin borde), `.shell.
   responsive` (apila panes bajo 48rem), `--shell-height`.
 - `list.css`: `.list.nav` (filas sin borde, radio, `.status` con
@@ -907,8 +881,12 @@ prefijo y fallback al default (`--shell-height`, `--page-width`,
   `.avatar-group`/`.avatar.more`; `skeleton.css` `.text/.avatar/.badge`;
   `overlay.css` `.menu-item`; `status.css` `background: var(--scheme,
   currentColor)` + `.pulse`; `element.css` `.wire`; `radial.css`
-  `.fixed`; `_center.css` en grid; `nav.css` acotado a `ul:not(.list)` +
-  `[aria-current]`.
+  `.fixed` y ángulos automáticos (`--radial-start` + `--radial-step`,
+  default `360deg / sibling-count()`, vía `sibling-index()` detrás de
+  `@supports`; `--radial-angle` por ítem sigue ganando; el offset polar
+  va en `transform`, no en `translate`, porque Chromium 150 se cuelga al
+  mezclar `%` con `sibling-index()` ahí); `_center.css` en grid;
+  `nav.css` acotado a `ul:not(.list)` + `[aria-current]`.
 - Lectura: `.prose` real (ritmo vertical bajo `:where(.prose)`, `ol`
   numerado también en `reset.css`, `dl`), `code`/`pre`/`samp` con
   superficie (`--code-bg`/`--on-code` en `themeVariables`, vía
@@ -917,21 +895,18 @@ prefijo y fallback al default (`--shell-height`, `--page-width`,
 
 ## Convenciones de tokens
 
-- Nombres fijos: `secondary`/`tertiary`/`quaternary`/`neutral`/`surface-*`
-  y los 12 hues de la rueda. Solo la paleta primaria se renombra
-  (`config.name`). No hay prefijo/namespace configurable — la capa
-  estática (`components/*.css`) referencia `--neutral-N`/`--surface-*-N`
-  directo.
+- Nombres fijos: `primary`/`secondary`/`tertiary`/`quaternary`/`neutral`/
+  `surface-*` y los 12 hues de la rueda. No hay prefijo/namespace/
+  renombre configurable (`name` y `prefix` existieron y se retiraron: se
+  inyectaban sin escapar y dejaban `var()` sin resolver) — la capa
+  estática (`components/*.css`) referencia `--primary-N`/`--neutral-N`/
+  `--surface-*-N` directo.
 - Cada paleta de acento emite `on-{name}` (auto-contraste sobre su seed),
   igual que `on-{hue}` en la rueda; el bridge shadcn los usa para
   `--primary-foreground`/`--secondary-foreground`.
-- Shades: `{name}-{weight}` con weights fijos `50…950` (`WEIGHTS` en
-  `constants.ts`) salvo que `colorSteps` sea distinto del default (11), en
-  cuyo caso los weights se recalculan (`generateWeights` en `hue.ts`).
-- `withShadeFallback` reescribe `var(--x-500)` → `var(--x-500, var(--x))`
-  para las 8 paletas "shaded" (primary/secondary/tertiary/quaternary/
-  neutral/surface-*) — cubre paletas custom que no generaron todos los
-  steps.
+- Shades: `{name}-{weight}` con los 11 weights fijos `50…950` (`WEIGHTS`
+  en `constants.ts`) — siempre existen, no hay fallback `var(--x-N,
+  var(--x))`.
 - El type scale (`text-*`/headings) es exponencial (ver `power`), `space-N`
   es lineal (spacing) — son escalas distintas a propósito, no una
   consolidación pendiente (ver doc del campo `spaceSteps` en `LuzConfig`).
