@@ -14,7 +14,6 @@ import {
   type ColorHarmony,
 } from "./tools/hue";
 import { luzProperty } from "./tools/props";
-import { buildReset } from "./tools/reset";
 import {
   luzSizes,
   luzSpace,
@@ -203,12 +202,8 @@ export interface LuzResult {
   variables: string;
   /** CSS @property generated via tokens */
   properties: string;
-  /** Static reset + component layer, identical for every config. */
-  reset: string;
-  /** Config-dependent CSS: `properties` + the `selector { … }` block. */
+  /** `properties` + the `selector { … }` block. */
   theme: string;
-  /** Complete CSS as a string (`reset` + `theme`). */
-  style: string;
 }
 
 const PRESET_FLUID_RANGE: Record<
@@ -816,14 +811,12 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const colorScheme = `color-scheme: ${isAuto ? "light dark" : mode};\n    `;
 
-  const reset = buildReset();
   const theme = `
   ${properties}
   ${selector} {
     ${colorScheme}${variables}
   }
   `;
-  const style = `${reset}\n${theme}`;
 
-  return { tokens, variables, properties, reset, theme, style };
+  return { tokens, variables, properties, theme };
 }

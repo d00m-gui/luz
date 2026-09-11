@@ -29,8 +29,8 @@ export const getLuzStats = createServerFn({ method: "GET" }).handler(
       runs.push({ run, ms: performance.now() - start });
     }
 
-    const cssBytes = Buffer.byteLength(result.style, "utf-8");
-    const gzipBytes = gzipSync(result.style).length;
+    const cssBytes = Buffer.byteLength(result.theme, "utf-8");
+    const gzipBytes = gzipSync(result.theme).length;
 
     return {
       runs,
@@ -42,12 +42,6 @@ export const getLuzStats = createServerFn({ method: "GET" }).handler(
         {
           section: "properties",
           bytes: Buffer.byteLength(result.properties, "utf-8"),
-        },
-        {
-          section: "reset+components",
-          bytes:
-            cssBytes -
-            Buffer.byteLength(result.variables + result.properties, "utf-8"),
         },
       ],
       totals: {
