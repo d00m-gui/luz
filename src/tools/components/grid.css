@@ -19,19 +19,67 @@
     --grid-col-size-min: 32rem;
   }
   &.overflow {
-    .card {
-      position: relative;
-      .card-meta {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        opacity: 0.4;
-        padding: var(--space-1);
-      }
-      > .card-meta + .card-content {
-        padding-top: calc(var(--space-8) * var(--density));
-      }
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(min(var(--grid-col-size-min), 100%), 1fr);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: thin;
+    scroll-marker-group: after;
+    anchor-name: --grid-overflow;
+    anchor-scope: --grid-overflow;
+    > * {
+      scroll-snap-align: start;
+    }
+    > *::scroll-marker {
+      content: "";
+      width: var(--space-2);
+      height: var(--space-2);
+      border-radius: 50%;
+      background-color: oklch(from var(--foreground) l c h / 25%);
+      transition: var(--transition);
+      transition-property: background-color;
+    }
+    > *::scroll-marker:target-current {
+      background-color: var(--scheme-primary);
+    }
+    &::scroll-marker-group {
+      display: flex;
+      justify-content: center;
+      gap: var(--space-2);
+      padding-top: var(--space-3);
+    }
+    &::scroll-button(*) {
+      position: fixed;
+      position-anchor: --grid-overflow;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--space-8);
+      aspect-ratio: 1;
+      border: var(--border-width) solid var(--element-border-color);
+      border-radius: 50%;
+      background-color: var(--element-background);
+      color: var(--foreground);
+      box-shadow: var(--box-shadow);
+      cursor: pointer;
+      transition: var(--transition);
+      transition-property: opacity;
+    }
+    &::scroll-button(*):disabled {
+      opacity: 0;
+    }
+    &::scroll-button(inline-start) {
+      content: "‹" / "Previous";
+      position-area: inline-start center;
+    }
+    &::scroll-button(inline-end) {
+      content: "›" / "Next";
+      position-area: inline-end center;
+    }
+    @supports selector(::scroll-button(*)) {
+      scrollbar-width: none;
     }
   }
 }

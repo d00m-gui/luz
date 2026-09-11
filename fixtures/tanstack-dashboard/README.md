@@ -186,8 +186,9 @@ una clase o knob de luz, con dónde se usa acá:
 - `.shell.app` + `--shell-height` — frame de la app; `.shell.responsive` —
   explorador de archivos (Projects).
 - `.page`, `.page-header`, `.page-header-title`, `.page-body` (+
-  `.with-aside`, `--page-aside-width`), `.page-aside`, `.stack`
-  (`--stack-gap`), `.page section { padding: 0 }` — shell.
+  `.with-aside`, `--page-aside-width`), `.page-aside` (sticky,
+  `--page-aside-top`), `.stack` (`--stack-gap`), `.page section
+  { padding: 0 }` — shell.
 - `.list.nav`, `.list > li`, `button.list-row`, `.list-row >
 :last-child { justify-self: end }`, `.filetree` con icono que rota en
   `[open]`, `nav > ul:not(.list)` — shell (nav), Settings (Shortcuts),
@@ -229,10 +230,5 @@ Propuestas, no decisiones — cada una requiere confirmación antes de tocar
 `--notice-duration` (default 6s, `.notice.sticky` para desactivarlo) y
 `section` con gutter `vw` solo a nivel de `body`/`main` se resolvieron en luz.
 
-- `.grid.overflow` sigue haciendo absoluto a cualquier `.card-meta`; una
-  regla top-level `.card-cover + .card-meta` permitiría superponer la meta
-  a la portada sin `.grid.overflow`.
-- `.page-aside` no es sticky; para un ToC largo haría falta
-  `position: sticky; top: var(--space-6)`.
 - `.radial-trigger.fixed` en `--space-6` queda encima de un
   `.panel-header.bottom` de `.shell.app` (theme.css lo sube).
