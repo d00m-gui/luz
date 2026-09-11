@@ -65,8 +65,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
    * @param "golden" 1.618
    */
   power?: TypeScaleName | number;
-  /** Base color for the primary palette (any CSS color). Required. */
-  primary: string;
+  /** Base color for the primary palette (any CSS color). Default `"#007dea"`. */
+  primary?: string;
   /** Base color for the secondary palette. Default: derived from `primary` per `harmony`. */
   secondary?: string;
   /** Base color for the tertiary palette. Default: derived from `primary` per `harmony` when it defines one (`"monochrome"`, `"triad"`, `"analogous"`); otherwise same as `neutral` (`"complementary"` has no third color). */
@@ -384,6 +384,7 @@ export function luz(config?: LuzConfig): LuzResult {
   } = settings;
   for (const hueName of WHEEL_HUE_NAMES) delete typography[hueName];
 
+  const normalPrimary = primary as string;
   const normalBase = base as number;
   const normalNeutralTint = neutralTint as number;
   const normalSurfaceTint = surfaceTint as number;
@@ -420,7 +421,7 @@ export function luz(config?: LuzConfig): LuzResult {
   const quaternaryName = "quaternary";
   const quaternaryCSSVar: string = `var(--${quaternaryName})`;
 
-  const primarySeed = parseColorToOklch(primary);
+  const primarySeed = parseColorToOklch(normalPrimary);
   const harmonySeeds = primarySeed
     ? luzHarmonyColorSeeds(primarySeed, harmony as ColorHarmony)
     : [];
@@ -602,7 +603,7 @@ export function luz(config?: LuzConfig): LuzResult {
     const infoWeight = resolveSchemeWeight("info", infoSeed, reverse);
 
     return {
-      [primaryName]: primary,
+      [primaryName]: normalPrimary,
       ...primaryShades,
       ...secondaryShades,
       [secondaryName]: secondaryColor,
