@@ -25,17 +25,17 @@ propia — ver `README.md` para el pitch de producto.
 src/
   luz.ts              orquestador: config → tokens → CSS string
   index.ts             entry pública (re-exports: luz, emitUtilitiesCSS, tipos)
-  color/index.ts       entry `@d00m-gui/luz/color`: motor OKLCH puro (gamut.ts/hue.ts/wheel.ts) sin luz()
+  color/index.ts       entry `@d00m-gui/luz/color`: motor OKLCH puro (gamut.ts/hue.ts/wheel.ts) sin luz(), + srgbToOklch/oklchToSrgb/contrastRatio
   tools/
     constants.ts        curvas de shade (WEIGHTS) — datos puros
     reset.css            capa RESET: normalize genérico, no-por-componente
     components.css        manifest de @import de components/*.css (1 archivo por componente, 58 hoy)
     components/*.css      un archivo self-contained por componente (reset+layout+color+estados juntos); theme.css (contenedor scopeado), _print.css (capa @media print)
     reset.ts              buildReset(): RESET + COMPONENTS desde reset-css.generated.ts — solo lo consume css.ts (buildCssSections), no luz()
-    gamut.ts              parseColorToOklch/clampToSrgb/formatOklch: color literal → OKLCH numérico, gamut-mapeo real (binary search) contra sRGB
+    gamut.ts              parseColorToOklch/clampToSrgb/formatOklch/srgbToOklch/oklchToSrgb/contrastRatio: color literal → OKLCH numérico, gamut-mapeo real (binary search) contra sRGB, ratio WCAG
     hue.ts                LuzPalette/LuzRamp; luzPaletteSeeds: seed → ramp baked 50–950; luzShades: tokens {name}-N desde el ramp (literal) o live (calc()) si no hay seed; nearestSchemeWeight(ramp, l)
     wheel.ts             luzWheelPalettes: 12 paletas (red…pink), l heredada de primary, seed overrideable
-    sizes.ts             luzSizes/luzSpace/luzTypeLandmarks/luzTextScale: size-N, space-N, font-size-h1..h6/small/xs..3xl
+    sizes.ts             luzSizes/luzSpace/luzTypeLandmarks/luzTextScale: space-N, border-radius-N, font-size-h1..h6/small/xs..3xl
     props.ts             luzProperty: infiere @property por token (syntax/initial-value) — opt-in
     shadcn-bridge.ts     shadcnBridgeCSS: alias de tokens shadcn ← tokens luz
     utilities.ts         registry de utility classes + emisión de CSS (puro, sin I/O)
@@ -157,9 +157,18 @@ separada, que no vale la complejidad hoy.
   (paddings, gaps, radios, alturas) usa `calc(var(--size-unit) * N)`
   (`--size-unit` = `0.1rem`, escalado por `base` si `sizeRelativeToBase`),
   nunca un `size-N`/`space-N` que dependa de `spaceSteps`.
+- **Radio** (`luzRadius()` en `sizes.ts`): `radius` (default `1`)
+  multiplica la unidad `base / 78` rem o, si es un string, la reemplaza
+  por un literal (`"8px"`, `"0"`; una expresión no escalable como
+  `calc()`/`var()` queda simbólica: `calc(<literal> * i)` por paso).
+  `radiusSteps` (default `8`) define cuántos `--border-radius-N` se
+  emiten, lineales como `--space-N`, y `--border-radius` es
+  `--border-radius-1` — el token del que derivan los componentes. La
+  utility `rounded-N` resuelve contra esa escala, simétrica con
+  `p-N`/`gap-N` sobre `space-N`.
 - Nada de esto rompe `mode: "auto"`: los tokens siguen siendo
   `var(--{name}-N)` (indirección CSS) o literales por scheme que
-  `mergeLightDark()` envuelve en `light-dark()`.
+  `mergeLightDark()` envuelve en `light-dark()` (solo tokens de color).
 
 ## Escala de texto con nombre — `size-N`/`text-N` retirados
 
@@ -241,7 +250,7 @@ confundibles al leer el output.
   reflow grande). Pensado para sitios de contenido/documentación (como
   `docs/` mismo), que quieren algo de reflow sin llegar a "dramatic".
 
-`docs/luz.config.ts` usa `preset: "content"` + `.fluid` en la sección de
+`docs/theme.config.ts` usa `preset: "content"` + `.fluid` en la sección de
 Typography — primer uso real de la capa fluida en el sitio, verificado
 con `astro build` real y captura en Chrome (headings se ven igual a
 como se veían antes del cambio, sin regresión visual).
@@ -298,9 +307,12 @@ esa paleta cae íntegra al pipeline `calc()` anterior — sin mezclar
 ambos caminos por shade, todo o nada por paleta.
 
 `ThemeToolbar` (`docs/`) bakea igual que el output real — llama a
-`luz(config)` completo client-side en un `useMemo` (no parchea custom
-properties a mano), así que cualquier cambio de `primary` desde el
-picker vuelve a correr el parseo + binary search con el literal nuevo.
+`luz({ ...config, selector: ":root" }).theme` completo client-side en un
+`useMemo` y renderiza ese string tal cual (no parchea custom properties a
+mano ni envuelve `variables` en un selector, así el `@media
+(prefers-color-scheme: dark)` de los escalares por esquema llega al
+preview), así que cualquier cambio de `primary` desde el picker vuelve a
+correr el parseo + binary search con el literal nuevo.
 La única vía sin baking, ahí y en cualquier build, es un `primary` no
 parseable (nombre de color, `var()`, etc.) — cae al `calc()` vivo.
 
@@ -541,6 +553,22 @@ recibe gratis, sin sumarse a ninguna whitelist. `--on-scheme` sigue
 siendo el hook opcional del consumidor (`.btn.danger { --on-scheme: ... }`),
 gana por ir primero en el `var(...)`.
 
+`--current-bg`/`--current-color`/`--scheme`/`--on-scheme`/
+`--element-background` son API pública documentada (`docs/` →
+features/color): reescribir `--current-bg` en un scope viste una
+superficie de marca sin declarar ningún color de texto, y fijar
+`--scheme` en un contenedor tiñe los componentes que haya adentro sin
+conocerlos.
+
+Los estados interactivos salen de tres tokens con knob
+(`stateHoverDelta`/`statePressedDelta`/`statePressedShift` en
+`LuzConfig`): `button.css` usa
+`oklch(from var(--current-bg) calc(l + var(--state-hover-delta, 0.02)) c h)`
+en `:hover`, `calc(l - var(--state-pressed-delta, 0.02))` y
+`translateY(var(--state-pressed-shift, 0.1ch))` en `:active`. El fallback
+literal en el CSS es el default, así que los componentes siguen andando
+contra un tema sin esos tokens, y un subárbol puede redeclararlos.
+
 `badge.css`/`join.css` tienen su propia fórmula de texto (badge: tono de
 `--current-bg` aclarado +0.25 `l`, coherente con su fondo semi-opaco;
 join: mismo color que su borde, `var(--scheme, var(--element-border-color))`)
@@ -561,6 +589,33 @@ esos nombres por default (`--primary`/`--secondary`/`--neutral` = color
 semilla crudo), y como `--primary-500` etc. se calculan a partir de esas,
 un choque de nombres crea una referencia circular (ambas quedan inválidas
 en el browser). Por eso el alias fijo usa el prefijo `scheme-`.
+
+## `_depth.css` — elevación por anidamiento, escalares registrados
+
+`--element-background` es el fondo de superficie por nivel: `:root` lo
+fija en `var(--background)` y la lista `:where(.card, .elevate, .popover,
+…)` lo recalcula por nivel (1–4, cada uno con su exponente literal) como
+`oklch(from var(--background) clamp(0, calc(l + var(--depth-sign) *
+var(--depth-max) * (1 - pow(var(--depth-decay), N))), 1) c h)`. `.card`/
+`.stat` lo usan como fallback de `--current-bg`.
+
+`--depth-sign`/`--depth-max`/`--depth-decay` se declaran con
+`@property { syntax: "<number>" }` en el propio `_depth.css`: entran a un
+`calc()` dentro de una función de color, donde un valor no numérico deja
+toda la cadena invalid-at-computed-value-time — `--element-background`
+computaba `rgba(0, 0, 0, 0)` dentro de cualquier `.card` y `--current-bg`
+heredaba el vacío. Registradas, un valor no numérico cae al
+`initial-value` en vez de envenenar el color; los valores válidos de
+`LuzConfig` siguen ganando.
+
+La causa concreta era el emisor: `mergeLightDark()` envolvía en
+`light-dark()` cualquier token que difiriera entre esquemas, y
+`light-dark()` solo es `<color>`. Hoy `buildScheme()` devuelve los
+escalares dependientes de esquema aparte de `colors` (`scalars`,
+`--depth-sign`), `mergeLightDark()` toca solo colores, y esos escalares
+salen con el valor claro en el bloque de tema más un
+`@media (prefers-color-scheme: dark)` en `LuzResult.theme` — saltando
+las claves que `config.vars` fija, para que el override siga ganando.
 
 ## `surface-*` — tercer eje, fondo muteado por hue
 
@@ -607,8 +662,13 @@ Motivado por un consumidor server-side (Bun, sin Astro/Vite) que genera
 CSS por tenant en caliente y necesita N temas en una misma página.
 
 - **`LuzResult.theme`**: lo que depende de la config (`properties` + el
-  bloque `${selector} { … }`). El reset (`reset.css` + `components.css`,
-  ~60 KB, idéntico para cualquier config) **no** sale de `luz()` — llega
+  bloque `${selector} { … }`, más un `@media (prefers-color-scheme: dark)`
+  con los escalares dependientes de esquema cuando `mode: "auto"`).
+  `LuzResult.variables` es la lista plana de declaraciones y por eso
+  lleva el valor claro de esos escalares — un consumidor en `auto` tiene
+  que emitir `theme`, no envolver `variables` en un selector propio.
+  El reset (`reset.css` + `components.css`, ~60 KB, idéntico para
+  cualquier config) **no** sale de `luz()` — llega
   por los entries CSS, así el bundle JS del consumidor no lo arrastra;
   `buildCssSections()` (`css.ts`, solo en los adaptadores/docs) lo compone
   con `buildReset()` cuando hace falta el archivo completo.
@@ -641,9 +701,12 @@ CSS por tenant en caliente y necesita N temas en una misma página.
   reverse)`/`nearestSchemeWeight(ramp, l)`/`luzHarmonyColorSeeds`/
   `ColorHarmony`/`LuzPalette`/`LuzRamp` (hue.ts), `luzWheelHueSeed`/
   `luzWheelPalettes`/`WHEEL_HUE_NAMES`/`WHEEL_CHROMA` (wheel.ts) y
-  `WEIGHTS`. Es TS puro sin dependencias; permite que un preview en
-  cliente coincida numéricamente con el CSS que `luz()` emite. Congela
-  esas firmas como API pública — el replanteo pendiente de
+  `WEIGHTS`; y la conversión/medición: `srgbToOklch([r, g, b])` (canales
+  0–255) → `OklchSeed`, `oklchToSrgb(seed)` → tupla 0–255 con el chroma
+  ya mapeado al gamut sRGB, `contrastRatio(a, b)` → ratio WCAG 2.1. Es TS
+  puro sin dependencias; permite que un preview en cliente coincida
+  numéricamente con el CSS que `luz()` emite. Congela esas firmas como
+  API pública — el replanteo pendiente de
   `resolveBakedShade` (anclaje en 500, ver `TODO.md`) pasa a ser un
   cambio de comportamiento público, no interno.
 - **`components/_print.css`** (último `@import` del manifest): `@media
@@ -846,8 +909,11 @@ ascendente, luego max). `escapeClassSelector` escapa el dígito inicial
 (+ ejes/lados), `w/h/size-N`, `min-w/max-w/min-h/max-h-N`,
 `top/right/bottom/left/inset-N` — `N` es cualquier entero positivo:
 `var(--space-N)` mientras el token exista, `calc(N * var(--space-1))` más
-allá de `spaceSteps` (la escala es lineal). Literals `aspect-square/video`,
-`rounded-full`, `w-screen/h-screen/min-h-screen/max-h-full`.
+allá de `spaceSteps` (la escala es lineal). Misma mecánica en la escala
+`border-radius`: `rounded-N` → `var(--border-radius-N)`, con
+`calc(N * var(--border-radius-1))` más allá de `radiusSteps`. Literals
+`aspect-square/video`, `rounded`/`rounded-none`/`rounded-full`,
+`w-screen/h-screen/min-h-screen/max-h-full`.
 
 ## Componentes de aplicación (`page.css`, `.shell.app`, `.list.nav`, …)
 

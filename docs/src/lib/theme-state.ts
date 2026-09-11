@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { LUZ_DEFAULT_CONFIG, type LuzConfig } from "../../../src/luz";
-import { config as siteConfig } from "../../luz.config";
+import { config as siteConfig } from "../../theme.config";
 
 const STORAGE_KEY = "luz-docs-toolbar";
 const EVENT = "luz-theme-change";
@@ -19,12 +19,17 @@ export interface ToolbarState {
   depthDecay: number;
   depthSign: number;
   density: number;
+  radius: number;
+  stateHoverDelta: number;
+  statePressedDelta: number;
+  /** `--state-pressed-shift` in `ch`. */
+  statePressedShift: number;
   contrastThreshold: number;
   schemeChroma: number;
 }
 
 export const DEFAULT_STATE: ToolbarState = {
-  primary: siteConfig.primary,
+  primary: siteConfig.primary ?? LUZ_DEFAULT_CONFIG.primary ?? "#007dea",
   background: siteConfig.background ?? "",
   mode: siteConfig.mode ?? LUZ_DEFAULT_CONFIG.mode ?? "dark",
   preset: siteConfig.preset ?? "content",
@@ -35,6 +40,14 @@ export const DEFAULT_STATE: ToolbarState = {
   depthDecay: siteConfig.depthDecay ?? LUZ_DEFAULT_CONFIG.depthDecay ?? 0.6,
   depthSign: siteConfig.depthSign ?? -0.3,
   density: siteConfig.density ?? LUZ_DEFAULT_CONFIG.density ?? 1,
+  radius: typeof siteConfig.radius === "number" ? siteConfig.radius : 1,
+  stateHoverDelta:
+    siteConfig.stateHoverDelta ?? LUZ_DEFAULT_CONFIG.stateHoverDelta ?? 0.02,
+  statePressedDelta:
+    siteConfig.statePressedDelta ?? LUZ_DEFAULT_CONFIG.statePressedDelta ?? 0.02,
+  statePressedShift: parseFloat(
+    siteConfig.statePressedShift ?? LUZ_DEFAULT_CONFIG.statePressedShift ?? "0.1ch",
+  ),
   contrastThreshold:
     siteConfig.contrastThreshold ?? LUZ_DEFAULT_CONFIG.contrastThreshold ?? 0.6,
   schemeChroma: siteConfig.schemeChroma ?? LUZ_DEFAULT_CONFIG.schemeChroma ?? 1,

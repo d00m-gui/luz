@@ -3,7 +3,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig, fontProviders } from "astro/config";
 import react from "@astrojs/react";
 import { luzAstro } from "../src/astro/index.ts";
-import { config } from "./luz.config.ts";
+import { config } from "./theme.config.ts";
 
 // https://astro.build/config
 export default defineConfig({

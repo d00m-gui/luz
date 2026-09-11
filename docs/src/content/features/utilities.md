@@ -18,8 +18,10 @@ CSS estático solo para las clases que aparecen. `p-`/`m-`/`gap-`/`w-`/
 `h-`/`size-`/`min-w-`/`max-w-`/`min-h-`/`max-h-`/`top-`/`right-`/
 `bottom-`/`left-`/`inset-` resuelven contra `space-N` (`N` es cualquier
 entero positivo: más allá de `spaceSteps` sale como
-`calc(N * var(--space-1))`, la escala es lineal); `text-xs`..`text-3xl`
-contra la escala tipográfica; `bg-`/`text-`/`border-` contra
+`calc(N * var(--space-1))`, la escala es lineal); `rounded-N` contra
+`border-radius-N` con la misma mecánica (más allá de `radiusSteps`,
+`calc(N * var(--border-radius-1))`);
+`text-xs`..`text-3xl` contra la escala tipográfica; `bg-`/`text-`/`border-` contra
 `{paleta}-{paso}` y los
 tokens semánticos (`bg-primary-600`, `text-foreground`), con opacidad
 opcional (`bg-primary/20`). Literales de layout: `flex`, `grid`,

@@ -82,7 +82,11 @@ const utilities = emitUtilitiesCSS(new Set(["p-4", "bg-primary-600"]), tokens);
 `@d00m-gui/luz/color` exports the numeric OKLCH engine luz bakes shades
 with (`parseColorToOklch`, `resolveBakedShade`, `luzPaletteSeeds`,
 `clampToSrgb`, `formatOklch`, `luzHarmonyColorSeeds`, `WEIGHTS`, …), so a
-client-side preview can match the emitted CSS exactly.
+client-side preview can match the emitted CSS exactly. Conversion and
+measurement live there too: `srgbToOklch([r, g, b])` (channels 0–255) →
+`{ l, c, h }`, `oklchToSrgb({ l, c, h })` → an sRGB-gamut-mapped
+`[r, g, b]` tuple, `contrastRatio(a, b)` → the WCAG 2.1 ratio between two
+seeds (21 for black on white).
 
 ## The four layers
 
@@ -148,6 +152,8 @@ Only `primary` is required. Defaults below are `LUZ_DEFAULT_CONFIG`.
 | `sizeFluidRange` | `"fixed"` (via `preset`) | How far past viewport-min the fluid `clamp()` zone reaches, in scale rungs. Named: `fixed` 0 (no reflow, dense app UI), `tight` 0.35, `balanced` 1, `dramatic` 1.6 (marketing hero text). Or a raw number. |
 | `preset` | unset | Shortcut for `sizeFluidRange`: `"app"` → `fixed`, `"content"` → `balanced`, `"landing"` → 2.4 (steeper than `dramatic`). Explicit `sizeFluidRange` overrides. |
 | `spaceSteps` | `24` | Total `space-N` tokens. Linear and fixed (`N * base/64`), unlike the exponential type scale — the scale `p-`/`m-`/`gap-`/`w-`/`h-` utilities resolve against. |
+| `radius` | `1` | Multiplier on the base radius unit (`base / 78` rem), or a literal CSS length used verbatim (`"8px"`, `"0"`). Drives `--border-radius` and the whole `--border-radius-N` scale. |
+| `radiusSteps` | `8` | Total `border-radius-N` tokens (`N *` the radius unit). Linear, same shape as `space-N` — the scale `rounded-N` resolves against. |
 | `spacing` | derived from `base` | `--spacing` override (page-level gutter). |
 | `background` / `foreground` | `neutral` 900/100 or 100/900 by `mode` | Overrides for the base background/foreground tokens. |
 | `transition` | `"all ease 200ms"` | Default `transition` shorthand via setup rules. |
@@ -158,6 +164,9 @@ Only `primary` is required. Defaults below are `LUZ_DEFAULT_CONFIG`.
 | `depthDecay` | `0.6` | Per-level falloff (0–1) of the elevation curve — smaller = more contrast between the first few levels. |
 | `depthSign` | auto by `mode` | Forces elevation direction/magnitude. A `.elements-depth-light`/`.elements-depth-dark` class on a subtree still overrides this. |
 | `contrastThreshold` | `0.6` | Lightness above which auto-contrast text (wheel `on-*`, `contrast-color()` fallback) flips from white-ish to black-ish. Live, overridable per subtree. |
+| `stateHoverDelta` | `0.02` | Lightness (OKLCH `l`) added to `--current-bg` on `:hover`. Emitted as `--state-hover-delta`, live, overridable per subtree. |
+| `statePressedDelta` | `0.02` | Lightness (OKLCH `l`) subtracted from `--current-bg` on `:active`. Emitted as `--state-pressed-delta`, live. |
+| `statePressedShift` | `"0.1ch"` | `translateY` applied on `:active`. Emitted as `--state-pressed-shift`, live. Raise all three for a tactile brand, flatten them (`"0"`) for a flat one. |
 | `breakpoints` | unset (nothing emitted) | Named viewport breakpoints, emitted as `@custom-media --breakpoint-{name}` — needs a consumer-side compiler (`postcss-custom-media`), lightningcss warns on it. An object merges over `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem; `{}` = just the defaults). A number is rem, a string used as-is. |
 
 ### Escape hatches
@@ -210,6 +219,20 @@ vocabulary for semantic tokens:
   threshold`, with a slight hue tint (softer than pure black/white
   against saturated backgrounds). Backed by CSS `contrast-color()` where
   supported.
+- **Surface & state** (public API — meant to be rewritten in a scope):
+  `--current-bg` is "the background of this thing", and `_contrast.css`
+  derives `--current-color` from it for every element, so setting
+  `--current-bg` in a scope re-themes a surface without declaring any
+  text color; `--on-scheme` wins over that derivation when the text color
+  must be fixed. `--scheme` is the tint a component turns into its own
+  `--current-bg` (solid on `.card`/`button`/`.stat`, 26% opacity on
+  `.badge`, 12% mixed with `--background` on `.alert`) — set it on a
+  container to tint everything inside. `--element-background` is the
+  per-nesting-level surface color `_depth.css` computes (`:root` =
+  `--background`), the token for a custom ornament that must match the
+  surface holding it. `--state-hover-delta`/`--state-pressed-delta`/
+  `--state-pressed-shift` are the `:hover`/`:active` deltas components
+  apply on top of `--current-bg`.
 - **Structural**: `--background`, `--foreground`, `--spacing`,
   `--density`, `--depth` (per-subtree elevation, see `depth*` fields),
   `--contrast-threshold`, `--transition`, `--box-shadow`.
@@ -217,7 +240,9 @@ vocabulary for semantic tokens:
   `power`; √ratio below `base`) and `--font-size-small`…`--font-size-h1`
   (landmarks), each with a `-fluid` twin consumed by `.fluid`;
   `--space-1`…`--space-{spaceSteps}` (linear, `base/64` per step);
-  `--size-unit`. None of them depend on `--density`.
+  `--border-radius-1`…`--border-radius-{radiusSteps}` (linear, `base/78`
+  per step, `--border-radius` = `--border-radius-1`); `--size-unit`. None
+  of them depend on `--density`.
 - **Breakpoints**: `@custom-media --breakpoint-{name}` (not a custom
   property — a media-query alias), only when `breakpoints` is set.
 
@@ -233,7 +258,8 @@ static CSS — no arbitrary values, no bracket syntax. Shape:
 - **Scale utilities** resolve against `space-N`: `p-`/`px-`/`py-`/`pt-`/
   `pr-`/`pb-`/`pl-`, `m-`/`mx-`/`my-`/`mt-`/`mr-`/`mb-`/`ml-`, `gap-`/
   `gap-x-`/`gap-y-`, `w-`/`h-`/`size-` (width + height), `min-h-`/`max-h-`,
-  `top-`/`right-`/`bottom-`/`left-`/`inset-`. Typography (`text-xs`…
+  `top-`/`right-`/`bottom-`/`left-`/`inset-`; `rounded-N` resolves against
+  `border-radius-N` (`radiusSteps`). Typography (`text-xs`…
   `text-3xl`) resolves against the exponential type scale; color
   utilities (`bg-`, `text-`, `border-`) against `{name}-{step}` palettes
   and semantic tokens, with an optional opacity suffix (`bg-primary/20`).
