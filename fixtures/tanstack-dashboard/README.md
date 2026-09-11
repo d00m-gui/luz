@@ -235,8 +235,6 @@ Propuestas, no decisiones — cada una requiere confirmación antes de tocar
   `.radial-menu.quarter/.half`.
 - Utilities de ancho fijo terminan en `w-24` (6rem) y no hay `max-w-N`:
   el ancho del buscador del topbar (14rem) vive en theme.css.
-- Breakpoints de `md:`/`lg:`… son los de `DEFAULT_BREAKPOINTS`;
-  `LuzConfig.breakpoints` no llega a `emitUtilitiesCSS`.
 - `.grid.overflow` sigue haciendo absoluto a cualquier `.card-meta`; una
   regla top-level `.card-cover + .card-meta` permitiría superponer la meta
   a la portada sin `.grid.overflow`.

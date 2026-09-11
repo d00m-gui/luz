@@ -1,7 +1,6 @@
 ---
 title: "Utilities"
-fields:
-  - "breakpoints"
+fields: []
 order: 6
 examples:
   - label: "Variantes de estado y de breakpoint"
@@ -10,13 +9,6 @@ examples:
       <aside class="hidden lg:flex flex-col gap-4">…</aside>
       <button class="max-md:hidden md:hover:bg-primary-600">Menú</button>
       <div class="size-8 rounded-full bg-primary-500"></div>
-  - label: "Breakpoints como @custom-media"
-    lang: "ts"
-    code: |
-      luz({
-        primary: "#f28c20",
-        breakpoints: { md: 50, "2xl": "1600px" },
-      })
 ---
 
 Las utilities son un vocabulario cerrado con nomenclatura Tailwind —
@@ -48,7 +40,5 @@ ascendente, `min-*` antes que `max-*`, así `hidden md:flex` y
 `flex max-md:hidden` funcionan sin pelear especificidad. Se puede
 combinar con una única variante de estado, siempre en el orden
 `breakpoint:estado:util` (`md:hover:flex`, `max-lg:open:hidden`);
-`hover:md:flex` no emite nada. Los valores son los de
-`DEFAULT_BREAKPOINTS` — `breakpoints` cambia lo que se emite como
-`@custom-media --breakpoint-{name}` (para consumir con un compilador
-que lo soporte, p. ej. `postcss-custom-media`), no las variantes.
+`hover:md:flex` no emite nada. Los breakpoints son fijos, no se
+configuran.

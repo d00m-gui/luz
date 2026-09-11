@@ -15,7 +15,6 @@ import {
 } from "./tools/hue";
 import { luzProperty } from "./tools/props";
 import { buildReset } from "./tools/reset";
-import { luzCustomMedia, type BreakpointsConfig } from "./tools/breakpoints";
 import {
   luzSizes,
   luzSpace,
@@ -171,11 +170,6 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   spaceSteps?: number;
   /** Raw CSS custom properties, merged last — overrides an existing token by name or adds a new one. */
   vars?: Record<string, string | number>;
-  /**
-   * Named viewport breakpoints, emitted as `@custom-media --breakpoint-{name} (min-width: ...)`.
-   * A number is rem, a string is used as-is (e.g. `"1200px"`). Merged over `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem) — pass `{}` for just the defaults. Unset by default: nothing is emitted (`@custom-media` needs a consumer-side compiler such as `postcss-custom-media`).
-   */
-  breakpoints?: BreakpointsConfig;
 }
 
 /** Settings sub-object within tokens (metadata only). */
@@ -209,11 +203,9 @@ export interface LuzResult {
   variables: string;
   /** CSS @property generated via tokens */
   properties: string;
-  /** `@custom-media --breakpoint-*` declarations */
-  customMedia: string;
   /** Static reset + component layer, identical for every config. */
   reset: string;
-  /** Config-dependent CSS: `customMedia` + `properties` + the `selector { … }` block. */
+  /** Config-dependent CSS: `properties` + the `selector { … }` block. */
   theme: string;
   /** Complete CSS as a string (`reset` + `theme`). */
   style: string;
@@ -379,7 +371,6 @@ export function luz(config?: LuzConfig): LuzResult {
     depthSign,
     contrastThreshold,
     vars,
-    breakpoints,
     ...typography
   } = settings;
   for (const hueName of WHEEL_HUE_NAMES) delete typography[hueName];
@@ -803,7 +794,6 @@ export function luz(config?: LuzConfig): LuzResult {
   };
 
   const properties = generateProperties ? luzProperty(tokens) : "";
-  const customMedia = luzCustomMedia(breakpoints);
 
   /** Renders a flat `--name: value;` line per entry, skipping nullish values. */
   function toVariableLines(record: Record<string, unknown>): string {
@@ -828,7 +818,6 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const reset = buildReset();
   const theme = `
-  ${customMedia}
   ${properties}
   ${selector} {
     ${colorScheme}${variables}
@@ -836,5 +825,5 @@ export function luz(config?: LuzConfig): LuzResult {
   `;
   const style = `${reset}\n${theme}`;
 
-  return { tokens, variables, properties, customMedia, reset, theme, style };
+  return { tokens, variables, properties, reset, theme, style };
 }
