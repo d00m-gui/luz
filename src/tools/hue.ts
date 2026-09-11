@@ -10,18 +10,6 @@ function easeIn(t: number): number {
   return t * t;
 }
 
-/** Evenly spaced weight labels 50→950, rounded to the nearest 10 (`WEIGHTS` itself for the default 11 steps). */
-function generateWeights(steps: number): number[] {
-  if (steps === WEIGHTS.length) return WEIGHTS;
-  if (steps === 1) return [CENTER_WEIGHT];
-  const result: number[] = [];
-  for (let i = 0; i < steps; i++) {
-    const raw = 50 + ((950 - 50) * i) / (steps - 1);
-    result.push(Math.round(raw / 10) * 10);
-  }
-  return result;
-}
-
 /** Direction (`+1` lighten, `-1` darken, `0` unchanged) and eased fraction (0–`LIGHTNESS_FRACTION`) of the headroom to `l=1`/`l=0` a weight reaches, relative to the 500 shade. */
 function lightnessFactor(
   weight: number,
@@ -74,10 +62,9 @@ export function resolveBakedShade(
 export function luzPaletteSeeds(
   seed: OklchSeed,
   reverse: boolean,
-  steps: number = WEIGHTS.length,
 ): Record<number, OklchSeed> {
   const shades: Record<number, OklchSeed> = {};
-  for (const weight of generateWeights(steps)) {
+  for (const weight of WEIGHTS) {
     shades[weight] = resolveBakedShade(seed, weight, reverse);
   }
   return shades;
@@ -96,14 +83,12 @@ function shadeEntryBaked(
 /** Which generated weight's real lightness lands closest to `target` (0–1) — used to pick a `scheme-*` shade by perceived lightness instead of a fixed nominal weight. */
 export function nearestSchemeWeight(
   seed: OklchSeed,
-  steps: number,
   reverse: boolean,
   target: number,
 ): number {
-  const weights = steps === WEIGHTS.length ? WEIGHTS : generateWeights(steps);
   let best = CENTER_WEIGHT;
   let bestDiff = Number.POSITIVE_INFINITY;
-  for (const weight of weights) {
+  for (const weight of WEIGHTS) {
     const { l } = resolveBakedShade(seed, weight, reverse);
     const diff = Math.abs(l - target);
     if (diff < bestDiff) {
@@ -181,18 +166,15 @@ export function luzShadesByHue({
   color,
   name,
   reverse = false,
-  steps = WEIGHTS.length,
   seed,
 }: {
   color: string;
   name: string;
   reverse?: boolean;
-  steps?: number;
   seed?: OklchSeed | null;
 }): Record<string, string> {
-  const weights = generateWeights(steps);
   const shades: Record<string, string> = {};
-  for (const weight of weights) {
+  for (const weight of WEIGHTS) {
     const [key, value] = seed
       ? shadeEntryBaked(seed, name, weight, reverse)
       : shadeEntry(color, name, weight, reverse);

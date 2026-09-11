@@ -31,7 +31,6 @@ import {
   WHEEL_HUE_NAMES,
   type WheelHueName,
 } from "./tools/wheel";
-import { withShadeFallback } from "./tools/shade-fallback";
 
 /** Also accepts any of luz's 12 wheel hue names (`red`, `copper`, `orange`, `yellow`, `green`, `emerald`, `teal`, `cyan`, `blue`, `sky`, `violet`, `pink`) as a raw CSS color. */
 export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
@@ -148,8 +147,6 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   contrastThreshold?: number;
   /** Generate `@property` declarations for every token. Default `false`. */
   properties?: boolean;
-  /** Shade steps generated per color palette. Default `11` (50–950). */
-  colorSteps?: number;
   /**
    * How many scale rungs (see `power`) the fluid zone's viewport-max value
    * reaches past its viewport-min value, or a raw number for a custom offset.
@@ -256,7 +253,6 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   selector: ":root",
   transition: "all ease 200ms",
   "box-shadow": "none",
-  colorSteps: 11,
   sizeRelativeToBase: false,
   sizeFluidRange: "fixed",
   spaceSteps: 24,
@@ -379,7 +375,6 @@ export function luz(config?: LuzConfig): LuzResult {
     foreground,
     properties: generateProperties,
     preset: _preset,
-    colorSteps,
     sizeRelativeToBase,
     sizeFluidRange,
     spaceSteps,
@@ -515,12 +510,7 @@ export function luz(config?: LuzConfig): LuzResult {
       typeof schemeShade === "number" ? schemeShade : schemeShade?.[slot];
     if (explicit !== undefined) return explicit;
     if (schemeLightness !== undefined && seed) {
-      return nearestSchemeWeight(
-        seed,
-        colorSteps as number,
-        reverse,
-        schemeLightness,
-      );
+      return nearestSchemeWeight(seed, reverse, schemeLightness);
     }
     return slot === "neutral" ? 800 : 500;
   }
@@ -546,14 +536,12 @@ export function luz(config?: LuzConfig): LuzResult {
       color: primaryCSSVar,
       name: primaryName,
       reverse,
-      steps: colorSteps,
       seed: primarySeed,
     });
     const secondaryShades = luzShadesByHue({
       color: secondaryCSSVar,
       name: secondaryName,
       reverse,
-      steps: colorSteps,
       seed: secondarySeed,
     });
 
@@ -561,7 +549,6 @@ export function luz(config?: LuzConfig): LuzResult {
       color: tertiaryCSSVar,
       name: tertiaryName,
       reverse,
-      steps: colorSteps,
       seed: tertiarySeed,
     });
 
@@ -569,7 +556,6 @@ export function luz(config?: LuzConfig): LuzResult {
       color: quaternaryCSSVar,
       name: quaternaryName,
       reverse,
-      steps: colorSteps,
       seed: quaternarySeed,
     });
 
@@ -577,7 +563,6 @@ export function luz(config?: LuzConfig): LuzResult {
       color: neutralCSSVar,
       name: neutralsName,
       reverse,
-      steps: colorSteps,
       seed: neutralSeed,
     });
 
@@ -588,7 +573,6 @@ export function luz(config?: LuzConfig): LuzResult {
         color: surface.cssVar,
         name: surface.name,
         reverse,
-        steps: colorSteps,
         seed: surface.seed,
       });
     const surfaceSecondaryShades = surfaceShades(surfaceSecondary);
@@ -598,7 +582,6 @@ export function luz(config?: LuzConfig): LuzResult {
     const wheel: Record<string, string> = luzWheel(
       reverse,
       primaryCSSVar,
-      colorSteps,
       wheelOverrides,
       primarySeed,
     );
@@ -796,7 +779,7 @@ export function luz(config?: LuzConfig): LuzResult {
     const palettes: LuzPalettes = {};
     for (const [paletteName, seed] of named) {
       if (seed) {
-        palettes[paletteName] = luzPaletteSeeds(seed, reverse, colorSteps);
+        palettes[paletteName] = luzPaletteSeeds(seed, reverse);
       }
     }
     return palettes;
@@ -840,27 +823,13 @@ export function luz(config?: LuzConfig): LuzResult {
     return lines.join("\n");
   }
 
-  const shadedNames = [
-    primaryName,
-    secondaryName,
-    tertiaryName,
-    quaternaryName,
-    neutralsName,
-    surfaceSecondary.name,
-    surfaceTertiary.name,
-    surfaceQuaternary.name,
-  ];
-
-  const variables = withShadeFallback(
-    toVariableLines({
-      ...tokens.sizes,
-      ...tokens.colors,
-      ...tokens.typography,
-      ...themeVariables(tokens),
-      ...vars,
-    }),
-    shadedNames,
-  );
+  const variables = toVariableLines({
+    ...tokens.sizes,
+    ...tokens.colors,
+    ...tokens.typography,
+    ...themeVariables(tokens),
+    ...vars,
+  });
 
   const colorScheme = `color-scheme: ${isAuto ? "light dark" : mode};\n    `;
 

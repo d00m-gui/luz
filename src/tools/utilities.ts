@@ -1,5 +1,4 @@
 import type { LuzTokens } from "../luz";
-import { withShadeFallback } from "./shade-fallback";
 import { MEDIA_QUERIES, MEDIA_VARIANTS, resolveVariant } from "./variants";
 
 interface ScaleNamespace {
@@ -229,7 +228,7 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
         ["border-style", "solid"],
         [
           "border-color",
-          withOpacity(colorValue(`${primaryFamily}-500`, tokens), 50),
+          withOpacity(`var(--${primaryFamily}-500)`, 50),
         ],
       ];
     },
@@ -389,16 +388,6 @@ function isPublicColorKey(key: string, tokens: LuzTokens): boolean {
   return !key.endsWith("-seed") && tokens.colors[key] !== undefined;
 }
 
-function colorValue(key: string, tokens: LuzTokens): string {
-  const varRef = `var(--${key})`;
-  const shadeMatch = key.match(/^(.+)-\d{2,3}$/);
-  const family = shadeMatch?.[1];
-  if (family && tokens.colors[family] !== undefined) {
-    return withShadeFallback(varRef, [family]);
-  }
-  return varRef;
-}
-
 interface ResolvedBase {
   declarations: readonly (readonly [string, string])[];
   namespaceIndex: number;
@@ -455,7 +444,7 @@ function resolveBaseUtility(
       }
     } else if (ns.kind === "color") {
       if (isPublicColorKey(suffix, tokens)) {
-        let value = colorValue(suffix, tokens);
+        let value = `var(--${suffix})`;
         if (opacityPercent !== undefined)
           value = withOpacity(value, opacityPercent);
         return {

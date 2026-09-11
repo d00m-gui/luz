@@ -3,7 +3,6 @@ title: "Escalas"
 fields:
   - "base"
   - "power"
-  - "colorSteps"
   - "sizeFluidRange"
   - "preset"
   - "sizeRelativeToBase"

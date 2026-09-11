@@ -44,7 +44,6 @@ export function luzWheelHueSeed(
 export function luzWheel(
   reverse: boolean,
   primaryCSSVar: string,
-  steps?: number,
   overrides?: Partial<Record<WheelHueName, string>>,
   primarySeed?: OklchSeed | null,
 ): Record<string, string> {
@@ -62,7 +61,6 @@ export function luzWheel(
         color: `var(--${seedKey})`,
         name,
         reverse,
-        steps,
         seed: luzWheelHueSeed(name, primarySeed ?? null, override),
       }),
     );
