@@ -12,9 +12,12 @@ export {
   nearestSchemeWeight,
   resolveBakedShade,
   type ColorHarmony,
+  type LuzPalette,
+  type LuzRamp,
 } from "../tools/hue";
 export {
   luzWheelHueSeed,
+  luzWheelPalettes,
   WHEEL_CHROMA,
   WHEEL_HUE_NAMES,
   type WheelHueName,

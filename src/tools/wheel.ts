@@ -1,5 +1,5 @@
 import { parseColorToOklch, type OklchSeed } from "./gamut";
-import { luzOnColor, luzShadesByHue } from "./hue";
+import type { LuzPalette } from "./hue";
 
 const WHEEL_STEP = 30;
 const WHEEL_OFFSET = 25;
@@ -40,32 +40,20 @@ export function luzWheelHueSeed(
   };
 }
 
-/** `primarySeed` is `primary`'s exact OKLCH, known at build time — when given, each wheel hue's shades are baked with real per-shade gamut mapping. An explicit `overrides[name]` that itself parses as a literal color bakes from its own OKLCH instead of `primarySeed`'s. */
-export function luzWheel(
-  reverse: boolean,
+/** The 12 wheel palettes: `color` is the live seed (`override` verbatim, else `primary`'s lightness at the hue's fixed chroma/angle). */
+export function luzWheelPalettes(
   primaryCSSVar: string,
-  overrides?: Partial<Record<WheelHueName, string>>,
-  primarySeed?: OklchSeed | null,
-): Record<string, string> {
-  const wheel: Record<string, string> = {};
-  for (let i = 0; i < WHEEL_NAMES.length; i++) {
-    const name = WHEEL_NAMES[i]!;
-    const hue = i * WHEEL_STEP + WHEEL_OFFSET;
-    const seedKey = `${name}-seed`;
-    const override = overrides?.[name];
-    wheel[seedKey] =
-      override ?? `oklch(from ${primaryCSSVar} l ${WHEEL_CHROMA} ${hue})`;
-    Object.assign(
-      wheel,
-      luzShadesByHue({
-        color: `var(--${seedKey})`,
-        name,
-        reverse,
-        seed: luzWheelHueSeed(name, primarySeed ?? null, override),
-      }),
-    );
-    wheel[name] = `var(--${name}-500)`;
-    wheel[`on-${name}`] = luzOnColor(`var(--${seedKey})`);
-  }
-  return wheel;
+  primarySeed: OklchSeed | null,
+  overrides: Partial<Record<WheelHueName, string>>,
+): LuzPalette[] {
+  return WHEEL_NAMES.map((name, i) => {
+    const override = overrides[name];
+    return {
+      name,
+      color:
+        override ??
+        `oklch(from ${primaryCSSVar} l ${WHEEL_CHROMA} ${i * WHEEL_STEP + WHEEL_OFFSET})`,
+      seed: luzWheelHueSeed(name, primarySeed, override),
+    };
+  });
 }
