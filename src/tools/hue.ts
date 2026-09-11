@@ -111,53 +111,36 @@ export type ColorHarmony =
   | "triad"
   | "monochrome";
 
-function hueShift(color: string, degrees: number): string {
-  return `oklch(from ${color} l c calc(h + ${degrees}))`;
-}
+type HarmonyStep = { hue: number } | { chroma: number };
 
-function chromaScale(color: string, factor: number): string {
-  return `oklch(from ${color} l calc(c * ${factor}) h)`;
-}
-
-/** Hue offsets from `primary` for each extra harmony color, in slot order (secondary, tertiary, quaternary). */
-const HARMONY_HUE_OFFSETS: Record<ColorHarmony, number[]> = {
-  complementary: [180],
-  analogous: [30, 60, 90],
-  triad: [120, 240],
-  monochrome: [],
+/** Transforms applied to `primary` for each extra harmony color, in slot order (secondary, tertiary, quaternary): a hue rotation in degrees or a chroma multiplier. */
+const HARMONY_STEPS: Record<ColorHarmony, HarmonyStep[]> = {
+  complementary: [{ hue: 180 }],
+  analogous: [{ hue: 30 }, { hue: 60 }, { hue: 90 }],
+  triad: [{ hue: 120 }, { hue: 240 }],
+  monochrome: [{ chroma: 0.45 }, { chroma: 0.2 }],
 };
 
-/** Chroma multipliers from `primary` for `monochrome`'s extra colors, in slot order (secondary, tertiary). */
-const MONOCHROME_CHROMA_SCALES = [0.45, 0.2];
-
-/** Derives the harmony's extra seed colors from `primary`, in slot order (secondary, tertiary, quaternary) — a slot missing from the result means this harmony doesn't define one, and the caller falls back to its own default for that slot. */
+/** Live CSS for the harmony's extra colors — a slot missing from the result means this harmony doesn't define one, and the caller falls back to its own default for that slot. */
 export function luzHarmonyColors(
   primaryCSSVar: string,
   harmony: ColorHarmony,
 ): string[] {
-  if (harmony === "monochrome") {
-    return MONOCHROME_CHROMA_SCALES.map((factor) =>
-      chromaScale(primaryCSSVar, factor),
-    );
-  }
-  return HARMONY_HUE_OFFSETS[harmony].map((degrees) =>
-    hueShift(primaryCSSVar, degrees),
+  return HARMONY_STEPS[harmony].map((step) =>
+    "hue" in step
+      ? `oklch(from ${primaryCSSVar} l c calc(h + ${step.hue}))`
+      : `oklch(from ${primaryCSSVar} l calc(c * ${step.chroma}) h)`,
   );
 }
 
-/** Numeric equivalent of `luzHarmonyColors`, for when `primary`'s exact OKLCH is known at build time (baked shade generation). */
+/** Numeric equivalent of `luzHarmonyColors`, for when `primary`'s exact OKLCH is known at build time. */
 export function luzHarmonyColorSeeds(
   primary: OklchSeed,
   harmony: ColorHarmony,
 ): OklchSeed[] {
-  if (harmony === "monochrome") {
-    return MONOCHROME_CHROMA_SCALES.map((factor) => ({
-      ...primary,
-      c: primary.c * factor,
-    }));
-  }
-  return HARMONY_HUE_OFFSETS[harmony].map((degrees) => ({
-    ...primary,
-    h: primary.h + degrees,
-  }));
+  return HARMONY_STEPS[harmony].map((step) =>
+    "hue" in step
+      ? { ...primary, h: primary.h + step.hue }
+      : { ...primary, c: primary.c * step.chroma },
+  );
 }
