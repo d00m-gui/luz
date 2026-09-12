@@ -475,6 +475,27 @@ y deja `.card-content` como el único bloque flexible — pensado para
 grillas de tiles uniformes (usado en la grilla de componentes de
 `docs/`).
 
+`.card` no recorta a sus hijos: un adorno que el consumidor coloca a
+caballo del borde (puertos de un canvas, badges salidos) se pinta
+completo y responde al hit-testing en su propio centro. Los slots que
+llegan al borde heredan el radio por esquina (`figure`/`img`/`video`/
+`.card-cover`/`.card-meta` como primer o último hijo,
+`border-radius: inherit`), y el único caso que fuerza `overflow: hidden`
+es una `table` hija directa: con `border-collapse: collapse` las celdas
+ignoran `border-radius`, así que el clip del contenedor es la única
+forma de redondear una tabla flush. Por instancia se cambia con las
+utilities `overflow-hidden`/`overflow-visible`.
+
+## `.drawer` — no modal por default, `.modal` agrega el velo
+
+`.drawer[popover]` es un panel lateral que convive con el resto de la
+página: su `::backdrop` queda en `display: none`, así que no oscurece ni
+cubre nada fuera del panel. `.drawer.modal` opta al velo
+(`var(--modal-backdrop)`, el mismo token que `dialog.modal`) con
+transición de `background-color`/`overlay`/`display`.
+`data-placement="fullscreen"` cubre la pantalla entera, así que nunca
+necesita velo.
+
 ## `.grid` — una sola regla auto-fit; `.grid.overflow` = carousel sin JS
 
 Se retiran las utilities `.grid-cols-N`/`.col-span-N` (sin uso real

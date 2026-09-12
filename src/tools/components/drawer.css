@@ -77,6 +77,10 @@
   transition-property: translate, overlay, display;
   transition-behavior: allow-discrete;
   &::backdrop {
+    display: none;
+  }
+  &.modal::backdrop {
+    display: block;
     background-color: var(--modal-backdrop);
     transition: var(--transition);
     transition-property: background-color, overlay, display;
@@ -151,9 +155,6 @@
         scale: 0.97;
         translate: -100% 0;
       }
-    }
-    &::backdrop {
-      display: none;
     }
   }
 }

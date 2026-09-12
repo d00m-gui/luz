@@ -302,11 +302,11 @@ family also styles.
 | Blockquote | Primitives | `blockquote` — knob `--blockquote-font-size` (default `--font-size-h5`) |
 | Breadcrumbs | Navigation | `.breadcrumbs` |
 | Button | Primitives | `.btn`, `.button`, `.icon`, `.cta`; `data-role="secondary\|tertiary\|apply\|cancel\|contrast"` equals `role=` |
-| Card | Surfaces | `.card`, `.card-content` (direction under `:where()`, utilities override it), `.card-meta`, `.card-footer`, `.card-toolbar`, `.card-cover` (knob `--ratio`, default `3 / 1`), `.space`, `.card.center` |
+| Card | Surfaces | `.card` (does **not** clip: a decoration may straddle its border; a direct-child `table` opts the card into `overflow: hidden`), `.card-content` (direction under `:where()`, utilities override it), `.card-meta`, `.card-footer`, `.card-toolbar`, `.card-cover` (knob `--ratio`, default `3 / 1`), `.space`, `.card.center` — flush media (`figure`/`img`/`video`/`.card-cover`/`.card-meta` as first or last child) inherits the card radius |
 | Code | Primitives | `code`, `pre`, `samp` — surface tokens `--code-bg`/`--on-code`; `kbd + kbd` spacing |
 | Collapsable | Surfaces | `.list` |
 | Divider | Primitives | `hr` |
-| Drawer | Overlays | `.drawer`, `.drawer-trigger`, `.drawer-icon`, `.radial-trigger` (`.fixed` = FAB at the bottom-right corner), `.radial-menu` (`.fixed`), `.radial-item` |
+| Drawer | Overlays | `.drawer` (`popover`, `data-placement="left\|right\|bottom\|fullscreen"`) — non-modal by default: no backdrop, the rest of the page stays visible and clickable; `.drawer.modal` adds the `--modal-backdrop` veil, `.drawer-trigger`, `.drawer-icon`, `.radial-trigger` (`.fixed` = FAB at the bottom-right corner), `.radial-menu` (`.fixed`), `.radial-item` |
 | Editable card | Primitives | `.card` |
 | Element | Surfaces | `.element` (`.row`/`.column`/`.pair`/`.auto`/`.fixed`), `.element.wire` (dashed mockup placeholders) |
 | Empty state | Feedback | `.empty`, `.empty-title` |
@@ -359,6 +359,14 @@ Knobs are component-prefixed custom properties with a fallback
 ancestor (`style="--page-width: 64rem"`). `_print.css` hides
 `.shell.app > .shell-pane.fixed`, `.panel-header.top/.bottom` and
 `.drawer` when printing.
+
+Components that clip their children with `overflow: hidden` — a decoration
+placed across their border is invisible *and* unhittable there, so
+`elementFromPoint` on it returns the container: `.avatar`, `.hero`,
+`.shell`, `.tabs.toggle`, `.element.pair`, `.card-cover`, `.notice.card`,
+`.drawer-sidebar`, `.drawer[data-placement="fullscreen"]`, `dialog.modal`,
+and `.card` only when it has a direct-child `table`. Override per instance
+with the `overflow-visible`/`overflow-hidden` utilities.
 
 Shared variant classes across most components: `.primary` (opt-in — the
 unmodified default is neutral), `.secondary`, `.tertiary`, `.quaternary`,

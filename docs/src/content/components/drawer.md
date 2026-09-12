@@ -28,6 +28,21 @@ covers:
   <button popovertarget="drawer-demo" aria-label="Abrir menú">
     <span>Menu</span>
   </button>
+  <div id="drawer-modal-demo" popover class="drawer modal" data-placement="right">
+    <div>
+      <div class="panel-header top">
+        <span class="panel-header-title"><strong>Filtros</strong></span>
+        <button class="ghost" popovertarget="drawer-modal-demo">&times;</button>
+      </div>
+      <div class="list">
+        <a class="list-row">Abiertos</a>
+        <a class="list-row">Cerrados</a>
+      </div>
+    </div>
+  </div>
+  <button popovertarget="drawer-modal-demo" aria-label="Abrir filtros">
+    <span>Modal</span>
+  </button>
   <div id="drawer-fullscreen" popover class="drawer fluid" data-placement="fullscreen">
     <div class="panel-header top">
       <span class="panel-header-title"><strong>Explorar</strong></span>
