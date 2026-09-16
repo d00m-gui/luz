@@ -443,6 +443,17 @@ modificador, en vez de vivir como CSS separados. Aplicado:
   Absorbe `titlebar.css`/`statusbar.css`: `.panel-header.top` (borde
   inferior, el header) y `.panel-header.bottom` (borde superior,
   `font-size-small`, el statusbar).
+- `.card` (`card.css`) es la base — `.card.node` es el look de una tarjeta
+  de editor de nodos: el `.card-meta` hijo directo pasa a barra de título
+  teñida al 22% por el esquema puesto **en la barra**
+  (`.card-meta.primary` o `--scheme` por instancia; redeclara su
+  `--current-bg` local, así el cuerpo de la tarjeta conserva el propio),
+  `border-top` de acento, `cursor: grab`, `[data-dragging]` para el estado
+  elevado y `.card-resize` como agarre de la esquina. El arrastre y el
+  resize reales quedan en el consumidor (`dragHandle`/`NodeResizer` de
+  React Flow) — la librería aporta el look, no el mecanismo, y por eso no
+  hay knob de color propio ni densidad impuesta (`.list.dense`,
+  `--select-arrow-inset` y `--density` siguen siendo ortogonales).
 
 `_depth.css` (elevación por anidamiento) referencia estas clases por
 nombre en su lista `:where(...)` — actualizar ahí también si se agregan/
