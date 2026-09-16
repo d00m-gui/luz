@@ -269,7 +269,8 @@ static CSS — no arbitrary values, no bracket syntax. Shape:
   `w-full`/`w-fit`/`w-auto`/`w-screen`, `h-full`/`h-fit`/`h-auto`/`h-screen`,
   `min-w-0`/`max-w-full`/`min-h-screen`/`max-h-full`, `inset-0`, `p-0`/`m-0`/`gap-0`, `col-span-full`,
   `aspect-square`/`aspect-video`, `rounded`/`rounded-none`/`rounded-full`,
-  `overflow-*`, `truncate`, `whitespace-nowrap`, `select-none`,
+  `overflow-*`, `truncate` (`overflow: hidden` + ellipsis + `nowrap` +
+  `min-width: 0`, one class), `whitespace-nowrap`, `select-none`,
   `pointer-events-*`, `z-0`/`z-10`/`z-20`/`z-50`, `font-*`, `underline`,
   `sr-only`.
 - **State variants**: `hover:`, `focus:` (pseudo-classes), `open:`/
@@ -298,7 +299,7 @@ family also styles.
 |---|---|---|
 | Alert | Overlays | `.alert` — a direct-child `button` drops the alert's `--scheme` (default button look) |
 | Avatar | Identity | `.avatar` (`.sm`/`.lg`), `.avatar-group` (overlapping, outlined), `.avatar.more` (overflow count) |
-| Badge | Data | `.badge` |
+| Badge | Data | `.badge` — `justify-content: safe center`: centered while it fits, aligned to the start once the label overflows, so a clipped badge never loses its first characters. `text-overflow` cannot reach a flex container's anonymous text: wrap the label in a child (`<span class="truncate">`) for the ellipsis |
 | Blockquote | Primitives | `blockquote` — knob `--blockquote-font-size` (default `--font-size-h5`) |
 | Breadcrumbs | Navigation | `.breadcrumbs` |
 | Button | Primitives | `.btn`, `.button`, `.icon`, `.cta`; `data-role="secondary\|tertiary\|apply\|cancel\|contrast"` equals `role=` |
@@ -325,7 +326,7 @@ family also styles.
 | `light-dark()` | Feedback | (color-scheme helper, no class) |
 | Link | Primitives | `a` |
 | Listable | Surfaces | `.list`, `.listable`, `.horizontal`, `.responsive` |
-| List | Layout | `.list`, `.list-row` (`a`/`button`/`details`/`li > .list-row`), `.list-col-grow`, `.list-col-wrap`, `.list-title`, `.horizontal`, `.responsive`, `.list.nav` (app sidebar rows), `.list.drilldown` (opt-in fullscreen `details` on mobile), `.list.filetree` |
+| List | Layout | `.list`, `.list-row` (`a`/`button`/`details`/`li > .list-row`), `.list-col-grow`, `.list-col-wrap`, `.list-title`, `.horizontal`, `.responsive`, `.list.nav` (app sidebar rows), `.list.dense` (rows for tight panels), `.list.drilldown` (opt-in fullscreen `details` on mobile), `.list.filetree` — row metrics come from `--list-row-gap`/`--list-row-padding-block`/`--list-row-padding-inline` (defaults `--space-3`/`--space-3`/`--space-4`, `--density` applied), settable on any ancestor; `.list-title` and `details > summary` follow the same three |
 | Loading | Feedback | `.loading` |
 | Mark | Primitives | `mark` |
 | Menu | Overlays | `.menu`, `.menu-item` (`button`/`a` rows, `.danger`, `kbd` pushed right) |
@@ -350,7 +351,7 @@ family also styles.
 | Tabs | Navigation | `.tabs`, `.tab` (gap between icon/text/badge), `.tab-input`, `.segmented`, `.toggle` |
 | Target text | Feedback | `mark` |
 | Emphasis | Primitives | `strong`, `b`, `em`, `i`, `small`, `abbr`, `p` |
-| Text input | Primitives | `input`, `textarea`, `select` |
+| Text input | Primitives | `input`, `textarea`, `select` — control padding is `padding-block`/`padding-inline` (`--element-vertical`/`--element-horizontal`) under `:where()`, so a single consumer class overrides it without matching selector specificity. `select` reserves its arrow from `--select-arrow-inset` (default `--space-4`, the arrow's distance to the trailing edge; the reserved padding is that plus the arrow itself) and truncates with an ellipsis |
 | Tooltip | Overlays | `.tooltip` |
 | Wizard | Navigation | `.wizard`, `.wizard-step` |
 

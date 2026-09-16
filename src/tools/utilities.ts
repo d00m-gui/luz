@@ -298,6 +298,16 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
       ["white-space", "normal"],
     ],
   },
+  {
+    kind: "literal",
+    className: "truncate",
+    declarations: [
+      ["overflow", "hidden"],
+      ["text-overflow", "ellipsis"],
+      ["white-space", "nowrap"],
+      ["min-width", "0"],
+    ],
+  },
 ];
 
 const TEXT_SCALE_LITERALS: LiteralNamespace[] = (
@@ -361,7 +371,6 @@ const LAYOUT_LITERALS: LiteralNamespace[] = (
     ["overflow-hidden", "overflow", "hidden"],
     ["overflow-auto", "overflow", "auto"],
     ["overflow-visible", "overflow", "visible"],
-    ["truncate", "text-overflow", "ellipsis"],
     ["whitespace-nowrap", "white-space", "nowrap"],
     ["select-none", "user-select", "none"],
     ["pointer-events-none", "pointer-events", "none"],

@@ -5,17 +5,12 @@
   flex: 1 1 auto;
   .list {
     padding-inline-start: var(--space-1);
+    --list-row-gap: var(--space-2);
+    --list-row-padding-block: calc(var(--space-2) * var(--density, 1));
+    --list-row-padding-inline: calc(var(--space-3) * var(--density, 1));
     & > .list-row,
     & > li > .list-row {
-      gap: var(--space-2);
-      padding: calc(var(--space-2) * var(--density, 1))
-        calc(var(--space-3) * var(--density, 1));
       border-bottom: none;
-    }
-    details.list-row > summary {
-      gap: var(--space-2);
-      padding: calc(var(--space-2) * var(--density, 1))
-        calc(var(--space-3) * var(--density, 1));
     }
   }
   > li {
@@ -53,9 +48,9 @@ button.list-row {
   grid-auto-flow: column;
   grid-auto-columns: auto minmax(0, 1fr) auto;
   align-items: center;
-  gap: var(--space-3);
-  padding: calc(var(--space-3) * var(--density, 1))
-    calc(var(--space-4) * var(--density, 1));
+  gap: var(--list-row-gap, var(--space-3));
+  padding: var(--list-row-padding-block, calc(var(--space-3) * var(--density, 1)))
+    var(--list-row-padding-inline, calc(var(--space-4) * var(--density, 1)));
   border-bottom: var(--border-width) solid var(--element-border-color);
   color: var(--foreground);
   &:last-child {
@@ -114,13 +109,18 @@ a.list-row {
     }
   }
 }
+.list.dense {
+  --list-row-gap: var(--space-2);
+  --list-row-padding-block: calc(var(--space-1) * var(--density, 1));
+  --list-row-padding-inline: calc(var(--space-2) * var(--density, 1));
+}
 .list.nav {
   flex: 0 0 auto;
   padding: var(--space-2);
+  --list-row-padding-block: var(--space-2);
   .list-row {
     border: 0;
     border-radius: var(--border-radius);
-    padding-block: var(--space-2);
     .status {
       color: var(--scheme, currentColor);
       opacity: 0.55;
@@ -137,8 +137,8 @@ a.list-row {
   grid-column: 1 / -1;
 }
 .list-title {
-  padding: calc(var(--space-3) * var(--density, 1))
-    calc(var(--space-4) * var(--density, 1))
+  padding: var(--list-row-padding-block, calc(var(--space-3) * var(--density, 1)))
+    var(--list-row-padding-inline, calc(var(--space-4) * var(--density, 1)))
     calc(var(--space-1) * var(--density, 1));
   font-size: var(--font-size-sm);
   font-weight: var(--font-bold-weight);
@@ -155,9 +155,12 @@ details.list-row {
     grid-auto-flow: column;
     grid-auto-columns: auto minmax(0, 1fr) auto;
     align-items: center;
-    gap: var(--space-3);
-    padding: calc(var(--space-3) * var(--density, 1))
-      calc(var(--space-4) * var(--density, 1));
+    gap: var(--list-row-gap, var(--space-3));
+    padding: var(
+        --list-row-padding-block,
+        calc(var(--space-3) * var(--density, 1))
+      )
+      var(--list-row-padding-inline, calc(var(--space-4) * var(--density, 1)));
     background-color: var(--element-background);
     list-style: none;
     &::-webkit-details-marker {

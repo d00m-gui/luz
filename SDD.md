@@ -448,6 +448,28 @@ modificador, en vez de vivir como CSS separados. Aplicado:
 nombre en su lista `:where(...)` — actualizar ahí también si se agregan/
 renombran variantes.
 
+## Knobs de densidad y especificidad de los defaults de elemento
+
+Dos reglas para que un consumidor ajuste métricas sin escalar
+especificidad selector por selector:
+
+- Un knob se consume con su default como fallback del `var()`
+  (`gap: var(--list-row-gap, var(--space-3))`), nunca declarando ese
+  default en el elemento que lo consume: una declaración local gana sobre
+  el valor heredado y anularía el knob puesto en un ancestro. Aplicado a
+  `--list-row-gap`/`--list-row-padding-block`/`--list-row-padding-inline`
+  (`.list-row`, `details.list-row > summary`, `.list-title`) y a
+  `--select-arrow-inset` (`field.css`, distancia de la flecha al borde;
+  la reserva de padding se deriva de él).
+- Los defaults que aplican a selectores de tipo con atributos
+  (`input:not([type="color"], …)` computa 0-1-1) van dentro de
+  `:where()`, así una clase del consumidor los pisa. En `field.css` el
+  padding de los controles sale además como `padding-block`/
+  `padding-inline` separados, no como shorthand.
+
+`.list.dense` es el preset de esos knobs de fila (`--space-1`/`--space-2`,
+gap `--space-2`) para paneles angostos.
+
 ## `.join` — agrupar/fusionar elementos (`join.css`)
 
 Fusiona los hijos directos de `.join` en un solo bloque visual (fila u

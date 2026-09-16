@@ -10,6 +10,7 @@ covers:
   - horizontal
   - responsive
   - nav
+  - dense
   - drilldown
   - filetree
   - hover
@@ -111,10 +112,54 @@ covers:
   <a class="list-row"><i class="icon nf nf-fa-file_text_o"></i><span class="list-col-grow">package.json</span></a>
 </div>
 
+## Densa
+
+<div class="demo-list-dense">
+  <div class="card">
+    <div class="card-meta">Default</div>
+    <div class="card-content">
+      <ul class="list">
+        <li class="list-row"><span class="list-col-grow">Familia</span><span class="badge neutral">Sans</span></li>
+        <li class="list-row"><span class="list-col-grow">Peso</span><span class="badge neutral">600</span></li>
+        <li class="list-row"><span class="list-col-grow">Tracking</span><span class="badge neutral">0.02em</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-meta">Dense</div>
+    <div class="card-content">
+      <ul class="list dense">
+        <li class="list-row"><span class="list-col-grow">Familia</span><span class="badge neutral">Sans</span></li>
+        <li class="list-row"><span class="list-col-grow">Peso</span><span class="badge neutral">600</span></li>
+        <li class="list-row"><span class="list-col-grow">Tracking</span><span class="badge neutral">0.02em</span></li>
+      </ul>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-meta">Sin gutter propio</div>
+    <div class="card-content">
+      <ul class="list dense" style="--list-row-padding-inline: 0">
+        <li class="list-row"><span class="list-col-grow">Familia</span><span class="badge neutral">Sans</span></li>
+        <li class="list-row"><span class="list-col-grow">Peso</span><span class="badge neutral">600</span></li>
+        <li class="list-row"><span class="list-col-grow">Tracking</span><span class="badge neutral">0.02em</span></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
 <style>
   .demo-list-nav {
     max-width: 16rem;
     border: var(--border-width) solid var(--element-border-color);
     border-radius: var(--border-radius);
+  }
+  .demo-list-dense {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-4);
+  }
+  .demo-list-dense .card {
+    width: 13rem;
   }
 </style>

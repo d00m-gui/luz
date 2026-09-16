@@ -2,7 +2,7 @@
   --current-bg: var(--scheme, var(--badge-bg));
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  justify-content: safe center;
   padding: calc(var(--size-unit) * 1) calc(var(--size-unit) * 6);
   border-radius: calc(var(--size-unit) * 20);
   font-size: var(--font-size-small);
