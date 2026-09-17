@@ -82,7 +82,11 @@ const utilities = emitUtilitiesCSS(new Set(["p-4", "bg-primary-600"]), tokens);
 `@d00m-gui/luz/color` exports the numeric OKLCH engine luz bakes shades
 with (`parseColorToOklch`, `resolveBakedShade`, `luzPaletteSeeds`,
 `clampToSrgb`, `formatOklch`, `luzHarmonyColorSeeds`, `WEIGHTS`, …), so a
-client-side preview can match the emitted CSS exactly.
+client-side preview can match the emitted CSS exactly. Conversion and
+measurement live there too: `srgbToOklch([r, g, b])` (channels 0–255) →
+`{ l, c, h }`, `oklchToSrgb({ l, c, h })` → an sRGB-gamut-mapped
+`[r, g, b]` tuple, `contrastRatio(a, b)` → the WCAG 2.1 ratio between two
+seeds (21 for black on white).
 
 ## The four layers
 
@@ -148,6 +152,8 @@ Only `primary` is required. Defaults below are `LUZ_DEFAULT_CONFIG`.
 | `sizeFluidRange` | `"fixed"` (via `preset`) | How far past viewport-min the fluid `clamp()` zone reaches, in scale rungs. Named: `fixed` 0 (no reflow, dense app UI), `tight` 0.35, `balanced` 1, `dramatic` 1.6 (marketing hero text). Or a raw number. |
 | `preset` | unset | Shortcut for `sizeFluidRange`: `"app"` → `fixed`, `"content"` → `balanced`, `"landing"` → 2.4 (steeper than `dramatic`). Explicit `sizeFluidRange` overrides. |
 | `spaceSteps` | `24` | Total `space-N` tokens. Linear and fixed (`N * base/64`), unlike the exponential type scale — the scale `p-`/`m-`/`gap-`/`w-`/`h-` utilities resolve against. |
+| `radius` | `1` | Multiplier on the base radius unit (`base / 78` rem), or a literal CSS length used verbatim (`"8px"`, `"0"`). Drives `--border-radius` and the whole `--border-radius-N` scale. |
+| `radiusSteps` | `8` | Total `border-radius-N` tokens (`N *` the radius unit). Linear, same shape as `space-N` — the scale `rounded-N` resolves against. |
 | `spacing` | derived from `base` | `--spacing` override (page-level gutter). |
 | `background` / `foreground` | `neutral` 900/100 or 100/900 by `mode` | Overrides for the base background/foreground tokens. |
 | `transition` | `"all ease 200ms"` | Default `transition` shorthand via setup rules. |
@@ -158,6 +164,9 @@ Only `primary` is required. Defaults below are `LUZ_DEFAULT_CONFIG`.
 | `depthDecay` | `0.6` | Per-level falloff (0–1) of the elevation curve — smaller = more contrast between the first few levels. |
 | `depthSign` | auto by `mode` | Forces elevation direction/magnitude. A `.elements-depth-light`/`.elements-depth-dark` class on a subtree still overrides this. |
 | `contrastThreshold` | `0.6` | Lightness above which auto-contrast text (wheel `on-*`, `contrast-color()` fallback) flips from white-ish to black-ish. Live, overridable per subtree. |
+| `stateHoverDelta` | `0.02` | Lightness (OKLCH `l`) added to `--current-bg` on `:hover`. Emitted as `--state-hover-delta`, live, overridable per subtree. |
+| `statePressedDelta` | `0.02` | Lightness (OKLCH `l`) subtracted from `--current-bg` on `:active`. Emitted as `--state-pressed-delta`, live. |
+| `statePressedShift` | `"0.1ch"` | `translateY` applied on `:active`. Emitted as `--state-pressed-shift`, live. Raise all three for a tactile brand, flatten them (`"0"`) for a flat one. |
 | `breakpoints` | unset (nothing emitted) | Named viewport breakpoints, emitted as `@custom-media --breakpoint-{name}` — needs a consumer-side compiler (`postcss-custom-media`), lightningcss warns on it. An object merges over `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem; `{}` = just the defaults). A number is rem, a string used as-is. |
 
 ### Escape hatches
@@ -210,6 +219,20 @@ vocabulary for semantic tokens:
   threshold`, with a slight hue tint (softer than pure black/white
   against saturated backgrounds). Backed by CSS `contrast-color()` where
   supported.
+- **Surface & state** (public API — meant to be rewritten in a scope):
+  `--current-bg` is "the background of this thing", and `_contrast.css`
+  derives `--current-color` from it for every element, so setting
+  `--current-bg` in a scope re-themes a surface without declaring any
+  text color; `--on-scheme` wins over that derivation when the text color
+  must be fixed. `--scheme` is the tint a component turns into its own
+  `--current-bg` (solid on `.card`/`button`/`.stat`, 26% opacity on
+  `.badge`, 12% mixed with `--background` on `.alert`) — set it on a
+  container to tint everything inside. `--element-background` is the
+  per-nesting-level surface color `_depth.css` computes (`:root` =
+  `--background`), the token for a custom ornament that must match the
+  surface holding it. `--state-hover-delta`/`--state-pressed-delta`/
+  `--state-pressed-shift` are the `:hover`/`:active` deltas components
+  apply on top of `--current-bg`.
 - **Structural**: `--background`, `--foreground`, `--spacing`,
   `--density`, `--depth` (per-subtree elevation, see `depth*` fields),
   `--contrast-threshold`, `--transition`, `--box-shadow`.
@@ -217,7 +240,9 @@ vocabulary for semantic tokens:
   `power`; √ratio below `base`) and `--font-size-small`…`--font-size-h1`
   (landmarks), each with a `-fluid` twin consumed by `.fluid`;
   `--space-1`…`--space-{spaceSteps}` (linear, `base/64` per step);
-  `--size-unit`. None of them depend on `--density`.
+  `--border-radius-1`…`--border-radius-{radiusSteps}` (linear, `base/78`
+  per step, `--border-radius` = `--border-radius-1`); `--size-unit`. None
+  of them depend on `--density`.
 - **Breakpoints**: `@custom-media --breakpoint-{name}` (not a custom
   property — a media-query alias), only when `breakpoints` is set.
 
@@ -233,7 +258,8 @@ static CSS — no arbitrary values, no bracket syntax. Shape:
 - **Scale utilities** resolve against `space-N`: `p-`/`px-`/`py-`/`pt-`/
   `pr-`/`pb-`/`pl-`, `m-`/`mx-`/`my-`/`mt-`/`mr-`/`mb-`/`ml-`, `gap-`/
   `gap-x-`/`gap-y-`, `w-`/`h-`/`size-` (width + height), `min-h-`/`max-h-`,
-  `top-`/`right-`/`bottom-`/`left-`/`inset-`. Typography (`text-xs`…
+  `top-`/`right-`/`bottom-`/`left-`/`inset-`; `rounded-N` resolves against
+  `border-radius-N` (`radiusSteps`). Typography (`text-xs`…
   `text-3xl`) resolves against the exponential type scale; color
   utilities (`bg-`, `text-`, `border-`) against `{name}-{step}` palettes
   and semantic tokens, with an optional opacity suffix (`bg-primary/20`).
@@ -243,7 +269,8 @@ static CSS — no arbitrary values, no bracket syntax. Shape:
   `w-full`/`w-fit`/`w-auto`/`w-screen`, `h-full`/`h-fit`/`h-auto`/`h-screen`,
   `min-w-0`/`max-w-full`/`min-h-screen`/`max-h-full`, `inset-0`, `p-0`/`m-0`/`gap-0`, `col-span-full`,
   `aspect-square`/`aspect-video`, `rounded`/`rounded-none`/`rounded-full`,
-  `overflow-*`, `truncate`, `whitespace-nowrap`, `select-none`,
+  `overflow-*`, `truncate` (`overflow: hidden` + ellipsis + `nowrap` +
+  `min-width: 0`, one class), `whitespace-nowrap`, `select-none`,
   `pointer-events-*`, `z-0`/`z-10`/`z-20`/`z-50`, `font-*`, `underline`,
   `sr-only`.
 - **State variants**: `hover:`, `focus:` (pseudo-classes), `open:`/
@@ -272,15 +299,15 @@ family also styles.
 |---|---|---|
 | Alert | Overlays | `.alert` — a direct-child `button` drops the alert's `--scheme` (default button look) |
 | Avatar | Identity | `.avatar` (`.sm`/`.lg`), `.avatar-group` (overlapping, outlined), `.avatar.more` (overflow count) |
-| Badge | Data | `.badge` |
+| Badge | Data | `.badge` — `justify-content: safe center`: centered while it fits, aligned to the start once the label overflows, so a clipped badge never loses its first characters. `text-overflow` cannot reach a flex container's anonymous text: wrap the label in a child (`<span class="truncate">`) for the ellipsis |
 | Blockquote | Primitives | `blockquote` — knob `--blockquote-font-size` (default `--font-size-h5`) |
 | Breadcrumbs | Navigation | `.breadcrumbs` |
 | Button | Primitives | `.btn`, `.button`, `.icon`, `.cta`; `data-role="secondary\|tertiary\|apply\|cancel\|contrast"` equals `role=` |
-| Card | Surfaces | `.card`, `.card-content` (direction under `:where()`, utilities override it), `.card-meta`, `.card-footer`, `.card-toolbar`, `.card-cover` (knob `--ratio`, default `3 / 1`), `.space`, `.card.center` |
+| Card | Surfaces | `.card` (does **not** clip: a decoration may straddle its border; a direct-child `table` opts the card into `overflow: hidden`), `.card-content` (direction under `:where()`, utilities override it), `.card-meta`, `.card-footer`, `.card-toolbar`, `.card-cover` (knob `--ratio`, default `3 / 1`), `.space`, `.card.center` — flush media (`figure`/`img`/`video`/`.card-cover`/`.card-meta` as first or last child) inherits the card radius. `.card.node` is the look of a node-editor card: its direct-child `.card-meta` becomes a title bar tinted 22% by the scheme set **on the bar itself** (`class="card-meta primary"` or `style="--scheme: var(--teal-500)"`, so the card body keeps its own `--current-bg`), with an accent `border-top`, `cursor: grab`, and `[data-dragging]` on the card for the lifted look; `.card-resize` is the bottom-trailing resize grip. Dragging and resizing themselves stay with the consumer (React Flow's `dragHandle`/`NodeResizer`) — luz only ships the look |
 | Code | Primitives | `code`, `pre`, `samp` — surface tokens `--code-bg`/`--on-code`; `kbd + kbd` spacing |
 | Collapsable | Surfaces | `.list` |
 | Divider | Primitives | `hr` |
-| Drawer | Overlays | `.drawer`, `.drawer-trigger`, `.drawer-icon`, `.radial-trigger` (`.fixed` = FAB at the bottom-right corner), `.radial-menu` (`.fixed`), `.radial-item` |
+| Drawer | Overlays | `.drawer` (`popover`, `data-placement="left\|right\|bottom\|fullscreen"`) — non-modal by default: no backdrop, the rest of the page stays visible and clickable; `.drawer.modal` adds the `--modal-backdrop` veil, `.drawer-trigger`, `.drawer-icon`, `.radial-trigger` (`.fixed` = FAB at the bottom-right corner), `.radial-menu` (`.fixed`), `.radial-item` |
 | Editable card | Primitives | `.card` |
 | Element | Surfaces | `.element` (`.row`/`.column`/`.pair`/`.auto`/`.fixed`), `.element.wire` (dashed mockup placeholders) |
 | Empty state | Feedback | `.empty`, `.empty-title` |
@@ -299,7 +326,7 @@ family also styles.
 | `light-dark()` | Feedback | (color-scheme helper, no class) |
 | Link | Primitives | `a` |
 | Listable | Surfaces | `.list`, `.listable`, `.horizontal`, `.responsive` |
-| List | Layout | `.list`, `.list-row` (`a`/`button`/`details`/`li > .list-row`), `.list-col-grow`, `.list-col-wrap`, `.list-title`, `.horizontal`, `.responsive`, `.list.nav` (app sidebar rows), `.list.drilldown` (opt-in fullscreen `details` on mobile), `.list.filetree` |
+| List | Layout | `.list`, `.list-row` (`a`/`button`/`details`/`li > .list-row`), `.list-col-grow`, `.list-col-wrap`, `.list-title`, `.horizontal`, `.responsive`, `.list.nav` (app sidebar rows), `.list.dense` (rows for tight panels), `.list.drilldown` (opt-in fullscreen `details` on mobile), `.list.filetree` — row metrics come from `--list-row-gap`/`--list-row-padding-block`/`--list-row-padding-inline` (defaults `--space-3`/`--space-3`/`--space-4`, `--density` applied), settable on any ancestor; `.list-title` and `details > summary` follow the same three |
 | Loading | Feedback | `.loading` |
 | Mark | Primitives | `mark` |
 | Menu | Overlays | `.menu`, `.menu-item` (`button`/`a` rows, `.danger`, `kbd` pushed right) |
@@ -324,7 +351,7 @@ family also styles.
 | Tabs | Navigation | `.tabs`, `.tab` (gap between icon/text/badge), `.tab-input`, `.segmented`, `.toggle` |
 | Target text | Feedback | `mark` |
 | Emphasis | Primitives | `strong`, `b`, `em`, `i`, `small`, `abbr`, `p` |
-| Text input | Primitives | `input`, `textarea`, `select` |
+| Text input | Primitives | `input`, `textarea`, `select` — control padding is `padding-block`/`padding-inline` (`--element-vertical`/`--element-horizontal`) under `:where()`, so a single consumer class overrides it without matching selector specificity. `select` reserves its arrow from `--select-arrow-inset` (default `--space-4`, the arrow's distance to the trailing edge; the reserved padding is that plus the arrow itself) and truncates with an ellipsis |
 | Tooltip | Overlays | `.tooltip` |
 | Wizard | Navigation | `.wizard`, `.wizard-step` |
 
@@ -333,6 +360,14 @@ Knobs are component-prefixed custom properties with a fallback
 ancestor (`style="--page-width: 64rem"`). `_print.css` hides
 `.shell.app > .shell-pane.fixed`, `.panel-header.top/.bottom` and
 `.drawer` when printing.
+
+Components that clip their children with `overflow: hidden` — a decoration
+placed across their border is invisible *and* unhittable there, so
+`elementFromPoint` on it returns the container: `.avatar`, `.hero`,
+`.shell`, `.tabs.toggle`, `.element.pair`, `.card-cover`, `.notice.card`,
+`.drawer-sidebar`, `.drawer[data-placement="fullscreen"]`, `dialog.modal`,
+and `.card` only when it has a direct-child `table`. Override per instance
+with the `overflow-visible`/`overflow-hidden` utilities.
 
 Shared variant classes across most components: `.primary` (opt-in — the
 unmodified default is neutral), `.secondary`, `.tertiary`, `.quaternary`,

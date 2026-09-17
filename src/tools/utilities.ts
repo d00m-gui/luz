@@ -1,5 +1,4 @@
 import type { LuzTokens } from "../luz";
-import { withShadeFallback } from "./shade-fallback";
 import { MEDIA_QUERIES, MEDIA_VARIANTS, resolveVariant } from "./variants";
 
 interface ScaleNamespace {
@@ -7,7 +6,7 @@ interface ScaleNamespace {
   /** Class prefix, e.g. `"p"` for `p-4`. */
   prefix: string;
   /** Which numbered token family the suffix resolves against. */
-  scaleFamily: "space";
+  scaleFamily: "space" | "border-radius";
   /** CSS properties the resolved `var(--{scaleFamily}-N)` value is assigned to. */
   cssProps: string[];
 }
@@ -24,8 +23,6 @@ interface LiteralNamespace {
   kind: "literal";
   className: string;
   declarations: readonly (readonly [string, string])[];
-  /** Overrides `declarations` when a value depends on `settings.name`/`prefix`, resolved against `tokens`. */
-  dynamic?: (tokens: LuzTokens) => readonly (readonly [string, string])[];
 }
 
 interface BridgeColorNamespace {
@@ -167,6 +164,18 @@ function buildUtilityRegistry(): UtilityNamespace[] {
       scaleFamily: "space",
       cssProps: ["max-height"],
     },
+    {
+      kind: "scale",
+      prefix: "min-w",
+      scaleFamily: "space",
+      cssProps: ["min-width"],
+    },
+    {
+      kind: "scale",
+      prefix: "max-w",
+      scaleFamily: "space",
+      cssProps: ["max-width"],
+    },
     { kind: "scale", prefix: "top", scaleFamily: "space", cssProps: ["top"] },
     {
       kind: "scale",
@@ -195,6 +204,12 @@ function buildUtilityRegistry(): UtilityNamespace[] {
     { kind: "bridge-color", prefix: "text", cssProps: ["color"] },
     { kind: "bridge-color", prefix: "border", cssProps: ["border-color"] },
     {
+      kind: "scale",
+      prefix: "rounded",
+      scaleFamily: "border-radius",
+      cssProps: ["border-radius"],
+    },
+    {
       kind: "literal",
       className: "rounded",
       declarations: [["border-radius", "var(--border-radius)"]],
@@ -221,18 +236,8 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
     declarations: [
       ["border-width", "var(--border-width)"],
       ["border-style", "solid"],
+      ["border-color", "oklch(from var(--primary-500) l c h / 50%)"],
     ],
-    dynamic: (tokens) => {
-      const primaryFamily = tokens.settings.name;
-      return [
-        ["border-width", "var(--border-width)"],
-        ["border-style", "solid"],
-        [
-          "border-color",
-          withOpacity(colorValue(`${primaryFamily}-500`, tokens), 50),
-        ],
-      ];
-    },
   },
   {
     kind: "literal",
@@ -291,6 +296,16 @@ const MULTI_DECL_LITERALS: LiteralNamespace[] = [
       ["overflow", "visible"],
       ["clip", "auto"],
       ["white-space", "normal"],
+    ],
+  },
+  {
+    kind: "literal",
+    className: "truncate",
+    declarations: [
+      ["overflow", "hidden"],
+      ["text-overflow", "ellipsis"],
+      ["white-space", "nowrap"],
+      ["min-width", "0"],
     ],
   },
 ];
@@ -356,7 +371,6 @@ const LAYOUT_LITERALS: LiteralNamespace[] = (
     ["overflow-hidden", "overflow", "hidden"],
     ["overflow-auto", "overflow", "auto"],
     ["overflow-visible", "overflow", "visible"],
-    ["truncate", "text-overflow", "ellipsis"],
     ["whitespace-nowrap", "white-space", "nowrap"],
     ["select-none", "user-select", "none"],
     ["pointer-events-none", "pointer-events", "none"],
@@ -376,27 +390,21 @@ const UTILITY_REGISTRY = buildUtilityRegistry();
 
 const SIZE_STEP_RE = /^[1-9]\d*$/;
 
+/** `var(--{family}-N)` while the token exists, otherwise `calc(N * var(--{family}-1))` (both scales are linear) — `w-56`/`max-w-80`/`rounded-16` don't need `spaceSteps`/`radiusSteps` raised. */
 function resolveSizeSuffix(
   suffix: string,
-  family: "space",
+  family: ScaleNamespace["scaleFamily"],
   tokens: LuzTokens,
 ): string | undefined {
   if (!SIZE_STEP_RE.test(suffix)) return undefined;
-  return tokens.sizes[`${family}-${suffix}`];
+  const token = `${family}-${suffix}`;
+  return tokens.sizes[token] !== undefined
+    ? `var(--${token})`
+    : `calc(${suffix} * var(--${family}-1))`;
 }
 
 function isPublicColorKey(key: string, tokens: LuzTokens): boolean {
   return !key.endsWith("-seed") && tokens.colors[key] !== undefined;
-}
-
-function colorValue(key: string, tokens: LuzTokens): string {
-  const varRef = `var(--${key})`;
-  const shadeMatch = key.match(/^(.+)-\d{2,3}$/);
-  const family = shadeMatch?.[1];
-  if (family && tokens.colors[family] !== undefined) {
-    return withShadeFallback(varRef, [family]);
-  }
-  return varRef;
 }
 
 interface ResolvedBase {
@@ -431,7 +439,7 @@ function resolveBaseUtility(
     if (ns.kind === "literal") {
       if (opacityPercent === undefined && target === ns.className) {
         return {
-          declarations: ns.dynamic?.(tokens) ?? ns.declarations,
+          declarations: ns.declarations,
           namespaceIndex: i,
         };
       }
@@ -446,16 +454,13 @@ function resolveBaseUtility(
       const resolved = resolveSizeSuffix(suffix, ns.scaleFamily, tokens);
       if (resolved !== undefined) {
         return {
-          declarations: sameValueDeclarations(
-            ns.cssProps,
-            `var(--${ns.scaleFamily}-${suffix})`,
-          ),
+          declarations: sameValueDeclarations(ns.cssProps, resolved),
           namespaceIndex: i,
         };
       }
     } else if (ns.kind === "color") {
       if (isPublicColorKey(suffix, tokens)) {
-        let value = colorValue(suffix, tokens);
+        let value = `var(--${suffix})`;
         if (opacityPercent !== undefined)
           value = withOpacity(value, opacityPercent);
         return {

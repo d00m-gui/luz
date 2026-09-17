@@ -1,7 +1,6 @@
 ---
 title: "Utilities"
-fields:
-  - "breakpoints"
+fields: []
 order: 6
 examples:
   - label: "Variantes de estado y de breakpoint"
@@ -10,22 +9,20 @@ examples:
       <aside class="hidden lg:flex flex-col gap-4">…</aside>
       <button class="max-md:hidden md:hover:bg-primary-600">Menú</button>
       <div class="size-8 rounded-full bg-primary-500"></div>
-  - label: "Breakpoints como @custom-media"
-    lang: "ts"
-    code: |
-      luz({
-        primary: "#f28c20",
-        breakpoints: { md: 50, "2xl": "1600px" },
-      })
 ---
 
 Las utilities son un vocabulario cerrado con nomenclatura Tailwind —
 `{propiedad}-{valor}`, sin valores arbitrarios ni corchetes — escaneado
 de tu código (`.astro`, `.html`, `.tsx`, `.jsx`, `.ts`) y emitido como
 CSS estático solo para las clases que aparecen. `p-`/`m-`/`gap-`/`w-`/
-`h-`/`size-`/`min-h-`/`max-h-`/`top-`/`right-`/`bottom-`/`left-`/`inset-`
-resuelven contra `space-N`; `text-xs`..`text-3xl` contra la escala
-tipográfica; `bg-`/`text-`/`border-` contra `{paleta}-{paso}` y los
+`h-`/`size-`/`min-w-`/`max-w-`/`min-h-`/`max-h-`/`top-`/`right-`/
+`bottom-`/`left-`/`inset-` resuelven contra `space-N` (`N` es cualquier
+entero positivo: más allá de `spaceSteps` sale como
+`calc(N * var(--space-1))`, la escala es lineal); `rounded-N` contra
+`border-radius-N` con la misma mecánica (más allá de `radiusSteps`,
+`calc(N * var(--border-radius-1))`);
+`text-xs`..`text-3xl` contra la escala tipográfica; `bg-`/`text-`/`border-` contra
+`{paleta}-{paso}` y los
 tokens semánticos (`bg-primary-600`, `text-foreground`), con opacidad
 opcional (`bg-primary/20`). Literales de layout: `flex`, `grid`,
 `hidden`, `sticky`, `flex-col`, `items-center`, `justify-between`,
@@ -48,7 +45,5 @@ ascendente, `min-*` antes que `max-*`, así `hidden md:flex` y
 `flex max-md:hidden` funcionan sin pelear especificidad. Se puede
 combinar con una única variante de estado, siempre en el orden
 `breakpoint:estado:util` (`md:hover:flex`, `max-lg:open:hidden`);
-`hover:md:flex` no emite nada. Los valores son los de
-`DEFAULT_BREAKPOINTS` — `breakpoints` cambia lo que se emite como
-`@custom-media --breakpoint-{name}` (para consumir con un compilador
-que lo soporte, p. ej. `postcss-custom-media`), no las variantes.
+`hover:md:flex` no emite nada. Los breakpoints son fijos, no se
+configuran.

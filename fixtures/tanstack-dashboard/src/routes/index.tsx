@@ -120,7 +120,7 @@ function Dashboard() {
         />
         <Stat label="Best run" value={totals.minMs.toFixed(3)} unit="ms" />
         <Stat
-          label="CSS emitted"
+          label="theme CSS"
           value={(totals.cssBytes / 1024).toFixed(1)}
           unit="KB"
         />

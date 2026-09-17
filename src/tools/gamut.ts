@@ -97,6 +97,41 @@ export function clampToSrgb(seed: OklchSeed): OklchSeed {
   return { ...seed, c: Math.min(seed.c, maxSrgbChroma(seed.l, seed.h)) };
 }
 
+function linearToSrgbByte(v: number): number {
+  const enc = v <= 0.0031308 ? v * 12.92 : 1.055 * v ** (1 / 2.4) - 0.055;
+  return Math.round(Math.min(1, Math.max(0, enc)) * 255);
+}
+
+/** Converts an sRGB triplet (0–255) to OKLCH. */
+export function srgbToOklch(rgb: [number, number, number]): OklchSeed {
+  const lin = rgb.map((v) => srgbToLinear(v / 255)) as [number, number, number];
+  const xyz = linearSrgbToXyz(...lin);
+  const [l, a, b] = xyzToOklab(...xyz);
+  return { l, c: Math.hypot(a, b), h: (Math.atan2(b, a) * 180) / Math.PI };
+}
+
+/** Converts OKLCH to an sRGB triplet of integers (0–255). Chroma is clamped to the sRGB gamut first, channels are clamped after. */
+export function oklchToSrgb(seed: OklchSeed): [number, number, number] {
+  const { l, c, h } = clampToSrgb(seed);
+  return oklchToRgb(l, c, h).map(linearToSrgbByte) as [number, number, number];
+}
+
+function relativeLuminance(seed: OklchSeed): number {
+  const [r, g, b] = oklchToSrgb(seed).map((v) => srgbToLinear(v / 255)) as [
+    number,
+    number,
+    number,
+  ];
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+}
+
+/** WCAG 2.1 contrast ratio between two OKLCH colors, always >= 1. */
+export function contrastRatio(a: OklchSeed, b: OklchSeed): number {
+  const la = relativeLuminance(a);
+  const lb = relativeLuminance(b);
+  return (Math.max(la, lb) + 0.05) / (Math.min(la, lb) + 0.05);
+}
+
 export function formatOklch(l: number, c: number, h: number): string {
   const hue = ((h % 360) + 360) % 360;
   return `oklch(${l.toFixed(4)} ${c.toFixed(4)} ${hue.toFixed(2)})`;
@@ -127,17 +162,6 @@ function hslToRgbByte(
   return [f(0) * 255, f(8) * 255, f(4) * 255];
 }
 
-function rgbToOklch(r: number, g: number, b: number): OklchSeed {
-  const lin = [r / 255, g / 255, b / 255].map(srgbToLinear) as [
-    number,
-    number,
-    number,
-  ];
-  const xyz = linearSrgbToXyz(...lin);
-  const [l, a, ob] = xyzToOklab(...xyz);
-  return { l, c: Math.hypot(a, ob), h: (Math.atan2(ob, a) * 180) / Math.PI };
-}
-
 /** Parses a literal CSS color (hex, `rgb()`, `hsl()`, `oklch()`, `oklab()`) into OKLCH. Returns `null` for anything else (named colors, `var()`, `color-mix()`, …) — callers fall back to the live `calc()` pipeline. */
 export function parseColorToOklch(value: string): OklchSeed | null {
   const input = value.trim();
@@ -150,7 +174,7 @@ export function parseColorToOklch(value: string): OklchSeed | null {
     const r = Number.parseInt(h.slice(0, 2), 16);
     const g = Number.parseInt(h.slice(2, 4), 16);
     const b = Number.parseInt(h.slice(4, 6), 16);
-    return rgbToOklch(r, g, b);
+    return srgbToOklch([r, g, b]);
   }
 
   const rgb = RGB_RE.exec(input);
@@ -161,7 +185,7 @@ export function parseColorToOklch(value: string): OklchSeed | null {
     const g = pct(parts[1]!, 255);
     const b = pct(parts[2]!, 255);
     if ([r, g, b].some(Number.isNaN)) return null;
-    return rgbToOklch(r, g, b);
+    return srgbToOklch([r, g, b]);
   }
 
   const hsl = HSL_RE.exec(input);
@@ -172,7 +196,7 @@ export function parseColorToOklch(value: string): OklchSeed | null {
     const s = pct(parts[1]!, 1);
     const l = pct(parts[2]!, 1);
     if ([h, s, l].some(Number.isNaN)) return null;
-    return rgbToOklch(...hslToRgbByte(h, s, l));
+    return srgbToOklch(hslToRgbByte(h, s, l));
   }
 
   const oklch = OKLCH_RE.exec(input);

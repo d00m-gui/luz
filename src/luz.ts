@@ -8,14 +8,13 @@ import {
   luzHarmonyColors,
   luzOnColor,
   luzPaletteSeeds,
-  luzShadesByHue,
+  luzShades,
   nearestSchemeWeight,
-  resolveBakedShade,
   type ColorHarmony,
+  type LuzPalette,
+  type LuzRamp,
 } from "./tools/hue";
 import { luzProperty } from "./tools/props";
-import { buildReset } from "./tools/reset";
-import { luzCustomMedia, type BreakpointsConfig } from "./tools/breakpoints";
 import {
   luzSizes,
   luzSpace,
@@ -25,13 +24,11 @@ import {
   type TypeScaleName,
 } from "./tools/sizes";
 import {
-  luzWheel,
-  luzWheelHueSeed,
+  luzWheelPalettes,
   WHEEL_CHROMA,
   WHEEL_HUE_NAMES,
   type WheelHueName,
 } from "./tools/wheel";
-import { withShadeFallback } from "./tools/shade-fallback";
 
 /** Also accepts any of luz's 12 wheel hue names (`red`, `copper`, `orange`, `yellow`, `green`, `emerald`, `teal`, `cyan`, `blue`, `sky`, `violet`, `pink`) as a raw CSS color. */
 export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
@@ -66,10 +63,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
    * @param "golden" 1.618
    */
   power?: TypeScaleName | number;
-  /** Base color for the primary palette (any CSS color). Required. */
-  primary: string;
-  /** Custom-property name for the primary palette, e.g. `--{name}-500`. Default `"primary"`. */
-  name?: string;
+  /** Base color for the primary palette (any CSS color). Default `"#007dea"`. */
+  primary?: string;
   /** Base color for the secondary palette. Default: derived from `primary` per `harmony`. */
   secondary?: string;
   /** Base color for the tertiary palette. Default: derived from `primary` per `harmony` when it defines one (`"monochrome"`, `"triad"`, `"analogous"`); otherwise same as `neutral` (`"complementary"` has no third color). */
@@ -146,10 +141,33 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   depthSign?: number;
   /** Lightness (0–1) above which `luzOnColor`'s auto-contrast text (the 12 wheel hues' `on-*`, and the `contrast-color()` fallback) flips from white-ish to black-ish. Emitted as `--contrast-threshold`, live (not baked) — overridable per subtree. Default `0.6`. */
   contrastThreshold?: number;
+  /**
+   * Multiplier on the base radius unit (`base / 78` rem), or a literal CSS value used as `--border-radius` verbatim (`"8px"`, `"0"`). Drives the whole `--border-radius-N` scale.
+   * @default 1
+   */
+  radius?: number | string;
+  /**
+   * Total `border-radius-N` tokens generated (`N * ` the radius unit), the scale `rounded-N` resolves against — linear, same shape as `space-N`.
+   * @default 8
+   */
+  radiusSteps?: number;
+  /**
+   * Lightness (OKLCH `l`) added to `--current-bg` on `:hover`. Emitted as `--state-hover-delta`, live (not baked) — overridable per subtree.
+   * @default 0.02
+   */
+  stateHoverDelta?: number;
+  /**
+   * Lightness (OKLCH `l`) subtracted from `--current-bg` on `:active`. Emitted as `--state-pressed-delta`, live (not baked) — overridable per subtree.
+   * @default 0.02
+   */
+  statePressedDelta?: number;
+  /**
+   * `translateY` applied on `:active`. Emitted as `--state-pressed-shift`, live (not baked) — overridable per subtree.
+   * @default "0.1ch"
+   */
+  statePressedShift?: string;
   /** Generate `@property` declarations for every token. Default `false`. */
   properties?: boolean;
-  /** Shade steps generated per color palette. Default `11` (50–950). */
-  colorSteps?: number;
   /**
    * How many scale rungs (see `power`) the fluid zone's viewport-max value
    * reaches past its viewport-min value, or a raw number for a custom offset.
@@ -176,27 +194,20 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   spaceSteps?: number;
   /** Raw CSS custom properties, merged last — overrides an existing token by name or adds a new one. */
   vars?: Record<string, string | number>;
-  /**
-   * Named viewport breakpoints, emitted as `@custom-media --breakpoint-{name} (min-width: ...)`.
-   * A number is rem, a string is used as-is (e.g. `"1200px"`). Merged over `{ sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }` (rem) — pass `{}` for just the defaults. Unset by default: nothing is emitted (`@custom-media` needs a consumer-side compiler such as `postcss-custom-media`).
-   */
-  breakpoints?: BreakpointsConfig;
 }
 
 /** Settings sub-object within tokens (metadata only). */
 export interface TokenSettings {
-  /** Resolved palette name (falls back to `"primary"` if `config.name` is empty). */
-  name: string;
   /** Resolved `config.selector`. */
   selector: string;
 }
 
-/** Baked OKLCH shades keyed by palette name (as in `colors`) then weight. */
-export type LuzPalettes = Record<string, Record<number, OklchSeed>>;
+/** Baked OKLCH ramps keyed by palette name (as in `colors`). */
+export type LuzPalettes = Record<string, LuzRamp>;
 
 /** Full token set used by all downstream consumers. */
 export interface LuzTokens {
-  /** Metadata about the resolved palette (name/selector). */
+  /** Metadata about the emitted theme block (selector). */
   settings: TokenSettings;
   /** Generated color variable map (primary/secondary/neutral shades, wheel, semantic aliases). */
   colors: Record<string, string>;
@@ -212,18 +223,12 @@ export interface LuzTokens {
 export interface LuzResult {
   /** Raw tokens object (structured). */
   tokens: LuzTokens;
-  /** CSS custom property declarations as a single string. */
+  /** CSS custom property declarations as a single string, active scheme only — in `mode: "auto"` the scheme-dependent scalars carry their light value. */
   variables: string;
   /** CSS @property generated via tokens */
   properties: string;
-  /** `@custom-media --breakpoint-*` declarations */
-  customMedia: string;
-  /** Static reset + component layer, identical for every config. */
-  reset: string;
-  /** Config-dependent CSS: `customMedia` + `properties` + the `selector { … }` block. */
+  /** `properties` + the `selector { … }` block, plus the `prefers-color-scheme: dark` override of the scheme-dependent scalars in `mode: "auto"`. */
   theme: string;
-  /** Complete CSS as a string (`reset` + `theme`). */
-  style: string;
 }
 
 const PRESET_FLUID_RANGE: Record<
@@ -247,7 +252,6 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   base: 16,
   power: "perfect-fourth",
   primary: "#007dea",
-  name: "primary",
   mode: "dark",
   harmony: "complementary",
   neutralTint: 0,
@@ -256,10 +260,14 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   selector: ":root",
   transition: "all ease 200ms",
   "box-shadow": "none",
-  colorSteps: 11,
   sizeRelativeToBase: false,
   sizeFluidRange: "fixed",
   spaceSteps: 24,
+  radius: 1,
+  radiusSteps: 8,
+  stateHoverDelta: 0.02,
+  statePressedDelta: 0.02,
+  statePressedShift: "0.1ch",
   density: 1,
   depth: 0,
   depthMax: 0.125,
@@ -288,8 +296,7 @@ function mergeLightDark(
   return merged;
 }
 
-function themeVariables(tokens: LuzTokens): Record<string, string> {
-  const { name } = tokens.settings;
+function themeVariables(): Record<string, string> {
   return {
     success: `var(--green-200)`,
     danger: `var(--red-200)`,
@@ -306,21 +313,21 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "on-table-hover": `var(--neutral-300)`,
     "selection-bg": `var(--scheme-primary)`,
     "on-selection": `var(--on-scheme, ${luzOnColor("var(--selection-bg)")})`,
-    "file-input-border-top": `var(--${name}-200)`,
+    "file-input-border-top": `var(--primary-200)`,
     "range-track-bg": `var(--element-background)`,
     "range-track-shadow": `var(--scheme-primary)`,
     "range-thumb-active-bg": `var(--scheme-primary)`,
     "range-tick-color": `var(--element-border-color)`,
     "progress-shadow": `var(--scheme-primary)`,
     "progress-fill": `var(--scheme-primary)`,
-    "on-checkbox": `var(--${name}-100)`,
+    "on-checkbox": `var(--primary-100)`,
     "checkbox-checked-bg": `var(--scheme-primary)`,
     "checkbox-checked-border": `transparent`,
     "switch-bg": `var(--scheme-primary)`,
     "radio-dot-bg": `var(--green-200)`,
     "radio-checked-bg": `var(--scheme-primary)`,
     "radio-checked-border": `var(--scheme-primary)`,
-    "blockquote-border": `var(--${name}-200)`,
+    "blockquote-border": `var(--primary-200)`,
     "on-blockquote-footer": `var(--scheme-primary)`,
     "btn-bg": `var(--scheme-neutral)`,
     "on-btn": `var(--on-scheme, ${luzOnColor("var(--btn-bg)")})`,
@@ -329,7 +336,7 @@ function themeVariables(tokens: LuzTokens): Record<string, string> {
     "on-tooltip": `var(--neutral-300)`,
     "badge-bg": `var(--scheme-primary)`,
     "on-badge": `var(--on-scheme, ${luzOnColor("var(--badge-bg)")})`,
-    "on-badge-ghost": `var(--${name}-400)`,
+    "on-badge-ghost": `var(--primary-400)`,
     "on-tab": `oklch(from var(--foreground) l c h / 65%)`,
     "on-tab-active": `var(--foreground)`,
     "tab-border-active": `var(--scheme-primary)`,
@@ -361,7 +368,6 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const {
     primary,
-    name,
     mode,
     base,
     selector,
@@ -379,10 +385,14 @@ export function luz(config?: LuzConfig): LuzResult {
     foreground,
     properties: generateProperties,
     preset: _preset,
-    colorSteps,
     sizeRelativeToBase,
     sizeFluidRange,
     spaceSteps,
+    radius,
+    radiusSteps,
+    stateHoverDelta,
+    statePressedDelta,
+    statePressedShift,
     spacing,
     density,
     depth,
@@ -391,109 +401,116 @@ export function luz(config?: LuzConfig): LuzResult {
     depthSign,
     contrastThreshold,
     vars,
-    breakpoints,
     ...typography
   } = settings;
   for (const hueName of WHEEL_HUE_NAMES) delete typography[hueName];
 
+  const normalPrimary = primary as string;
   const normalBase = base as number;
   const normalNeutralTint = neutralTint as number;
   const normalSurfaceTint = surfaceTint as number;
   const isAuto = mode === "auto";
   const isDark: boolean = isAuto ? false : mode === "dark";
 
-  const primaryName: string = name && name.length > 0 ? name : "primary";
-  const primaryCSSVar: string = `var(--${primaryName})`;
-
+  const primaryCSSVar = "var(--primary)";
+  const primarySeed = parseColorToOklch(normalPrimary);
   const harmonyColors = luzHarmonyColors(
     primaryCSSVar,
     harmony as ColorHarmony,
   );
+  const harmonySeeds = primarySeed
+    ? luzHarmonyColorSeeds(primarySeed, harmony as ColorHarmony)
+    : [];
 
-  const secondaryColor: string = secondary ?? (harmonyColors[0] as string);
-  const secondaryName = "secondary";
-  const secondaryCSSVar: string = `var(--${secondaryName})`;
-
-  const neutralsName = "neutral";
-  const neutralCSSVar: string = `var(--${neutralsName})`;
-  const neutralColor: string = `oklch(from ${primaryCSSVar} l calc(c * ${normalNeutralTint}) h)`;
+  const primaryPalette: LuzPalette = {
+    name: "primary",
+    color: normalPrimary,
+    seed: primarySeed,
+  };
+  const neutralPalette: LuzPalette = {
+    name: "neutral",
+    color: `oklch(from ${primaryCSSVar} l calc(c * ${normalNeutralTint}) h)`,
+    seed: primarySeed
+      ? { ...primarySeed, c: primarySeed.c * normalNeutralTint }
+      : null,
+  };
 
   /** OKLCH lightness of quaternary's "ink" fallback (harmonies without a 4th hue). */
   const QUATERNARY_INK_LIGHTNESS = 0.25;
 
-  const tertiaryColor: string = tertiary ?? harmonyColors[1] ?? neutralCSSVar;
-  const tertiaryName = "tertiary";
-  const tertiaryCSSVar: string = `var(--${tertiaryName})`;
+  /** The explicit config color, else the harmony's color for `slot`, else `fallback`. */
+  function accentPalette(
+    name: string,
+    explicit: string | undefined,
+    slot: number,
+    fallback: Omit<LuzPalette, "name">,
+  ): LuzPalette {
+    if (explicit !== undefined) {
+      return { name, color: explicit, seed: parseColorToOklch(explicit) };
+    }
+    const color = harmonyColors[slot];
+    if (color === undefined) return { name, ...fallback };
+    return { name, color, seed: harmonySeeds[slot] ?? null };
+  }
 
-  const quaternaryColor: string =
-    quaternary ??
-    harmonyColors[2] ??
-    `oklch(from ${primaryCSSVar} ${QUATERNARY_INK_LIGHTNESS} c h)`;
-  const quaternaryName = "quaternary";
-  const quaternaryCSSVar: string = `var(--${quaternaryName})`;
+  const neutralFallback = {
+    color: "var(--neutral)",
+    seed: neutralPalette.seed,
+  };
+  const secondaryPalette = accentPalette(
+    "secondary",
+    secondary,
+    0,
+    neutralFallback,
+  );
+  const tertiaryPalette = accentPalette(
+    "tertiary",
+    tertiary,
+    1,
+    neutralFallback,
+  );
+  const quaternaryPalette = accentPalette("quaternary", quaternary, 2, {
+    color: `oklch(from ${primaryCSSVar} ${QUATERNARY_INK_LIGHTNESS} c h)`,
+    seed: primarySeed ? { ...primarySeed, l: QUATERNARY_INK_LIGHTNESS } : null,
+  });
 
-  const primarySeed = parseColorToOklch(primary);
-  const harmonySeeds = primarySeed
-    ? luzHarmonyColorSeeds(primarySeed, harmony as ColorHarmony)
-    : [];
-  const secondarySeed = secondary
-    ? parseColorToOklch(secondary)
-    : (harmonySeeds[0] ?? null);
-  const neutralSeed: OklchSeed | null = primarySeed
-    ? { ...primarySeed, c: primarySeed.c * normalNeutralTint }
-    : null;
-  const tertiarySeed = tertiary
-    ? parseColorToOklch(tertiary)
-    : (harmonySeeds[1] ?? neutralSeed);
-  const quaternarySeed = quaternary
-    ? parseColorToOklch(quaternary)
-    : (harmonySeeds[2] ??
-      (primarySeed ? { ...primarySeed, l: QUATERNARY_INK_LIGHTNESS } : null));
-
-  /** Low-chroma surface scale for one accent palette (secondary/tertiary/quaternary): `neutral`'s lightness curve tinted toward that palette's hue. */
-  function surfaceOf(
-    accentCSSVar: string,
-    accentSeed: OklchSeed | null,
-    accentName: string,
-  ): {
-    name: string;
-    cssVar: string;
-    color: string;
-    seed: OklchSeed | null;
-  } {
-    const surfaceName = `surface-${accentName}`;
+  /** Low-chroma surface scale for an accent: `neutral`'s lightness curve tinted toward that palette's hue. */
+  function surfaceOf(accent: LuzPalette): LuzPalette {
     return {
-      name: surfaceName,
-      cssVar: `var(--${surfaceName})`,
-      color: `oklch(from ${accentCSSVar} l calc(c * ${normalSurfaceTint}) h)`,
-      seed: accentSeed
-        ? { ...accentSeed, c: accentSeed.c * normalSurfaceTint }
+      name: `surface-${accent.name}`,
+      color: `oklch(from var(--${accent.name}) l calc(c * ${normalSurfaceTint}) h)`,
+      seed: accent.seed
+        ? { ...accent.seed, c: accent.seed.c * normalSurfaceTint }
         : null,
     };
   }
 
-  const surfaceSecondary = surfaceOf(
-    secondaryCSSVar,
-    secondarySeed,
-    "secondary",
-  );
-  const surfaceTertiary = surfaceOf(tertiaryCSSVar, tertiarySeed, "tertiary");
-  const surfaceQuaternary = surfaceOf(
-    quaternaryCSSVar,
-    quaternarySeed,
-    "quaternary",
+  const accentPalettes = [
+    primaryPalette,
+    secondaryPalette,
+    tertiaryPalette,
+    quaternaryPalette,
+  ];
+  const namedPalettes = [
+    ...accentPalettes,
+    neutralPalette,
+    surfaceOf(secondaryPalette),
+    surfaceOf(tertiaryPalette),
+    surfaceOf(quaternaryPalette),
+  ];
+  const wheelPalettes = luzWheelPalettes(
+    primaryCSSVar,
+    primarySeed,
+    wheelOverrides,
   );
 
-  const infoSeed = primarySeed ? luzWheelHueSeed("blue", primarySeed) : null;
-  const dangerSeed = primarySeed ? luzWheelHueSeed("red", primarySeed) : null;
-  const successSeed = primarySeed
-    ? luzWheelHueSeed("green", primarySeed)
-    : null;
   /** Hue for `scheme-warning`; the wheel's `yellow` slot (h=115) reads yellow-green. */
   const WARNING_HUE = 92;
-  const warningSeed = primarySeed
+  const warningSeed: OklchSeed | null = primarySeed
     ? { l: primarySeed.l, c: WHEEL_CHROMA, h: WARNING_HUE }
     : null;
+
+  const normalSchemeChroma = schemeChroma ?? 1;
 
   type SchemeSlot =
     | "primary"
@@ -505,309 +522,158 @@ export function luz(config?: LuzConfig): LuzResult {
     | "success"
     | "warning"
     | "info";
-  /** Weight `scheme-{slot}` uses: explicit `schemeShade`, else `schemeLightness` against the baked seed, else `500` (`800` for `neutral`). */
-  function resolveSchemeWeight(
-    slot: SchemeSlot,
-    seed: OklchSeed | null,
-    reverse: boolean,
-  ): number {
-    const explicit =
-      typeof schemeShade === "number" ? schemeShade : schemeShade?.[slot];
-    if (explicit !== undefined) return explicit;
-    if (schemeLightness !== undefined && seed) {
-      return nearestSchemeWeight(
-        seed,
-        colorSteps as number,
-        reverse,
-        schemeLightness,
+
+  /** Bakes every palette with a known seed for one scheme and derives the whole `colors` record from those ramps. */
+  function buildScheme(reverse: boolean): {
+    palettes: LuzPalettes;
+    colors: Record<string, string>;
+    scalars: Record<string, string>;
+  } {
+    const palettes: LuzPalettes = {};
+    for (const palette of [...namedPalettes, ...wheelPalettes]) {
+      if (palette.seed) {
+        palettes[palette.name] = luzPaletteSeeds(palette.seed, reverse);
+      }
+    }
+    const warningRamp = warningSeed
+      ? luzPaletteSeeds(warningSeed, reverse)
+      : undefined;
+
+    /** One shade with chroma scaled by `factor`: literal from `ramp` when baked, else a live `calc()` against `liveVarRef`. */
+    function shade(
+      ramp: LuzRamp | undefined,
+      weight: number,
+      factor: number,
+      liveVarRef: string,
+    ): string {
+      const baked = ramp?.[weight];
+      if (!baked) return factor === 1 ? liveVarRef : muted(liveVarRef, factor);
+      return formatOklch(baked.l, baked.c * factor, baked.h);
+    }
+
+    /** `scheme-{slot}`: weight from explicit `schemeShade`, else `schemeLightness` against the ramp, else `500` (`800` for `neutral`). */
+    function scheme(
+      slot: SchemeSlot,
+      ramp: LuzRamp | undefined,
+      liveVarRef: (weight: number) => string,
+    ): string {
+      const explicit =
+        typeof schemeShade === "number" ? schemeShade : schemeShade?.[slot];
+      const weight =
+        explicit ??
+        (schemeLightness !== undefined && ramp
+          ? nearestSchemeWeight(ramp, schemeLightness)
+          : slot === "neutral"
+            ? 800
+            : 500);
+      return shade(ramp, weight, normalSchemeChroma, liveVarRef(weight));
+    }
+
+    const colors: Record<string, string> = {};
+    for (const { name, color } of namedPalettes) {
+      colors[name] = color;
+      Object.assign(
+        colors,
+        luzShades(name, `var(--${name})`, reverse, palettes[name]),
       );
     }
-    return slot === "neutral" ? 800 : 500;
-  }
+    colors.background = background ?? "var(--neutral-900)";
+    colors.foreground = foreground ?? "var(--neutral-100)";
+    for (const { name } of accentPalettes) {
+      colors[`on-${name}`] = luzOnColor(`var(--${name})`);
+    }
+    for (const { name, color } of wheelPalettes) {
+      const seedVar = `var(--${name}-seed)`;
+      colors[`${name}-seed`] = color;
+      Object.assign(colors, luzShades(name, seedVar, reverse, palettes[name]));
+      colors[name] = `var(--${name}-500)`;
+      colors[`on-${name}`] = luzOnColor(seedVar);
+    }
 
-  /** Shade with chroma scaled by `factor`: gamut-baked literal when `seed` is known, otherwise a live `calc()` against `liveVarRef`. */
-  function chromaScaledEntry(
-    seed: OklchSeed | null,
-    weight: number,
-    reverse: boolean,
-    factor: number,
-    liveVarRef: string,
-  ): string {
-    if (!seed) return factor === 1 ? liveVarRef : muted(liveVarRef, factor);
-    const { l, c, h } = resolveBakedShade(seed, weight, reverse);
-    return formatOklch(l, c * factor, h);
-  }
-
-  const normalSchemeChroma = schemeChroma ?? 1;
-
-  /** Full `colors` token record for one shade direction (light or dark). */
-  function buildColors(reverse: boolean): Record<string, string> {
-    const primaryShades = luzShadesByHue({
-      color: primaryCSSVar,
-      name: primaryName,
-      reverse,
-      steps: colorSteps,
-      seed: primarySeed,
-    });
-    const secondaryShades = luzShadesByHue({
-      color: secondaryCSSVar,
-      name: secondaryName,
-      reverse,
-      steps: colorSteps,
-      seed: secondarySeed,
-    });
-
-    const tertiaryShades = luzShadesByHue({
-      color: tertiaryCSSVar,
-      name: tertiaryName,
-      reverse,
-      steps: colorSteps,
-      seed: tertiarySeed,
-    });
-
-    const quaternaryShades = luzShadesByHue({
-      color: quaternaryCSSVar,
-      name: quaternaryName,
-      reverse,
-      steps: colorSteps,
-      seed: quaternarySeed,
-    });
-
-    const neutralShades = luzShadesByHue({
-      color: neutralCSSVar,
-      name: neutralsName,
-      reverse,
-      steps: colorSteps,
-      seed: neutralSeed,
-    });
-
-    const surfaceShades = (
-      surface: typeof surfaceSecondary,
-    ): Record<string, string> =>
-      luzShadesByHue({
-        color: surface.cssVar,
-        name: surface.name,
-        reverse,
-        steps: colorSteps,
-        seed: surface.seed,
-      });
-    const surfaceSecondaryShades = surfaceShades(surfaceSecondary);
-    const surfaceTertiaryShades = surfaceShades(surfaceTertiary);
-    const surfaceQuaternaryShades = surfaceShades(surfaceQuaternary);
-
-    const wheel: Record<string, string> = luzWheel(
-      reverse,
-      primaryCSSVar,
-      colorSteps,
-      wheelOverrides,
-      primarySeed,
-    );
-
-    const primaryWeight = resolveSchemeWeight("primary", primarySeed, reverse);
-    const secondaryWeight = resolveSchemeWeight(
-      "secondary",
-      secondarySeed,
-      reverse,
-    );
-    const tertiaryWeight = resolveSchemeWeight(
-      "tertiary",
-      tertiarySeed,
-      reverse,
-    );
-    const quaternaryWeight = resolveSchemeWeight(
-      "quaternary",
-      quaternarySeed,
-      reverse,
-    );
-    const neutralWeight = resolveSchemeWeight("neutral", neutralSeed, reverse);
-    const dangerWeight = resolveSchemeWeight("danger", dangerSeed, reverse);
-    const successWeight = resolveSchemeWeight("success", successSeed, reverse);
-    const warningWeight = resolveSchemeWeight("warning", warningSeed, reverse);
-    const infoWeight = resolveSchemeWeight("info", infoSeed, reverse);
-
-    return {
-      [primaryName]: primary,
-      ...primaryShades,
-      ...secondaryShades,
-      [secondaryName]: secondaryColor,
-      ...tertiaryShades,
-      [tertiaryName]: tertiaryColor,
-      ...quaternaryShades,
-      [quaternaryName]: quaternaryColor,
-      [neutralsName]: neutralColor,
-      ...neutralShades,
-      [surfaceSecondary.name]: surfaceSecondary.color,
-      ...surfaceSecondaryShades,
-      [surfaceTertiary.name]: surfaceTertiary.color,
-      ...surfaceTertiaryShades,
-      [surfaceQuaternary.name]: surfaceQuaternary.color,
-      ...surfaceQuaternaryShades,
-      background: background ?? `var(--${neutralsName}-900)`,
-      foreground: foreground ?? `var(--${neutralsName}-100)`,
-      [`on-${primaryName}`]: luzOnColor(primaryCSSVar),
-      [`on-${secondaryName}`]: luzOnColor(secondaryCSSVar),
-      [`on-${tertiaryName}`]: luzOnColor(tertiaryCSSVar),
-      [`on-${quaternaryName}`]: luzOnColor(quaternaryCSSVar),
-      ...wheel,
-      "scheme-primary": chromaScaledEntry(
-        primarySeed,
-        primaryWeight,
-        reverse,
-        normalSchemeChroma,
-        `var(--${primaryName}-${primaryWeight})`,
+    const p = palettes;
+    Object.assign(colors, {
+      "scheme-primary": scheme(
+        "primary",
+        p.primary,
+        (w) => `var(--primary-${w})`,
       ),
-      "scheme-secondary": chromaScaledEntry(
-        secondarySeed,
-        secondaryWeight,
-        reverse,
-        normalSchemeChroma,
-        `var(--${secondaryName}-${secondaryWeight})`,
+      "scheme-secondary": scheme(
+        "secondary",
+        p.secondary,
+        (w) => `var(--secondary-${w})`,
       ),
-      "scheme-tertiary": chromaScaledEntry(
-        tertiarySeed,
-        tertiaryWeight,
-        reverse,
-        normalSchemeChroma,
-        `var(--${tertiaryName}-${tertiaryWeight})`,
+      "scheme-tertiary": scheme(
+        "tertiary",
+        p.tertiary,
+        (w) => `var(--tertiary-${w})`,
       ),
-      "scheme-quaternary": chromaScaledEntry(
-        quaternarySeed,
-        quaternaryWeight,
-        reverse,
-        normalSchemeChroma,
-        `var(--${quaternaryName}-${quaternaryWeight})`,
+      "scheme-quaternary": scheme(
+        "quaternary",
+        p.quaternary,
+        (w) => `var(--quaternary-${w})`,
       ),
-      "scheme-neutral": chromaScaledEntry(
-        neutralSeed,
-        neutralWeight,
-        reverse,
-        normalSchemeChroma,
-        `var(--${neutralsName}-${neutralWeight})`,
+      "scheme-neutral": scheme(
+        "neutral",
+        p.neutral,
+        (w) => `var(--neutral-${w})`,
       ),
-      "scheme-info": chromaScaledEntry(
-        infoSeed,
-        infoWeight,
-        reverse,
-        normalSchemeChroma,
-        `var(--info)`,
-      ),
-      "scheme-danger": chromaScaledEntry(
-        dangerSeed,
-        dangerWeight,
-        reverse,
-        normalSchemeChroma,
-        `var(--danger)`,
-      ),
-      "scheme-success": chromaScaledEntry(
-        successSeed,
-        successWeight,
-        reverse,
-        normalSchemeChroma,
-        `var(--success)`,
-      ),
-      "scheme-warning": chromaScaledEntry(
-        warningSeed,
-        warningWeight,
-        reverse,
-        normalSchemeChroma,
-        `var(--warning)`,
-      ),
-      anchor: chromaScaledEntry(infoSeed, 200, reverse, 0.6, `var(--info)`),
-      "anchor-secondary": chromaScaledEntry(
-        secondarySeed,
+      "scheme-info": scheme("info", p.blue, () => "var(--info)"),
+      "scheme-danger": scheme("danger", p.red, () => "var(--danger)"),
+      "scheme-success": scheme("success", p.green, () => "var(--success)"),
+      "scheme-warning": scheme("warning", warningRamp, () => "var(--warning)"),
+      anchor: shade(p.blue, 200, 0.6, "var(--info)"),
+      "anchor-secondary": shade(p.secondary, 500, 0.6, "var(--secondary-500)"),
+      "anchor-tertiary": shade(p.tertiary, 500, 0.6, "var(--tertiary-500)"),
+      "anchor-quaternary": shade(
+        p.quaternary,
         500,
-        reverse,
         0.6,
-        `var(--${secondaryName}-500)`,
+        "var(--quaternary-500)",
       ),
-      "anchor-tertiary": chromaScaledEntry(
-        tertiarySeed,
-        500,
-        reverse,
-        0.6,
-        `var(--${tertiaryName}-500)`,
-      ),
-      "anchor-quaternary": chromaScaledEntry(
-        quaternarySeed,
-        500,
-        reverse,
-        0.6,
-        `var(--${quaternaryName}-500)`,
-      ),
-      "anchor-danger": chromaScaledEntry(
-        dangerSeed,
-        200,
-        reverse,
-        0.6,
-        `var(--danger)`,
-      ),
-      "anchor-success": chromaScaledEntry(
-        successSeed,
-        200,
-        reverse,
-        0.6,
-        `var(--success)`,
-      ),
-      "anchor-warning": chromaScaledEntry(
-        warningSeed,
-        200,
-        reverse,
-        0.6,
-        `var(--warning)`,
-      ),
+      "anchor-danger": shade(p.red, 200, 0.6, "var(--danger)"),
+      "anchor-success": shade(p.green, 200, 0.6, "var(--success)"),
+      "anchor-warning": shade(warningRamp, 200, 0.6, "var(--warning)"),
+    });
+
+    /** Unitless/length knobs, kept out of the `light-dark()` color merge. */
+    const scalars: Record<string, string> = {
       "depth-base": `${depth}`,
       "depth-max": `${depthMax}`,
       "depth-decay": `${depthDecay}`,
       "depth-sign": `${depthSign ?? (reverse ? -0.3 : 0.3)}`,
       "contrast-threshold": `${contrastThreshold}`,
       density: `${density}`,
-      "element-background": `var(--background)`,
-      "element-border-color": `oklch(from var(--foreground) l c h / 20%)`,
-      "border-color": `oklch(from var(--foreground) l c h / 50%)`,
-      "element-active-border-color": `oklch(from var(--${primaryName}-200) l c h / 50%)`,
-      "on-element": `var(--${primaryName}-100)`,
-      "on-element-active": `var(--${primaryName}-50)`,
-      "on-element-placeholder": `oklch(from var(--foreground) l c h / 50%)`,
+      "state-hover-delta": `${stateHoverDelta}`,
+      "state-pressed-delta": `${statePressedDelta}`,
+      "state-pressed-shift": `${statePressedShift}`,
     };
+
+    Object.assign(colors, {
+      "element-background": "var(--background)",
+      "element-border-color": "oklch(from var(--foreground) l c h / 20%)",
+      "border-color": "oklch(from var(--foreground) l c h / 50%)",
+      "element-active-border-color":
+        "oklch(from var(--primary-200) l c h / 50%)",
+      "on-element": "var(--primary-100)",
+      "on-element-active": "var(--primary-50)",
+      "on-element-placeholder": "oklch(from var(--foreground) l c h / 50%)",
+    });
+    return { palettes, colors, scalars };
   }
 
-  const colors = isAuto
-    ? mergeLightDark(buildColors(false), buildColors(true))
-    : buildColors(isDark);
-
-  /** Baked OKLCH per weight for every palette whose seed is known, keyed like `colors`. */
-  function buildPalettes(reverse: boolean): LuzPalettes {
-    const named: [string, OklchSeed | null][] = [
-      [primaryName, primarySeed],
-      [secondaryName, secondarySeed],
-      [tertiaryName, tertiarySeed],
-      [quaternaryName, quaternarySeed],
-      [neutralsName, neutralSeed],
-      [surfaceSecondary.name, surfaceSecondary.seed],
-      [surfaceTertiary.name, surfaceTertiary.seed],
-      [surfaceQuaternary.name, surfaceQuaternary.seed],
-    ];
-    for (const hueName of WHEEL_HUE_NAMES) {
-      named.push([
-        hueName,
-        luzWheelHueSeed(hueName, primarySeed, wheelOverrides[hueName]),
-      ]);
-    }
-    const palettes: LuzPalettes = {};
-    for (const [paletteName, seed] of named) {
-      if (seed) {
-        palettes[paletteName] = luzPaletteSeeds(seed, reverse, colorSteps);
-      }
-    }
-    return palettes;
-  }
-
-  const palettes: LuzTokens["palettes"] = {};
-  if (isAuto || !isDark) palettes.light = buildPalettes(false);
-  if (isAuto || isDark) palettes.dark = buildPalettes(true);
+  const active = buildScheme(isDark);
+  const other = isAuto ? buildScheme(true) : undefined;
+  const colors = {
+    ...(other ? mergeLightDark(active.colors, other.colors) : active.colors),
+    ...active.scalars,
+  };
+  const palettes: LuzTokens["palettes"] = {
+    [isDark ? "dark" : "light"]: active.palettes,
+  };
+  if (other) palettes.dark = other.palettes;
 
   const sizeTokens: Record<string, string> = {
-    ...luzSizes(normalBase, sizeRelativeToBase),
+    ...luzSizes(normalBase, sizeRelativeToBase, radius, radiusSteps),
     ...luzTextScale(normalBase, power, sizeRelativeToBase, sizeFluidRange),
     ...luzTypeLandmarks(normalBase, power, sizeRelativeToBase, sizeFluidRange),
     ...luzSpace(normalBase, spaceSteps),
@@ -817,7 +683,6 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const tokens: LuzTokens = {
     settings: {
-      name: primaryName,
       selector: selector as string,
     },
     colors,
@@ -827,7 +692,6 @@ export function luz(config?: LuzConfig): LuzResult {
   };
 
   const properties = generateProperties ? luzProperty(tokens) : "";
-  const customMedia = luzCustomMedia(breakpoints);
 
   /** Renders a flat `--name: value;` line per entry, skipping nullish values. */
   function toVariableLines(record: Record<string, unknown>): string {
@@ -840,39 +704,42 @@ export function luz(config?: LuzConfig): LuzResult {
     return lines.join("\n");
   }
 
-  const shadedNames = [
-    primaryName,
-    secondaryName,
-    tertiaryName,
-    quaternaryName,
-    neutralsName,
-    surfaceSecondary.name,
-    surfaceTertiary.name,
-    surfaceQuaternary.name,
-  ];
+  const variables = toVariableLines({
+    ...tokens.sizes,
+    ...tokens.colors,
+    ...tokens.typography,
+    ...themeVariables(),
+    ...vars,
+  });
 
-  const variables = withShadeFallback(
-    toVariableLines({
-      ...tokens.sizes,
-      ...tokens.colors,
-      ...tokens.typography,
-      ...themeVariables(tokens),
-      ...vars,
-    }),
-    shadedNames,
-  );
+  /** Dark-scheme values of the scheme-dependent scalars (`--depth-sign`), minus any key `config.vars` sets. */
+  const darkScalars = other
+    ? Object.fromEntries(
+        Object.entries(other.scalars).filter(
+          ([key, value]) =>
+            value !== active.scalars[key] && vars?.[key] === undefined,
+        ),
+      )
+    : {};
 
   const colorScheme = `color-scheme: ${isAuto ? "light dark" : mode};\n    `;
 
-  const reset = buildReset();
+  const darkBlock =
+    Object.keys(darkScalars).length > 0
+      ? `
+  @media (prefers-color-scheme: dark) {
+    ${selector} {
+      ${toVariableLines(darkScalars)}
+    }
+  }`
+      : "";
+
   const theme = `
-  ${customMedia}
   ${properties}
   ${selector} {
     ${colorScheme}${variables}
-  }
+  }${darkBlock}
   `;
-  const style = `${reset}\n${theme}`;
 
-  return { tokens, variables, properties, customMedia, reset, theme, style };
+  return { tokens, variables, properties, theme };
 }

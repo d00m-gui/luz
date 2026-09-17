@@ -10,21 +10,28 @@ textarea {
   font-size: calc(var(--size-unit) * 10);
   overflow: visible;
 }
-input:not([type="color"], [type="checkbox"], [type="radio"], [type="range"]),
-select,
-textarea {
-  padding: var(--element-vertical) var(--element-horizontal);
+:where(
+  input:not([type="color"], [type="checkbox"], [type="radio"], [type="range"]),
+  select,
+  textarea
+) {
+  padding-block: var(--element-vertical);
+  padding-inline: var(--element-horizontal);
 }
-select {
-  padding-right: calc(var(--size-unit) * 20);
+:where(select) {
+  padding-inline-end: calc(
+    var(--select-arrow-inset, var(--space-4)) + 0.65em + var(--space-1)
+  );
   position: relative;
+  text-overflow: ellipsis;
   background-image:
     linear-gradient(45deg, transparent 50%, currentColor 50%),
     linear-gradient(135deg, currentColor 50%, transparent 50%);
   background-position:
-    calc(100% - var(--space-4) - 0.3em) calc(50% - 0.15em),
-    calc(100% - var(--space-4)) calc(50% - 0.15em);
-  background-size: 0.35rem 0.35rem;
+    calc(100% - var(--select-arrow-inset, var(--space-4)) - 0.3em)
+      calc(50% - 0.15em),
+    calc(100% - var(--select-arrow-inset, var(--space-4))) calc(50% - 0.15em);
+  background-size: 0.35em 0.35em;
   background-repeat: no-repeat;
 }
 input,

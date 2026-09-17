@@ -1,6 +1,6 @@
 import { useMemo, type CSSProperties } from "react";
-import { luz, type LuzConfig } from "../../../src/luz";
-import { config as siteConfig } from "../../luz.config";
+import { luz } from "../../../src/luz";
+import { config as siteConfig } from "../../theme.config";
 import {
   resetThemeState,
   THEME_SCOPE_SELECTOR,
@@ -32,6 +32,10 @@ function formatConfig(state: ToolbarState): string {
   depthDecay: ${state.depthDecay},
   depthSign: ${state.depthSign},
   density: ${state.density},
+  radius: ${state.radius},
+  stateHoverDelta: ${state.stateHoverDelta},
+  statePressedDelta: ${state.statePressedDelta},
+  statePressedShift: "${state.statePressedShift}ch",
   contrastThreshold: ${state.contrastThreshold},
   schemeChroma: ${state.schemeChroma},
 })`;
@@ -40,21 +44,23 @@ function formatConfig(state: ToolbarState): string {
 export function ThemeToolbar() {
   const [state, update, ready] = useThemeState();
 
-  const config: LuzConfig = useMemo(
-    () => ({
-      ...siteConfig,
-      ...state,
-      background: state.background || undefined,
-    }),
+  const theme = useMemo(
+    () =>
+      luz({
+        ...siteConfig,
+        ...state,
+        background: state.background || undefined,
+        statePressedShift: `${state.statePressedShift}ch`,
+        selector: THEME_SCOPE_SELECTOR,
+      }).theme,
     [state],
   );
-  const variables = useMemo(() => luz(config).variables, [config]);
 
   if (!ready) return null;
 
   return (
     <>
-      <style precedence="high">{`${THEME_SCOPE_SELECTOR} { ${variables} }`}</style>
+      <style precedence="high">{theme}</style>
       <div className="components-toolbar-body">
         <div className="components-toolbar-controls">
           <label>
@@ -83,6 +89,7 @@ export function ThemeToolbar() {
             >
               <option value="light">light</option>
               <option value="dark">dark</option>
+              <option value="auto">auto</option>
             </select>
           </label>
           <label>
@@ -173,6 +180,62 @@ export function ThemeToolbar() {
               onChange={(e) => update({ density: Number(e.target.value) })}
             />
             <span>{state.density.toFixed(1)}</span>
+          </label>
+          <label>
+            Radius
+            <input
+              type="range"
+              min={0}
+              max={3}
+              step={0.1}
+              data-ticks
+              style={{ "--range-steps": 6 } as CSSProperties}
+              value={state.radius}
+              onChange={(e) => update({ radius: Number(e.target.value) })}
+            />
+            <span>{state.radius.toFixed(1)}</span>
+          </label>
+          <label>
+            Hover delta
+            <input
+              type="range"
+              min={0}
+              max={0.15}
+              step={0.005}
+              value={state.stateHoverDelta}
+              onChange={(e) =>
+                update({ stateHoverDelta: Number(e.target.value) })
+              }
+            />
+            <span>{state.stateHoverDelta.toFixed(3)}</span>
+          </label>
+          <label>
+            Pressed delta
+            <input
+              type="range"
+              min={0}
+              max={0.15}
+              step={0.005}
+              value={state.statePressedDelta}
+              onChange={(e) =>
+                update({ statePressedDelta: Number(e.target.value) })
+              }
+            />
+            <span>{state.statePressedDelta.toFixed(3)}</span>
+          </label>
+          <label>
+            Pressed shift
+            <input
+              type="range"
+              min={0}
+              max={0.5}
+              step={0.05}
+              value={state.statePressedShift}
+              onChange={(e) =>
+                update({ statePressedShift: Number(e.target.value) })
+              }
+            />
+            <span>{state.statePressedShift.toFixed(2)}ch</span>
           </label>
           <label>
             Contrast threshold

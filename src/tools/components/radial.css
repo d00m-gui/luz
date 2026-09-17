@@ -57,6 +57,7 @@
   }
 }
 .radial-item {
+  --radial-item-angle: var(--radial-angle, 0deg);
   position: absolute;
   top: 0;
   left: 0;
@@ -75,16 +76,26 @@
   translate: -50% -50%;
   scale: 0.4;
   transition: var(--transition);
-  transition-property: translate, scale, opacity;
+  transition-property: transform, scale, opacity;
+  @supports (rotate: calc(1deg * sibling-index())) {
+    --radial-item-angle: var(
+      --radial-angle,
+      calc(
+        var(--radial-start, 0deg) +
+          var(--radial-step, calc(360deg / sibling-count())) *
+          (sibling-index() - 1)
+      )
+    );
+  }
 }
 .radial-menu:popover-open .radial-item {
   pointer-events: auto;
   opacity: 1;
   scale: 1;
-  translate: calc(
-      -50% + cos(var(--radial-angle, 0deg)) * var(--radial-distance, 4.5rem)
-    )
-    calc(-50% + sin(var(--radial-angle, 0deg)) * var(--radial-distance, 4.5rem));
+  transform: translate(
+    calc(cos(var(--radial-item-angle)) * var(--radial-distance, 4.5rem)),
+    calc(sin(var(--radial-item-angle)) * var(--radial-distance, 4.5rem))
+  );
 }
 @media (prefers-reduced-motion: reduce) {
   .radial-trigger,

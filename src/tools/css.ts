@@ -1,4 +1,5 @@
 import { luz, type LuzConfig } from "../luz";
+import { buildReset } from "./reset";
 import { scanSources } from "./scan";
 import { shadcnBridgeCSS } from "./shadcn-bridge";
 import { emitUtilitiesCSS } from "./utilities";
@@ -10,11 +11,11 @@ export interface CssSections {
   utilities: string;
 }
 
-/** Runs `luz()`, the shadcn bridge and the utility scan over `root`. */
+/** Runs `luz()`, the shadcn bridge and the utility scan over `root`; `reset` is the static `reset.css` + `components.css` pair. */
 export function buildCssSections(config: LuzConfig, root: string): CssSections {
-  const { reset, theme, tokens } = luz(config);
+  const { theme, tokens } = luz(config);
   return {
-    reset,
+    reset: buildReset(),
     theme,
     bridge: shadcnBridgeCSS(tokens),
     utilities: emitUtilitiesCSS(scanSources(root).candidates, tokens),

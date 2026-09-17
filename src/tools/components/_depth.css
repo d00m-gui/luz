@@ -1,10 +1,23 @@
+@property --depth-sign {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+@property --depth-max {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.125;
+}
+@property --depth-decay {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 0.6;
+}
 :root {
   --depth: 0;
   --element-background: var(--background);
 }
-/* Nesting counted via explicit levels (1–4, capped) — a custom property that reads another
-   resolves once where it's declared, not per consumer, so --element-background can't be a
-   single formula at :root; each level bakes its own literal exponent. */
+/* Nesting levels 1–4, capped; each level bakes its own exponent. */
 :where(
   .card,
   .elevate,

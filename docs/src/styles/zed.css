@@ -1,5 +1,4 @@
-/* Zed-editor-style chrome for the docs site. Colors come from luz tokens
-   (see luz.config.mjs) — no hardcoded hex here. */
+/* Zed-editor-style chrome for the docs site. Colors come from luz tokens, no hardcoded hex. */
 
 .layout {
   display: flex;

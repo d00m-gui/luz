@@ -1,14 +1,12 @@
 import type { LuzTokens } from "../luz";
 
 export function shadcnBridgeCSS(tokens: LuzTokens): string {
-  const primaryName = tokens.settings.name;
-
   const aliases: Record<string, string> = {
     card: "var(--element-background)",
     "card-foreground": "var(--foreground)",
     popover: "var(--element-background)",
     "popover-foreground": "var(--foreground)",
-    "primary-foreground": `var(--on-${primaryName})`,
+    "primary-foreground": "var(--on-primary)",
     "secondary-foreground": "var(--on-secondary)",
     border: "var(--element-border-color)",
     input: "var(--element-border-color)",
@@ -19,7 +17,7 @@ export function shadcnBridgeCSS(tokens: LuzTokens): string {
     "accent-foreground": "var(--foreground)",
     destructive: "var(--red)",
     "destructive-foreground": "oklch(from var(--red) 88% 0 h)",
-    ring: `var(--${primaryName}-500)`,
+    ring: "var(--primary-500)",
   };
 
   const lines = Object.entries(aliases)

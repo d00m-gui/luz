@@ -6,21 +6,15 @@ const MAX_DISTANCE = CENTER_WEIGHT - 50;
 /** Fraction of the remaining headroom to `l=1`/`l=0` covered at 50/950 — never the full headroom, so no shade ever reaches pure white/black. Calibrated so a seed at `l=0.5` reproduces the old fixed `±0.42` curve exactly. */
 const LIGHTNESS_FRACTION = 0.84;
 
-function easeIn(t: number): number {
-  return t * t;
+/** One named palette: `color` is the live CSS value of its base token, `seed` its exact OKLCH when known at build time (`null` → shades stay live formulas). */
+export interface LuzPalette {
+  name: string;
+  color: string;
+  seed: OklchSeed | null;
 }
 
-/** Evenly spaced weight labels 50→950, rounded to the nearest 10 (`WEIGHTS` itself for the default 11 steps). */
-function generateWeights(steps: number): number[] {
-  if (steps === WEIGHTS.length) return WEIGHTS;
-  if (steps === 1) return [CENTER_WEIGHT];
-  const result: number[] = [];
-  for (let i = 0; i < steps; i++) {
-    const raw = 50 + ((950 - 50) * i) / (steps - 1);
-    result.push(Math.round(raw / 10) * 10);
-  }
-  return result;
-}
+/** Baked OKLCH per weight, one palette in one scheme. */
+export type LuzRamp = Record<number, OklchSeed>;
 
 /** Direction (`+1` lighten, `-1` darken, `0` unchanged) and eased fraction (0–`LIGHTNESS_FRACTION`) of the headroom to `l=1`/`l=0` a weight reaches, relative to the 500 shade. */
 function lightnessFactor(
@@ -29,29 +23,25 @@ function lightnessFactor(
 ): { sign: 1 | -1 | 0; fraction: number } {
   if (weight === CENTER_WEIGHT) return { sign: 0, fraction: 0 };
   const t = (weight - CENTER_WEIGHT) / MAX_DISTANCE;
-  const fraction = easeIn(Math.abs(t)) * LIGHTNESS_FRACTION;
+  const fraction = t * t * LIGHTNESS_FRACTION;
   const sign = (Math.sign(t) * (reverse ? -1 : 1)) as 1 | -1;
   return { sign, fraction };
 }
 
-function shadeEntry(
+function liveShade(
   color: string,
   name: string,
   weight: number,
   reverse: boolean,
-): [key: string, value: string] {
-  if (weight === CENTER_WEIGHT)
-    return [`${name}-${weight}`, `oklch(from ${color} l c h)`];
+): string {
+  if (weight === CENTER_WEIGHT) return `oklch(from ${color} l c h)`;
   const { sign, fraction } = lightnessFactor(weight, reverse);
   const f = fraction.toFixed(3);
   const lExpr =
     sign > 0
       ? `calc(l * ${(1 - fraction).toFixed(3)} + ${f})`
       : `calc(l * ${(1 - fraction).toFixed(3)})`;
-  return [
-    `${name}-${weight}`,
-    `oklch(from var(--${name}-${CENTER_WEIGHT}) ${lExpr} c h)`,
-  ];
+  return `oklch(from var(--${name}-${CENTER_WEIGHT}) ${lExpr} c h)`;
 }
 
 /** Resolves a weight to its exact, gamut-mapped OKLCH: same lightness curve as the live formula, but chroma is clamped to the largest value that still fits sRGB at that `l`/`h` — never exceeding the seed's own chroma. */
@@ -70,42 +60,38 @@ export function resolveBakedShade(
   return clampToSrgb({ l, c: seed.c, h: seed.h });
 }
 
-/** Baked OKLCH per weight — the numeric counterpart of `luzShadesByHue`'s baked path (same weights, same gamut mapping). */
-export function luzPaletteSeeds(
-  seed: OklchSeed,
+/** Bakes the full `50…950` ramp of a seed for one scheme. */
+export function luzPaletteSeeds(seed: OklchSeed, reverse: boolean): LuzRamp {
+  const ramp: LuzRamp = {};
+  for (const weight of WEIGHTS) {
+    ramp[weight] = resolveBakedShade(seed, weight, reverse);
+  }
+  return ramp;
+}
+
+/** `{name}-{weight}` tokens: literal `oklch()` from `ramp` when baked, otherwise the live `oklch(from …)` formula against `color`. */
+export function luzShades(
+  name: string,
+  color: string,
   reverse: boolean,
-  steps: number = WEIGHTS.length,
-): Record<number, OklchSeed> {
-  const shades: Record<number, OklchSeed> = {};
-  for (const weight of generateWeights(steps)) {
-    shades[weight] = resolveBakedShade(seed, weight, reverse);
+  ramp: LuzRamp | undefined,
+): Record<string, string> {
+  const shades: Record<string, string> = {};
+  for (const weight of WEIGHTS) {
+    const baked = ramp?.[weight];
+    shades[`${name}-${weight}`] = baked
+      ? formatOklch(baked.l, baked.c, baked.h)
+      : liveShade(color, name, weight, reverse);
   }
   return shades;
 }
 
-function shadeEntryBaked(
-  seed: OklchSeed,
-  name: string,
-  weight: number,
-  reverse: boolean,
-): [key: string, value: string] {
-  const { l, c, h } = resolveBakedShade(seed, weight, reverse);
-  return [`${name}-${weight}`, formatOklch(l, c, h)];
-}
-
-/** Which generated weight's real lightness lands closest to `target` (0–1) — used to pick a `scheme-*` shade by perceived lightness instead of a fixed nominal weight. */
-export function nearestSchemeWeight(
-  seed: OklchSeed,
-  steps: number,
-  reverse: boolean,
-  target: number,
-): number {
-  const weights = steps === WEIGHTS.length ? WEIGHTS : generateWeights(steps);
+/** Weight of `ramp` whose real lightness lands closest to `target` (0–1). */
+export function nearestSchemeWeight(ramp: LuzRamp, target: number): number {
   let best = CENTER_WEIGHT;
   let bestDiff = Number.POSITIVE_INFINITY;
-  for (const weight of weights) {
-    const { l } = resolveBakedShade(seed, weight, reverse);
-    const diff = Math.abs(l - target);
+  for (const weight of WEIGHTS) {
+    const diff = Math.abs(ramp[weight]!.l - target);
     if (diff < bestDiff) {
       bestDiff = diff;
       best = weight;
@@ -125,78 +111,36 @@ export type ColorHarmony =
   | "triad"
   | "monochrome";
 
-function hueShift(color: string, degrees: number): string {
-  return `oklch(from ${color} l c calc(h + ${degrees}))`;
-}
+type HarmonyStep = { hue: number } | { chroma: number };
 
-function chromaScale(color: string, factor: number): string {
-  return `oklch(from ${color} l calc(c * ${factor}) h)`;
-}
-
-/** Hue offsets from `primary` for each extra harmony color, in slot order (secondary, tertiary, quaternary). */
-const HARMONY_HUE_OFFSETS: Record<ColorHarmony, number[]> = {
-  complementary: [180],
-  analogous: [30, 60, 90],
-  triad: [120, 240],
-  monochrome: [],
+/** Transforms applied to `primary` for each extra harmony color, in slot order (secondary, tertiary, quaternary): a hue rotation in degrees or a chroma multiplier. */
+const HARMONY_STEPS: Record<ColorHarmony, HarmonyStep[]> = {
+  complementary: [{ hue: 180 }],
+  analogous: [{ hue: 30 }, { hue: 60 }, { hue: 90 }],
+  triad: [{ hue: 120 }, { hue: 240 }],
+  monochrome: [{ chroma: 0.45 }, { chroma: 0.2 }],
 };
 
-/** Chroma multipliers from `primary` for `monochrome`'s extra colors, in slot order (secondary, tertiary). */
-const MONOCHROME_CHROMA_SCALES = [0.45, 0.2];
-
-/** Derives the harmony's extra seed colors from `primary`, in slot order (secondary, tertiary, quaternary) — a slot missing from the result means this harmony doesn't define one, and the caller falls back to its own default for that slot. */
+/** Live CSS for the harmony's extra colors — a slot missing from the result means this harmony doesn't define one, and the caller falls back to its own default for that slot. */
 export function luzHarmonyColors(
   primaryCSSVar: string,
   harmony: ColorHarmony,
 ): string[] {
-  if (harmony === "monochrome") {
-    return MONOCHROME_CHROMA_SCALES.map((factor) =>
-      chromaScale(primaryCSSVar, factor),
-    );
-  }
-  return HARMONY_HUE_OFFSETS[harmony].map((degrees) =>
-    hueShift(primaryCSSVar, degrees),
+  return HARMONY_STEPS[harmony].map((step) =>
+    "hue" in step
+      ? `oklch(from ${primaryCSSVar} l c calc(h + ${step.hue}))`
+      : `oklch(from ${primaryCSSVar} l calc(c * ${step.chroma}) h)`,
   );
 }
 
-/** Numeric equivalent of `luzHarmonyColors`, for when `primary`'s exact OKLCH is known at build time (baked shade generation). */
+/** Numeric equivalent of `luzHarmonyColors`, for when `primary`'s exact OKLCH is known at build time. */
 export function luzHarmonyColorSeeds(
   primary: OklchSeed,
   harmony: ColorHarmony,
 ): OklchSeed[] {
-  if (harmony === "monochrome") {
-    return MONOCHROME_CHROMA_SCALES.map((factor) => ({
-      ...primary,
-      c: primary.c * factor,
-    }));
-  }
-  return HARMONY_HUE_OFFSETS[harmony].map((degrees) => ({
-    ...primary,
-    h: primary.h + degrees,
-  }));
-}
-
-/** `seed` is the color's exact OKLCH, known at build time — when given, shades are baked with real per-shade gamut mapping instead of the live `oklch(from var(...))` formula. */
-export function luzShadesByHue({
-  color,
-  name,
-  reverse = false,
-  steps = WEIGHTS.length,
-  seed,
-}: {
-  color: string;
-  name: string;
-  reverse?: boolean;
-  steps?: number;
-  seed?: OklchSeed | null;
-}): Record<string, string> {
-  const weights = generateWeights(steps);
-  const shades: Record<string, string> = {};
-  for (const weight of weights) {
-    const [key, value] = seed
-      ? shadeEntryBaked(seed, name, weight, reverse)
-      : shadeEntry(color, name, weight, reverse);
-    shades[key] = value;
-  }
-  return shades;
+  return HARMONY_STEPS[harmony].map((step) =>
+    "hue" in step
+      ? { ...primary, h: primary.h + step.hue }
+      : { ...primary, c: primary.c * step.chroma },
+  );
 }

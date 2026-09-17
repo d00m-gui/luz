@@ -28,6 +28,21 @@ covers:
   <button popovertarget="drawer-demo" aria-label="Abrir menú">
     <span>Menu</span>
   </button>
+  <div id="drawer-modal-demo" popover class="drawer modal" data-placement="right">
+    <div>
+      <div class="panel-header top">
+        <span class="panel-header-title"><strong>Filtros</strong></span>
+        <button class="ghost" popovertarget="drawer-modal-demo">&times;</button>
+      </div>
+      <div class="list">
+        <a class="list-row">Abiertos</a>
+        <a class="list-row">Cerrados</a>
+      </div>
+    </div>
+  </div>
+  <button popovertarget="drawer-modal-demo" aria-label="Abrir filtros">
+    <span>Modal</span>
+  </button>
   <div id="drawer-fullscreen" popover class="drawer fluid" data-placement="fullscreen">
     <div class="panel-header top">
       <span class="panel-header-title"><strong>Explorar</strong></span>
@@ -43,14 +58,14 @@ covers:
   <button popovertarget="drawer-fullscreen" aria-label="Abrir menú de pantalla completa">
     <span>Fullscreen</span>
   </button>
-  <div id="radial-demo" popover class="radial-menu">
-    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item" style="--radial-angle: -150deg;">
+  <div id="radial-demo" popover class="radial-menu" style="--radial-start: -150deg; --radial-step: 60deg;">
+    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item">
       <i class="icon nf nf-fa-pencil"></i><span>Editar</span>
     </button>
-    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item" style="--radial-angle: -90deg;">
+    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item">
       <i class="icon nf nf-fa-share_alt"></i><span>Compartir</span>
     </button>
-    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item" style="--radial-angle: -30deg;">
+    <button popovertarget="radial-demo" popovertargetaction="hide" class="radial-item">
       <i class="icon nf nf-fa-trash_can"></i><span>Borrar</span>
     </button>
   </div>

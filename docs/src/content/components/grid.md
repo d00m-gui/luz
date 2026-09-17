@@ -37,7 +37,9 @@ span: 2
   <div class="card"><div class="card-content"><strong>md</strong><span class="stat-label">18rem</span></div></div>
 </div>
 
-## Grid Overflow
+## Carousel
+
+`.grid.overflow` fluye en una sola fila con scroll horizontal y `scroll-snap`; donde el navegador lo soporta agrega botones anterior/siguiente y marcadores por ítem sin JS (`::scroll-button`, `::scroll-marker`).
 
 <div class="grid overflow">
   <div class="card">

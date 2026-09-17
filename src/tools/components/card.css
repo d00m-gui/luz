@@ -8,7 +8,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--element-vertical);
-  overflow: hidden;
   .card-content,
   .card-footer,
   .card-meta,
@@ -34,8 +33,22 @@
 :where(.card) .card-content {
   flex-direction: column;
 }
+.card:has(> table) {
+  overflow: hidden;
+}
 .card > table {
   margin: 0;
+}
+.card > :is(figure, img, video, .card-cover, .card-meta):first-child {
+  border-start-start-radius: inherit;
+  border-start-end-radius: inherit;
+}
+.card > :is(figure, img, video, .card-cover, .card-meta):last-child {
+  border-end-start-radius: inherit;
+  border-end-end-radius: inherit;
+}
+.card > figure {
+  overflow: hidden;
 }
 .card-cover {
   position: relative;
@@ -46,4 +59,44 @@
     height: 100%;
     object-fit: cover;
   }
+}
+.card.node {
+  position: relative;
+  > .card-meta {
+    --current-bg: var(--scheme, var(--element-background));
+    align-items: center;
+    background-color: oklch(from var(--current-bg) l c h / 22%);
+    border-top: calc(var(--size-unit) * 2) solid
+      var(--scheme, var(--element-border-color));
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    &:active {
+      cursor: grabbing;
+    }
+  }
+  &[data-dragging] {
+    box-shadow: 0 var(--space-2) var(--space-5)
+      oklch(from var(--background) calc(l - 0.25) c h / 50%);
+    > .card-meta {
+      cursor: grabbing;
+    }
+  }
+}
+.card-resize {
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline-end: 0;
+  width: var(--space-4);
+  height: var(--space-4);
+  border-end-end-radius: inherit;
+  cursor: nwse-resize;
+  background-image: repeating-linear-gradient(
+    135deg,
+    var(--element-border-color) 0 var(--border-width),
+    transparent var(--border-width) calc(var(--border-width) * 3)
+  );
+  background-position: 100% 100%;
+  background-repeat: no-repeat;
+  background-size: 55% 55%;
 }

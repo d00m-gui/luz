@@ -22,4 +22,4 @@ const { style } = luz({ primary: "#f28c20" });</code></pre>
 
 ## Scroll horizontal
 
-<pre><code>export const DEFAULT_BREAKPOINTS = { sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 } as const; // rem, usados por las variantes sm:…2xl: y max-sm:…max-2xl:</code></pre>
+<pre><code>const BREAKPOINTS = { sm: 40, md: 48, lg: 64, xl: 80, "2xl": 96 }; // rem, usados por las variantes sm:…2xl: y max-sm:…max-2xl:</code></pre>

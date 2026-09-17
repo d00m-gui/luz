@@ -175,8 +175,8 @@ var(--foreground) l c h / 8%)` + la sombra exterior original.
   (`--ratio`), `.app-composer .element.pair` (`--element-width-min`),
   `.app-invites` (`--scroll-max`, `--lazy-render-size`), `.app-volume`
   (`--range-length`, `--range-steps`), `.app-density` (`--range-steps`),
-  `.app-quick-actions` (`--radial-distance` + `--radial-angle` por
-  `nth-child`), `.app-search input` (ancho).
+  `.app-quick-actions` (`--radial-distance`, `--radial-start`,
+  `--radial-step`).
 
 ## Resuelto en luz
 
@@ -186,8 +186,9 @@ una clase o knob de luz, con dónde se usa acá:
 - `.shell.app` + `--shell-height` — frame de la app; `.shell.responsive` —
   explorador de archivos (Projects).
 - `.page`, `.page-header`, `.page-header-title`, `.page-body` (+
-  `.with-aside`, `--page-aside-width`), `.page-aside`, `.stack`
-  (`--stack-gap`), `.page section { padding: 0 }` — shell.
+  `.with-aside`, `--page-aside-width`), `.page-aside` (sticky,
+  `--page-aside-top`), `.stack` (`--stack-gap`), `.page section
+  { padding: 0 }` — shell.
 - `.list.nav`, `.list > li`, `button.list-row`, `.list-row >
 :last-child { justify-self: end }`, `.filetree` con icono que rota en
   `[open]`, `nav > ul:not(.list)` — shell (nav), Settings (Shortcuts),
@@ -229,18 +230,5 @@ Propuestas, no decisiones — cada una requiere confirmación antes de tocar
 `--notice-duration` (default 6s, `.notice.sticky` para desactivarlo) y
 `section` con gutter `vw` solo a nivel de `body`/`main` se resolvieron en luz.
 
-- `.radial-menu` no distribuye los `.radial-item` solo: `--radial-angle`
-  hay que fijarlo por ítem (acá con `:nth-child` en theme.css). Propuesta:
-  `--radial-start`/`--radial-sweep` + `sibling-index()`, o variantes
-  `.radial-menu.quarter/.half`.
-- Utilities de ancho fijo terminan en `w-24` (6rem) y no hay `max-w-N`:
-  el ancho del buscador del topbar (14rem) vive en theme.css.
-- Breakpoints de `md:`/`lg:`… son los de `DEFAULT_BREAKPOINTS`;
-  `LuzConfig.breakpoints` no llega a `emitUtilitiesCSS`.
-- `.grid.overflow` sigue haciendo absoluto a cualquier `.card-meta`; una
-  regla top-level `.card-cover + .card-meta` permitiría superponer la meta
-  a la portada sin `.grid.overflow`.
-- `.page-aside` no es sticky; para un ToC largo haría falta
-  `position: sticky; top: var(--space-6)`.
 - `.radial-trigger.fixed` en `--space-6` queda encima de un
   `.panel-header.bottom` de `.shell.app` (theme.css lo sube).

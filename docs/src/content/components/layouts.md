@@ -283,7 +283,7 @@ covers:
       <div style="display: flex; gap: var(--space-2); align-self: start; max-width: 75%;">
         <span class="avatar sm">AI</span>
         <div class="card">
-          <div class="card-content">Llamando a <code>luz(config)</code> — devuelve <code>.style</code> listo para escribir a disco.</div>
+          <div class="card-content">Llamando a <code>luz(config)</code> — devuelve <code>.theme</code> con las custom properties del tema.</div>
         </div>
       </div>
       <div style="display: flex; gap: var(--space-2); align-self: start; max-width: 75%;">

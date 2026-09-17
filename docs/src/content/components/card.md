@@ -9,6 +9,8 @@ covers:
   - card-toolbar
   - space
   - center
+  - node
+  - card-resize
 ---
 
 <div class="card demo-card">
@@ -111,6 +113,51 @@ covers:
   </div>
 </div>
 
+## Nodo
+
+<div class="demo-nodes">
+  <div class="card node">
+    <div class="card-meta primary">
+      <i class="icon nf nf-fa-cube"></i>
+      <span class="space">Marca</span>
+      <span class="badge neutral">3</span>
+    </div>
+    <div class="card-content">
+      <ul class="list dense">
+        <li class="list-row"><span class="list-col-grow">Familia</span><span class="badge neutral">Sans</span></li>
+        <li class="list-row"><span class="list-col-grow">Peso</span><span class="badge neutral">600</span></li>
+      </ul>
+    </div>
+    <span class="card-resize"></span>
+  </div>
+  <div class="card node" data-dragging>
+    <div class="card-meta" style="--scheme: var(--teal-500)">
+      <i class="icon nf nf-fa-random"></i>
+      <span class="space">Mezcla</span>
+      <span class="badge neutral"><code>data-dragging</code></span>
+    </div>
+    <div class="card-content">
+      <ul class="list dense">
+        <li class="list-row"><span class="list-col-grow">Modo</span><span class="badge neutral">oklab</span></li>
+        <li class="list-row"><span class="list-col-grow">Mezcla</span><span class="badge neutral">22%</span></li>
+      </ul>
+    </div>
+    <span class="card-resize"></span>
+  </div>
+  <div class="card node">
+    <div class="card-meta">
+      <i class="icon nf nf-fa-cog"></i>
+      <span class="space">Sin esquema</span>
+    </div>
+    <div class="card-content">
+      <ul class="list dense">
+        <li class="list-row"><span class="list-col-grow">Salida</span><span class="badge neutral">sRGB</span></li>
+      </ul>
+    </div>
+    <span class="card-resize"></span>
+  </div>
+</div>
+
 <style>
   .demo-card {
     width: var(--element-width);
@@ -126,5 +173,14 @@ covers:
   .demo-card-row {
     flex-direction: row;
     align-items: center;
+  }
+  .demo-nodes {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space-6);
+  }
+  .demo-nodes .card {
+    width: 13rem;
   }
 </style>
