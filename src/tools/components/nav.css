@@ -17,5 +17,6 @@ nav:not(.breadcrumbs)
     [aria-current="false"]
   ) {
   color: var(--on-tab-active);
-  box-shadow: inset 0 calc(var(--border-width) * -2) 0 var(--tab-border-active);
+  box-shadow: inset 0 calc(var(--border-width) * -2) 0
+    var(--tab-border-active, var(--scheme, var(--accent)));
 }

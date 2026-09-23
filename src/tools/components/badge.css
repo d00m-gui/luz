@@ -1,5 +1,5 @@
 .badge {
-  --current-bg: var(--scheme, var(--badge-bg));
+  --current-bg: var(--scheme, var(--badge-bg, var(--accent)));
   display: inline-flex;
   align-items: center;
   justify-content: safe center;

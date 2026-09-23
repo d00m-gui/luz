@@ -91,6 +91,52 @@ input[aria-invalid="true"] {
     color: var(--danger);
   }
 }
+.field:has(.field-affix) {
+  flex-direction: row;
+  align-items: stretch;
+  gap: 0;
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  overflow: hidden;
+  transition: var(--transition);
+  transition-property: border-color, background-color, box-shadow;
+  > input,
+  > select,
+  > textarea {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: none;
+    border-radius: 0;
+    background-color: transparent;
+  }
+  &:focus-within {
+    outline: var(--size-unit) solid
+      var(
+        --element-active-border-color,
+        oklch(from var(--scheme, var(--accent)) l c h / 50%)
+      );
+    outline-offset: calc(var(--size-unit) * -1);
+  }
+}
+.field-affix {
+  display: inline-flex;
+  align-items: center;
+  padding-inline: var(--element-horizontal);
+  color: var(--on-element-placeholder);
+  white-space: nowrap;
+}
+.field.short {
+  width: var(--field-width, var(--space-16));
+  flex: 0 0 auto;
+  > input,
+  > select {
+    padding-inline: var(--space-1);
+  }
+  > .field-affix {
+    padding-inline: var(--space-1);
+  }
+}
 .field-hint {
   font-size: var(--font-size-sm);
   color: oklch(from var(--foreground) l c h / 65%);

@@ -65,6 +65,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
   power?: TypeScaleName | number;
   /** Base color for the primary palette (any CSS color). Default `"#007dea"`. */
   primary?: string;
+  /** Base color for the neutral palette. Default: `primary` with `neutralTint` applied. */
+  neutral?: string;
   /** Base color for the secondary palette. Default: derived from `primary` per `harmony`. */
   secondary?: string;
   /** Base color for the tertiary palette. Default: derived from `primary` per `harmony` when it defines one (`"monochrome"`, `"triad"`, `"analogous"`); otherwise same as `neutral` (`"complementary"` has no third color). */
@@ -80,6 +82,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
    * @param "monochrome" primary + secondary/tertiary, same hue, lower chroma
    */
   harmony?: ColorHarmony;
+  /** Color used for accented states. Default `"primary"`. */
+  accent?: "primary" | "secondary";
   /**
    * Color scheme the generated palette ships as.
    * @default "dark"
@@ -88,7 +92,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
    * @param "auto" both palettes emitted in `:root` via `light-dark()`, resolved per `prefers-color-scheme`
    */
   mode?: "light" | "dark" | "auto";
-  /** Fraction (0–1) of `primary`'s chroma carried into the neutral/gray palette. `0` = pure gray, `1` = full tint. Default `0`. */
+  /** Fraction (0–1) of `primary`'s chroma carried into the neutral palette when `neutral` is unset. Default `0`. */
   neutralTint?: number;
   /** Fraction (0–1) of `secondary`/`tertiary`/`quaternary`'s own chroma carried into their `surface-*` scale (the muted background each feeds to the `.surface-*` utility classes) — independent of `neutralTint`. Default `0.4`. */
   surfaceTint?: number;
@@ -115,6 +119,8 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
       >;
   /** Chroma multiplier (0–1) applied to every `scheme-*` color on top of whichever shade `schemeShade`/`schemeLightness` picks — the peak-chroma `-500` shade of a saturated hue can read too loud for `.btn`/`.badge`/`.alert`. `1` (default) leaves it untouched; same mechanism as `muted()`'s `anchor-*` (fixed at `0.6`), just a knob instead of a constant. */
   schemeChroma?: number;
+  /** Opacity (0–1) of borders colored by the scheme. Default `1`. */
+  schemeBorderOpacity?: number;
   /** Selector the theme block (`color-scheme` + every custom property) is emitted under. Default `":root"`. */
   selector?: string;
   /** Default `transition` shorthand applied via setup rules. Default `"all ease 200ms"`. */
@@ -252,10 +258,12 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   base: 16,
   power: "perfect-fourth",
   primary: "#007dea",
+  accent: "primary",
   mode: "dark",
   harmony: "complementary",
   neutralTint: 0,
   surfaceTint: 0.4,
+  schemeBorderOpacity: 1,
   schemeShade: { neutral: 800 },
   selector: ":root",
   transition: "all ease 200ms",
@@ -311,8 +319,6 @@ function themeVariables(): Record<string, string> {
     "on-code": `var(--foreground)`,
     "table-hover-bg": `var(--neutral-900)`,
     "on-table-hover": `var(--neutral-300)`,
-    "selection-bg": `var(--scheme-primary)`,
-    "on-selection": `var(--on-scheme, ${luzOnColor("var(--selection-bg)")})`,
     "file-input-border-top": `var(--primary-200)`,
     "range-track-bg": `var(--element-background)`,
     "range-track-shadow": `var(--scheme-primary)`,
@@ -333,13 +339,9 @@ function themeVariables(): Record<string, string> {
     "on-btn": `var(--on-scheme, ${luzOnColor("var(--btn-bg)")})`,
     "on-btn-ghost": `oklch(from var(--foreground) l c h / 65%)`,
     "tooltip-bg": `var(--neutral-950)`,
-    "on-tooltip": `var(--neutral-300)`,
-    "badge-bg": `var(--scheme-primary)`,
-    "on-badge": `var(--on-scheme, ${luzOnColor("var(--badge-bg)")})`,
     "on-badge-ghost": `var(--primary-400)`,
     "on-tab": `oklch(from var(--foreground) l c h / 65%)`,
     "on-tab-active": `var(--foreground)`,
-    "tab-border-active": `var(--scheme-primary)`,
     "modal-backdrop": `oklch(from var(--neutral-950) l c h / 60%)`,
     "on-breadcrumb": `oklch(from var(--foreground) l c h / 65%)`,
     "breadcrumb-separator": `oklch(from var(--foreground) l c h / 35%)`,
@@ -368,6 +370,8 @@ export function luz(config?: LuzConfig): LuzResult {
 
   const {
     primary,
+    neutral,
+    accent,
     mode,
     base,
     selector,
@@ -376,6 +380,7 @@ export function luz(config?: LuzConfig): LuzResult {
     schemeLightness,
     schemeShade,
     schemeChroma,
+    schemeBorderOpacity,
     power,
     secondary,
     tertiary,
@@ -429,10 +434,15 @@ export function luz(config?: LuzConfig): LuzResult {
   };
   const neutralPalette: LuzPalette = {
     name: "neutral",
-    color: `oklch(from ${primaryCSSVar} l calc(c * ${normalNeutralTint}) h)`,
-    seed: primarySeed
-      ? { ...primarySeed, c: primarySeed.c * normalNeutralTint }
-      : null,
+    color:
+      neutral ??
+      `oklch(from ${primaryCSSVar} l calc(c * ${normalNeutralTint}) h)`,
+    seed:
+      neutral !== undefined
+        ? parseColorToOklch(neutral)
+        : primarySeed
+          ? { ...primarySeed, c: primarySeed.c * normalNeutralTint }
+          : null,
   };
 
   /** OKLCH lightness of quaternary's "ink" fallback (harmonies without a 4th hue). */
@@ -633,6 +643,7 @@ export function luz(config?: LuzConfig): LuzResult {
       "anchor-danger": shade(p.red, 200, 0.6, "var(--danger)"),
       "anchor-success": shade(p.green, 200, 0.6, "var(--success)"),
       "anchor-warning": shade(warningRamp, 200, 0.6, "var(--warning)"),
+      accent: `var(--scheme-${accent})`,
     });
 
     /** Unitless/length knobs, kept out of the `light-dark()` color merge. */
@@ -642,6 +653,7 @@ export function luz(config?: LuzConfig): LuzResult {
       "depth-decay": `${depthDecay}`,
       "depth-sign": `${depthSign ?? (reverse ? -0.3 : 0.3)}`,
       "contrast-threshold": `${contrastThreshold}`,
+      "scheme-border-opacity": `${schemeBorderOpacity}`,
       density: `${density}`,
       "state-hover-delta": `${stateHoverDelta}`,
       "state-pressed-delta": `${statePressedDelta}`,
@@ -652,8 +664,6 @@ export function luz(config?: LuzConfig): LuzResult {
       "element-background": "var(--background)",
       "element-border-color": "oklch(from var(--foreground) l c h / 20%)",
       "border-color": "oklch(from var(--foreground) l c h / 50%)",
-      "element-active-border-color":
-        "oklch(from var(--primary-200) l c h / 50%)",
       "on-element": "var(--primary-100)",
       "on-element-active": "var(--primary-50)",
       "on-element-placeholder": "oklch(from var(--foreground) l c h / 50%)",

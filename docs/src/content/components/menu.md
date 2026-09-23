@@ -3,6 +3,7 @@ title: Menu
 category: Overlays
 covers:
   - menu
+  - at-point
   - menu-item
 ---
 
@@ -23,3 +24,16 @@ covers:
   <a class="menu-item" href="#"><i class="icon nf nf-fa-external_link"></i> Abrir en pestaña nueva</a>
   <button class="menu-item danger"><i class="icon nf nf-fa-trash_can"></i> Borrar <kbd>⌫</kbd></button>
 </div>
+
+## Menú situado por la aplicación
+
+<div class="menu at-point" popover="manual" style="--menu-x: 120px; --menu-y: 160px">
+  <button class="menu-item">Abrir</button>
+</div>
+
+En una aplicación, el handler JS/TS fija `--menu-x` y `--menu-y` en
+coordenadas del viewport y llama a `showPopover()`; para cerrar,
+`hidePopover()`. `popover="manual"` evita el light dismiss del mismo clic
+que abre un menú contextual. `--menu-transform-origin` cambia el origen
+de la animación si el anclaje lo requiere. El HTML nativo de las demos
+no restringe cómo implementa interacción el consumidor.

@@ -70,7 +70,10 @@
   &.quaternary,
   &.neutral {
     background-color: oklch(from var(--scheme) l c h / 26%);
-    border-color: oklch(from var(--scheme) calc(l + 0.25) c h);
+    border-color: oklch(
+      from var(--scheme) calc(l + 0.25) c h /
+        calc(alpha * var(--scheme-border-opacity, 1))
+    );
     color: oklch(from var(--scheme) calc(l + 0.25) c h);
     backdrop-filter: blur(var(--space-1));
     .icon {
@@ -122,6 +125,7 @@
   box-shadow: var(--box-shadow);
   opacity: 0;
   transform: scale(0.95);
+  transform-origin: var(--menu-transform-origin, top left);
   transition: var(--transition);
   transition-property: opacity, transform, overlay, display;
   transition-behavior: allow-discrete;
@@ -141,6 +145,15 @@
     width: fit-content;
     height: fit-content;
   }
+}
+.menu.at-point {
+  position-anchor: none;
+  position-area: none;
+  position-try-fallbacks: none;
+  inset: auto;
+  margin: 0;
+  top: var(--menu-y);
+  left: var(--menu-x);
 }
 .menu-item {
   display: flex;

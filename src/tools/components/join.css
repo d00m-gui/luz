@@ -5,7 +5,11 @@
     display: inline-flex;
     align-items: center;
     padding: var(--element-vertical) var(--element-horizontal);
-    border: var(--border-width) solid var(--scheme, var(--element-border-color));
+    border: var(--border-width) solid
+      oklch(
+        from var(--scheme, var(--element-border-color)) l c h /
+          calc(alpha * var(--scheme-border-opacity, 1))
+      );
     border-radius: 0;
     box-shadow: none;
     &:not(:first-child) {

@@ -31,13 +31,18 @@
   }
 }
 .tab-input:checked + .tab,
-.tab[aria-current="page"] {
+.tab[aria-current="page"],
+.tab[aria-selected="true"] {
   color: var(--on-tab-active);
-  border-color: var(--tab-border-active);
+  border-color: var(--tab-border-active, var(--scheme, var(--accent)));
 }
 .tab-input:focus-visible + .tab,
 .tab:focus-visible {
-  outline: calc(var(--size-unit) * 2) solid var(--element-active-border-color);
+  outline: calc(var(--size-unit) * 2) solid
+    var(
+      --element-active-border-color,
+      oklch(from var(--scheme, var(--accent)) l c h / 50%)
+    );
   outline-offset: calc(var(--size-unit) * 2);
 }
 
@@ -51,7 +56,9 @@
     border-bottom: none;
     border-radius: var(--border-radius);
   }
-  .tab-input:checked + .tab {
+  .tab-input:checked + .tab,
+  .tab[aria-current="page"],
+  .tab[aria-selected="true"] {
     background-color: var(--btn-bg);
     color: var(--on-btn);
     font-weight: var(--font-bold-weight);
@@ -71,7 +78,9 @@
       border-right: var(--border-width) solid var(--element-border-color);
     }
   }
-  .tab-input:checked + .tab {
+  .tab-input:checked + .tab,
+  .tab[aria-current="page"],
+  .tab[aria-selected="true"] {
     background-color: var(--btn-bg);
     color: var(--on-btn);
     font-weight: var(--font-bold-weight);

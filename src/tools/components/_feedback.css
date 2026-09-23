@@ -52,7 +52,10 @@
   background-color: oklch(
     from var(--scheme, var(--scheme-primary)) l c h / 12%
   );
-  border-color: var(--scheme, var(--scheme-primary));
+  border-color: oklch(
+    from var(--scheme, var(--scheme-primary)) l c h /
+      calc(alpha * var(--scheme-border-opacity, 1))
+  );
   color: oklch(from var(--scheme, var(--scheme-primary)) calc(l + 0.25) c h);
 }
 .outline {

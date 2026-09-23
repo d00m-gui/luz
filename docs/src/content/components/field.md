@@ -5,6 +5,8 @@ covers:
   - field
   - field-hint
   - row
+  - field-affix
+  - short
 ---
 
 <div class="demo-fields">
@@ -75,6 +77,20 @@ covers:
       </select>
       <input class="demo-control" type="number" value="42" />
     </span>
+  </label>
+</div>
+
+## Afijos y campo corto
+
+<div class="demo-fields" style="flex-direction: row">
+  <label class="field short" style="--field-width: var(--space-24)">
+    <span class="field-affix">X</span>
+    <input type="number" aria-label="Posición X" value="595" />
+  </label>
+  <label class="field short" style="--field-width: var(--space-24)">
+    <span class="field-affix">W</span>
+    <input type="number" aria-label="Ancho" value="280" />
+    <span class="field-affix">px</span>
   </label>
 </div>
 

@@ -341,15 +341,24 @@ propio a hue 92 (el slot `yellow`, h=115, lee verdoso). Viven dentro de
 `buildScheme()` porque dependen de `reverse` — `mergeLightDark()` los
 envuelve en `light-dark()` para `mode: "auto"`.
 
-`badge-bg`/`checkbox-checked-bg`/`switch-bg`/
-`radio-checked-bg`/`progress-fill`/`tab-border-active`/`hr-color`/
-`selection-bg`/`range-track-shadow`/`range-thumb-active-bg` — la
-variante _default_ (sin clase) de estos tokens pasó de apuntar a
-`var(--{name}-500)` fijo a `var(--scheme-primary)`. Antes
-`schemeShade`/`schemeLightness`/`schemeChroma` solo afectaban a las
-variantes con clase (`.secondary`, `.success`, …, vía `--scheme` en
-`button.css`/`_feedback.css`) — el badge default los ignoraba por
-completo. Ahora un solo mecanismo gobierna los dos casos.
+`badge-bg`/`selection-bg`/`tab-border-active` y `element-active-border-color`
+no se emiten por defecto: las reglas CSS leen esos tokens si `vars` los
+define y, en caso contrario, resuelven `--accent` en el propio elemento.
+Así `LuzConfig.accent` (default `primary`) elige `--scheme-primary` o
+`--scheme-secondary` y `--accent` puede cambiar en un subárbol; foco,
+selección, tabs activos y badge default siguen ese color. `--on-selection`
+y `--on-badge` tienen fallback de contraste local en CSS. Los demás
+consumidores de primario (`checkbox-checked-bg`, `switch-bg`,
+`radio-checked-bg`, `progress-fill`, `hr-color`, `range-track-shadow`,
+`range-thumb-active-bg`) mantienen `--scheme-primary` como default.
+`LuzConfig.neutral` da una semilla propia al ramp neutral; sin ella,
+`neutralTint` sigue derivando del primario. `background`/`foreground`
+siguen siendo overrides separados de la rampa.
+
+`LuzConfig.schemeBorderOpacity` (default `1`) emite
+`--scheme-border-opacity`, multiplicador vivo del alfa en los bordes
+teñidos de `.alert`, `.join`, `.soft` y `.notice` con esquema. El color
+base y su alfa original se preservan cuando vale `1`.
 
 `btn-bg` es la excepción: su default (sin clase) apunta a
 `--scheme-neutral`, no a `--scheme-primary` — un `<button>` sin variante
@@ -629,13 +638,12 @@ join: mismo color que su borde, `var(--scheme, var(--element-border-color))`)
 en vez de `--current-color` — no pintan un fondo sólido, así que el
 contraste "on-scheme" no aplica ahí.
 
-`on-btn`/`on-badge`/`on-kbd`/`on-selection` siguen existiendo como tokens
-globales en `luz.ts` (`luzOnColor()`, con fallback `--on-scheme`) — no son
-redundantes con `--current-color`: los consume código que quiere "pintar
-como btn/badge por defecto" sin ser descendiente de un `.btn`/`.badge`
-real (`segmented`/`toggle`/`pagination` en `tabs.css`, `wizard.css`), así
-que no hay `--current-bg` que heredar y necesitan su propio token
-precalculado, fijo al fondo default (no reactivo a `--scheme`).
+`on-btn`/`on-kbd` siguen emitidos como tokens globales. En cambio,
+`on-badge`/`on-selection` son overrides opcionales: `.wizard-step.done`
+y `::selection` calculan su contraste desde el color de estado en el
+elemento si no se fijaron, de modo que un `--accent` local también cambie
+el texto. `segmented`/`toggle`/`pagination` usan `--on-btn`, no
+`--on-badge`.
 
 **Bug corregido**: los tokens de esquema no pueden llamarse `primary`/
 `secondary`/`neutral` a secas — `buildColors()` ya emite variables con
@@ -1079,24 +1087,18 @@ dependencias `@base-ui/react`/`class-variance-authority` de
 `docs/package.json`) — `@astrojs/react`/`react` quedan, los sigue usando
 `CrtIntro`/`CrtIntroMount`, que no dependen de shadcn.
 
-**Decisión** (investigado contra daisyUI/shadcn/animate-ui — ver historial
-de la conversación, no repetido acá): luz no compite en "cantidad de
-componentes" — eso ya lo tiene resuelto daisyUI, mejor y más maduro. El rol
-de shadcn en luz se angosta de "estilo + comportamiento" a **solo
-comportamiento, cuando CSS nativo genuinamente no alcanza** (combobox con
-detección de colisión real, date picker, navegación por teclado compleja):
-primitivos sin estilizar (Base UI/Radix) + las clases de luz encima, no el
-theming propio de shadcn. Para todo lo demás — badge, alert, card, avatar,
-tabs, accordion, modal, breadcrumbs, skeleton — luz tiene su propia capa
-curada de componentes (ver `tools/components.css`), generada desde tokens,
-mismo enfoque que daisyUI (CSS puro, HTML nativo para la interactividad
-mínima que haga falta) pero reactiva a la paleta/escala del proyecto en
-vez de un tema fijo. `tools/shadcn-bridge.ts` no se tocó — sigue siendo
-la vía cuando sí hace falta un primitivo real.
+**Decisión:** luz entrega estilo y estados visuales en CSS, no interacción.
+Las demos de `docs/` usan HTML nativo sin JS para mostrar clases aisladas;
+esto no restringe a quienes consumen la librería. Menús, tabs, diálogos,
+drag, atajos y selección son comportamiento de la app en JS/TS,
+preferentemente con primitivos accesibles sin estilo (Base UI/Radix) a los
+que se aplican las clases de luz. `tools/shadcn-bridge.ts` sigue siendo la
+vía para consumir tokens desde kits basados en esos primitivos.
 
-`docs/` todavía no demuestra ninguna de las dos cosas (ni la capa curada
-ni el bridge angostado) — pendiente para una pasada de contenido, no de
-arquitectura.
+Los estilos de estado leen atributos ARIA (`aria-current` de navegación,
+`aria-selected` de tabs, `aria-pressed` de swatches) y variables vivas.
+Las demos HTML nativo son ejemplos autocontenidos, no recetas obligatorias
+para consumidores.
 
 ## `docs/`: ejemplos de componentes como Content Collection (Markdown)
 

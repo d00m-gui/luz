@@ -35,13 +35,27 @@
   }
   &.active::before,
   &[data-state="active"]::before {
-    border-color: var(--tab-border-active);
-    color: var(--tab-border-active);
+    border-color: var(--tab-border-active, var(--scheme, var(--accent)));
+    color: var(--tab-border-active, var(--scheme, var(--accent)));
   }
   &.done::before,
   &[data-state="done"]::before {
-    background-color: var(--badge-bg);
-    border-color: var(--badge-bg);
-    color: var(--on-badge);
+    background-color: var(--badge-bg, var(--scheme, var(--accent)));
+    border-color: var(--badge-bg, var(--scheme, var(--accent)));
+    color: var(
+      --on-badge,
+      var(
+        --on-scheme,
+        oklch(
+          from var(--badge-bg, var(--scheme, var(--accent)))
+            clamp(
+              0.12,
+              calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000),
+              0.92
+            )
+            calc(c * 0.08) h
+        )
+      )
+    );
   }
 }
