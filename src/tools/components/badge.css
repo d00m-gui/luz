@@ -37,3 +37,42 @@
     }
   }
 }
+.badge.chip {
+  border-radius: calc(var(--size-unit) * 40);
+  padding-inline: var(--space-3);
+  font: inherit;
+  font-size: var(--font-size-small);
+  background-color: var(--element-background);
+  border-color: var(--element-border-color);
+  color: var(--foreground);
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
+    background-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
+    scale var(--duration-fast, 120ms) var(--ease-out, ease-out);
+  &:hover {
+    border-color: var(--border-color);
+  }
+  &:active {
+    scale: 0.97;
+  }
+  &[aria-expanded="true"],
+  &[aria-pressed="true"] {
+    border-color: var(--scheme, var(--accent));
+  }
+  &.undecided {
+    border-style: dashed;
+    background-color: transparent;
+    color: oklch(from var(--foreground) l c h / 65%);
+  }
+  &.next {
+    border-color: var(--scheme, var(--accent));
+    background-color: oklch(from var(--scheme, var(--accent)) l c h / 18%);
+    color: var(--foreground);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .badge.chip {
+    transition-duration: 0.01ms !important;
+  }
+}

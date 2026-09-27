@@ -141,3 +141,97 @@ input[aria-invalid="true"] {
   font-size: var(--font-size-sm);
   color: oklch(from var(--foreground) l c h / 65%);
 }
+.field.prop {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  align-items: center;
+  gap: var(--space-2);
+  > span:first-child {
+    font-size: var(--font-size-small);
+    color: oklch(from var(--foreground) l c h / 65%);
+    transition: color var(--duration-fast, 120ms) var(--ease-out, ease-out);
+  }
+  &[data-active="true"] > span:first-child {
+    color: var(--scheme, var(--accent));
+  }
+}
+.field-affix.scrub {
+  cursor: ew-resize;
+  user-select: none;
+  touch-action: none;
+  transition: color var(--duration-fast, 120ms) var(--ease-out, ease-out);
+  &:hover,
+  &:active {
+    color: var(--foreground);
+  }
+}
+.field-pair {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+  > .field {
+    flex: 1 1 0;
+    min-width: 0;
+    > input,
+    > select {
+      min-width: 0;
+      padding-inline: var(--space-1);
+    }
+    > .field-affix {
+      padding-inline: var(--space-1);
+    }
+  }
+}
+:is(button, [type="button"], .btn).field-link,
+.field-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  inline-size: var(--space-6);
+  block-size: var(--space-6);
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  text-shadow: none;
+  color: oklch(from var(--foreground) l c h / 50%);
+  transition: color var(--duration-fast, 120ms) var(--ease-out, ease-out);
+  &:hover {
+    color: var(--foreground);
+  }
+  &[aria-pressed="true"] {
+    color: var(--scheme, var(--accent));
+  }
+}
+.field.color {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-1);
+  padding-inline-start: var(--space-1);
+  border: var(--border-width) solid var(--element-border-color);
+  border-radius: var(--border-radius);
+  background-color: var(--element-background);
+  > .swatch {
+    flex: 0 0 auto;
+    width: var(--space-5);
+    height: var(--space-5);
+  }
+  > input:not(.swatch) {
+    flex: 1 1 auto;
+    min-width: 0;
+    border: none;
+    background-color: transparent;
+    padding-inline-start: var(--space-1);
+    font-family: var(--font-monospace);
+  }
+  &:focus-within {
+    outline: var(--size-unit) solid
+      var(
+        --element-active-border-color,
+        oklch(from var(--scheme, var(--accent)) l c h / 50%)
+      );
+    outline-offset: calc(var(--size-unit) * -1);
+  }
+}

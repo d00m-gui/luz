@@ -88,6 +88,24 @@
   .tab-input:focus-visible + .tab {
     outline-offset: calc(var(--size-unit) * -2);
   }
+  button.tab {
+    border-block: 0;
+    border-inline-start: 0;
+    border-radius: 0;
+    font: inherit;
+  }
+  .tab[aria-pressed="true"] {
+    background-color: var(--btn-bg);
+    color: var(--on-btn);
+  }
+  &.icon {
+    display: inline-flex;
+    .tab {
+      justify-content: center;
+      padding: var(--space-1);
+      min-width: var(--space-6);
+    }
+  }
 }
 
 .tabs.pagination {

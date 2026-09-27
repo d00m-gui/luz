@@ -658,6 +658,11 @@ export function luz(config?: LuzConfig): LuzResult {
       "state-hover-delta": `${stateHoverDelta}`,
       "state-pressed-delta": `${statePressedDelta}`,
       "state-pressed-shift": `${statePressedShift}`,
+      "duration-fast": "120ms",
+      "duration-base": "200ms",
+      "duration-slow": "320ms",
+      "ease-out": "cubic-bezier(0.23, 1, 0.32, 1)",
+      "ease-spring": "cubic-bezier(0.34, 1.56, 0.64, 1)",
     };
 
     Object.assign(colors, {

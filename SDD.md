@@ -420,7 +420,7 @@ inline-size` en un ancestro amplio (`body`) quedó descartado — convierte
 ## Capa de componentes curados (`components/*.css`)
 
 Recetas CSS puras estilo daisyUI, generadas desde tokens de luz (no
-fijas como un tema) — 56 archivos hoy bajo `src/tools/components/`, cada
+fijas como un tema) — 58 archivos hoy bajo `src/tools/components/`, cada
 uno self-contained (reset+layout+color+hover/focus/active del
 componente juntos), importados en orden por el manifest `components.css`
 (el orden importa: `_feedback.css` va último para ganarle
@@ -822,7 +822,7 @@ Dos capas: `reset.css` (genérico, no-por-componente — `*`,
 `html`/`body`, `img`/`picture`/`video`/`canvas`/`svg`, `br`, `figure`,
 `#root`/`#__next`, `[hidden]`) y `components.css`, que es un manifest corto
 de `@import "./components/nombre.css";` — un archivo **self-contained** por
-componente bajo `src/tools/components/` (56 archivos hoy: layout+color+
+componente bajo `src/tools/components/` (58 archivos hoy: layout+color+
 hover/focus/active de ese componente juntos, no repartidos entre capas
 globales). Selectores genuinamente compartidos entre componentes
 (`:focus-visible`
@@ -1020,6 +1020,25 @@ prefijo y fallback al default (`--shell-height`, `--page-width`,
   superficie (`--code-bg`/`--on-code` en `themeVariables`, vía
   `light-dark()`), `kbd + kbd`. `_print.css` oculta el chrome de
   `.shell.app`.
+
+## Panel de propiedades (inspector)
+
+Piezas de un inspector estilo herramienta de diseño, solo visuales (el
+arrastre del scrub, el lock y el resize los pone el consumidor):
+`.section` (`section`/`details` con `summary` o `.section-header`;
+`.section-title` en versalitas, `.section-actions`, `.section-body`;
+`details.section` anima la altura con `::details-content` +
+`interpolate-size`, sin soporte abre/cierra seco), `.field.prop`
+(etiqueta 2fr/control 3fr, `[data-active="true"]`), `.field-affix.scrub`
+(`ew-resize`), `.field-pair` + `.field-link[aria-pressed]`, `.field.color`
+(`.swatch` + texto hex), `.choice-grid`/`.choice[aria-pressed]` +
+`.wireframe` (`choice.css`), `.pane-handle` (`aria-orientation`/
+`data-orientation="horizontal"`, `[data-dragging]`; `pane-handle.css`),
+`.tabs.toggle.icon` con `button.tab[aria-pressed]`, `.list.nav.primary`
+(barra de acento en `::before`, `kbd` al final) y `.badge.chip`
+(`.undecided`, `.next`). Movimiento vía `--duration-fast|base|slow` y
+`--ease-out|spring` (escalares en `luz.ts`, pisables por `vars`), con
+guard de `prefers-reduced-motion`.
 
 ## Convenciones de tokens
 
