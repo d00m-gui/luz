@@ -82,7 +82,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
    * @param "monochrome" primary + secondary/tertiary, same hue, lower chroma
    */
   harmony?: ColorHarmony;
-  /** Color used for accented states. Default `"primary"`. */
+  /** Palette emitted as `--scheme-accent`, the color of focus, selection and active states. Default `"primary"`. */
   accent?: "primary" | "secondary";
   /**
    * Color scheme the generated palette ships as.
@@ -158,13 +158,13 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
    */
   radiusSteps?: number;
   /**
-   * Lightness (OKLCH `l`) added to `--current-bg` on `:hover`. Emitted as `--state-hover-delta`, live (not baked) — overridable per subtree.
-   * @default 0.02
+   * Fraction (0–1) of `--foreground` mixed into `--current-bg` on `:hover` — darkens in light mode, lightens in dark. Emitted as `--state-hover-delta`, live (not baked) — overridable per subtree.
+   * @default 0.08
    */
   stateHoverDelta?: number;
   /**
-   * Lightness (OKLCH `l`) subtracted from `--current-bg` on `:active`. Emitted as `--state-pressed-delta`, live (not baked) — overridable per subtree.
-   * @default 0.02
+   * Extra fraction (0–1) of `--foreground` mixed on `:active`, on top of `stateHoverDelta`. Emitted as `--state-pressed-delta`, live (not baked) — overridable per subtree.
+   * @default 0.06
    */
   statePressedDelta?: number;
   /**
@@ -273,8 +273,8 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   spaceSteps: 24,
   radius: 1,
   radiusSteps: 8,
-  stateHoverDelta: 0.02,
-  statePressedDelta: 0.02,
+  stateHoverDelta: 0.08,
+  statePressedDelta: 0.06,
   statePressedShift: "0.1ch",
   density: 1,
   depth: 0,
@@ -339,7 +339,6 @@ function themeVariables(): Record<string, string> {
     "on-btn": `var(--on-scheme, ${luzOnColor("var(--btn-bg)")})`,
     "on-btn-ghost": `oklch(from var(--foreground) l c h / 65%)`,
     "tooltip-bg": `var(--neutral-950)`,
-    "on-badge-ghost": `var(--primary-400)`,
     "on-tab": `oklch(from var(--foreground) l c h / 65%)`,
     "on-tab-active": `var(--foreground)`,
     "modal-backdrop": `oklch(from var(--neutral-950) l c h / 60%)`,
@@ -643,7 +642,7 @@ export function luz(config?: LuzConfig): LuzResult {
       "anchor-danger": shade(p.red, 200, 0.6, "var(--danger)"),
       "anchor-success": shade(p.green, 200, 0.6, "var(--success)"),
       "anchor-warning": shade(warningRamp, 200, 0.6, "var(--warning)"),
-      accent: `var(--scheme-${accent})`,
+      "scheme-accent": `var(--scheme-${accent})`,
     });
 
     /** Unitless/length knobs, kept out of the `light-dark()` color merge. */

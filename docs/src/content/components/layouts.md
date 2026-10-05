@@ -9,6 +9,7 @@ covers:
   - vertical
   - app
   - responsive
+  - clip
 ---
 
 <div class="shell">
@@ -306,3 +307,13 @@ covers:
     border: var(--border-width) dashed var(--element-border-color);
   }
 </style>
+
+## Pane que no scrollea — <code>.shell-pane.clip</code> usa <code>overflow: clip</code>: en un pane-lienzo las capas que salen del borde se recortan sin volverlo scrolleable (ni por teclado ni por <code>scrollIntoView</code>)
+
+<div class="shell" style="height: 10rem">
+  <div class="shell-pane clip" style="position: relative">
+    <div class="card" style="position: absolute; inset-inline-end: -3rem; inset-block-end: -2rem">
+      <div class="card-content">Capa flotante que sobresale</div>
+    </div>
+  </div>
+</div>

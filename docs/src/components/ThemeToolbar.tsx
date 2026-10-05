@@ -200,7 +200,7 @@ export function ThemeToolbar() {
             <input
               type="range"
               min={0}
-              max={0.15}
+              max={0.3}
               step={0.005}
               value={state.stateHoverDelta}
               onChange={(e) =>
@@ -214,7 +214,7 @@ export function ThemeToolbar() {
             <input
               type="range"
               min={0}
-              max={0.15}
+              max={0.3}
               step={0.005}
               value={state.statePressedDelta}
               onChange={(e) =>

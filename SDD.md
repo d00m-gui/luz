@@ -107,6 +107,16 @@ componentes que quiera + utilities), no por toggles en `LuzConfig`.
 proyecto (API de bajo nivel); sin plugin es un at-rule desconocido,
 inofensivo.
 
+Todo el CSS que entregan los entries vive en la capa `@layer luz`: cada
+`.css` estático (`reset.css`, `components/*.css`) se envuelve a sí mismo
+en `@layer luz { … }` (así también un `@import` suelto de un componente
+queda capado), y cada sección generada sale envuelta igual desde
+`expandLuzCss`/`composeCss`. El CSS sin capa del consumidor gana siempre,
+sin depender del orden ni de la especificidad; un `@import … layer(L)` lo
+anida como `L.luz`. `luz().theme` usado a mano no se envuelve. Los
+`!important` de luz (reduced-motion, print) quedan capados y por eso le
+ganan a los `!important` sin capa del consumidor.
+
 ## Principio de diseño: **la config siempre gana**
 
 Implementado para el core de `luz()` (`variables`/`theme`); todavía no
@@ -343,10 +353,12 @@ envuelve en `light-dark()` para `mode: "auto"`.
 
 `badge-bg`/`selection-bg`/`tab-border-active` y `element-active-border-color`
 no se emiten por defecto: las reglas CSS leen esos tokens si `vars` los
-define y, en caso contrario, resuelven `--accent` en el propio elemento.
+define y, en caso contrario, resuelven `--scheme-accent` en el propio elemento.
 Así `LuzConfig.accent` (default `primary`) elige `--scheme-primary` o
-`--scheme-secondary` y `--accent` puede cambiar en un subárbol; foco,
-selección, tabs activos y badge default siguen ese color. `--on-selection`
+`--scheme-secondary` y `--scheme-accent` puede cambiar en un subárbol; foco,
+selección, tabs activos y badge default siguen ese color. El token no se
+llama `--accent` porque ese nombre lo ocupa el bridge de shadcn (fondo de
+hover). `--on-selection`
 y `--on-badge` tienen fallback de contraste local en CSS. Los demás
 consumidores de primario (`checkbox-checked-bg`, `switch-bg`,
 `radio-checked-bg`, `progress-fill`, `hr-color`, `range-track-shadow`,
@@ -605,7 +617,7 @@ class="stat outline success">`, ver `components/stat.md`).
 
 Cada componente que pinta con `--scheme` fija su propio `--current-bg`
 (`.card`/`.btn`/`.stat`/`.radial-trigger`: sólido, `var(--scheme,
-<fallback propio>)`; `.badge`: 26% de opacidad sobre `--scheme`;
+<fallback propio>)`; `.soft`: 14% de opacidad sobre `--scheme`;
 `.alert`: 12% mezclado con `--background`). `--current-color` (contraste
 legible sobre ese fondo) **no se repite por componente ni tiene lista de
 selectores que mantener** — `_contrast.css` la calcula de forma universal
@@ -625,23 +637,31 @@ conocerlos.
 
 Los estados interactivos salen de tres tokens con knob
 (`stateHoverDelta`/`statePressedDelta`/`statePressedShift` en
-`LuzConfig`): `button.css` usa
-`oklch(from var(--current-bg) calc(l + var(--state-hover-delta, 0.02)) c h)`
-en `:hover`, `calc(l - var(--state-pressed-delta, 0.02))` y
-`translateY(var(--state-pressed-shift, 0.1ch))` en `:active`. El fallback
-literal en el CSS es el default, así que los componentes siguen andando
-contra un tema sin esos tokens, y un subárbol puede redeclararlos.
+`LuzConfig`): `button.css` mezcla `--foreground` sobre `--current-bg`
+(`color-mix(in oklch, var(--current-bg), var(--foreground)
+calc(var(--state-hover-delta, 0.08) * 100%))` en `:hover`; `:active` suma
+`--state-pressed-delta` y aplica `translateY(var(--state-pressed-shift,
+0.1ch))`). Mezclar hacia `--foreground` oscurece en claro y aclara en
+oscuro sin saber el modo, y sobre `--current-bg: transparent`
+(`ghost`/`outline`) da un tinte translúcido. El botón es plano: sin
+`box-shadow` ni `text-shadow`. El fallback literal en el CSS es el
+default, así que los componentes siguen andando contra un tema sin esos
+tokens, y un subárbol puede redeclararlos.
 
-`badge.css`/`join.css` tienen su propia fórmula de texto (badge: tono de
-`--current-bg` aclarado +0.25 `l`, coherente con su fondo semi-opaco;
-join: mismo color que su borde, `var(--scheme, var(--element-border-color))`)
-en vez de `--current-color` — no pintan un fondo sólido, así que el
-contraste "on-scheme" no aplica ahí.
+Los tratamientos translúcidos (`.badge` y sus variantes, `.soft`,
+`.outline`, `.notice` con esquema) no usan `--current-color`: el texto
+es la "tinta" del esquema, `color-mix(in oklch, <esquema> 55%,
+var(--foreground))`, que tiende al foreground de cada modo y por eso se
+lee en claro y en oscuro. `.badge` lee `--badge-color` (`--scheme` →
+`--badge-bg` → `--scheme-accent`): soft por defecto (16%), `.solid`
+(fondo pleno, `--current-color`, `--on-badge` lo pisa), `.outline` y
+`.ghost` (transparente); tamaños `.sm`/`.lg`. `join.css` pinta el texto
+con el color de su borde, `var(--scheme, var(--element-border-color))`.
 
 `on-btn`/`on-kbd` siguen emitidos como tokens globales. En cambio,
 `on-badge`/`on-selection` son overrides opcionales: `.wizard-step.done`
 y `::selection` calculan su contraste desde el color de estado en el
-elemento si no se fijaron, de modo que un `--accent` local también cambie
+elemento si no se fijaron, de modo que un `--scheme-accent` local también cambie
 el texto. `segmented`/`toggle`/`pagination` usan `--on-btn`, no
 `--on-badge`.
 

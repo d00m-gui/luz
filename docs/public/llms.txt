@@ -55,7 +55,12 @@ this order:
 ```
 
 `@d00m-gui/luz/components.css` imports every component file at once.
-`layer(name)` on any of these `@import`s is honored. The generated
+All of luz's CSS lives in the `luz` cascade layer (`@layer luz { … }`):
+any unlayered CSS of yours wins over it regardless of order or
+specificity, with no setup. `layer(name)` on any of these `@import`s
+nests it as `name.luz`. Inside a layer, luz's `!important` rules (the
+`prefers-reduced-motion` and print ones) beat your unlayered
+`!important`. The generated
 entries (`theme.css`, `bridge.css`, `utilities.css`) are one-line files
 holding a `@luz theme;` / `@luz bridge;` / `@luz utilities;` directive —
 you can write those directives straight into your CSS as the equivalent
@@ -124,7 +129,7 @@ Every field is optional; defaults below come from `LUZ_DEFAULT_CONFIG`.
 | `schemeLightness` | unset | Target OKLCH `l` (0–1) for `scheme-primary/secondary/tertiary/quaternary/neutral` — the shade `.btn`/`.badge`/`.alert` use. Instead of a fixed weight, picks whichever generated shade's real lightness is closest, harmonic across hues. Requires a parseable seed. |
 | `schemeShade` | `{ neutral: 800 }` (else `500`) | Forces the exact weight for `scheme-*`, overriding `schemeLightness`. Number = all palettes, object = per-palette. |
 | `schemeChroma` | `1` | Chroma multiplier on top of the `scheme-*` shade — tones down a loud saturated `-500` for `.btn`/`.badge`/`.alert`. |
-| `accent` | `"primary"` | `"primary"` or `"secondary"`: sets live `--accent` to the corresponding `--scheme-*` for state accents. Override `--accent` per subtree. |
+| `accent` | `"primary"` | `"primary"` or `"secondary"`: sets live `--scheme-accent` to the corresponding `--scheme-*` for state accents. Override `--scheme-accent` per subtree. |
 | `schemeBorderOpacity` | `1` | Opacity multiplier for scheme-tinted borders, exposed as live `--scheme-border-opacity` (also overridable per subtree). |
 
 ### Typography
@@ -162,8 +167,8 @@ Every field is optional; defaults below come from `LUZ_DEFAULT_CONFIG`.
 | `depthDecay` | `0.6` | Per-level falloff (0–1) of the elevation curve — smaller = more contrast between the first few levels. |
 | `depthSign` | auto by `mode` | Forces elevation direction/magnitude. A `.elements-depth-light`/`.elements-depth-dark` class on a subtree still overrides this. |
 | `contrastThreshold` | `0.6` | Lightness above which auto-contrast text (wheel `on-*`, `contrast-color()` fallback) flips from white-ish to black-ish. Live, overridable per subtree. |
-| `stateHoverDelta` | `0.02` | Lightness (OKLCH `l`) added to `--current-bg` on `:hover`. Emitted as `--state-hover-delta`, live, overridable per subtree. |
-| `statePressedDelta` | `0.02` | Lightness (OKLCH `l`) subtracted from `--current-bg` on `:active`. Emitted as `--state-pressed-delta`, live. |
+| `stateHoverDelta` | `0.08` | Fraction (0–1) of `--foreground` mixed into `--current-bg` on `:hover` — darkens in light mode, lightens in dark, tints transparent `ghost`/`outline`. Emitted as `--state-hover-delta`, live, overridable per subtree. |
+| `statePressedDelta` | `0.06` | Extra fraction of `--foreground` mixed on `:active`, added to `stateHoverDelta`. Emitted as `--state-pressed-delta`, live. |
 | `statePressedShift` | `"0.1ch"` | `translateY` applied on `:active`. Emitted as `--state-pressed-shift`, live. Raise all three for a tactile brand, flatten them (`"0"`) for a flat one. |
 
 ### Escape hatches
@@ -226,7 +231,7 @@ vocabulary for semantic tokens:
   container to tint everything inside. `--element-background` is the
   per-nesting-level surface color `_depth.css` computes (`:root` =
   `--background`), the token for a custom ornament that must match the
-  surface holding it. `--accent` points to `--scheme-primary` or
+  surface holding it. `--scheme-accent` points to `--scheme-primary` or
   `--scheme-secondary`; focus outlines, selection, active tabs and default
   badges read it at the element, so a subtree override works. Optional
   `--element-active-border-color`, `--selection-bg`, `--tab-border-active`,
@@ -236,7 +241,7 @@ vocabulary for semantic tokens:
   apply on top of `--current-bg`.
 - **Structural**: `--background`, `--foreground`, `--spacing`,
   `--density`, `--depth` (per-subtree elevation, see `depth*` fields),
-  `--contrast-threshold`, `--accent`, `--scheme-border-opacity`,
+  `--contrast-threshold`, `--scheme-accent`, `--scheme-border-opacity`,
   `--transition`, `--box-shadow`.
 - **Type/space scale**: `--font-size-xs`…`--font-size-3xl` (exponential,
   `power`; √ratio below `base`) and `--font-size-small`…`--font-size-h1`
@@ -299,10 +304,10 @@ that component family also styles.
 |---|---|---|
 | Alert | Overlays | `.alert` — a direct-child `button` drops the alert's `--scheme` (default button look) |
 | Avatar | Identity | `.avatar` (`.sm`/`.lg`), `.avatar-group` (overlapping, outlined), `.avatar.more` (overflow count) |
-| Badge | Data | `.badge` — `justify-content: safe center`: centered while it fits, aligned to the start once the label overflows, so a clipped badge never loses its first characters. `text-overflow` cannot reach a flex container's anonymous text: wrap the label in a child (`<span class="truncate">`) for the ellipsis |
+| Badge | Data | `.badge` — default is soft (16% tint of `--scheme`, or `--scheme-accent` without a scheme class); text mixes the scheme with `--foreground` so it reads in light and dark. Variants `.solid` (filled, auto-contrast text, `--on-badge` overrides), `.outline` (border only), `.ghost` (transparent, no border); sizes `.sm`/`.lg`; `.pill`. `justify-content: safe center`: centered while it fits, aligned to the start once the label overflows. `text-overflow` cannot reach a flex container's anonymous text: wrap the label in a child (`<span class="truncate">`) for the ellipsis |
 | Blockquote | Primitives | `blockquote` — knob `--blockquote-font-size` (default `--font-size-h5`) |
 | Breadcrumbs | Navigation | `.breadcrumbs` |
-| Button | Primitives | `.btn`, `.button`, `.icon`, `.cta`; `data-role="secondary\|tertiary\|apply\|cancel\|contrast"` equals `role=` |
+| Button | Primitives | `.btn`, `.button`, `.icon`, `.cta`; flat (no shadows); `.soft`/`.outline`/`.ghost` combine with any scheme class; sizes `.sm`/`.lg`; `data-role="secondary\|tertiary\|apply\|cancel\|contrast"` equals `role=` |
 | Card | Surfaces | `.card` (does **not** clip: a decoration may straddle its border; a direct-child `table` opts the card into `overflow: hidden`), `.card-content` (direction under `:where()`, utilities override it), `.card-meta`, `.card-footer`, `.card-toolbar`, `.card-cover` (knob `--ratio`, default `3 / 1`), `.space`, `.card.center` — flush media (`figure`/`img`/`video`/`.card-cover`/`.card-meta` as first or last child) inherits the card radius. `.card.node` is the look of a node-editor card: its direct-child `.card-meta` becomes a title bar tinted 22% by the scheme set **on the bar itself** (`class="card-meta primary"` or `style="--scheme: var(--teal-500)"`, so the card body keeps its own `--current-bg`), with an accent `border-top`, `cursor: grab`, and `[data-dragging]` on the card for the lifted look; `.card-resize` is the bottom-trailing resize grip. Dragging and resizing themselves stay with the consumer (React Flow's `dragHandle`/`NodeResizer`) — luz only ships the look |
 | Code | Primitives | `code`, `pre`, `samp` — surface tokens `--code-bg`/`--on-code`; `kbd + kbd` spacing |
 | Collapsable | Surfaces | `.list` |
@@ -311,7 +316,7 @@ that component family also styles.
 | Editable card | Primitives | `.card` |
 | Element | Surfaces | `.element` (`.row`/`.column`/`.pair`/`.auto`/`.fixed`), `.element.wire` (dashed mockup placeholders) |
 | Empty state | Feedback | `.empty`, `.empty-title` |
-| Field | Primitives | `.field` (label > control > hint), `.field.row` (checkbox/switch), `.field:has(.field-affix)` (inline prefix/suffix inside the bordered control), `.field.short` (knob `--field-width`, default `--space-16`), `.field-hint`; `aria-invalid="true"` colors the hint, `:disabled` dims the field |
+| Field | Primitives | `.field` (label > control > hint), `.field.row` (checkbox/switch), `.field:has(.field-affix)` (inline prefix/suffix inside the bordered control), `.field.short` (knob `--field-width`, default `--space-16`), `.field-hint`; `aria-invalid="true"` colors the hint, a disabled control dims the field (a placeholder `<option disabled>` does not) |
 | File input | Primitives | native `input[type=file]` |
 | Form | Primitives | `.form`, `fieldset`, `label`, `checkbox`, `radio`, `switch`, `.form-actions` (`.sticky`) |
 | Blend Modes | Surfaces | `.background-blur`, `.background-conic-rainbow` (`.sharp`, knob `--fx-blur`) |
@@ -322,22 +327,22 @@ that component family also styles.
 | Hidden utility | Primitives | `.hidden` |
 | Join | Primitives | `.join` |
 | Kbd | Primitives | `kbd` |
-| Layouts | Layout | `.shell` (knob `--shell-height`), `.shell.app` (full-height app root, no border), `.shell.responsive` (stacks under 48rem), `.shell.vertical`, `.shell-pane` (`.fixed`, knob `--shell-pane-width`), `.shell-body` |
+| Layouts | Layout | `.shell` (knob `--shell-height`), `.shell.app` (full-height app root, no border), `.shell.responsive` (stacks under 48rem), `.shell.vertical`, `.shell-pane` (`.fixed`, knob `--shell-pane-width`; `.clip` = `overflow: clip` for canvas panes with floating layers), `.shell-body` |
 | `light-dark()` | Feedback | (color-scheme helper, no class) |
 | Link | Primitives | `a` |
 | List | Layout | `.list`, `.list-row` (`a`/`button`/`details`/`li > .list-row`), `.list-col-grow`, `.list-col-wrap`, `.list-title`, `.horizontal`, `.responsive`, `.list.nav` (app sidebar rows), `.list.dense` (rows for tight panels), `.list.drilldown` (opt-in fullscreen `details` on mobile), `.list.filetree` — row metrics come from `--list-row-gap`/`--list-row-padding-block`/`--list-row-padding-inline` (defaults `--space-3`/`--space-3`/`--space-4`, `--density` applied), settable on any ancestor; `.list-title` and `details > summary` follow the same three |
 | Loading | Feedback | `.loading` |
-| Menu | Overlays | `.menu` (requires `popover`; button-anchored via `popoverTarget`; Concepto observed an anchored close jump in Chromium 152), `.menu.at-point` (`popover="manual"`; JS/TS sets viewport `--menu-x`/`--menu-y` and calls `showPopover()`; also useful for button menus where the anchor moves during close), `.menu-item` (`button`/`a` rows, `.danger`, `kbd` pushed right); `--menu-transform-origin` sets transform origin |
+| Menu | Overlays | `.menu` (requires `popover`, invisible without it; button-anchored via `popoverTarget`; Concepto observed an anchored close jump in Chromium 152), `.menu.at-point` (`popover="manual"`; JS/TS sets viewport `--menu-x`/`--menu-y` and calls `showPopover()`; also useful for button menus where the anchor moves during close), `.menu-item` (`button`/`a` rows, `.danger`, `kbd` pushed right), `.menu-label` (section title), `.menu-separator` or a bare `hr` inside `.menu` (hairline); `--menu-transform-origin` sets transform origin |
 | Modal | Overlays | `.modal`, `dialog` |
 | Nav | Navigation | `nav` — `a`/`button` with `aria-current` gets the active tab color + underline (not `.tab`, `.list-row`, `.breadcrumbs`) |
 | Lists (native) | Data | `ol` (decimal), `ul` (square), `dl` |
 | Tabs Bottom | Navigation | `.bottom`, `.nav` |
-| Notice | Overlays | `.notice` |
+| Notice | Overlays | `.notice` (fades after `--notice-duration`, default `10s`, paused on hover/focus-within; `.sticky` never fades; the CSS only hides it — call `hidePopover()` on `animationend` of `notice-dismiss`) |
 | Page | Layout | `.page` (knob `--page-width` 88rem), `.page-header`, `.page-header-title`, `.page-body`, `.page-body.with-aside` (knob `--page-aside-width` 18rem), `.page-aside`, `.stack` (knob `--stack-gap`) |
 | Pagination | Navigation | `.pagination` |
-| Panel header | Layout | `.panel-header.top` (header), `.panel-header.bottom` (status bar: top hairline, small text); use `.toolbar-group` children for grouped status actions rather than adding `.statusbar` |
+| Panel header | Layout | `.panel-header.top` (header), `.panel-header.bottom` (status bar: top hairline, small text) |
 | Popover | Overlays | `.popover` |
-| Progress | Primitives | `progress`, `.meter` (label + `code` value + full-width bar) |
+| Progress | Primitives | `progress`, `.meter` (label + `code` value + full-width bar), `.progress` (fills any element's background up to `--progress` 0–1 with `--progress-fill` at 25%; for `.btn`, list rows) |
 | Prose | Primitives | `.prose` (reading block, knob `--prose-width` 70ch, vertical rhythm, `ul`/`ol`/`dl` styling) |
 | Range | Primitives | `input[type=range]` (`display-vertical`, `data-ticks`, knob `--range-length`) |
 | Scroll | Layout | `.scroll-y` (knob `--scroll-max`), `.scrollbar-thin` |
@@ -348,11 +353,11 @@ that component family also styles.
 | Table | Data | `table` |
 | Tabs | Navigation | `.tabs`, `.tab` (gap between icon/text/badge), `.tab-input`; `.segmented`/`.toggle` style checked sibling labels, navigation `[aria-current="page"]`, or JS-managed `[aria-selected="true"]` |
 | Swatch | Primitives | `.swatch` on button/span/color input; `--swatch-color` for its fill; `[aria-pressed="true"]` for selected and `disabled` for unavailable |
-| Toolbar | Layout | `.toolbar` > `.toolbar-group` (adjacent groups get hairlines); `.toolbar-group.end` pushes a group to the end, `.toolbar.vertical` stacks groups and rotates hairlines, `.toolbar.floating` adds border/radius but leaves position to the app |
+| Toolbar | Layout | `.toolbar` > `.toolbar-group` (adjacent groups get hairlines); `.toolbar-group.end` pushes a group to the end, `.toolbar.vertical` stacks groups and rotates hairlines, `.toolbar.floating` adds border/radius but leaves position to the app, `.toolbar.bottom` is a status bar (top hairline, `flex: 0 0 auto`, small text) |
 | Target text | Feedback | `mark` |
 | Emphasis | Primitives | `strong`, `b`, `em`, `i`, `small`, `abbr`, `p` |
 | Text input | Primitives | `input`, `textarea`, `select` — control padding is `padding-block`/`padding-inline` (`--element-vertical`/`--element-horizontal`) under `:where()`, so a single consumer class overrides it without matching selector specificity. `select` reserves its arrow from `--select-arrow-inset` (default `--space-4`, the arrow's distance to the trailing edge; the reserved padding is that plus the arrow itself) and truncates with an ellipsis |
-| Tooltip | Overlays | `.tooltip` |
+| Tooltip | Overlays | `.tooltip`, `[data-tooltip]` (`data-placement="top\|bottom\|left\|right"`; hidden tooltip is `display: none`, so it never adds scroll overflow) |
 | Wizard | Navigation | `.wizard`, `.wizard-step` |
 
 ## Composing app layouts with `.shell`

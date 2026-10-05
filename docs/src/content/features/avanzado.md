@@ -25,16 +25,16 @@ examples:
       // táctil
       luz({
         primary: "#f28c20",
-        stateHoverDelta: 0.06,
-        statePressedDelta: 0.08,
+        stateHoverDelta: 0.14,
+        statePressedDelta: 0.12,
         statePressedShift: "0.25ch",
       })
 
       // plana
       luz({
         primary: "#f28c20",
-        stateHoverDelta: 0.01,
-        statePressedDelta: 0.01,
+        stateHoverDelta: 0.03,
+        statePressedDelta: 0.02,
         statePressedShift: "0",
       })
 ---
@@ -54,8 +54,10 @@ es como funcionan los tres gradientes animados de
 [Animated gradients (`@property`)](/components/gradient-property),
 mezclando `--primary`/`--secondary`/`--neutral` en hover.
 
-`stateHoverDelta`/`statePressedDelta` son los saltos de `l` (OKLCH) que
-los componentes aplican sobre `--current-bg` en `:hover` y `:active`;
+`stateHoverDelta`/`statePressedDelta` son la fracción de `--foreground`
+que los componentes mezclan sobre `--current-bg` en `:hover` y `:active`
+(el `:active` suma las dos): oscurece en modo claro, aclara en oscuro, y
+sobre un fondo transparente (`ghost`, `outline`) da un tinte sutil;
 `statePressedShift` es el `translateY` del estado presionado. Salen como
 `--state-hover-delta`/`--state-pressed-delta`/`--state-pressed-shift`,
 vivos y con el default como fallback en el CSS de los componentes, así
@@ -63,3 +65,12 @@ que un subárbol los redeclara sin regenerar el tema. Subirlos da una
 marca táctil, donde el control se hunde y cambia de tono de forma
 evidente; bajarlos con `statePressedShift: "0"` da una marca plana, en la
 que el estado se nota apenas.
+
+Todo el CSS que entrega luz (reset, componentes, tema, bridge y
+utilities) vive en la capa `@layer luz`. Cualquier regla del proyecto que
+no esté en una capa le gana, sin importar el orden de los `@import` ni la
+especificidad: un `.mi-handle { position: absolute }` pisa a
+`.pane-handle` aunque tengan el mismo peso. Importarlo con `layer(app)`
+lo anida como `app.luz`. Como en cualquier capa, los `!important` de luz
+(`prefers-reduced-motion`, impresión) le ganan a los `!important` sin
+capa.

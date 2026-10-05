@@ -32,7 +32,7 @@ examples:
     lang: "css"
     code: |
       .inspector {
-        --accent: var(--scheme-primary);
+        --scheme-accent: var(--scheme-primary);
       }
   - label: "Marca sobre una superficie, sin declarar texto"
     lang: "css"
@@ -70,7 +70,7 @@ overrides aparte que no tocan la rampa.
 `accent` (`"primary"` o `"secondary"`, default `"primary"`) elige qué
 esquema marca los estados: foco, texto seleccionado, tab activo, link
 actual de `nav`, swatch seleccionado, pasos del wizard y el badge sin
-clase. Sale como `--accent`, vivo: redeclararlo en un contenedor cambia
+clase. Sale como `--scheme-accent`, vivo: redeclararlo en un contenedor cambia
 el acento solo ahí. Una clase de esquema explícita (`.danger`,
 `.primary`, …) sigue ganando sobre el acento.
 

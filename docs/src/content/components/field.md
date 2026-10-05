@@ -52,6 +52,19 @@ covers:
   </label>
 </div>
 
+## Placeholder deshabilitado — un <code>&lt;option disabled&gt;</code> no apaga el <code>.field</code>; solo un control deshabilitado lo hace
+
+<div class="demo-fields">
+  <label class="field">
+    <span>Preset</span>
+    <select>
+      <option value="" disabled selected>Elegí…</option>
+      <option>Marca</option>
+      <option>Producto</option>
+    </select>
+  </label>
+</div>
+
 ## En un panel angosto
 
 <div class="demo-fields-tight">

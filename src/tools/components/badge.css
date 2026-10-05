@@ -1,78 +1,109 @@
-.badge {
-  --current-bg: var(--scheme, var(--badge-bg, var(--accent)));
-  display: inline-flex;
-  align-items: center;
-  justify-content: safe center;
-  padding: calc(var(--size-unit) * 1) calc(var(--size-unit) * 6);
-  border-radius: calc(var(--size-unit) * 20);
-  font-size: var(--font-size-small);
-  font-weight: var(--font-bold-weight);
-  line-height: var(--line-height);
-  background-color: oklch(from var(--current-bg) l c h / 26%);
-  border: var(--border-width) solid var(--current-bg);
-  color: oklch(from var(--current-bg) calc(l + 0.25) c h);
-  transition: var(--transition);
-  gap: var(--space-1);
-  &.ghost {
-    background-color: transparent;
-    color: var(--on-badge-ghost);
-    border: var(--border-width) solid var(--border-color);
-  }
-  &.pill {
-    border-radius: calc(var(--size-unit) * 40);
-    padding-inline: var(--space-4);
-  }
-  a,
-  button,
-  .btn,
-  .button {
-    &:hover {
-      transform: scale(1.03);
+@layer luz {
+  .badge {
+    --badge-color: var(--scheme, var(--badge-bg, var(--scheme-accent)));
+    --badge-ink: color-mix(in oklch, var(--badge-color) 55%, var(--foreground));
+    display: inline-flex;
+    align-items: center;
+    justify-content: safe center;
+    padding: calc(var(--size-unit) * 1) calc(var(--size-unit) * 6);
+    border-radius: calc(var(--size-unit) * 20);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-bold-weight);
+    line-height: var(--line-height);
+    background-color: oklch(from var(--badge-color) l c h / 16%);
+    border: var(--border-width) solid
+      oklch(
+        from var(--badge-color) l c h /
+          calc(alpha * 0.5 * var(--scheme-border-opacity, 1))
+      );
+    color: var(--badge-ink);
+    transition: var(--transition);
+    gap: var(--space-1);
+    &.solid {
+      --current-bg: var(--badge-color);
+      background-color: var(--current-bg);
+      border-color: transparent;
+      color: var(--on-badge, var(--current-color));
     }
-    &:not(.ghost):hover {
-      background-color: oklch(from var(--current-bg) l c h / 36%);
+    &.outline {
+      background-color: transparent;
+      border: var(--border-width) solid
+        oklch(
+          from var(--badge-color) l c h /
+            calc(alpha * var(--scheme-border-opacity, 1))
+        );
+      box-shadow: none;
+    }
+    &.ghost {
+      background-color: transparent;
+      border-color: transparent;
+    }
+    &.sm {
+      padding: 0 calc(var(--size-unit) * 4);
+      font-size: var(--font-size-xs);
+    }
+    &.lg {
+      padding: calc(var(--size-unit) * 2) calc(var(--size-unit) * 8);
+      font-size: var(--font-size-base);
+    }
+    &.pill {
+      border-radius: calc(var(--size-unit) * 40);
+      padding-inline: var(--space-4);
+    }
+    a,
+    button,
+    .btn,
+    .button {
+      &:hover {
+        transform: scale(1.03);
+      }
+      &:not(.ghost):hover {
+        background-color: oklch(from var(--badge-color) l c h / 26%);
+      }
+      &:active {
+        transform: scale(0.97);
+      }
+    }
+  }
+  .badge.chip {
+    border-radius: calc(var(--size-unit) * 40);
+    padding-inline: var(--space-3);
+    font: inherit;
+    font-size: var(--font-size-small);
+    background-color: var(--element-background);
+    border-color: var(--element-border-color);
+    color: var(--foreground);
+    cursor: pointer;
+    transition:
+      border-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
+      background-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
+      scale var(--duration-fast, 120ms) var(--ease-out, ease-out);
+    &:hover {
+      border-color: var(--border-color);
     }
     &:active {
-      transform: scale(0.97);
+      scale: 0.97;
+    }
+    &[aria-expanded="true"],
+    &[aria-pressed="true"] {
+      border-color: var(--scheme, var(--scheme-accent));
+    }
+    &.undecided {
+      border-style: dashed;
+      background-color: transparent;
+      color: oklch(from var(--foreground) l c h / 65%);
+    }
+    &.next {
+      border-color: var(--scheme, var(--scheme-accent));
+      background-color: oklch(
+        from var(--scheme, var(--scheme-accent)) l c h / 18%
+      );
+      color: var(--foreground);
     }
   }
-}
-.badge.chip {
-  border-radius: calc(var(--size-unit) * 40);
-  padding-inline: var(--space-3);
-  font: inherit;
-  font-size: var(--font-size-small);
-  background-color: var(--element-background);
-  border-color: var(--element-border-color);
-  color: var(--foreground);
-  cursor: pointer;
-  transition:
-    border-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
-    background-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
-    scale var(--duration-fast, 120ms) var(--ease-out, ease-out);
-  &:hover {
-    border-color: var(--border-color);
-  }
-  &:active {
-    scale: 0.97;
-  }
-  &[aria-expanded="true"],
-  &[aria-pressed="true"] {
-    border-color: var(--scheme, var(--accent));
-  }
-  &.undecided {
-    border-style: dashed;
-    background-color: transparent;
-    color: oklch(from var(--foreground) l c h / 65%);
-  }
-  &.next {
-    border-color: var(--scheme, var(--accent));
-    background-color: oklch(from var(--scheme, var(--accent)) l c h / 18%);
-    color: var(--foreground);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .badge.chip {
-    transition-duration: 0.01ms !important;
+  @media (prefers-reduced-motion: reduce) {
+    .badge.chip {
+      transition-duration: 0.01ms !important;
+    }
   }
 }

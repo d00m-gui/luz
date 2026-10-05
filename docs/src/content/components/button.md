@@ -6,6 +6,8 @@ covers:
   - button
   - icon
   - cta
+  - sm
+  - lg
 span: 2
 ---
 
@@ -43,6 +45,26 @@ span: 2
   <button data-role="apply">Apply</button>
   <button data-role="cancel">Cancel</button>
   <button data-role="contrast">Contrast</button>
+</div>
+
+## Variantes — <code>soft</code>, <code>outline</code> y <code>ghost</code> se combinan con cualquier esquema. Hover y <code>:active</code> mezclan <code>--foreground</code> sobre el fondo: oscurecen en claro, aclaran en oscuro
+
+<div class="demo-buttons">
+  <button class="primary">Solid</button>
+  <button class="primary soft">Soft</button>
+  <button class="primary outline">Outline</button>
+  <button class="primary ghost">Ghost</button>
+  <button class="danger soft">Soft</button>
+  <button class="danger outline">Outline</button>
+  <button class="danger ghost">Ghost</button>
+</div>
+
+## Tamaños — <code>.sm</code> y <code>.lg</code>
+
+<div class="demo-buttons">
+  <button class="sm">Small</button>
+  <button>Default</button>
+  <button class="lg">Large</button>
 </div>
 
 <style>

@@ -7,6 +7,7 @@ covers:
   - end
   - vertical
   - floating
+  - bottom
 ---
 
 <div class="toolbar">
@@ -26,9 +27,12 @@ covers:
   <div class="toolbar-group"><button type="button" class="ghost">Draw</button></div>
 </div>
 
-## Barra de estado
+## Barra de estado — <code>.toolbar.bottom</code>: hairline arriba, <code>flex: 0 0 auto</code> y texto chico; dentro de un <code>.shell</code> coincide con el hairline del shell, no se duplica
 
-<div class="panel-header bottom">
-  <span class="toolbar-group">Ready</span>
-  <span class="toolbar-group end">100%</span>
+<div class="shell vertical" style="height: 10rem">
+  <div class="shell-body">Lienzo</div>
+  <div class="toolbar bottom">
+    <div class="toolbar-group"><span class="swatch" style="--swatch-color: #e8590c"></span> Relleno</div>
+    <div class="toolbar-group end">100 %</div>
+  </div>
 </div>

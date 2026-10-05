@@ -1,22 +1,24 @@
-nav {
-  display: flex;
-  overflow: visible;
-  > :is(ul, ol):not(.list) {
-    align-items: center;
-    padding: 0;
-    list-style: none;
+@layer luz {
+  nav {
     display: flex;
-    & li {
-      margin: 0;
-      display: inline-block;
+    overflow: visible;
+    > :is(ul, ol):not(.list) {
+      align-items: center;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      & li {
+        margin: 0;
+        display: inline-block;
+      }
     }
   }
-}
-nav:not(.breadcrumbs)
-  :is(a, button):not(.tab, .list-row)[aria-current]:not(
-    [aria-current="false"]
-  ) {
-  color: var(--on-tab-active);
-  box-shadow: inset 0 calc(var(--border-width) * -2) 0
-    var(--tab-border-active, var(--scheme, var(--accent)));
+  nav:not(.breadcrumbs)
+    :is(a, button):not(.tab, .list-row)[aria-current]:not(
+      [aria-current="false"]
+    ) {
+    color: var(--on-tab-active);
+    box-shadow: inset 0 calc(var(--border-width) * -2) 0
+      var(--tab-border-active, var(--scheme, var(--scheme-accent)));
+  }
 }

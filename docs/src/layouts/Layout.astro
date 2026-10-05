@@ -68,4 +68,8 @@ const {
       btn.textContent = original;
     }, 1500);
   });
+  document.addEventListener("animationend", (event) => {
+    if (event.animationName !== "notice-dismiss") return;
+    (event.target as HTMLElement).hidePopover();
+  });
 </script>

@@ -96,7 +96,7 @@ covers:
 <button popovertarget="notice-info" class="info">Show info notice</button>
 <div id="notice-info" popover class="notice info"><i class="icon nf nf-fa-info_circle"></i> New version available</div>
 
-## Duración
+## Duración — se desvanece a los <code>--notice-duration</code> (default <code>10s</code>), con la cuenta en pausa mientras el puntero o el foco están adentro; <code>.sticky</code> no se va solo. El CSS solo lo oculta: la aplicación lo cierra con <code>hidePopover()</code> en el <code>animationend</code> de <code>notice-dismiss</code>
 
 <button popovertarget="notice-short" class="ghost">2 segundos</button>
 <div id="notice-short" popover class="notice info" style="--notice-duration: 2s;"><i class="icon nf nf-fa-clock_o"></i> Me voy en 2s</div>
@@ -107,6 +107,7 @@ covers:
   <span>Me quedo hasta que me cierres.</span>
   <button popovertarget="notice-sticky" popovertargetaction="hide" class="ghost">Cerrar</button>
 </div>
+
 ## Quick Actions
 
 <div>

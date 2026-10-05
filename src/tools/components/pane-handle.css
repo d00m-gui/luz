@@ -1,54 +1,56 @@
-.pane-handle {
-  position: relative;
-  flex: 0 0 auto;
-  inline-size: var(--pane-handle-size, calc(var(--size-unit) * 5));
-  cursor: col-resize;
-  touch-action: none;
-  outline: none;
-  &::before {
-    content: "";
-    position: absolute;
-    inset-block: 0;
-    inset-inline-start: 50%;
-    inline-size: var(--border-width);
-    translate: -50% 0;
-    background-color: var(--element-border-color);
-    transition:
-      background-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
-      inline-size var(--duration-fast, 120ms) var(--ease-out, ease-out);
-  }
-  &:hover::before,
-  &:active::before,
-  &[data-dragging]::before {
-    inline-size: calc(var(--size-unit) * 2);
-    background-color: var(--scheme, var(--accent));
-  }
-  &:focus-visible::before {
-    inline-size: calc(var(--size-unit) * 2);
-    background-color: var(--scheme, var(--accent));
-    box-shadow: 0 0 0 calc(var(--size-unit) * 2)
-      oklch(from var(--scheme, var(--accent)) l c h / 50%);
-  }
-  &:is([aria-orientation="horizontal"], [data-orientation="horizontal"]) {
-    inline-size: auto;
-    block-size: var(--pane-handle-size, calc(var(--size-unit) * 5));
-    cursor: row-resize;
+@layer luz {
+  .pane-handle {
+    position: relative;
+    flex: 0 0 auto;
+    inline-size: var(--pane-handle-size, calc(var(--size-unit) * 5));
+    cursor: col-resize;
+    touch-action: none;
+    outline: none;
     &::before {
-      inset-block: auto;
-      inset-inline: 0;
-      inset-block-start: 50%;
-      inline-size: auto;
-      block-size: var(--border-width);
-      translate: 0 -50%;
+      content: "";
+      position: absolute;
+      inset-block: 0;
+      inset-inline-start: 50%;
+      inline-size: var(--border-width);
+      translate: -50% 0;
+      background-color: var(--element-border-color);
+      transition:
+        background-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
+        inline-size var(--duration-fast, 120ms) var(--ease-out, ease-out);
     }
-    &:is(:hover, :active, [data-dragging], :focus-visible)::before {
+    &:hover::before,
+    &:active::before,
+    &[data-dragging]::before {
+      inline-size: calc(var(--size-unit) * 2);
+      background-color: var(--scheme, var(--scheme-accent));
+    }
+    &:focus-visible::before {
+      inline-size: calc(var(--size-unit) * 2);
+      background-color: var(--scheme, var(--scheme-accent));
+      box-shadow: 0 0 0 calc(var(--size-unit) * 2)
+        oklch(from var(--scheme, var(--scheme-accent)) l c h / 50%);
+    }
+    &:is([aria-orientation="horizontal"], [data-orientation="horizontal"]) {
       inline-size: auto;
-      block-size: calc(var(--size-unit) * 2);
+      block-size: var(--pane-handle-size, calc(var(--size-unit) * 5));
+      cursor: row-resize;
+      &::before {
+        inset-block: auto;
+        inset-inline: 0;
+        inset-block-start: 50%;
+        inline-size: auto;
+        block-size: var(--border-width);
+        translate: 0 -50%;
+      }
+      &:is(:hover, :active, [data-dragging], :focus-visible)::before {
+        inline-size: auto;
+        block-size: calc(var(--size-unit) * 2);
+      }
     }
   }
-}
-@media (prefers-reduced-motion: reduce) {
-  .pane-handle::before {
-    transition-duration: 0.01ms !important;
+  @media (prefers-reduced-motion: reduce) {
+    .pane-handle::before {
+      transition-duration: 0.01ms !important;
+    }
   }
 }

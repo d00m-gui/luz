@@ -1,12 +1,14 @@
-.center {
-  display: grid;
-  place-content: center;
-  place-items: center;
-}
-@supports not (align-content: center) {
+@layer luz {
   .center {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: grid;
+    place-content: center;
+    place-items: center;
+  }
+  @supports not (align-content: center) {
+    .center {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   }
 }

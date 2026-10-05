@@ -59,7 +59,9 @@ Then import luz from your own stylesheet — the plugin expands the theme, the s
 @import "@d00m-gui/luz/utilities.css";
 ```
 
-`reset.css`, `components.css` and `components/<name>.css` are static files; `theme.css`, `bridge.css` and `utilities.css` are generated from your config and code. The lower-level form is the `@luz theme;` / `@luz bridge;` / `@luz utilities;` directive, which you can place anywhere in your CSS. `@import … layer(name)` is honored.
+`reset.css`, `components.css` and `components/<name>.css` are static files; `theme.css`, `bridge.css` and `utilities.css` are generated from your config and code. The lower-level form is the `@luz theme;` / `@luz bridge;` / `@luz utilities;` directive, which you can place anywhere in your CSS.
+
+The CSS entries put everything in the `luz` cascade layer, so any unlayered CSS of yours wins over it without import-order or specificity tricks. `@import … layer(name)` nests it as `name.luz`. Inside a layer, luz's few `!important` rules (`prefers-reduced-motion`, print) beat unlayered `!important` ones.
 
 `luz(config)` itself is pure and runs anywhere (browser, edge) if you need the tokens or the theme CSS without a bundler.
 
