@@ -367,10 +367,12 @@ consumidores de primario (`checkbox-checked-bg`, `switch-bg`,
 `neutralTint` sigue derivando del primario. `background`/`foreground`
 siguen siendo overrides separados de la rampa.
 
-`LuzConfig.schemeBorderOpacity` (default `1`) emite
+`LuzConfig.schemeBorderOpacity` (default `0.5`) emite
 `--scheme-border-opacity`, multiplicador vivo del alfa en los bordes
-teñidos de `.alert`, `.join`, `.soft` y `.notice` con esquema. El color
-base y su alfa original se preservan cuando vale `1`.
+teñidos de `.badge`, `.alert`, `.join`, `.soft` y `.notice` con esquema;
+el fallback en el CSS es el mismo `0.5`. Con `1` el borde conserva el
+alfa original. `.badge.outline` lo respeta; `.outline` genérico no lo usa.
+`.join` sin esquema parte de `--element-border-color` y aplica el mismo multiplicador.
 
 `btn-bg` es la excepción: su default (sin clase) apunta a
 `--scheme-neutral`, no a `--scheme-primary` — un `<button>` sin variante

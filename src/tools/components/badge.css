@@ -14,7 +14,7 @@
     border: var(--border-width) solid
       oklch(
         from var(--badge-color) l c h /
-          calc(alpha * 0.5 * var(--scheme-border-opacity, 1))
+          calc(alpha * var(--scheme-border-opacity, 0.5))
       );
     color: var(--badge-ink);
     transition: var(--transition);
@@ -30,7 +30,7 @@
       border: var(--border-width) solid
         oklch(
           from var(--badge-color) l c h /
-            calc(alpha * var(--scheme-border-opacity, 1))
+            calc(alpha * var(--scheme-border-opacity, 0.5))
         );
       box-shadow: none;
     }

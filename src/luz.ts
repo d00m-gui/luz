@@ -119,7 +119,7 @@ export interface LuzConfig extends Partial<Record<WheelHueName, string>> {
       >;
   /** Chroma multiplier (0–1) applied to every `scheme-*` color on top of whichever shade `schemeShade`/`schemeLightness` picks — the peak-chroma `-500` shade of a saturated hue can read too loud for `.btn`/`.badge`/`.alert`. `1` (default) leaves it untouched; same mechanism as `muted()`'s `anchor-*` (fixed at `0.6`), just a knob instead of a constant. */
   schemeChroma?: number;
-  /** Opacity (0–1) of borders colored by the scheme. Default `1`. */
+  /** Opacity (0–1) of borders colored by the scheme (`.badge`, `.alert`, `.join`, `.soft`, `.notice`). Default `0.5`. */
   schemeBorderOpacity?: number;
   /** Selector the theme block (`color-scheme` + every custom property) is emitted under. Default `":root"`. */
   selector?: string;
@@ -263,7 +263,7 @@ export const LUZ_DEFAULT_CONFIG: LuzConfig = {
   harmony: "complementary",
   neutralTint: 0,
   surfaceTint: 0.4,
-  schemeBorderOpacity: 1,
+  schemeBorderOpacity: 0.5,
   schemeShade: { neutral: 800 },
   selector: ":root",
   transition: "all ease 200ms",

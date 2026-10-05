@@ -54,7 +54,7 @@
     background-color: var(--current-bg);
     border-color: oklch(
       from var(--scheme, var(--scheme-primary)) l c h /
-        calc(alpha * 0.5 * var(--scheme-border-opacity, 1))
+        calc(alpha * var(--scheme-border-opacity, 0.5))
     );
     color: color-mix(
       in oklab,

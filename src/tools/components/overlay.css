@@ -36,23 +36,20 @@
     transition: var(--transition);
     transition-property: opacity, transform, overlay, display;
     transition-behavior: allow-discrete;
-    @starting-style {
-      --notice-y: calc(var(--space-15) * 2);
-      opacity: 0;
-      transform: translateY(var(--notice-y)) scale(0.95);
-    }
     &:popover-open {
       opacity: 1;
       transform: translateY(0) scale(1);
-      animation: notice-dismiss var(--transition-duration, 200ms) ease
-        var(--notice-duration, 10s) forwards;
+      animation:
+        notice-enter var(--transition-duration, 200ms) ease,
+        notice-dismiss var(--transition-duration, 200ms) ease
+          var(--notice-duration, 10s) forwards;
       &:hover,
       &:focus-within {
-        animation-play-state: paused;
+        animation-play-state: running, paused;
       }
     }
     &.sticky:popover-open {
-      animation: none;
+      animation: notice-enter var(--transition-duration, 200ms) ease;
     }
     &.top-start,
     &.top-end {
@@ -80,7 +77,8 @@
         var(--element-background)
       );
       border-color: oklch(
-        from var(--scheme) l c h / calc(alpha * var(--scheme-border-opacity, 1))
+        from var(--scheme) l c h /
+          calc(alpha * var(--scheme-border-opacity, 0.5))
       );
       color: color-mix(in oklab, var(--scheme) 55%, var(--foreground));
       .icon {
@@ -206,6 +204,12 @@
     border-block-start: var(--border-width) solid var(--element-border-color);
     background: none;
   }
+  @keyframes notice-enter {
+    from {
+      opacity: 0;
+      transform: translateY(var(--notice-y)) scale(0.95);
+    }
+  }
   @keyframes notice-dismiss {
     to {
       opacity: 0;
@@ -220,7 +224,8 @@
     .menu {
       transition-duration: 0.01ms !important;
     }
-    .notice:popover-open {
+    .notice:popover-open,
+    .notice.sticky:popover-open {
       animation-duration: 0.01ms;
     }
   }

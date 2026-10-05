@@ -130,7 +130,7 @@ Every field is optional; defaults below come from `LUZ_DEFAULT_CONFIG`.
 | `schemeShade` | `{ neutral: 800 }` (else `500`) | Forces the exact weight for `scheme-*`, overriding `schemeLightness`. Number = all palettes, object = per-palette. |
 | `schemeChroma` | `1` | Chroma multiplier on top of the `scheme-*` shade — tones down a loud saturated `-500` for `.btn`/`.badge`/`.alert`. |
 | `accent` | `"primary"` | `"primary"` or `"secondary"`: sets live `--scheme-accent` to the corresponding `--scheme-*` for state accents. Override `--scheme-accent` per subtree. |
-| `schemeBorderOpacity` | `1` | Opacity multiplier for scheme-tinted borders, exposed as live `--scheme-border-opacity` (also overridable per subtree). |
+| `schemeBorderOpacity` | `0.5` | Opacity multiplier for scheme-tinted borders (`.badge`, including `.badge.outline`, `.alert`, `.join`, `.soft`, schemed `.notice`; not generic `.outline`), exposed as live `--scheme-border-opacity` (also overridable per subtree). `1` preserves the original color alpha. |
 
 ### Typography
 

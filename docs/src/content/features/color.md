@@ -74,10 +74,11 @@ clase. Sale como `--scheme-accent`, vivo: redeclararlo en un contenedor cambia
 el acento solo ahí. Una clase de esquema explícita (`.danger`,
 `.primary`, …) sigue ganando sobre el acento.
 
-`schemeBorderOpacity` (default `1`) multiplica el alfa de los bordes
-pintados con la tinta del esquema en `.alert`, `.join`, `.soft` y los
-`.notice` con esquema. Sale como `--scheme-border-opacity`, también
-pisable por subárbol.
+`schemeBorderOpacity` (default `0.5`) multiplica el alfa de los bordes
+pintados con la tinta del esquema en `.badge`, `.alert`, `.join`,
+`.soft` y los `.notice` con esquema; `1` conserva el alfa original.
+Sale como `--scheme-border-opacity`, también pisable por subárbol. El
+outline del badge lo respeta; el tratamiento genérico `.outline` no lo usa.
 
 `--current-bg` y `--current-color` son API pública: el primero es "el
 fondo de esto", el segundo el texto legible sobre ese fondo.
