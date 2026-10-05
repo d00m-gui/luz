@@ -8,7 +8,11 @@
     height: var(--space-10);
     border-radius: 100%;
     background-color: var(--element-background);
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     color: var(--foreground);
     font-weight: var(--font-bold-weight);
     font-size: var(--font-size-small);

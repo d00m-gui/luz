@@ -46,7 +46,9 @@
   .solid {
     --current-bg: var(--scheme, var(--scheme-primary));
     background-color: var(--current-bg);
-    border-color: var(--current-bg);
+    border-color: oklch(
+      from var(--current-bg) l c h / calc(alpha * var(--border-opacity, 0.3))
+    );
     color: var(--current-color);
   }
   .soft {
@@ -54,7 +56,7 @@
     background-color: var(--current-bg);
     border-color: oklch(
       from var(--scheme, var(--scheme-primary)) l c h /
-        calc(alpha * var(--scheme-border-opacity, 0.5))
+        calc(alpha * var(--border-opacity, 0.3))
     );
     color: color-mix(
       in oklab,
@@ -72,7 +74,10 @@
       var(--foreground)
     );
     box-shadow: inset 0 0 0 var(--border-width)
-      var(--scheme, var(--scheme-primary));
+      oklch(
+        from var(--scheme, var(--scheme-primary)) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
   }
   .surface-primary {
     --current-bg: var(--neutral-900);

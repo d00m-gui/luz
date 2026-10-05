@@ -13,7 +13,11 @@
     align-items: center;
     gap: var(--space-1);
     padding: var(--space-2);
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--element-background);
     color: oklch(from var(--foreground) l c h / 65%);
@@ -27,10 +31,16 @@
       color: var(--foreground);
     }
     &[aria-pressed="true"] {
-      border-color: var(--scheme, var(--scheme-accent));
+      border-color: oklch(
+        from var(--scheme, var(--scheme-accent)) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
       color: var(--foreground);
       box-shadow: inset 0 0 0 var(--border-width)
-        var(--scheme, var(--scheme-accent));
+        oklch(
+          from var(--scheme, var(--scheme-accent)) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
     }
     &:disabled {
       opacity: 0.4;

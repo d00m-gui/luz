@@ -7,7 +7,7 @@
     border: var(--border-width) solid
       oklch(
         from var(--scheme, var(--scheme-neutral)) l c h /
-          calc(alpha * var(--scheme-border-opacity, 0.5))
+          calc(alpha * var(--border-opacity, 0.3))
       );
     border-radius: var(--border-radius);
     --current-bg: color-mix(

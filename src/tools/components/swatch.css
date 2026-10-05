@@ -4,7 +4,11 @@
     width: var(--space-6);
     height: var(--space-6);
     padding: 0;
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--swatch-color, var(--element-background));
     cursor: pointer;
@@ -12,7 +16,10 @@
     transition-property: border-color, border-width;
     &[aria-pressed="true"] {
       border-width: calc(var(--border-width) * 2);
-      border-color: var(--scheme, var(--scheme-accent));
+      border-color: oklch(
+        from var(--scheme, var(--scheme-accent)) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     }
     &:is([disabled], .disabled) {
       opacity: 0.4;

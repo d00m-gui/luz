@@ -2,7 +2,11 @@
   dialog.modal {
     margin: auto;
     padding: 0;
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--element-background);
     color: var(--foreground);

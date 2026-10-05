@@ -14,7 +14,10 @@
     font-size: 60%;
   }
   abbr {
-    border-bottom: var(--border-width) dotted var(--foreground);
+    border-bottom: var(--border-width) dotted
+      oklch(
+        from var(--foreground) l c h / calc(alpha * var(--border-opacity, 0.3))
+      );
   }
   :where(.prose) {
     max-width: var(--prose-width, 70ch);

@@ -1,7 +1,11 @@
 @layer luz {
   .card {
     --current-bg: var(--scheme, var(--element-background));
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: calc(var(--border-radius) * 1.75 * var(--density));
     background-color: var(--current-bg);
     color: var(--current-color);
@@ -68,7 +72,10 @@
       align-items: center;
       background-color: oklch(from var(--current-bg) l c h / 22%);
       border-top: calc(var(--size-unit) * 2) solid
-        var(--scheme, var(--element-border-color));
+        oklch(
+          from var(--scheme, var(--element-border-color)) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
       cursor: grab;
       touch-action: none;
       user-select: none;

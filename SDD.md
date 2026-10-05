@@ -367,12 +367,13 @@ consumidores de primario (`checkbox-checked-bg`, `switch-bg`,
 `neutralTint` sigue derivando del primario. `background`/`foreground`
 siguen siendo overrides separados de la rampa.
 
-`LuzConfig.schemeBorderOpacity` (default `0.5`) emite
-`--scheme-border-opacity`, multiplicador vivo del alfa en los bordes
-teñidos de `.badge`, `.alert`, `.join`, `.soft` y `.notice` con esquema;
-el fallback en el CSS es el mismo `0.5`. Con `1` el borde conserva el
-alfa original. `.badge.outline` lo respeta; `.outline` genérico no lo usa.
-`.join` sin esquema parte de `--element-border-color` y aplica el mismo multiplicador.
+`LuzConfig.borderOpacity` (default `0.3`) emite `--border-opacity`.
+Cada declaración de contorno multiplica el alfa del color por el token
+en el elemento que lo consume, incluidos los contornos neutros y de estado.
+`.outline` aplica el mismo multiplicador a su sombra inset. El ancho,
+los fondos y el texto no cambian. `0` oculta contornos y `1` conserva el
+alfa original. Los colores explícitos de config siguen ganando y la
+opacidad se puede cambiar por subárbol. Foco y trazos de íconos no se atenúan.
 
 `btn-bg` es la excepción: su default (sin clase) apunta a
 `--scheme-neutral`, no a `--scheme-primary` — un `<button>` sin variante

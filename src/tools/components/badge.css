@@ -13,8 +13,7 @@
     background-color: oklch(from var(--badge-color) l c h / 16%);
     border: var(--border-width) solid
       oklch(
-        from var(--badge-color) l c h /
-          calc(alpha * var(--scheme-border-opacity, 0.5))
+        from var(--badge-color) l c h / calc(alpha * var(--border-opacity, 0.3))
       );
     color: var(--badge-ink);
     transition: var(--transition);
@@ -30,7 +29,7 @@
       border: var(--border-width) solid
         oklch(
           from var(--badge-color) l c h /
-            calc(alpha * var(--scheme-border-opacity, 0.5))
+            calc(alpha * var(--border-opacity, 0.3))
         );
       box-shadow: none;
     }
@@ -71,7 +70,10 @@
     font: inherit;
     font-size: var(--font-size-small);
     background-color: var(--element-background);
-    border-color: var(--element-border-color);
+    border-color: oklch(
+      from var(--element-border-color) l c h /
+        calc(alpha * var(--border-opacity, 0.3))
+    );
     color: var(--foreground);
     cursor: pointer;
     transition:
@@ -79,14 +81,20 @@
       background-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
       scale var(--duration-fast, 120ms) var(--ease-out, ease-out);
     &:hover {
-      border-color: var(--border-color);
+      border-color: oklch(
+        from var(--border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     }
     &:active {
       scale: 0.97;
     }
     &[aria-expanded="true"],
     &[aria-pressed="true"] {
-      border-color: var(--scheme, var(--scheme-accent));
+      border-color: oklch(
+        from var(--scheme, var(--scheme-accent)) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     }
     &.undecided {
       border-style: dashed;
@@ -94,7 +102,10 @@
       color: oklch(from var(--foreground) l c h / 65%);
     }
     &.next {
-      border-color: var(--scheme, var(--scheme-accent));
+      border-color: oklch(
+        from var(--scheme, var(--scheme-accent)) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
       background-color: oklch(
         from var(--scheme, var(--scheme-accent)) l c h / 18%
       );

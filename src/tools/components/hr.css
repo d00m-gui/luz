@@ -6,12 +6,17 @@
     margin: calc(var(--size-unit) * 10) 0;
     border: none;
     width: 100%;
-    background: var(--hr-color);
+    background: oklch(
+      from var(--hr-color) l c h / calc(alpha * var(--border-opacity, 0.3))
+    );
     color: var(--hr-color);
     &.dashed {
       background: none;
       border: none;
-      border-top: var(--border-width) dashed var(--hr-color);
+      border-top: var(--border-width) dashed
+        oklch(
+          from var(--hr-color) l c h / calc(alpha * var(--border-opacity, 0.3))
+        );
     }
   }
 }

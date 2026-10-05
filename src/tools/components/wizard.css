@@ -19,7 +19,11 @@
       flex-shrink: 0;
       width: var(--space-8);
       height: var(--space-8);
-      border: var(--border-width) solid var(--element-border-color);
+      border: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
       border-radius: 100%;
       font-size: var(--font-size-base);
       font-weight: var(--font-bold-weight);
@@ -31,21 +35,27 @@
       content: "";
       flex: 1;
       height: var(--space-1);
-      background: var(--element-border-color);
+      background: oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
       margin-inline: var(--space-2);
     }
     &.active::before,
     &[data-state="active"]::before {
-      border-color: var(
-        --tab-border-active,
-        var(--scheme, var(--scheme-accent))
+      border-color: oklch(
+        from var(--tab-border-active, var(--scheme, var(--scheme-accent))) l c h
+          / calc(alpha * var(--border-opacity, 0.3))
       );
       color: var(--tab-border-active, var(--scheme, var(--scheme-accent)));
     }
     &.done::before,
     &[data-state="done"]::before {
       background-color: var(--badge-bg, var(--scheme, var(--scheme-accent)));
-      border-color: var(--badge-bg, var(--scheme, var(--scheme-accent)));
+      border-color: oklch(
+        from var(--badge-bg, var(--scheme, var(--scheme-accent))) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
       color: var(
         --on-badge,
         var(

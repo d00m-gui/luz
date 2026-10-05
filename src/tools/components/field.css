@@ -44,7 +44,11 @@
   select,
   textarea {
     appearance: none;
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--element-background);
     color: var(--on-element);
@@ -62,14 +66,18 @@
     opacity: 1;
   }
   input[aria-invalid="false"] {
-    border-color: var(--success);
+    border-color: oklch(
+      from var(--success) l c h / calc(alpha * var(--border-opacity, 0.3))
+    );
     color: var(--success);
     &::placeholder {
       color: var(--success);
     }
   }
   input[aria-invalid="true"] {
-    border-color: var(--danger);
+    border-color: oklch(
+      from var(--danger) l c h / calc(alpha * var(--border-opacity, 0.3))
+    );
     color: var(--danger);
     &::placeholder {
       color: var(--danger);
@@ -101,7 +109,11 @@
     flex-direction: row;
     align-items: stretch;
     gap: 0;
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--element-background);
     overflow: hidden;
@@ -216,7 +228,11 @@
     align-items: center;
     gap: var(--space-1);
     padding-inline-start: var(--space-1);
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--element-background);
     > .swatch {

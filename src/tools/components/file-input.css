@@ -19,7 +19,11 @@
         bottom: 0;
         left: 50%;
         transform: translateX(-50%);
-        border-top: var(--border-width) solid var(--file-input-border-top);
+        border-top: var(--border-width) solid
+          oklch(
+            from var(--file-input-border-top) l c h /
+              calc(alpha * var(--border-opacity, 0.3))
+          );
       }
     }
   }

@@ -19,6 +19,9 @@
     ) {
     color: var(--on-tab-active);
     box-shadow: inset 0 calc(var(--border-width) * -2) 0
-      var(--tab-border-active, var(--scheme, var(--scheme-accent)));
+      oklch(
+        from var(--tab-border-active, var(--scheme, var(--scheme-accent))) l c h
+          / calc(alpha * var(--border-opacity, 0.3))
+      );
   }
 }

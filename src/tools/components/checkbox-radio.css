@@ -18,7 +18,10 @@
       transition: var(--transition);
       transition-property: background-color, border-color;
       background-color: var(--checkbox-checked-bg);
-      border-color: var(--checkbox-checked-border);
+      border-color: oklch(
+        from var(--checkbox-checked-border) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     }
     &:before {
       content: "";
@@ -93,7 +96,10 @@
     }
     &:checked {
       background-color: var(--radio-checked-bg);
-      border-color: var(--radio-checked-border);
+      border-color: oklch(
+        from var(--radio-checked-border) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
       &:before {
         background-color: var(--on-element-active);
       }

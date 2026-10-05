@@ -12,7 +12,11 @@
       padding: var(--size-unit) calc(var(--size-unit) * 10);
       border-radius: calc(var(--size-unit) * 2);
       content: attr(data-tooltip);
-      border: var(--border-width) solid var(--element-border-color);
+      border: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
       text-overflow: ellipsis;
       white-space: nowrap;
       opacity: 0;

@@ -33,7 +33,11 @@
     }
     &.wire > * {
       min-height: var(--space-12);
-      border: var(--border-width) dashed var(--element-border-color);
+      border: var(--border-width) dashed
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
       border-radius: var(--border-radius);
       display: grid;
       place-items: center;

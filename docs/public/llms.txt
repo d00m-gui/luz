@@ -130,7 +130,7 @@ Every field is optional; defaults below come from `LUZ_DEFAULT_CONFIG`.
 | `schemeShade` | `{ neutral: 800 }` (else `500`) | Forces the exact weight for `scheme-*`, overriding `schemeLightness`. Number = all palettes, object = per-palette. |
 | `schemeChroma` | `1` | Chroma multiplier on top of the `scheme-*` shade — tones down a loud saturated `-500` for `.btn`/`.badge`/`.alert`. |
 | `accent` | `"primary"` | `"primary"` or `"secondary"`: sets live `--scheme-accent` to the corresponding `--scheme-*` for state accents. Override `--scheme-accent` per subtree. |
-| `schemeBorderOpacity` | `0.5` | Opacity multiplier for scheme-tinted borders (`.badge`, including `.badge.outline`, `.alert`, `.join`, `.soft`, schemed `.notice`; not generic `.outline`), exposed as live `--scheme-border-opacity` (also overridable per subtree). `1` preserves the original color alpha. |
+| `borderOpacity` | `0.3` | Global component-border alpha multiplier, exposed as live `--border-opacity`, overridable per subtree. Covers neutral, scheme, validation and selected borders, including `.alert`, `.soft` and `.outline` inset strokes. `0` hides borders without changing widths; `1` preserves the original color alpha. Focus rings and icon strokes are independent. |
 
 ### Typography
 
@@ -241,7 +241,7 @@ vocabulary for semantic tokens:
   apply on top of `--current-bg`.
 - **Structural**: `--background`, `--foreground`, `--spacing`,
   `--density`, `--depth` (per-subtree elevation, see `depth*` fields),
-  `--contrast-threshold`, `--scheme-accent`, `--scheme-border-opacity`,
+  `--contrast-threshold`, `--scheme-accent`, `--border-opacity`,
   `--transition`, `--box-shadow`.
 - **Type/space scale**: `--font-size-xs`…`--font-size-3xl` (exponential,
   `power`; √ratio below `base`) and `--font-size-small`…`--font-size-h1`
@@ -486,7 +486,7 @@ mechanism is this file / the luz docs site). Suggested sections:
    chosen for the product's density/reading-context, and `spaceSteps` if
    non-default.
 6. **Structural knobs** — `density`, `depth*`, `contrastThreshold`,
-   `accent`, `schemeBorderOpacity` if customized, and why.
+   `accent`, `borderOpacity` if customized, and why.
 7. **Escape hatches used** — every `vars` entry, with a one-line reason
    each (a `vars` entry with no documented reason is a smell — it
    usually means a `LuzConfig` field should have been used instead).

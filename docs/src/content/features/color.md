@@ -5,7 +5,7 @@ fields:
   - "secondary"
   - "neutral"
   - "accent"
-  - "schemeBorderOpacity"
+  - "borderOpacity"
   - "mode"
   - "contrastThreshold"
 order: 2
@@ -26,7 +26,7 @@ examples:
         secondary: "#ffb38a",
         neutral: "#0e1020",
         accent: "secondary",
-        schemeBorderOpacity: 0.4,
+        borderOpacity: 0.4,
       })
   - label: "Acento distinto en una sección"
     lang: "css"
@@ -74,11 +74,12 @@ clase. Sale como `--scheme-accent`, vivo: redeclararlo en un contenedor cambia
 el acento solo ahí. Una clase de esquema explícita (`.danger`,
 `.primary`, …) sigue ganando sobre el acento.
 
-`schemeBorderOpacity` (default `0.5`) multiplica el alfa de los bordes
-pintados con la tinta del esquema en `.badge`, `.alert`, `.join`,
-`.soft` y los `.notice` con esquema; `1` conserva el alfa original.
-Sale como `--scheme-border-opacity`, también pisable por subárbol. El
-outline del badge lo respeta; el tratamiento genérico `.outline` no lo usa.
+`borderOpacity` (default `0.3`) multiplica el alfa de los contornos de
+todos los componentes: neutros, esquema, validación y estados activos,
+incluidos `.alert`, `.soft`, `.outline`, badges, cards, campos y tablas.
+Sale como `--border-opacity`, pisable por subárbol: `0` oculta los
+contornos sin cambiar su ancho y `1` conserva el alfa original del color.
+Los anillos de foco y los trazos de íconos (check, chevron) son independientes.
 
 `--current-bg` y `--current-color` son API pública: el primero es "el
 fondo de esto", el segundo el texto legible sobre ese fondo.

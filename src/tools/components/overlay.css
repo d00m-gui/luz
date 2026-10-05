@@ -8,7 +8,11 @@
     max-width: min(90vw, 32rem);
     max-height: 90vh;
     padding: var(--space-6);
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--element-background);
     color: var(--foreground);
@@ -26,7 +30,11 @@
     gap: var(--space-2);
     padding: calc(var(--space-4) * var(--density, 1))
       calc(var(--space-5) * var(--density, 1));
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--element-background);
     color: var(--foreground);
@@ -77,8 +85,7 @@
         var(--element-background)
       );
       border-color: oklch(
-        from var(--scheme) l c h /
-          calc(alpha * var(--scheme-border-opacity, 0.5))
+        from var(--scheme) l c h / calc(alpha * var(--border-opacity, 0.3))
       );
       color: color-mix(in oklab, var(--scheme) 55%, var(--foreground));
       .icon {
@@ -123,7 +130,11 @@
     display: flex;
     flex-direction: column;
     padding: var(--space-2);
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--element-background);
     color: var(--foreground);
@@ -201,7 +212,11 @@
     height: 0;
     margin: var(--space-1) 0;
     border: 0;
-    border-block-start: var(--border-width) solid var(--element-border-color);
+    border-block-start: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     background: none;
   }
   @keyframes notice-enter {

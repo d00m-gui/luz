@@ -18,7 +18,11 @@
       padding-inline-start: 0;
       border-inline-start: 0;
       padding-block-start: calc(var(--space-3) * var(--density, 1));
-      border-block-start: var(--border-width) solid var(--element-border-color);
+      border-block-start: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
     }
     .toolbar-group.end {
       margin-inline-start: 0;
@@ -26,12 +30,20 @@
     }
   }
   .toolbar.floating {
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
   }
   .toolbar.bottom {
     flex: 0 0 auto;
-    border-block-start: var(--border-width) solid var(--element-border-color);
+    border-block-start: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     font-size: var(--font-size-small);
   }
   .toolbar-group {
@@ -41,7 +53,11 @@
   }
   .toolbar-group + .toolbar-group {
     padding-inline-start: calc(var(--space-3) * var(--density, 1));
-    border-inline-start: var(--border-width) solid var(--element-border-color);
+    border-inline-start: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
   }
   .toolbar-group.end {
     margin-inline-start: auto;

@@ -2,7 +2,11 @@
   .tabs {
     display: flex;
     gap: var(--space-2);
-    border-bottom: var(--border-width) solid var(--border-color);
+    border-bottom: var(--border-width) solid
+      oklch(
+        from var(--border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
   }
   .tab-input {
     position: absolute;
@@ -35,7 +39,10 @@
   .tab[aria-current="page"],
   .tab[aria-selected="true"] {
     color: var(--on-tab-active);
-    border-color: var(--tab-border-active, var(--scheme, var(--scheme-accent)));
+    border-color: oklch(
+      from var(--tab-border-active, var(--scheme, var(--scheme-accent))) l c h /
+        calc(alpha * var(--border-opacity, 0.3))
+    );
   }
   .tab-input:focus-visible + .tab,
   .tab:focus-visible {
@@ -69,14 +76,22 @@
   .tabs.toggle {
     gap: 0;
     border-bottom: none;
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     overflow: hidden;
     .tab {
       border-bottom: none;
       background-color: var(--element-background);
       &:not(:last-of-type) {
-        border-right: var(--border-width) solid var(--element-border-color);
+        border-right: var(--border-width) solid
+          oklch(
+            from var(--element-border-color) l c h /
+              calc(alpha * var(--border-opacity, 0.3))
+          );
       }
     }
     .tab-input:checked + .tab,
@@ -114,7 +129,11 @@
     .tab {
       padding: calc(var(--space-2) * var(--density, 1))
         calc(var(--space-4) * var(--density, 1));
-      border: var(--border-width) solid var(--element-border-color);
+      border: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
       border-radius: var(--border-radius);
       color: var(--foreground);
     }

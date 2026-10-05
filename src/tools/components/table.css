@@ -26,10 +26,18 @@
     & th {
       color: var(--on-element-placeholder);
       background-color: var(--element-background);
-      border-bottom: var(--border-width) solid var(--element-border-color);
+      border-bottom: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
     }
     & td {
-      border-bottom: var(--border-width) solid var(--element-border-color);
+      border-bottom: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
     }
   }
 }

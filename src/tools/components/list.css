@@ -18,7 +18,11 @@
       margin: 0;
       list-style: none;
       > .list-row {
-        border-bottom: var(--border-width) solid var(--element-border-color);
+        border-bottom: var(--border-width) solid
+          oklch(
+            from var(--element-border-color) l c h /
+              calc(alpha * var(--border-opacity, 0.3))
+          );
       }
       &:last-child > .list-row {
         border-bottom: none;
@@ -55,7 +59,11 @@
         calc(var(--space-3) * var(--density, 1))
       )
       var(--list-row-padding-inline, calc(var(--space-4) * var(--density, 1)));
-    border-bottom: var(--border-width) solid var(--element-border-color);
+    border-bottom: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     color: var(--foreground);
     &:last-child {
       border-bottom: none;
@@ -91,7 +99,11 @@
     & > .list-row,
     & > li > .list-row {
       border-bottom: none;
-      border-inline-end: var(--border-width) solid var(--element-border-color);
+      border-inline-end: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
     }
     & > .list-row:last-child,
     & > li:last-child > .list-row {
@@ -105,7 +117,11 @@
       & > .list-row,
       & > li > .list-row {
         border-inline-end: none;
-        border-bottom: var(--border-width) solid var(--element-border-color);
+        border-bottom: var(--border-width) solid
+          oklch(
+            from var(--element-border-color) l c h /
+              calc(alpha * var(--border-opacity, 0.3))
+          );
       }
       & > .list-row:last-child,
       & > li:last-child > .list-row {
@@ -219,7 +235,11 @@
           z-index: 21;
           height: var(--space-12);
           background-color: var(--element-background);
-          border-bottom: var(--border-width) solid var(--element-border-color);
+          border-bottom: var(--border-width) solid
+            oklch(
+              from var(--element-border-color) l c h /
+                calc(alpha * var(--border-opacity, 0.3))
+            );
           &::before {
             content: "‹";
             font-size: 1.25em;
@@ -248,7 +268,10 @@
       .list {
         margin-inline-start: var(--space-3);
         border-inline-start: var(--border-width) solid
-          var(--element-border-color);
+          oklch(
+            from var(--element-border-color) l c h /
+              calc(alpha * var(--border-opacity, 0.3))
+          );
       }
       .list-row {
         border: none;

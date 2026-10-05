@@ -13,9 +13,16 @@
     font-size: var(--blockquote-font-size, var(--font-size-h5));
     font-weight: var(--font-weight);
     margin: calc(var(--size-unit) * 10) 0;
-    border-left: calc(var(--size-unit) * 2) solid var(--blockquote-border);
+    border-left: calc(var(--size-unit) * 2) solid
+      oklch(
+        from var(--blockquote-border) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-inline-start: calc(var(--size-unit) * 2) solid
-      var(--blockquote-border);
+      oklch(
+        from var(--blockquote-border) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     & > * {
       display: block;
     }

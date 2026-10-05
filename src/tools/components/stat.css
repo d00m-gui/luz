@@ -2,7 +2,11 @@
   .stat {
     min-width: 0;
     padding: var(--space-5);
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     --current-bg: var(--scheme, var(--element-background));
     background-color: var(--current-bg);

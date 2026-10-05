@@ -3,19 +3,30 @@
     display: flex;
     align-items: stretch;
     height: var(--shell-height, auto);
-    border: var(--border-width) solid var(--element-border-color);
+    border: var(--border-width) solid
+      oklch(
+        from var(--element-border-color) l c h /
+          calc(alpha * var(--border-opacity, 0.3))
+      );
     border-radius: var(--border-radius);
     background-color: var(--element-background);
     overflow: hidden;
     > * + * {
-      border-inline-start: var(--border-width) solid var(--element-border-color);
+      border-inline-start: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
     }
     &.vertical {
       flex-direction: column;
       > * + * {
         border-inline-start: none;
         border-block-start: var(--border-width) solid
-          var(--element-border-color);
+          oklch(
+            from var(--element-border-color) l c h /
+              calc(alpha * var(--border-opacity, 0.3))
+          );
       }
     }
     &.app {
@@ -30,7 +41,10 @@
         > * + * {
           border-inline-start: none;
           border-block-start: var(--border-width) solid
-            var(--element-border-color);
+            oklch(
+              from var(--element-border-color) l c h /
+                calc(alpha * var(--border-opacity, 0.3))
+            );
         }
         .shell-pane.fixed {
           flex-basis: auto;
