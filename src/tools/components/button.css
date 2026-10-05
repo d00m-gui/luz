@@ -82,7 +82,7 @@
         .info,
         .contrast
       ) {
-        color: color-mix(in oklch, var(--scheme) 55%, var(--foreground));
+        color: color-mix(in oklab, var(--scheme) 55%, var(--foreground));
       }
     }
     &.pill {
@@ -137,7 +137,7 @@
     }
     &:hover {
       background-color: color-mix(
-        in oklch,
+        in oklab,
         var(--current-bg),
         var(--foreground) calc(var(--state-hover-delta, 0.08) * 100%)
       );
@@ -145,7 +145,7 @@
     &:active {
       transform: translateY(var(--state-pressed-shift, 0.1ch));
       background-color: color-mix(
-        in oklch,
+        in oklab,
         var(--current-bg),
         var(--foreground)
           calc(

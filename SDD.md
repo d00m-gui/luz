@@ -638,7 +638,7 @@ conocerlos.
 Los estados interactivos salen de tres tokens con knob
 (`stateHoverDelta`/`statePressedDelta`/`statePressedShift` en
 `LuzConfig`): `button.css` mezcla `--foreground` sobre `--current-bg`
-(`color-mix(in oklch, var(--current-bg), var(--foreground)
+(`color-mix(in oklab, var(--current-bg), var(--foreground)
 calc(var(--state-hover-delta, 0.08) * 100%))` en `:hover`; `:active` suma
 `--state-pressed-delta` y aplica `translateY(var(--state-pressed-shift,
 0.1ch))`). Mezclar hacia `--foreground` oscurece en claro y aclara en
@@ -650,9 +650,12 @@ tokens, y un subárbol puede redeclararlos.
 
 Los tratamientos translúcidos (`.badge` y sus variantes, `.soft`,
 `.outline`, `.notice` con esquema) no usan `--current-color`: el texto
-es la "tinta" del esquema, `color-mix(in oklch, <esquema> 55%,
+es la "tinta" del esquema, `color-mix(in oklab, <esquema> 55%,
 var(--foreground))`, que tiende al foreground de cada modo y por eso se
-lee en claro y en oscuro. `.badge` lee `--badge-color` (`--scheme` →
+lee en claro y en oscuro. Se mezcla en `oklab` y no en `oklch`: el
+foreground es acromático pero lleva el hue del primario, y en `oklch` la
+interpolación de hue corría el verde hacia amarillo y el azul hacia
+violeta. `.badge` lee `--badge-color` (`--scheme` →
 `--badge-bg` → `--scheme-accent`): soft por defecto (16%), `.solid`
 (fondo pleno, `--current-color`, `--on-badge` lo pisa), `.outline` y
 `.ghost` (transparente); tamaños `.sm`/`.lg`. `join.css` pinta el texto

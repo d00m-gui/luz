@@ -7,7 +7,7 @@ export const SWATCH_WEIGHTS = [
 
 function markGamut(): void {
   for (const el of document.querySelectorAll<HTMLElement>(
-    ".swatch[data-name]",
+    ".palette-swatch[data-name]",
   )) {
     const parsed = parseOklch(
       getComputedStyle(el).getPropertyValue("--current-bg"),
@@ -55,7 +55,7 @@ export function Swatches({
           {weights.map((weight) => (
             <div className="swatch-list" key={weight}>
               <div
-                className="swatch"
+                className="palette-swatch"
                 data-name={name}
                 style={swatchStyle(name, weight)}
               >

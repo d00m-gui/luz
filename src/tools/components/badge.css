@@ -1,7 +1,7 @@
 @layer luz {
   .badge {
     --badge-color: var(--scheme, var(--badge-bg, var(--scheme-accent)));
-    --badge-ink: color-mix(in oklch, var(--badge-color) 55%, var(--foreground));
+    --badge-ink: color-mix(in oklab, var(--badge-color) 55%, var(--foreground));
     display: inline-flex;
     align-items: center;
     justify-content: safe center;

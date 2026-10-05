@@ -57,7 +57,7 @@
         calc(alpha * 0.5 * var(--scheme-border-opacity, 1))
     );
     color: color-mix(
-      in oklch,
+      in oklab,
       var(--scheme, var(--scheme-primary)) 55%,
       var(--foreground)
     );
@@ -67,7 +67,7 @@
     background-color: var(--current-bg);
     border-width: 0;
     color: color-mix(
-      in oklch,
+      in oklab,
       var(--scheme, var(--scheme-primary)) 55%,
       var(--foreground)
     );

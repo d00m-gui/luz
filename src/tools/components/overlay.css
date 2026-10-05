@@ -75,14 +75,14 @@
     &.quaternary,
     &.neutral {
       background-color: color-mix(
-        in oklch,
+        in oklab,
         var(--scheme) 18%,
         var(--element-background)
       );
       border-color: oklch(
         from var(--scheme) l c h / calc(alpha * var(--scheme-border-opacity, 1))
       );
-      color: color-mix(in oklch, var(--scheme) 55%, var(--foreground));
+      color: color-mix(in oklab, var(--scheme) 55%, var(--foreground));
       .icon {
         color: var(--scheme);
       }
