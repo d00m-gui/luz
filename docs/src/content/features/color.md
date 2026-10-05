@@ -3,6 +3,9 @@ title: "Color"
 fields:
   - "primary"
   - "secondary"
+  - "neutral"
+  - "accent"
+  - "borderOpacity"
   - "mode"
   - "contrastThreshold"
 order: 2
@@ -15,6 +18,22 @@ examples:
         secondary: "#2563eb",
         mode: "auto",
       })
+  - label: "Neutro propio y acento secundario"
+    lang: "ts"
+    code: |
+      luz({
+        primary: "#7c5cff",
+        secondary: "#ffb38a",
+        neutral: "#0e1020",
+        accent: "secondary",
+        borderOpacity: 0.4,
+      })
+  - label: "Acento distinto en una sección"
+    lang: "css"
+    code: |
+      .inspector {
+        --scheme-accent: var(--scheme-primary);
+      }
   - label: "Marca sobre una superficie, sin declarar texto"
     lang: "css"
     code: |
@@ -41,6 +60,26 @@ primaria es siempre `--primary-*` y la de grises `--neutral-*`.
 `mode: "auto"` emite paleta clara en `:root` y oscura bajo
 `prefers-color-scheme: dark`, a diferencia de `"light"`/`"dark"` que
 fijan una sola.
+
+`neutral` es la semilla de la rampa `--neutral-*` (tarjetas, bordes,
+`scheme-neutral`, y el `background`/`foreground` por defecto). Sin
+`neutral`, la rampa sale de `primary` con `neutralTint`; con `neutral`,
+`neutralTint` no se aplica. `background`/`foreground` siguen siendo
+overrides aparte que no tocan la rampa.
+
+`accent` (`"primary"` o `"secondary"`, default `"primary"`) elige qué
+esquema marca los estados: foco, texto seleccionado, tab activo, link
+actual de `nav`, swatch seleccionado, pasos del wizard y el badge sin
+clase. Sale como `--scheme-accent`, vivo: redeclararlo en un contenedor cambia
+el acento solo ahí. Una clase de esquema explícita (`.danger`,
+`.primary`, …) sigue ganando sobre el acento.
+
+`borderOpacity` (default `0.3`) multiplica el alfa de los contornos de
+todos los componentes: neutros, esquema, validación y estados activos,
+incluidos `.alert`, `.soft`, `.outline`, badges, cards, campos y tablas.
+Sale como `--border-opacity`, pisable por subárbol: `0` oculta los
+contornos sin cambiar su ancho y `1` conserva el alfa original del color.
+Los anillos de foco y los trazos de íconos (check, chevron) son independientes.
 
 `--current-bg` y `--current-color` son API pública: el primero es "el
 fondo de esto", el segundo el texto legible sobre ese fondo.

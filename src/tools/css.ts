@@ -22,8 +22,13 @@ export function buildCssSections(config: LuzConfig, root: string): CssSections {
   };
 }
 
+/** Wraps generated CSS in the `luz` cascade layer the static files already declare. */
+function layered(css: string): string {
+  return `@layer luz {\n${css}\n}`;
+}
+
 export function composeCss(sections: CssSections): string {
-  return `${sections.reset}\n${sections.theme}\n${sections.bridge}\n${sections.utilities}`;
+  return `${sections.reset}\n${layered(`${sections.theme}\n${sections.bridge}\n${sections.utilities}`)}`;
 }
 
 /** Sections the `@luz <section>;` directive can expand to. */
@@ -161,7 +166,7 @@ export function expandLuzCss(
   const sections = new Set<LuzSection>();
   source = source.replace(DIRECTIVE_RE, (_match, section: LuzSection) => {
     sections.add(section);
-    return provide(section);
+    return layered(provide(section));
   });
 
   return sections.size === 0 ? undefined : { code: source, sections };

@@ -22,6 +22,10 @@
 @import "./components/_disabled.css";
 @import "./components/_depth.css";
 @import "./components/nav.css";
+@import "./components/toolbar.css";
+@import "./components/swatch.css";
+@import "./components/choice.css";
+@import "./components/pane-handle.css";
 @import "./components/section.css";
 @import "./components/tooltip.css";
 @import "./components/badge.css";

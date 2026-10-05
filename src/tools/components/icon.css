@@ -1,5 +1,7 @@
-.icon {
-  display: inline-flex;
-  font-size: 1em;
-  line-height: 1;
+@layer luz {
+  .icon {
+    display: inline-flex;
+    font-size: 1em;
+    line-height: 1;
+  }
 }

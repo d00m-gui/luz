@@ -36,6 +36,13 @@ covers:
   <label class="tab" for="format-underline"><u>U</u></label>
 </div>
 
+## Páginas con estado ARIA
+
+<nav class="tabs segmented" aria-label="Panel del editor">
+  <a class="tab" aria-current="page" href="#capas">Capas</a>
+  <a class="tab" href="#propiedades">Propiedades</a>
+</nav>
+
 ## Con icono y badge
 
 <div class="tabs">

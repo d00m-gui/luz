@@ -26,6 +26,13 @@ covers:
   </label>
 </div>
 
+## Relleno de progreso — <code>.progress</code> pinta el fondo de un botón o una fila hasta <code>--progress</code> (0–1), con <code>--progress-fill</code> al 25 %; la aplicación actualiza <code>--progress</code> desde JS/TS
+
+<div class="demo-meters">
+  <button class="progress" style="--progress: 0.4">Imagen · 40 %</button>
+  <div class="list"><div class="list-row progress" style="--progress: 0.75">Modelo · 75 %</div></div>
+</div>
+
 <style>
   .demo-meters {
     display: flex;

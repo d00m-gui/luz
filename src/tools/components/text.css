@@ -1,8 +1,10 @@
-strong,
-b {
-  font-weight: var(--font-bold-weight, 700);
-}
-em,
-i {
-  font-family: var(--font-emphasis);
+@layer luz {
+  strong,
+  b {
+    font-weight: var(--font-bold-weight, 700);
+  }
+  em,
+  i {
+    font-family: var(--font-emphasis);
+  }
 }

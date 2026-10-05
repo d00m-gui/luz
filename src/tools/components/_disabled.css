@@ -1,15 +1,17 @@
-input,
-optgroup,
-select,
-textarea,
-label,
-button {
-  &[disabled],
-  &[disabled-],
-  &.disabled {
-    user-select: none;
-    pointer-events: none;
-    cursor: not-allowed;
-    opacity: 0.4;
+@layer luz {
+  input,
+  optgroup,
+  select,
+  textarea,
+  label,
+  button {
+    &[disabled],
+    &[disabled-],
+    &.disabled {
+      user-select: none;
+      pointer-events: none;
+      cursor: not-allowed;
+      opacity: 0.4;
+    }
   }
 }
