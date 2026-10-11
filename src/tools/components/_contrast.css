@@ -1,16 +1,19 @@
 @layer luz {
-  * {
-    --current-color: var(
-      --on-scheme,
-      oklch(
-        from var(--current-bg)
-          clamp(
-            0.12,
-            calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000),
-            0.92
-          )
-          calc(c * 0.08) h
-      )
-    );
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    :where(:scope),
+    *:where(:scope, :scope *) {
+      --current-color: var(
+        --on-scheme,
+        oklch(
+          from var(--current-bg)
+            clamp(
+              0.12,
+              calc(0.5 - (l - var(--contrast-threshold, 0.6)) * 1000),
+              0.92
+            )
+            calc(c * 0.08) h
+        )
+      );
+    }
   }
 }

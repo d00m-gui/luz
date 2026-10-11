@@ -1,15 +1,17 @@
 @layer luz {
-  a:focus-visible,
-  button:focus-visible,
-  .btn:focus-visible,
-  .button:focus-visible,
-  [role="button"]:focus-visible,
-  input[type="range"]:focus-visible {
-    outline: var(--size-unit) solid
-      var(
-        --element-active-border-color,
-        oklch(from var(--scheme, var(--scheme-accent)) l c h / 50%)
-      );
-    outline-offset: calc(var(--size-unit) * 2);
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    a:focus-visible:where(:scope, :scope *),
+    button:focus-visible:where(:scope, :scope *),
+    .btn:focus-visible:where(:scope, :scope *),
+    .button:focus-visible:where(:scope, :scope *),
+    [role="button"]:focus-visible:where(:scope, :scope *),
+    input[type="range"]:focus-visible:where(:scope, :scope *) {
+      outline: var(--size-unit) solid
+        var(
+          --element-active-border-color,
+          oklch(from var(--scheme, var(--scheme-accent)) l c h / 50%)
+        );
+      outline-offset: calc(var(--size-unit) * 2);
+    }
   }
 }

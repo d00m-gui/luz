@@ -1,6 +1,7 @@
 import { extname } from "node:path";
 import { isCSSRequest, type Plugin } from "vite";
-import { luz, type LuzConfig, type LuzTokens } from "../luz";
+import { luz, type LuzTokens } from "../luz";
+import type { LuzConfig } from "../config";
 import { expandLuzCss, type LuzSection } from "../tools/css";
 import { DEFAULT_EXTENSIONS, scanSources } from "../tools/scan";
 import { shadcnBridgeCSS } from "../tools/shadcn-bridge";
@@ -71,7 +72,7 @@ export const luzVite = (
         return emitUtilitiesCSS(scanned.candidates, tokens);
       };
 
-      const expanded = expandLuzCss(code, provide);
+      const expanded = expandLuzCss(code, provide, config.exclude);
       if (expanded === undefined) return undefined;
       if (expanded.sections.has("utilities")) {
         utilityModules.add(id);

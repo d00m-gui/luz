@@ -1,53 +1,56 @@
 @layer luz {
-  address,
-  blockquote,
-  dl,
-  ol,
-  p,
-  pre,
-  table,
-  ul {
-    color: currentColor;
-    font-weight: var(--font-weight);
-  }
-  small {
-    font-size: 60%;
-  }
-  abbr {
-    border-bottom: var(--border-width) dotted
-      oklch(
-        from var(--foreground) l c h / calc(alpha * var(--border-opacity, 0.3))
-      );
-  }
-  :where(.prose) {
-    max-width: var(--prose-width, 70ch);
-    & > * + * {
-      margin-block-start: var(--element-vertical);
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    address:where(:scope, :scope *),
+    blockquote:where(:scope, :scope *),
+    dl:where(:scope, :scope *),
+    ol:where(:scope, :scope *),
+    p:where(:scope, :scope *),
+    pre:where(:scope, :scope *),
+    table:where(:scope, :scope *),
+    ul:where(:scope, :scope *) {
+      color: currentColor;
+      font-weight: var(--font-weight);
     }
-    & > * + :is(h2, h3, h4, h5, h6) {
-      margin-block-start: calc(var(--element-vertical) * 2);
+    small:where(:scope, :scope *) {
+      font-size: 60%;
     }
-    & > :is(h2, h3, h4, h5, h6) + * {
-      margin-block-start: calc(var(--element-vertical) / 2);
+    abbr:where(:scope, :scope *) {
+      border-bottom: var(--border-width) dotted
+        oklch(
+          from var(--foreground) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
     }
-    & :is(ul, ol) {
-      padding-inline-start: var(--space-4);
-      & > li {
-        margin-inline-start: 0;
+    :where(.prose):where(:scope, :scope *) {
+      max-width: var(--prose-width, 70ch);
+      & > * + * {
+        margin-block-start: var(--element-vertical);
       }
-      & > li + li {
-        margin-block-start: var(--space-1);
+      & > * + :is(h2, h3, h4, h5, h6) {
+        margin-block-start: calc(var(--element-vertical) * 2);
       }
-    }
-    & dt {
-      font-weight: var(--font-bold-weight);
-    }
-    & dd {
-      margin-inline-start: var(--space-4);
-      color: oklch(from var(--foreground) l c h / 65%);
-    }
-    & dd + dt {
-      margin-block-start: var(--space-2);
+      & > :is(h2, h3, h4, h5, h6) + * {
+        margin-block-start: calc(var(--element-vertical) / 2);
+      }
+      & :is(ul, ol) {
+        padding-inline-start: var(--space-4);
+        & > li {
+          margin-inline-start: 0;
+        }
+        & > li + li {
+          margin-block-start: var(--space-1);
+        }
+      }
+      & dt {
+        font-weight: var(--font-bold-weight);
+      }
+      & dd {
+        margin-inline-start: var(--space-4);
+        color: oklch(from var(--foreground) l c h / 65%);
+      }
+      & dd + dt {
+        margin-block-start: var(--space-2);
+      }
     }
   }
 }

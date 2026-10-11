@@ -1,42 +1,25 @@
 @layer luz {
-  .shell {
-    display: flex;
-    align-items: stretch;
-    height: var(--shell-height, auto);
-    border: var(--border-width) solid
-      oklch(
-        from var(--element-border-color) l c h /
-          calc(alpha * var(--border-opacity, 0.3))
-      );
-    border-radius: var(--border-radius);
-    background-color: var(--element-background);
-    overflow: hidden;
-    > * + * {
-      border-inline-start: var(--border-width) solid
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    .shell:where(:scope, :scope *) {
+      display: flex;
+      align-items: stretch;
+      height: var(--shell-height, auto);
+      border: var(--border-width) solid
         oklch(
           from var(--element-border-color) l c h /
             calc(alpha * var(--border-opacity, 0.3))
         );
-    }
-    &.vertical {
-      flex-direction: column;
+      border-radius: var(--border-radius);
+      background-color: var(--element-background);
+      overflow: hidden;
       > * + * {
-        border-inline-start: none;
-        border-block-start: var(--border-width) solid
+        border-inline-start: var(--border-width) solid
           oklch(
             from var(--element-border-color) l c h /
               calc(alpha * var(--border-opacity, 0.3))
           );
       }
-    }
-    &.app {
-      --shell-height: 100%;
-      border: 0;
-      border-radius: 0;
-      background-color: var(--background);
-    }
-    &.responsive {
-      @media (max-width: 48rem) {
+      &.vertical {
         flex-direction: column;
         > * + * {
           border-inline-start: none;
@@ -46,34 +29,53 @@
                 calc(alpha * var(--border-opacity, 0.3))
             );
         }
-        .shell-pane.fixed {
-          flex-basis: auto;
+      }
+      &.app {
+        --shell-height: 100%;
+        border: 0;
+        border-radius: 0;
+        background-color: var(--background);
+      }
+      &.responsive {
+        @media (max-width: 48rem) {
+          flex-direction: column;
+          > * + * {
+            border-inline-start: none;
+            border-block-start: var(--border-width) solid
+              oklch(
+                from var(--element-border-color) l c h /
+                  calc(alpha * var(--border-opacity, 0.3))
+              );
+          }
+          .shell-pane.fixed {
+            flex-basis: auto;
+          }
         }
       }
     }
-  }
-  .shell-pane {
-    flex: 1 1 auto;
-    min-width: 0;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    overflow: auto;
-    &.fixed {
-      position: static;
-      flex: 0 0 var(--shell-pane-width, var(--element-width));
+    .shell-pane:where(:scope, :scope *) {
+      flex: 1 1 auto;
+      min-width: 0;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: auto;
+      &.fixed {
+        position: static;
+        flex: 0 0 var(--shell-pane-width, var(--element-width));
+      }
+      &.clip {
+        overflow: clip;
+      }
     }
-    &.clip {
-      overflow: clip;
+    .shell-body:where(:scope, :scope *) {
+      flex: 1 1 auto;
+      min-height: 0;
+      padding: var(--space-4);
+      &:has(> .page) {
+        padding: 0;
+      }
+      overflow: auto;
     }
-  }
-  .shell-body {
-    flex: 1 1 auto;
-    min-height: 0;
-    padding: var(--space-4);
-    &:has(> .page) {
-      padding: 0;
-    }
-    overflow: auto;
   }
 }

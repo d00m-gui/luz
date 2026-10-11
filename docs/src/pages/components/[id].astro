@@ -1,6 +1,7 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import CodeBlock from "../../components/CodeBlock.astro";
+import ControlsDemo from "../../controls-demo/ControlsDemo.astro";
 import { loadComponents, withBase } from "../../content/components";
 import {
   COMPONENT_CATEGORY_HUES,
@@ -25,11 +26,8 @@ const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
   breadcrumb={component.title}
   hue={hue}
 >
-  <!-- <h2 style={`color: var(--${hue}-500)`}>
-    {component.title}
-  </h2> -->
   {component.desc && <p set:html={` — ${component.desc}`} />}
-  <div class="docs-sections">
+  <div class="docs-sections" data-controls-demo={component.id === "controls" ? "" : undefined}>
     <article class="component-doc">
       <div class={`component-preview elevate ${component.id}-preview`}>
         <Fragment set:html={withBase(component.preview ?? component.html)} />
@@ -51,4 +49,5 @@ const hue = COMPONENT_CATEGORY_HUES[component.category] ?? DEFAULT_CATEGORY_HUE;
       ))
     }
   </div>
+  {component.id === "controls" && <ControlsDemo />}
 </Layout>

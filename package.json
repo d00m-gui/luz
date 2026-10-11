@@ -1,6 +1,6 @@
 {
   "name": "@d00m-gui/luz",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Luz is a lightweight library designed to simplify theming and styling in modern web applications.",
   "keywords": [
     "astro",
@@ -27,10 +27,16 @@
   },
   "files": [
     "dist",
+    "llms.txt",
+    "skills",
+    "scripts/install-skill.mjs",
     "README.md",
     "LICENSE"
   ],
   "type": "module",
+  "bin": {
+    "luz-install-skill": "./scripts/install-skill.mjs"
+  },
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -65,6 +71,9 @@
     "./bridge.css": "./dist/bridge.css",
     "./utilities.css": "./dist/utilities.css",
     "./components/*": "./dist/components/*",
+    "./llms.txt": "./llms.txt",
+    "./skills/luz/SKILL.md": "./skills/luz/SKILL.md",
+    "./install-skill": "./scripts/install-skill.mjs",
     "./package.json": "./package.json"
   },
   "publishConfig": {

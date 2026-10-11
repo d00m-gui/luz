@@ -1,120 +1,160 @@
 @layer luz {
-  .badge {
-    --badge-color: var(--scheme, var(--badge-bg, var(--scheme-accent)));
-    --badge-ink: color-mix(in oklab, var(--badge-color) 55%, var(--foreground));
-    display: inline-flex;
-    align-items: center;
-    justify-content: safe center;
-    padding: calc(var(--size-unit) * 1) calc(var(--size-unit) * 6);
-    border-radius: calc(var(--size-unit) * 20);
-    font-size: var(--font-size-small);
-    font-weight: var(--font-bold-weight);
-    line-height: var(--line-height);
-    background-color: oklch(from var(--badge-color) l c h / 16%);
-    border: var(--border-width) solid
-      oklch(
-        from var(--badge-color) l c h / calc(alpha * var(--border-opacity, 0.3))
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    .badge:where(:scope, :scope *) {
+      --badge-color: var(--scheme, var(--badge-bg, var(--scheme-accent)));
+      --badge-ink: color-mix(
+        in oklab,
+        var(--badge-color) 55%,
+        var(--foreground)
       );
-    color: var(--badge-ink);
-    transition: var(--transition);
-    gap: var(--space-1);
-    &.solid {
-      --current-bg: var(--badge-color);
-      background-color: var(--current-bg);
-      border-color: transparent;
-      color: var(--on-badge, var(--current-color));
-    }
-    &.outline {
-      background-color: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: safe center;
+      padding: calc(var(--size-unit) * 1) calc(var(--size-unit) * 6);
+      border-radius: calc(var(--size-unit) * 20);
+      font-size: var(--font-size-small);
+      font-weight: var(--font-bold-weight);
+      line-height: var(--line-height);
+      background-color: oklch(from var(--badge-color) l c h / 16%);
       border: var(--border-width) solid
         oklch(
           from var(--badge-color) l c h /
             calc(alpha * var(--border-opacity, 0.3))
         );
-      box-shadow: none;
+      color: var(--badge-ink);
+      transition: var(--transition);
+      gap: var(--space-1);
+      &:not(
+        :where(
+          .primary,
+          .secondary,
+          .tertiary,
+          .quaternary,
+          .neutral,
+          .success,
+          .danger,
+          .warning,
+          .info,
+          .contrast,
+          .solid,
+          .soft,
+          .outline,
+          .ghost,
+          .chip
+        )
+      ) {
+        --badge-color: var(
+          --badge-bg,
+          oklch(from var(--element-background) calc(l + 0.03) c h)
+        );
+        --badge-ink: var(--foreground);
+        background-color: var(--badge-color);
+        border-color: oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
+      }
+      &.solid {
+        --current-bg: var(--badge-color);
+        background-color: var(--current-bg);
+        border-color: transparent;
+        color: var(--on-badge, var(--current-color));
+      }
+      &.outline {
+        background-color: transparent;
+        border: var(--border-width) solid
+          oklch(
+            from var(--badge-color) l c h /
+              calc(alpha * var(--border-opacity, 0.3))
+          );
+        box-shadow: none;
+      }
+      &.ghost {
+        background-color: transparent;
+        border-color: transparent;
+      }
+      &.sm {
+        padding: 0 calc(var(--size-unit) * 4);
+        font-size: var(--font-size-xs);
+      }
+      &.lg {
+        padding: calc(var(--size-unit) * 2) calc(var(--size-unit) * 8);
+        font-size: var(--font-size-base);
+      }
+      &.pill {
+        border-radius: calc(var(--size-unit) * 40);
+        padding-inline: var(--space-4);
+      }
+      &.square {
+        border-radius: var(--border-radius);
+      }
+      a,
+      button,
+      .btn,
+      .button {
+        &:hover {
+          transform: scale(1.03);
+        }
+        &:not(.ghost):hover {
+          background-color: oklch(from var(--badge-color) l c h / 26%);
+        }
+        &:active {
+          transform: scale(0.97);
+        }
+      }
     }
-    &.ghost {
-      background-color: transparent;
-      border-color: transparent;
-    }
-    &.sm {
-      padding: 0 calc(var(--size-unit) * 4);
-      font-size: var(--font-size-xs);
-    }
-    &.lg {
-      padding: calc(var(--size-unit) * 2) calc(var(--size-unit) * 8);
-      font-size: var(--font-size-base);
-    }
-    &.pill {
+    .badge.chip:where(:scope, :scope *) {
       border-radius: calc(var(--size-unit) * 40);
-      padding-inline: var(--space-4);
-    }
-    a,
-    button,
-    .btn,
-    .button {
-      &:hover {
-        transform: scale(1.03);
-      }
-      &:not(.ghost):hover {
-        background-color: oklch(from var(--badge-color) l c h / 26%);
-      }
-      &:active {
-        transform: scale(0.97);
-      }
-    }
-  }
-  .badge.chip {
-    border-radius: calc(var(--size-unit) * 40);
-    padding-inline: var(--space-3);
-    font: inherit;
-    font-size: var(--font-size-small);
-    background-color: var(--element-background);
-    border-color: oklch(
-      from var(--element-border-color) l c h /
-        calc(alpha * var(--border-opacity, 0.3))
-    );
-    color: var(--foreground);
-    cursor: pointer;
-    transition:
-      border-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
-      background-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
-      scale var(--duration-fast, 120ms) var(--ease-out, ease-out);
-    &:hover {
+      padding-inline: var(--space-3);
+      font: inherit;
+      font-size: var(--font-size-small);
+      background-color: var(--element-background);
       border-color: oklch(
-        from var(--border-color) l c h /
+        from var(--element-border-color) l c h /
           calc(alpha * var(--border-opacity, 0.3))
-      );
-    }
-    &:active {
-      scale: 0.97;
-    }
-    &[aria-expanded="true"],
-    &[aria-pressed="true"] {
-      border-color: oklch(
-        from var(--scheme, var(--scheme-accent)) l c h /
-          calc(alpha * var(--border-opacity, 0.3))
-      );
-    }
-    &.undecided {
-      border-style: dashed;
-      background-color: transparent;
-      color: oklch(from var(--foreground) l c h / 65%);
-    }
-    &.next {
-      border-color: oklch(
-        from var(--scheme, var(--scheme-accent)) l c h /
-          calc(alpha * var(--border-opacity, 0.3))
-      );
-      background-color: oklch(
-        from var(--scheme, var(--scheme-accent)) l c h / 18%
       );
       color: var(--foreground);
+      cursor: pointer;
+      transition:
+        border-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
+        background-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
+        scale var(--duration-fast, 120ms) var(--ease-out, ease-out);
+      &:hover {
+        border-color: oklch(
+          from var(--border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
+      }
+      &:active {
+        scale: 0.97;
+      }
+      &[aria-expanded="true"],
+      &[aria-pressed="true"] {
+        border-color: oklch(
+          from var(--scheme, var(--scheme-accent)) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
+      }
+      &.undecided {
+        border-style: dashed;
+        background-color: transparent;
+        color: oklch(from var(--foreground) l c h / 65%);
+      }
+      &.next {
+        border-color: oklch(
+          from var(--scheme, var(--scheme-accent)) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
+        background-color: oklch(
+          from var(--scheme, var(--scheme-accent)) l c h / 18%
+        );
+        color: var(--foreground);
+      }
     }
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .badge.chip {
-      transition-duration: 0.01ms !important;
+    @media (prefers-reduced-motion: reduce) {
+      .badge.chip:where(:scope, :scope *) {
+        transition-duration: 0.01ms !important;
+      }
     }
   }
 }

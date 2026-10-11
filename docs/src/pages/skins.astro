@@ -1,0 +1,145 @@
+---
+import Layout from "../layouts/Layout.astro";
+import { luz } from "../../../src/luz";
+import { industrial, terminal } from "../../skins.config";
+import ControlsDemo from "../controls-demo/ControlsDemo.astro";
+
+const skins = { terminal, industrial };
+const css = Object.entries(skins)
+  .map(([name, skin]) => luz({ ...skin, selector: `[data-skin="${name}"]` }).theme)
+  .join("\n");
+---
+
+<Layout title="Skins" activeId="skins" breadcrumb="Skins">
+  <style is:inline set:html={css} />
+  <div class="docs-sections">
+    {
+      Object.keys(skins).map((name) => (
+        <article
+          class="component-doc"
+          data-skin={name}
+          data-controls-demo
+          style="padding: var(--space-6); background: var(--background); color: var(--foreground); font-family: var(--font)"
+        >
+          <h3 class="component-doc-title">{name}</h3>
+          <div class="mfd" style="inline-size: min(100%, 44rem); block-size: 26rem">
+            <div class="mfd-keys top">
+              <button class="led-button" type="button" aria-pressed="true">
+                <span class="led" />
+                Nav
+              </button>
+              <button class="led-button" type="button">
+                <span class="led" />
+                Scan
+              </button>
+              <button class="led-button" type="button">Comms</button>
+              <button class="led-button" type="button">Power</button>
+            </div>
+            <div class="mfd-keys left">
+              <button class="led-button" type="button">L1</button>
+              <button class="led-button" type="button" aria-pressed="true">L2</button>
+              <button class="led-button" type="button">L3</button>
+            </div>
+            <div
+              class="mfd-screen"
+              style="display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-around; gap: var(--space-4)"
+            >
+              <div class="readout">
+                <span class="readout-caption">Speed</span>
+                <span class="readout-value">
+                  212<span class="readout-unit">m/s</span>
+                </span>
+              </div>
+              <div class="knob">
+                <div class="knob-face">
+                  <div
+                    class="knob-dial"
+                    role="slider"
+                    tabindex="0"
+                    aria-label="Gain"
+                    aria-valuenow="60"
+                    style="--knob-angle: 27deg"
+                  >
+                    <span class="knob-cap" />
+                  </div>
+                </div>
+                <span class="control-label">Gain</span>
+              </div>
+              <div class="fader vertical" style="--fader-value: 0.4; --fader-length: 8rem">
+                <div class="fader-control">
+                  <span class="fader-scale" style="--fader-ticks: 8" />
+                  <div class="fader-track">
+                    <div class="fader-fill" />
+                    <div
+                      class="fader-thumb"
+                      role="slider"
+                      tabindex="0"
+                      aria-label="Throttle"
+                      aria-valuenow="40"
+                    />
+                  </div>
+                </div>
+                <span class="control-label">Throttle</span>
+              </div>
+              <div class="toggle-switch">
+                <button
+                  class="toggle-switch-body"
+                  type="button"
+                  role="switch"
+                  aria-checked="true"
+                >
+                  <span class="led" />
+                  <span class="toggle-switch-legend on">On</span>
+                  <span class="toggle-switch-slot">
+                    <span class="toggle-switch-lever" />
+                  </span>
+                  <span class="toggle-switch-legend off">Off</span>
+                </button>
+                <span class="control-label">Power</span>
+              </div>
+              <div class="toggle-switch rocker">
+                <button
+                  class="toggle-switch-body"
+                  type="button"
+                  role="switch"
+                  aria-checked="true"
+                >
+                  <span class="toggle-switch-legend on">Arm</span>
+                  <span class="toggle-switch-slot">
+                    <span class="toggle-switch-lever" />
+                  </span>
+                  <span class="toggle-switch-legend off">Safe</span>
+                </button>
+                <span class="control-label">Master</span>
+              </div>
+              <div class="selector segmented">
+                <div class="selector-options" role="radiogroup" aria-label="Mode">
+                  <button class="selector-option" type="button" role="radio" aria-checked="true">
+                    <span class="led" />
+                    Cruise
+                  </button>
+                  <button class="selector-option" type="button" role="radio" aria-checked="false">
+                    <span class="led" />
+                    Hover
+                  </button>
+                </div>
+                <span class="control-label">Mode</span>
+              </div>
+            </div>
+            <div class="mfd-keys right">
+              <button class="led-button" type="button">R1</button>
+              <button class="led-button" type="button">R2</button>
+              <button class="led-button" type="button">R3</button>
+            </div>
+            <div class="mfd-keys bottom">
+              <button class="led-button" type="button">Back</button>
+              <button class="led-button" type="button">Home</button>
+              <button class="led-button" type="button">Menu</button>
+            </div>
+          </div>
+        </article>
+      ))
+    }
+  </div>
+  <ControlsDemo />
+</Layout>

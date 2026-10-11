@@ -1,7 +1,9 @@
 @layer luz {
-  .lazy-render {
-    content-visibility: auto;
-    /* px, tamaño estimado del contenido fuera de viewport */
-    contain-intrinsic-size: auto var(--lazy-render-size, 300px);
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    .lazy-render:where(:scope, :scope *) {
+      content-visibility: auto;
+      /* px, tamaño estimado del contenido fuera de viewport */
+      contain-intrinsic-size: auto var(--lazy-render-size, 300px);
+    }
   }
 }

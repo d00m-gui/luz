@@ -1,10 +1,12 @@
 @layer luz {
-  strong,
-  b {
-    font-weight: var(--font-bold-weight, 700);
-  }
-  em,
-  i {
-    font-family: var(--font-emphasis);
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    strong:where(:scope, :scope *),
+    b:where(:scope, :scope *) {
+      font-weight: var(--font-bold-weight, 700);
+    }
+    em:where(:scope, :scope *),
+    i:where(:scope, :scope *) {
+      font-family: var(--font-emphasis);
+    }
   }
 }

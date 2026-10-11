@@ -1,11 +1,15 @@
 // @ts-check
+import { copyFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { defineConfig, fontProviders } from "astro/config";
 import react from "@astrojs/react";
 import { luzAstro } from "../src/astro/index.ts";
 import { config } from "./theme.config.ts";
 
-// https://astro.build/config
+copyFileSync(
+  new URL("../llms.txt", import.meta.url),
+  new URL("./public/llms.txt", import.meta.url),
+);
 export default defineConfig({
   site: "https://d00m-gui.github.io",
   base: "/luz",

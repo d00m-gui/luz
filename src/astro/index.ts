@@ -1,6 +1,6 @@
 import type { AstroIntegration } from "astro";
 import { fileURLToPath } from "node:url";
-import type { LuzConfig } from "../luz";
+import type { LuzConfig } from "../config";
 import { luzVite } from "../vite";
 
 export const luzAstro = (config: LuzConfig): AstroIntegration => ({

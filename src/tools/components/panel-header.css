@@ -1,38 +1,40 @@
 @layer luz {
-  .panel-header {
-    display: flex;
-    align-items: center;
-    gap: var(--space-4);
-    .panel-header-title,
-    .panel-auto {
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    .panel-header:where(:scope, :scope *) {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      .panel-header-title,
+      .panel-auto {
+        flex: 1 1 auto;
+      }
+      .panel-shrink {
+        flex: 0 0 auto;
+      }
+    }
+    .panel-header.top:where(:scope, :scope *),
+    .panel-header.bottom:where(:scope, :scope *) {
+      padding: var(--space-3) var(--space-5);
+      background-color: var(--element-background);
+    }
+    .panel-header.top:where(:scope, :scope *) {
+      border-bottom: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
+    }
+    .panel-header.bottom:where(:scope, :scope *) {
+      border-top: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
+      font-size: var(--font-size-small);
+      color: var(--on-element-placeholder);
+    }
+    .space:where(:scope, :scope *) {
       flex: 1 1 auto;
     }
-    .panel-shrink {
-      flex: 0 0 auto;
-    }
-  }
-  .panel-header.top,
-  .panel-header.bottom {
-    padding: var(--space-3) var(--space-5);
-    background-color: var(--element-background);
-  }
-  .panel-header.top {
-    border-bottom: var(--border-width) solid
-      oklch(
-        from var(--element-border-color) l c h /
-          calc(alpha * var(--border-opacity, 0.3))
-      );
-  }
-  .panel-header.bottom {
-    border-top: var(--border-width) solid
-      oklch(
-        from var(--element-border-color) l c h /
-          calc(alpha * var(--border-opacity, 0.3))
-      );
-    font-size: var(--font-size-small);
-    color: var(--on-element-placeholder);
-  }
-  .space {
-    flex: 1 1 auto;
   }
 }

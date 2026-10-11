@@ -1,17 +1,19 @@
 @layer luz {
-  input,
-  optgroup,
-  select,
-  textarea,
-  label,
-  button {
-    &[disabled],
-    &[disabled-],
-    &.disabled {
-      user-select: none;
-      pointer-events: none;
-      cursor: not-allowed;
-      opacity: 0.4;
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    input:where(:scope, :scope *),
+    optgroup:where(:scope, :scope *),
+    select:where(:scope, :scope *),
+    textarea:where(:scope, :scope *),
+    label:where(:scope, :scope *),
+    button:where(:scope, :scope *) {
+      &[disabled],
+      &[disabled-],
+      &.disabled {
+        user-select: none;
+        pointer-events: none;
+        cursor: not-allowed;
+        opacity: 0.4;
+      }
     }
   }
 }

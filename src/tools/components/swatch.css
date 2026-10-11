@@ -1,46 +1,48 @@
 @layer luz {
-  .swatch {
-    display: inline-flex;
-    width: var(--space-6);
-    height: var(--space-6);
-    padding: 0;
-    border: var(--border-width) solid
-      oklch(
-        from var(--element-border-color) l c h /
-          calc(alpha * var(--border-opacity, 0.3))
-      );
-    border-radius: var(--border-radius);
-    background-color: var(--swatch-color, var(--element-background));
-    cursor: pointer;
-    transition: var(--transition);
-    transition-property: border-color, border-width;
-    &[aria-pressed="true"] {
-      border-width: calc(var(--border-width) * 2);
-      border-color: oklch(
-        from var(--scheme, var(--scheme-accent)) l c h /
-          calc(alpha * var(--border-opacity, 0.3))
-      );
-    }
-    &:is([disabled], .disabled) {
-      opacity: 0.4;
-      pointer-events: none;
-      cursor: not-allowed;
-    }
-  }
-  input[type="color"].swatch {
-    appearance: none;
-    padding: 0;
-    overflow: hidden;
-    &::-webkit-color-swatch-wrapper {
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    .swatch:where(:scope, :scope *) {
+      display: inline-flex;
+      width: var(--space-6);
+      height: var(--space-6);
       padding: 0;
+      border: var(--border-width) solid
+        oklch(
+          from var(--element-border-color) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
+      border-radius: var(--border-radius);
+      background-color: var(--swatch-color, var(--element-background));
+      cursor: pointer;
+      transition: var(--transition);
+      transition-property: border-color, border-width;
+      &[aria-pressed="true"] {
+        border-width: calc(var(--border-width) * 2);
+        border-color: oklch(
+          from var(--scheme, var(--scheme-accent)) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
+      }
+      &:is([disabled], .disabled) {
+        opacity: 0.4;
+        pointer-events: none;
+        cursor: not-allowed;
+      }
     }
-    &::-webkit-color-swatch {
-      border: none;
-      border-radius: inherit;
-    }
-    &::-moz-color-swatch {
-      border: none;
-      border-radius: inherit;
+    input[type="color"].swatch:where(:scope, :scope *) {
+      appearance: none;
+      padding: 0;
+      overflow: hidden;
+      &::-webkit-color-swatch-wrapper {
+        padding: 0;
+      }
+      &::-webkit-color-swatch {
+        border: none;
+        border-radius: inherit;
+      }
+      &::-moz-color-swatch {
+        border: none;
+        border-radius: inherit;
+      }
     }
   }
 }

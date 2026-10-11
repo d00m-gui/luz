@@ -1,0 +1,563 @@
+# luz
+
+> `@d00m-gui/luz` — a CSS-in-TypeScript theming library. A `LuzConfig`
+> generates OKLCH palettes, semantic tokens, a classless HTML reset,
+> utility classes, and visual component classes. It ships a Vite plugin
+> and an Astro integration; it does not own application behavior.
+
+This file is a reference for LLMs/agents configuring `luz` for a project:
+`LuzConfig` fields, the custom properties `luz()` emits, the component/
+utility class vocabulary, and design-system best practices for combining
+them. It does not replace the docs site (human-oriented, with live demos);
+treat this as the machine-readable index.
+
+La referencia canónica es este `llms.txt` en la raíz del paquete instalado.
+El sitio copia ese archivo a `docs/public/llms.txt` al iniciar Astro;
+no mantener una segunda referencia. La skill opcional
+`skills/luz/SKILL.md` lee el archivo de la versión instalada.
+
+## Install & basic usage
+
+```bash
+bun add @d00m-gui/luz   # or npm/pnpm
+```
+
+```ts
+// Astro: astro.config.mjs
+import { luzAstro } from "@d00m-gui/luz/astro";
+export default defineConfig({ integrations: [luzAstro({ primary: "#f28c20" })] });
+```
+
+```ts
+// Any Vite-based framework (TanStack Start, React Router, SvelteKit, …): vite.config.ts
+import { luzVite } from "@d00m-gui/luz/vite";
+export default defineConfig({ plugins: [luzVite({ primary: "#f28c20" })] });
+```
+
+```css
+/* your CSS entry (the one your app already loads) */
+@import "@d00m-gui/luz/luz.css";
+```
+
+Same model as Tailwind v4: nothing is written to disk. The plugin
+expands the generated CSS inside the file that imports it —
+`luz.css` is the whole package (reset + component classes + this config's
+theme + shadcn bridge + the utilities scanned from your source). `luzAstro`
+is `luzVite` wired into Astro's Vite with `srcDir` as the scan root;
+`luzVite` accepts `{ root }` as a second argument to scan a different
+directory than Vite's `root`. `primary` is optional (default `#007dea`).
+
+To compose your own bundle, import the pieces instead of `luz.css`, in
+this order:
+
+```css
+@import "@d00m-gui/luz/reset.css";             /* classless HTML reset, static */
+@import "@d00m-gui/luz/components/button.css"; /* one file per component, static */
+@import "@d00m-gui/luz/components/card.css";
+@import "@d00m-gui/luz/theme.css";             /* this config's tokens, generated */
+@import "@d00m-gui/luz/bridge.css";            /* shadcn/ui token bridge, generated — only if you use shadcn */
+@import "@d00m-gui/luz/utilities.css";         /* utilities scanned from your source, generated */
+```
+
+`@d00m-gui/luz/components.css` incluye todos los componentes por defecto,
+incluidos `controls` y `_print`. La integración filtra sus imports y los
+de `luz.css` según `exclude`; un import directo de
+`components/<name>.css`, `bridge.css` o `utilities.css` siempre se respeta,
+aunque esa parte figure en `exclude`.
+
+```ts
+luzVite({ exclude: ["controls", "_print", "bridge", "utilities"] });
+```
+
+`exclude?: readonly (nombreDeComponenteNoCompartido | "_print" | "bridge" | "utilities")[]`.
+Los nombres son los de los archivos, sin `.css`: `theme`, `selection`,
+`typography`, `prose`, `text`, `list`, `hr`, `anchor`, `kbd`, `table`,
+`code`, `form`, `field`, `file-input`, `range`, `progress`,
+`checkbox-radio`, `blockquote`, `button`, `nav`, `toolbar`, `swatch`,
+`choice`, `pane-handle`, `section`, `tooltip`, `badge`, `alert`, `card`,
+`avatar`, `tabs`, `dialog`, `drawer`, `breadcrumbs`, `skeleton`,
+`spinner`, `panel-header`, `wizard`, `overlay`, `radial`, `stat`,
+`empty`, `status`, `icon`, `fluid`, `grid`, `join`, `shell`, `page`,
+`hero`, `fx`, `element`, `controls`. Los archivos compartidos con prefijo
+`_` no se excluyen, salvo `_print`. El default es `[]`: no se excluye
+nada. Reset y tokens del tema no son exclusiones válidas; el componente
+`"theme"` designa solo `components/theme.css`, no el tema generado.
+
+All of luz's CSS lives in the `luz` cascade layer (`@layer luz { … }`):
+any unlayered CSS of yours wins over it regardless of order or
+specificity, with no setup. `layer(name)` on any of these `@import`s
+nests it as `name.luz`. Inside a layer, luz's `!important` rules (the
+`prefers-reduced-motion` and print ones) beat your unlayered
+`!important`. The generated
+entries (`theme.css`, `bridge.css`, `utilities.css`) are one-line files
+holding a `@luz theme;` / `@luz bridge;` / `@luz utilities;` directive —
+you can write those directives straight into your CSS as the equivalent
+low-level API. Without the plugin they are unknown at-rules and do nothing.
+
+Bundlers without Vite (Next.js, …) are not supported yet — a CLI that
+emits the same CSS to a file is planned.
+
+Without the plugin (server-side, any runtime — `luz()` is pure, no
+`node:fs`):
+
+```ts
+import { luz, emitUtilitiesCSS } from "@d00m-gui/luz";
+const { theme, tokens } = luz({ primary: "#f28c20", selector: ".brand" });
+// theme — this config's `@property`s + `.brand { color-scheme; --tokens… }`
+// Import reset.css and components.css separately when composing outside Vite.
+const utilities = emitUtilitiesCSS(new Set(["p-4", "bg-primary-600"]), tokens);
+```
+
+`@d00m-gui/luz/color` exports the numeric OKLCH engine luz bakes shades
+with (`parseColorToOklch`, `resolveBakedShade`, `luzPaletteSeeds`,
+`clampToSrgb`, `formatOklch`, `luzHarmonyColorSeeds`, `WEIGHTS`, …), so a
+client-side preview can match the emitted CSS exactly. Conversion and
+measurement live there too: `srgbToOklch([r, g, b])` (channels 0–255) →
+`{ l, c, h }`, `oklchToSrgb({ l, c, h })` → an sRGB-gamut-mapped
+`[r, g, b]` tuple, `contrastRatio(a, b)` → the WCAG 2.1 ratio between two
+seeds (21 for black on white).
+
+## The four layers
+
+1. **Classless** — plain semantic HTML (`h1`, `button`, `table`, `dialog`,
+   `input`, …), no classes needed, styled by luz's reset.
+2. **Utility classes** — a closed, Tailwind-nomenclature-compatible set
+   (`p-4`, `bg-primary-600`, `text-lg`, `open:bg-primary-600`, `md:hidden`), scanned
+   from your source and emitted as static CSS at build time. No arbitrary
+   values, nothing shipped unused.
+3. **Component classes** — `.badge`, `.alert`, `.card`, `.btn`, `.tabs`,
+   `.menu`, … — CSS for appearance and state, **not behavior**. The native
+   HTML controls in this repository's docs are standalone demos, not a
+   constraint on consumers.
+4. **Interacción y accesibilidad en la app consumidora** — implementar
+   estado, teclado, foco, semántica y gestos en JS/TS o HTML nativo.
+   Recomendamos Base UI para primitivas accesibles sin estilos; no es
+   obligatorio, Radix u otra solución también sirven. Aplicar las clases
+   de luz a sus elementos y reflejar los estados ARIA/data. Una clase
+   CSS no aporta apertura, selección, arrastre ni accesibilidad. El
+   bridge opcional shadcn/UI adapta tokens, no comportamiento.
+
+## `LuzConfig` reference
+
+Every field is optional; defaults below come from `LUZ_DEFAULT_CONFIG`.
+
+### Color
+
+| Field | Default | What it does |
+|---|---|---|
+| `primary` | `"#007dea"` | Base color for the primary palette, any CSS color. |
+| `secondary` | derived via `harmony` | Base color for the secondary palette. |
+| `tertiary` | derived via `harmony`, else `neutral` | Third palette; `"complementary"` harmony has no third color, so it falls back to neutral. |
+| `quaternary` | derived via `harmony`, else an "ink" shade in primary's hue | Fourth palette; only `"analogous"` defines one. |
+| `harmony` | `"complementary"` | `"complementary"` (180° rotation), `"analogous"` (30°/60°/90°), `"triad"` (120°/240°), `"monochrome"` (same hue, lower chroma). Picks how secondary/tertiary/quaternary derive from `primary` when not set explicitly. |
+| `mode` | `"dark"` | `"light"` / `"dark"` (fixed palette) or `"auto"` (both emitted via `light-dark()`, resolved by `prefers-color-scheme`). |
+| `neutral` | derived from `primary` | Explicit neutral palette seed. If set, `neutralTint` is ignored; `background`/`foreground` still override their separate tokens. |
+| `neutralTint` | `0` | Fraction (0–1) of `primary`'s chroma carried into the neutral palette **when `neutral` is unset**. |
+| `surfaceTint` | `0.4` | Fraction (0–1) of secondary/tertiary/quaternary's own chroma carried into their `surface-*` (muted background for `.surface-*`) — independent of `neutralTint`. |
+| `schemeLightness` | unset | Target OKLCH `l` (0–1) for `scheme-primary/secondary/tertiary/quaternary/neutral` — the shade `.btn`/`.badge`/`.alert` use. Instead of a fixed weight, picks whichever generated shade's real lightness is closest, harmonic across hues. Requires a parseable seed. |
+| `schemeShade` | `{ neutral: 800 }` (else `500`) | Forces the exact weight for `scheme-*`, overriding `schemeLightness`. Number = all palettes, object = per-palette. |
+| `schemeChroma` | `1` | Chroma multiplier on top of the `scheme-*` shade — tones down a loud saturated `-500` for `.btn`/`.badge`/`.alert`. |
+| `accent` | `"primary"` | `"primary"` or `"secondary"`: sets live `--scheme-accent` to the corresponding `--scheme-*` for state accents. Override `--scheme-accent` per subtree. |
+| `borderOpacity` | `0.3` | Global component-border alpha multiplier, exposed as live `--border-opacity`, overridable per subtree. Covers neutral, scheme, validation and selected borders, including `.alert`, `.soft` and `.outline` inset strokes. `0` hides borders without changing widths; `1` preserves the original color alpha. Focus rings and icon strokes are independent. |
+
+### Typography
+
+| Field | Default | What it does |
+|---|---|---|
+| `font` | `"sans-serif"` | Body font stack. |
+| `font-headings` | `"sans-serif"` | Font stack for `h1`–`h6`. Separate field, no cascade from `font`. |
+| `font-monospace` | `"monospace"` | Font stack for `code`/`pre`/`kbd`. |
+| `font-emphasis` | `"cursive"` | Font stack for `em`/`i`. |
+| `font-weight` | `400` | Base body `font-weight`. |
+| `font-bold-weight` | `800` | `font-weight` for `strong`/`b`. |
+| `line-height` | `"130%"` | Default body `line-height`. |
+| `heading-letter-spacing` | `"-0.02em"` | `letter-spacing` on `h1`–`h6`. |
+| `base` | `16` | Root font size (px) — drives every size/spacing token. |
+| `power` | `"perfect-fourth"` (1.333) | Ratio for the exponential `text-*`/heading scale, or a raw number. Steps above `base` (`lg`…`3xl`, `h6`…`h1`) multiply by the full ratio; steps below (`sm`, `xs`) by its square root, so small text stays legible with steep ratios (`perfect-fourth`: `sm` ≈ 0.866rem, `xs` = 0.75rem). Named ratios: `minor-second` 1.067, `major-second` 1.125, `minor-third` 1.2, `major-third` 1.25, `perfect-fourth` 1.333, `augmented-fourth` 1.414, `perfect-fifth` 1.5, `golden` 1.618. |
+| `sizeRelativeToBase` | `false` | Scale `size-unit`/type scale by `base / 16` instead of assuming 16px. |
+
+### Scales & layout
+
+| Field | Default | What it does |
+|---|---|---|
+| `sizeFluidRange` | `"fixed"` (via `preset`) | How far past viewport-min the fluid `clamp()` zone reaches, in scale rungs. Named: `fixed` 0 (no reflow, dense app UI), `tight` 0.35, `balanced` 1, `dramatic` 1.6 (marketing hero text). Or a raw number. |
+| `preset` | unset | Shortcut for `sizeFluidRange`: `"app"` → `fixed`, `"content"` → `balanced`, `"landing"` → 2.4 (steeper than `dramatic`). Explicit `sizeFluidRange` overrides. |
+| `spaceSteps` | `24` | Total `space-N` tokens. Linear and fixed (`N * base/64`), unlike the exponential type scale — the scale `p-`/`m-`/`gap-`/`w-`/`h-` utilities resolve against. |
+| `radius` | `1` | Multiplier on the base radius unit (`base / 78` rem), or a literal CSS length used verbatim (`"8px"`, `"0"`). Drives `--border-radius` and the whole `--border-radius-N` scale. |
+| `radiusSteps` | `8` | Total `border-radius-N` tokens (`N *` the radius unit). Linear, same shape as `space-N` — the scale `rounded-N` resolves against. |
+| `spacing` | derived from `base` | `--spacing` override (page-level gutter). |
+| `background` / `foreground` | `neutral` 900/100 or 100/900 by `mode` | Overrides for the base background/foreground tokens. |
+| `transition` | `"all ease 200ms"` | Default `transition` shorthand via setup rules. |
+| `box-shadow` | `"none"` | Default `box-shadow` token. |
+| `density` | `1` | Multiplier on element padding (`--element-vertical`/`--element-horizontal`/`--element-gap`), the `--spacing` gutter and form-control chrome (range track/thumb, card radius). Does **not** scale `font-size-*`. Emitted as a live `--density` `calc()` factor — overridable per subtree/instance. `<1` denser, `>1` looser. |
+| `depth` | `0` | Offset added to the nesting level `.card`/`.popover`/etc. elevation curve counts (1–4, capped). |
+| `depthMax` | `0.125` | Max lightness offset from `background` the elevation curve approaches asymptotically. |
+| `depthDecay` | `0.6` | Per-level falloff (0–1) of the elevation curve — smaller = more contrast between the first few levels. |
+| `depthSign` | auto by `mode` | Forces elevation direction/magnitude. A `.elements-depth-light`/`.elements-depth-dark` class on a subtree still overrides this. |
+| `contrastThreshold` | `0.6` | Lightness above which auto-contrast text (wheel `on-*`, `contrast-color()` fallback) flips from white-ish to black-ish. Live, overridable per subtree. |
+| `stateHoverDelta` | `0.08` | Fraction (0–1) of `--foreground` mixed into `--current-bg` on `:hover` — darkens in light mode, lightens in dark, tints transparent `ghost`/`outline`. Emitted as `--state-hover-delta`, live, overridable per subtree. |
+| `statePressedDelta` | `0.06` | Extra fraction of `--foreground` mixed on `:active`, added to `stateHoverDelta`. Emitted as `--state-pressed-delta`, live. |
+| `statePressedShift` | `"0.1ch"` | `translateY` applied on `:active`. Emitted as `--state-pressed-shift`, live. Raise all three for a tactile brand, flatten them (`"0"`) for a flat one. |
+
+### Escape hatches
+
+| Field | Default | What it does |
+|---|---|---|
+| `vars` | unset | Raw custom properties, merged **last** — overrides an existing token by name, or adds a new one. The one field guaranteed to win over every internal calculation. |
+| `properties` | `false` | Generate `@property` declarations for every token — required for the browser to animate/transition a custom property (angle, gradient stop, …) instead of snapping. |
+| `selector` | `":root"` | Selector del bloque de tokens del tema y del bridge. Un selector de contenedor limita dónde se declaran esos tokens; añadir `.theme` al contenedor aplica fuente, fondo y color de base. No cambia el scope estático, cuya raíz es siempre `:root:not([data-luz-off])`. |
+| `exclude` | `[]` | Array readonly de nombres de componente no compartido, `"_print"`, `"bridge"` o `"utilities"`. Filtra la composición por defecto de `luz.css` y `components.css`. Controls está incluido salvo `exclude: ["controls"]`; imports directos no se filtran. |
+
+`luz().tokens.palettes` — `{ light?, dark? }` → `Record<paletteName,
+Record<weight, { l, c, h }>>` — carries the numeric OKLCH of every baked
+shade (palettes whose seed parsed: primary/secondary/tertiary/quaternary/
+neutral/surface-*/12 wheel hues), for swatches, diffs, or hex export.
+`mode: "auto"` gives both schemes; `"light"`/`"dark"` only the active one.
+
+### Scope estático y `data-luz-off`
+
+```html
+<section>
+  <button>Con luz</button>
+  <div data-luz-off><button>Sin reglas de luz</button></div>
+</section>
+```
+
+El scope estático incluye su raíz `:root:not([data-luz-off])` y excluye
+cada `[data-luz-off]` junto con sus descendientes (donut scope). Una
+`.theme` anidada no reactiva estilos dentro de un subárbol excluido.
+Este scope está incorporado en los archivos CSS reales del reset y los
+componentes: también aplica a imports directos y sin plugin. Las
+utilities emitidas por las entradas CSS de la integración usan el mismo
+scope. `selector` solo controla dónde se declaran los tokens del tema y
+del bridge, no limita las reglas estáticas a un contenedor.
+
+No elimina herencia: fuentes, colores y custom properties pueden seguir
+llegando desde el padre; el tema y el bridge siguen emitiendo tokens,
+y las declaraciones `@property` son globales. Si necesitás cambiar
+valores heredados dentro del wrapper, declaralos en tu propio CSS.
+
+Printing: `components/_print.css` ships a generic `@media print` layer —
+forces `color-scheme: light` (so `mode: "auto"` prints dark-on-white),
+hides overlays (`.drawer`, `.menu`, `.popover`, `.notice`, tooltips),
+opens `<details>`, keeps fills on `.badge`/`.alert`/`.card`/`.btn`/`kbd`
+(`print-color-adjust: exact`), drops `backdrop-filter`. A fixed
+`mode: "dark"` bakes literal dark colors and cannot be flipped for print.
+
+## Generated custom properties
+
+Naming follows `--{name}-{step}` for color palettes and a fixed
+vocabulary for semantic tokens:
+
+- **Color scales**: `--primary-50`…`--primary-950` (11 fixed shades),
+  same shape for `secondary`/`tertiary`/`quaternary` and `neutral`.
+  Each accent palette also gets an `on-{name}` auto-contrast text color
+  for its seed. Plus a 12-hue wheel, fixed names: `red`, `copper`,
+  `orange`, `yellow`, `green`,
+  `emerald`, `teal`, `cyan`, `blue`, `sky`, `violet`, `pink` — each with
+  its own `-50`…`-950` scale and an `on-{hue}` auto-contrast text color.
+- **Scheme tokens** — `--scheme-primary`/`-secondary`/`-tertiary`/
+  `-quaternary`/`-neutral` (and `-danger`/`-success`/`-warning`/`-info`):
+  the shade component classes actually paint with, picked by
+  `schemeShade`/`schemeLightness`, chroma-scaled by `schemeChroma`.
+- **Surface tokens** — `--surface-{accent}`: a muted background per
+  non-primary palette, tinted by `surfaceTint`, feeding `.surface-*`
+  utility classes.
+- **Anchor tokens** — `--anchor-{secondary,tertiary,quaternary,danger,
+  success,warning,info,contrast}`: fixed-weight (500), chroma scaled by
+  a fixed `0.6` (independent of `schemeChroma`) — used where a color
+  needs to read as a link/accent rather than a scheme fill.
+- **Auto-contrast** — `on-{color}` pattern (`on-scheme`, `on-btn`,
+  `on-{wheel-hue}`, …): near-black or near-white text for a background,
+  computed live from `--contrast-threshold`. `--on-selection` and
+  `--on-badge` can be set with `vars`; without them, their CSS consumers
+  derive local contrast from the active selection/badge color.
+- **Surface & state** (public API — meant to be rewritten in a scope):
+  `--current-bg` is "the background of this thing", and `_contrast.css`
+  derives `--current-color` from it for every element, so setting
+  `--current-bg` in a scope re-themes a surface without declaring any
+  text color; `--on-scheme` wins over that derivation when the text color
+  must be fixed. `--scheme` is the tint a component turns into its own
+  `--current-bg` (solid on `.card`/`button`/`.stat`, 26% opacity on
+  `.badge`, 12% mixed with `--background` on `.alert`) — set it on a
+  container to tint everything inside. `--element-background` is the
+  per-nesting-level surface color `_depth.css` computes (`:root` =
+  `--background`), the token for a custom ornament that must match the
+  surface holding it. `--scheme-accent` points to `--scheme-primary` or
+  `--scheme-secondary`; focus outlines, selection, active tabs and default
+  badges read it at the element, so a subtree override works. Optional
+  `--element-active-border-color`, `--selection-bg`, `--tab-border-active`,
+  `--badge-bg`, `--on-selection` and `--on-badge` override those local CSS
+  fallbacks. `--state-hover-delta`/`--state-pressed-delta`/
+  `--state-pressed-shift` are the `:hover`/`:active` deltas components
+  apply on top of `--current-bg`.
+- **Structural**: `--background`, `--foreground`, `--spacing`,
+  `--density`, `--depth` (per-subtree elevation, see `depth*` fields),
+  `--contrast-threshold`, `--scheme-accent`, `--border-opacity`,
+  `--transition`, `--box-shadow`.
+- **Type/space scale**: `--font-size-xs`…`--font-size-3xl` (exponential,
+  `power`; √ratio below `base`) and `--font-size-small`…`--font-size-h1`
+  (landmarks), each with a `-fluid` twin consumed by `.fluid`;
+  `--space-1`…`--space-{spaceSteps}` (linear, `base/64` per step);
+  `--border-radius-1`…`--border-radius-{radiusSteps}` (linear, `base/78`
+  per step, `--border-radius` = `--border-radius-1`); `--size-unit`. None
+  of them depend on `--density`.
+
+`vars` can override or extend any of the above by exact name.
+
+## Utility classes
+
+Closed-vocabulary, Tailwind-nomenclature-compatible, scanned from your
+source (`.astro`/`.html`/`.tsx`/`.jsx`/`.ts` by default) and emitted as
+static CSS — no arbitrary values, no bracket syntax. Shape:
+`{property}-{value}`, optionally prefixed by one or two variants.
+
+- **Scale utilities** resolve against `space-N`: `p-`/`px-`/`py-`/`pt-`/
+  `pr-`/`pb-`/`pl-`, `m-`/`mx-`/`my-`/`mt-`/`mr-`/`mb-`/`ml-`, `gap-`/
+  `gap-x-`/`gap-y-`, `w-`/`h-`/`size-` (width + height), `min-h-`/`max-h-`,
+  `top-`/`right-`/`bottom-`/`left-`/`inset-`; `rounded-N` resolves against
+  `border-radius-N` (`radiusSteps`). Typography (`text-xs`…
+  `text-3xl`) resolves against the exponential type scale; color
+  utilities (`bg-`, `text-`, `border-`) against `{name}-{step}` palettes
+  and semantic tokens, with an optional opacity suffix (`bg-primary/20`).
+- **Layout literals**: `flex`/`inline-flex`/`grid`/`block`/`hidden`/
+  `contents`, `relative`/`absolute`/`fixed`/`sticky`, `flex-row`/`flex-col`/
+  `flex-wrap`, `items-*`/`justify-*`, `grow`/`shrink-0`/`flex-1`,
+  `w-full`/`w-fit`/`w-auto`/`w-screen`, `h-full`/`h-fit`/`h-auto`/`h-screen`,
+  `min-w-0`/`max-w-full`/`min-h-screen`/`max-h-full`, `inset-0`, `p-0`/`m-0`/`gap-0`, `col-span-full`,
+  `aspect-square`/`aspect-video`, `rounded`/`rounded-none`/`rounded-full`,
+  `overflow-*`, `truncate` (`overflow: hidden` + ellipsis + `nowrap` +
+  `min-width: 0`, one class), `whitespace-nowrap`, `select-none`,
+  `pointer-events-*`, `z-0`/`z-10`/`z-20`/`z-50`, `font-*`, `underline`,
+  `sr-only`.
+- **State variants**: `hover:`, `focus:` (pseudo-classes), `open:`/
+  `closed:`/`checked:`/`disabled:`/`expanded:`/`selected:`/… (Base UI/
+  Radix `data-*` states), and the arbitrary `data-[state=on]:`/
+  `aria-[expanded=true]:` syntax, parsed generically — component source
+  copied from Radix-/Base UI-based kits matches without luz needing to
+  know the library.
+- **Breakpoint variants**: `sm:`/`md:`/`lg:`/`xl:`/`2xl:` wrap the rule in
+  `@media (min-width: 40|48|64|80|96rem)`; `max-sm:`…`max-2xl:` in
+  `@media (max-width: calc(Nrem - 0.02rem))`. Media rules are emitted
+  after the plain ones, ascending, `min-*` before `max-*`, so `hidden
+  md:flex` and `flex max-md:hidden` resolve without specificity fights.
+  One state variant may follow, only in `breakpoint:state:util` order
+  (`md:hover:flex`, `max-lg:open:hidden`); `hover:md:flex` emits nothing.
+  Values are the fixed `DEFAULT_BREAKPOINTS`; `LuzConfig` does not
+  customize them.
+
+## Component classes (curated set)
+
+Pure CSS for appearance; behavior belongs to the consuming app. One
+canonical class per component; see `covers` below for every class name
+that component family also styles.
+
+
+El botón default usa `--btn-bg`: `oklch(from var(--element-background) calc(l + 0.03) c h)`,
+el mismo fondo base que Controls. Las variantes de esquema mantienen sus colores;
+`vars: { "btn-bg": "..." }` permite overridearlo.
+
+| Component | Category | Classes |
+|---|---|---|
+| Alert | Overlays | `.alert` — a direct-child `button` drops the alert's `--scheme` (default button look) |
+| Avatar | Identity | `.avatar` (`.sm`/`.lg`), `.avatar-group` (overlapping, outlined), `.avatar.more` (overflow count) |
+| Badge | Data | `.badge` — default neutro: fondo de superficie como el botón (`--badge-bg` lo overridea), texto `--foreground` y borde discreto. Las variantes de esquema mantienen fondo suave al 16% y texto teñido. `.solid` (relleno, auto-contraste, override `--on-badge`), `.outline`, `.ghost`, `.chip`; tamaños `.sm`/`.lg`; `.pill` redondeado, `.square` usa `--border-radius` sin cambiar padding ni colores. Texto largo: envolver en `<span class="truncate">`. |
+| Blockquote | Primitives | `blockquote` — knob `--blockquote-font-size` (default `--font-size-h5`) |
+| Breadcrumbs | Navigation | `.breadcrumbs` |
+| Button | Primitives | `.btn`, `.button`, `.icon`, `.cta`; flat (no shadows); `.soft`/`.outline`/`.ghost` combine with any scheme class; sizes `.sm`/`.lg`; `data-role="secondary\|tertiary\|apply\|cancel\|contrast"` equals `role=` |
+| Card | Surfaces | `.card` (does **not** clip: a decoration may straddle its border; a direct-child `table` opts the card into `overflow: hidden`), `.card-content` (direction under `:where()`, utilities override it), `.card-meta`, `.card-footer`, `.card-toolbar`, `.card-cover` (knob `--ratio`, default `3 / 1`), `.space`, `.card.center` — flush media (`figure`/`img`/`video`/`.card-cover`/`.card-meta` as first or last child) inherits the card radius. `.card.node` is the look of a node-editor card: its direct-child `.card-meta` becomes a title bar tinted 22% by the scheme set **on the bar itself** (`class="card-meta primary"` or `style="--scheme: var(--teal-500)"`, so the card body keeps its own `--current-bg`), with an accent `border-top`, `cursor: grab`, and `[data-dragging]` on the card for the lifted look; `.card-resize` is the bottom-trailing resize grip. Dragging and resizing themselves stay with the consumer (React Flow's `dragHandle`/`NodeResizer`) — luz only ships the look |
+| Code | Primitives | `code`, `pre`, `samp` — surface tokens `--code-bg`/`--on-code`; `kbd + kbd` spacing |
+| Controls | Primitives | Incluido por defecto; `exclude: ["controls"]` lo omite del bundle, el import directo `components/controls.css` no se filtra. `.led`, `.readout`, `.knob`, `.fader`, `.toggle-switch`, `.selector`, `.led-button`, `.control-label`, `.mfd` con `.mfd-screen` y `.mfd-keys`. Estado por ARIA/data, posición por `--knob-angle` (-135deg…135deg) y `--fader-value` (0–1); interacción y accesibilidad a cargo de la app. |
+| Collapsable | Surfaces | `.list` |
+| Divider | Primitives | `hr` |
+| Drawer | Overlays | `.drawer` (`popover`, `data-placement="left\|right\|bottom\|fullscreen"`) — non-modal by default: no backdrop, the rest of the page stays visible and clickable; `.drawer.modal` adds the `--modal-backdrop` veil, `.drawer-trigger`, `.drawer-icon`, `.radial-trigger` (`.fixed` = FAB at the bottom-right corner), `.radial-menu` (`.fixed`), `.radial-item` |
+| Editable card | Primitives | `.card` |
+| Element | Surfaces | `.element` (`.row`/`.column`/`.pair`/`.auto`/`.fixed`), `.element.wire` (dashed mockup placeholders) |
+| Empty state | Feedback | `.empty`, `.empty-title` |
+| Field | Primitives | `.field` (label > control > hint), `.field.row` (checkbox/switch), `.field:has(.field-affix)` (inline prefix/suffix inside the bordered control), `.field.short` (knob `--field-width`, default `--space-16`), `.field-hint`; `aria-invalid="true"` colors the hint, a disabled control dims the field (a placeholder `<option disabled>` does not) |
+| File input | Primitives | native `input[type=file]` |
+| Form | Primitives | `.form`, `fieldset`, `label`, `checkbox`, `radio`, `switch`, `.form-actions` (`.sticky`) |
+| Blend Modes | Surfaces | `.background-blur`, `.background-conic-rainbow` (`.sharp`, knob `--fx-blur`) |
+| Glass | Surfaces | `.glass` |
+| Grid | Surfaces | `.grid` (`--grid-col-size-min` 25rem), `.grid.xs`/`.sm`/`.md`/`.lg` (9/12/18/32rem), `.grid.overflow` |
+| Headings | Primitives | `h1`–`h6` |
+| Hero | Surfaces | `.hero` (knob `--hero-min-height`), `.hero.compact`, `.hero-background` (absolute slot for `.background-*`/`img`/`video`), `.hero-overlay`, `.hero-content`, `.hero-heading`, `.hero-paragraph` |
+| Hidden utility | Primitives | `.hidden` |
+| Join | Primitives | `.join` |
+| Kbd | Primitives | `kbd` |
+| Layouts | Layout | `.shell` (knob `--shell-height`), `.shell.app` (full-height app root, no border), `.shell.responsive` (stacks under 48rem), `.shell.vertical`, `.shell-pane` (`.fixed`, knob `--shell-pane-width`; `.clip` = `overflow: clip` for canvas panes with floating layers), `.shell-body` |
+| `light-dark()` | Feedback | (color-scheme helper, no class) |
+| Link | Primitives | `a` |
+| List | Layout | `.list`, `.list-row` (`a`/`button`/`details`/`li > .list-row`), `.list-col-grow`, `.list-col-wrap`, `.list-title`, `.horizontal`, `.responsive`, `.list.nav` (app sidebar rows), `.list.dense` (rows for tight panels), `.list.drilldown` (opt-in fullscreen `details` on mobile), `.list.filetree` — row metrics come from `--list-row-gap`/`--list-row-padding-block`/`--list-row-padding-inline` (defaults `--space-3`/`--space-3`/`--space-4`, `--density` applied), settable on any ancestor; `.list-title` and `details > summary` follow the same three |
+| Loading | Feedback | `.loading` |
+| Menu | Overlays | `.menu` (requires `popover`, invisible without it; button-anchored via `popoverTarget`; Concepto observed an anchored close jump in Chromium 152), `.menu.at-point` (`popover="manual"`; JS/TS sets viewport `--menu-x`/`--menu-y` and calls `showPopover()`; also useful for button menus where the anchor moves during close), `.menu-item` (`button`/`a` rows, `.danger`, `kbd` pushed right), `.menu-label` (section title), `.menu-separator` or a bare `hr` inside `.menu` (hairline); `--menu-transform-origin` sets transform origin |
+| Modal | Overlays | `.modal`, `dialog` |
+| Nav | Navigation | `nav` — `a`/`button` with `aria-current` gets the active tab color + underline (not `.tab`, `.list-row`, `.breadcrumbs`) |
+| Lists (native) | Data | `ol` (decimal), `ul` (square), `dl` |
+| Tabs Bottom | Navigation | `.bottom`, `.nav` |
+| Notice | Overlays | `.notice` (fades after `--notice-duration`, default `10s`, paused on hover/focus-within; `.sticky` never fades; the CSS only hides it — call `hidePopover()` on `animationend` of `notice-dismiss`) |
+| Page | Layout | `.page` (knob `--page-width` 88rem), `.page-header`, `.page-header-title`, `.page-body`, `.page-body.with-aside` (knob `--page-aside-width` 18rem), `.page-aside`, `.stack` (knob `--stack-gap`) |
+| Pagination | Navigation | `.pagination` |
+| Panel header | Layout | `.panel-header.top` (header), `.panel-header.bottom` (status bar: top hairline, small text) |
+| Popover | Overlays | `.popover` |
+| Progress | Primitives | `progress`, `.meter` (label + `code` value + full-width bar), `.progress` (fills any element's background up to `--progress` 0–1 with `--progress-fill` at 25%; for `.btn`, list rows) |
+| Prose | Primitives | `.prose` (reading block, knob `--prose-width` 70ch, vertical rhythm, `ul`/`ol`/`dl` styling) |
+| Range | Primitives | `input[type=range]` (`display-vertical`, `data-ticks`, knob `--range-length`) |
+| Scroll | Layout | `.scroll-y` (knob `--scroll-max`), `.scrollbar-thin` |
+| Sidebar | Layout | `.drawer-toggle`, `.drawer-sidebar`, `.list`, `.list-row` |
+| Skeleton | Feedback | `.skeleton`, `.skeleton.text`, `.skeleton.avatar` (`.sm`/`.lg`), `.skeleton.badge` |
+| Stat | Feedback | `.stat`, `.stat-value`, `.stat-label`, `.stat-delta` |
+| Status | Feedback | `.status` (fills with `--scheme`: `.success`/`.warning`/`.danger`/…), `.status.pulse` |
+| Table | Data | `table` |
+| Tabs | Navigation | `.tabs`, `.tab` (gap between icon/text/badge), `.tab-input`; `.segmented`/`.toggle` style checked sibling labels, navigation `[aria-current="page"]`, or JS-managed `[aria-selected="true"]` |
+| Swatch | Primitives | `.swatch` on button/span/color input; `--swatch-color` for its fill; `[aria-pressed="true"]` for selected and `disabled` for unavailable |
+| Toolbar | Layout | `.toolbar` > `.toolbar-group` (adjacent groups get hairlines); `.toolbar-group.end` pushes a group to the end, `.toolbar.vertical` stacks groups and rotates hairlines, `.toolbar.floating` adds border/radius but leaves position to the app, `.toolbar.bottom` is a status bar (top hairline, `flex: 0 0 auto`, small text) |
+| Target text | Feedback | `mark` |
+| Emphasis | Primitives | `strong`, `b`, `em`, `i`, `small`, `abbr`, `p` |
+| Text input | Primitives | `input`, `textarea`, `select` — control padding is `padding-block`/`padding-inline` (`--element-vertical`/`--element-horizontal`) under `:where()`, so a single consumer class overrides it without matching selector specificity. `select` reserves its arrow from `--select-arrow-inset` (default `--space-4`, the arrow's distance to the trailing edge; the reserved padding is that plus the arrow itself) and truncates with an ellipsis |
+| Tooltip | Overlays | `.tooltip`, `[data-tooltip]` (`data-placement="top\|bottom\|left\|right"`; hidden tooltip is `display: none`, so it never adds scroll overflow) |
+| Wizard | Navigation | `.wizard`, `.wizard-step` |
+
+## Composing app layouts with `.shell`
+
+Do not put every region directly in `.shell`. Its **direct children** are
+panes: `.shell-pane.fixed` for a sidebar (`--shell-pane-width` controls its
+flex basis) and `.shell-pane` for the main region. Panes use a column flex
+layout; put a `.panel-header.top` before `.shell-body` and
+`.panel-header.bottom` after it for a status bar. `.shell-body` fills
+remaining space and scrolls. Adjacent **direct** shell children get a
+hairline between them; `.shell.vertical` rotates the shell and its hairlines.
+`.toolbar` has no own bottom border. Put a separator on its container if
+needed, but avoid doubling the hairline between direct shell children.
+
+```html
+<div class="shell app">
+  <nav class="shell-pane fixed" style="--shell-pane-width: 14rem">
+    <div class="list nav"><a class="list-row" aria-current="page" href="/">Home</a></div>
+  </nav>
+  <main class="shell-pane">
+    <header class="panel-header top"><span class="panel-header-title"><strong>Editor</strong></span></header>
+    <div class="shell-body">Your app content</div>
+    <footer class="panel-header bottom"><span class="panel-auto">Ready</span></footer>
+  </main>
+</div>
+```
+
+`.shell` defaults to `--shell-height: auto` (set a height for a bounded
+workspace); `.shell.app` uses `height: 100%` and drops its outer border,
+so give its ancestors a definite height. `.shell.responsive` stacks panes
+under 48rem, while `.shell.vertical` stacks them at all widths. Complex
+editors may nest shells inside a pane. Use the app's JS/TS state and
+accessible behavior primitives for interactive pane toggles, menus and tabs;
+the checkbox/label drawer examples on this repository's docs site are a
+demo constraint, **not** the required architecture for consumers.
+
+Knobs are component-prefixed custom properties with a fallback
+(`height: var(--shell-height, auto)`): set them inline or on any
+ancestor (`style="--page-width: 64rem"`). `_print.css` hides
+`.shell.app > .shell-pane.fixed`, `.panel-header.top/.bottom` and
+`.drawer` when printing.
+
+Components that clip their children with `overflow: hidden` — a decoration
+placed across their border is invisible *and* unhittable there, so
+`elementFromPoint` on it returns the container: `.avatar`, `.hero`,
+`.shell`, `.tabs.toggle`, `.element.pair`, `.card-cover`, `.notice.card`,
+`.drawer-sidebar`, `.drawer[data-placement="fullscreen"]`, `dialog.modal`,
+and `.card` only when it has a direct-child `table`. Override per instance
+with the `overflow-visible`/`overflow-hidden` utilities.
+
+Shared variant classes across most components: `.primary` (opt-in — the
+unmodified default is neutral), `.secondary`, `.tertiary`, `.quaternary`,
+`.neutral`, `.danger`/`.success`/`.warning`/`.info`, `.outline`, `.ghost`,
+`.contrast`, plus size (`.sm`/`.lg`), shape (`.pill`, `.square`, `.block`)
+and state (`.loading`, `disabled`) modifiers where the component supports
+them.
+
+## Design-system best practices
+
+- **Pick `harmony` for the brand, not by default.** `"complementary"`
+  (the default) is safe for a single-accent product UI. Reach for
+  `"analogous"` when the brand needs a warm/cool family of related
+  accents (marketing sites, editorial). `"triad"` reads playful/
+  energetic — use sparingly, for consumer/entertainment products.
+  `"monochrome"` is the right call when the brand color itself must
+  dominate and a second hue would compete with it (single-color logos,
+  strict brand guidelines).
+- **Let `schemeLightness` do harmony work `schemeShade` can't.** A fixed
+  `schemeShade` (e.g. `500` everywhere) can look inconsistent across
+  hues with very different chroma curves — a saturated yellow's `-500`
+  reads much lighter than a saturated blue's. Set `schemeLightness` to
+  target a perceived lightness instead, and only fall back to
+  `schemeShade` per-palette when one specific hue still needs a manual
+  override.
+- **Use `neutral` for a separate brand background hue.** When `neutral`
+  is unset, `neutralTint: 0` gives gray and raising it carries some
+  `primary` chroma into the neutral ramp. An explicit `neutral` seed
+  replaces that derivation; `background`/`foreground` still override
+  only their own tokens. `surfaceTint` independently mutes the other
+  accent palettes' surfaces.
+- **Use `preset` before hand-tuning `sizeFluidRange`.** `"app"` (no
+  reflow) for dense, information-heavy UI where layout stability across
+  viewport sizes matters more than typographic drama; `"content"` for
+  docs/blogs; `"landing"` for marketing pages where large fluid type is
+  a deliberate effect. Only drop to a raw `sizeFluidRange` number for a
+  case none of the three presets fit.
+- **`density`/`depth*` are per-context overrides, not just top-level
+  config.** Both compile to live custom properties, so a dense data
+  table or a modal that needs an extra elevation step can redeclare
+  `--density`/`--depth` locally instead of forcing every page through
+  one global value.
+- **`schemeChroma` before per-color hacks.** If every `.btn`/`.badge`/
+  `.alert` reads too loud against a muted UI, reach for `schemeChroma`
+  globally before overriding individual palettes — it's the same
+  mechanism `anchor-*` uses internally, exposed as a knob.
+- **`vars` is the last-resort override, not the first tool.** Prefer
+  expressing a design decision through the semantic `LuzConfig` field
+  that produces it (harmony, tints, shades) so it stays coherent as
+  other fields change; drop to `vars` only for a token no field
+  controls, or a hard pin that must survive every other calculation
+  (it's merged last, unconditionally).
+- **Config always wins, but not everything is wired yet.** The intended
+  end state for `luz.ts` is that any `vars` override always wins over
+  internal computation, applied at the very end of the pipeline — see
+  `SDD.md` in the luz repo for what's implemented vs. still in progress
+  if you're contributing to luz itself rather than just consuming it.
+
+## Generating a project's `DESIGN.md`
+
+When configuring `luz` for a consuming project, produce a `DESIGN.md` in
+that project documenting the *decisions*, not the mechanism (the
+mechanism is this file / the luz docs site). Suggested sections:
+
+1. **Brand seed** — the `primary` color and why (brand guideline, existing
+   asset, etc.), plus `mode` and the reasoning (product UI → usually
+   fixed `"dark"` or `"light"`; user-facing app with a system-theme
+   expectation → `"auto"`).
+2. **Palette derivation** — `harmony` chosen and why, any explicit
+   `secondary`/`tertiary`/`quaternary` overrides and what each is used
+   for in the product (not just "the accent color").
+3. **Neutral & surface tuning** — `neutral` seed or `neutralTint`, plus
+   `surfaceTint`, and the intended feel.
+4. **Scheme tuning** — `schemeShade`/`schemeLightness`/`schemeChroma` if
+   overridden, and which components they affect.
+5. **Type & space scale** — `power`/`base`/`preset` (or `sizeFluidRange`)
+   chosen for the product's density/reading-context, and `spaceSteps` if
+   non-default.
+6. **Structural knobs** — `density`, `depth*`, `contrastThreshold`,
+   `accent`, `borderOpacity` if customized, and why.
+7. **Escape hatches used** — every `vars` entry, with a one-line reason
+   each (a `vars` entry with no documented reason is a smell — it
+   usually means a `LuzConfig` field should have been used instead).
+8. **Component/utility conventions** — any project-specific rule for
+   which components to prefer, custom compositions built from the
+   utility classes, and known component classes deliberately left
+   unused.
+
+Keep it short and decision-focused, like `luz`'s own `SDD.md` — a record
+of *what's true now and why*, not a changelog or a todo list.
+
+## Full docs
+
+Human-oriented docs with live demos: the `docs/` app in the `luz`
+repository (component pages under `/components/*`, config reference
+under `/api/*`, plus `settings.astro` for a live theme playground).

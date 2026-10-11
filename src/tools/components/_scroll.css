@@ -1,14 +1,16 @@
 @layer luz {
-  .scroll-y {
-    overflow-y: auto;
-    scrollbar-gutter: stable;
-    max-height: var(--scroll-max, none);
-  }
-  .scrollbar-thin {
-    scrollbar-width: thin;
-    scrollbar-color: transparent transparent;
-    &:hover {
-      scrollbar-color: oklch(from var(--foreground) l c h / 30%) transparent;
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    .scroll-y:where(:scope, :scope *) {
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+      max-height: var(--scroll-max, none);
+    }
+    .scrollbar-thin:where(:scope, :scope *) {
+      scrollbar-width: thin;
+      scrollbar-color: transparent transparent;
+      &:hover {
+        scrollbar-color: oklch(from var(--foreground) l c h / 30%) transparent;
+      }
     }
   }
 }
