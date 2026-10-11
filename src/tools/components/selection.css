@@ -1,8 +1,8 @@
 @layer luz {
   @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    mark:where(:scope, :scope *),
     :where(:scope)::selection,
     :where(:scope)::target-text,
-    mark:where(:scope, :scope *),
     :where(:scope, :scope *)::selection,
     :where(:scope, :scope *)::target-text {
       background-color: var(
