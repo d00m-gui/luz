@@ -1,25 +1,27 @@
 @layer luz {
-  form,
-  .form {
-    flex-direction: column;
-    display: flex;
-    fieldset {
-      display: flex;
-      gap: calc(var(--size-unit) * 5);
-      padding: var(--element-vertical) 0;
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    form:where(:scope, :scope *),
+    .form:where(:scope, :scope *) {
       flex-direction: column;
+      display: flex;
+      fieldset {
+        display: flex;
+        gap: calc(var(--size-unit) * 5);
+        padding: var(--element-vertical) 0;
+        flex-direction: column;
+      }
     }
-  }
-  .form-actions {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
-    gap: var(--space-2);
-    padding-block: var(--element-vertical);
-    &.sticky {
-      position: sticky;
-      bottom: 0;
-      background-color: var(--background);
+    .form-actions:where(:scope, :scope *) {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: var(--space-2);
+      padding-block: var(--element-vertical);
+      &.sticky {
+        position: sticky;
+        bottom: 0;
+        background-color: var(--background);
+      }
     }
   }
 }

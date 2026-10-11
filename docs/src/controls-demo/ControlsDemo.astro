@@ -1,0 +1,38 @@
+<script>
+  import { mountControlsDemos } from "./mount";
+  document.addEventListener("astro:page-load", mountControlsDemos);
+  document.addEventListener("astro:before-swap", () => {
+    document.querySelectorAll<HTMLElement>("[data-controls-demo] [data-dragging]").forEach((element) => { delete element.dataset.dragging; });
+  });
+</script>
+
+<style is:global>
+  [data-controls-demo] .demo-range-surface {
+    position: relative;
+    touch-action: none;
+  }
+  [data-controls-demo] input[data-demo-range] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    opacity: 0;
+    cursor: inherit;
+    touch-action: none;
+  }
+  [data-controls-demo] .knob-dial:has(:focus-visible),
+  [data-controls-demo] .fader-control:has(:focus-visible) .fader-thumb {
+    outline: var(--border-width) solid var(--scheme-accent);
+    outline-offset: var(--space-1);
+  }
+  [data-controls-demo] .demo-mfd-status {
+    align-self: start;
+    max-inline-size: 100%;
+  }
+  [data-controls-demo] .demo-mfd-status .readout-value {
+    font-size: var(--font-size-small);
+    white-space: normal;
+  }
+</style>

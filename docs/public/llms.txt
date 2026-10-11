@@ -11,6 +11,11 @@ utility class vocabulary, and design-system best practices for combining
 them. It does not replace the docs site (human-oriented, with live demos);
 treat this as the machine-readable index.
 
+La referencia canónica es este `llms.txt` en la raíz del paquete instalado.
+El sitio copia ese archivo a `docs/public/llms.txt` al iniciar Astro;
+no mantener una segunda referencia. La skill opcional
+`skills/luz/SKILL.md` lee el archivo de la versión instalada.
+
 ## Install & basic usage
 
 ```bash
@@ -54,7 +59,30 @@ this order:
 @import "@d00m-gui/luz/utilities.css";         /* utilities scanned from your source, generated */
 ```
 
-`@d00m-gui/luz/components.css` imports every component file at once.
+`@d00m-gui/luz/components.css` incluye todos los componentes por defecto,
+incluidos `controls` y `_print`. La integración filtra sus imports y los
+de `luz.css` según `exclude`; un import directo de
+`components/<name>.css`, `bridge.css` o `utilities.css` siempre se respeta,
+aunque esa parte figure en `exclude`.
+
+```ts
+luzVite({ exclude: ["controls", "_print", "bridge", "utilities"] });
+```
+
+`exclude?: readonly (nombreDeComponenteNoCompartido | "_print" | "bridge" | "utilities")[]`.
+Los nombres son los de los archivos, sin `.css`: `theme`, `selection`,
+`typography`, `prose`, `text`, `list`, `hr`, `anchor`, `kbd`, `table`,
+`code`, `form`, `field`, `file-input`, `range`, `progress`,
+`checkbox-radio`, `blockquote`, `button`, `nav`, `toolbar`, `swatch`,
+`choice`, `pane-handle`, `section`, `tooltip`, `badge`, `alert`, `card`,
+`avatar`, `tabs`, `dialog`, `drawer`, `breadcrumbs`, `skeleton`,
+`spinner`, `panel-header`, `wizard`, `overlay`, `radial`, `stat`,
+`empty`, `status`, `icon`, `fluid`, `grid`, `join`, `shell`, `page`,
+`hero`, `fx`, `element`, `controls`. Los archivos compartidos con prefijo
+`_` no se excluyen, salvo `_print`. El default es `[]`: no se excluye
+nada. Reset y tokens del tema no son exclusiones válidas; el componente
+`"theme"` designa solo `components/theme.css`, no el tema generado.
+
 All of luz's CSS lives in the `luz` cascade layer (`@layer luz { … }`):
 any unlayered CSS of yours wins over it regardless of order or
 specificity, with no setup. `layer(name)` on any of these `@import`s
@@ -101,13 +129,13 @@ seeds (21 for black on white).
    `.menu`, … — CSS for appearance and state, **not behavior**. The native
    HTML controls in this repository's docs are standalone demos, not a
    constraint on consumers.
-4. **Behavior in the consuming app** — implement interaction in JS/TS,
-   preferably with accessible unstyled primitives such as Base UI (or
-   Radix) for menus, tabs, dialogs, keyboard navigation and focus management.
-   Attach luz classes to their rendered elements and drive the appropriate
-   ARIA/data states from the behavior layer. Do not assume that a CSS class
-   adds opening, selection, drag, shortcuts or accessibility behavior. The
-   optional shadcn/UI token bridge aliases luz tokens for kit components.
+4. **Interacción y accesibilidad en la app consumidora** — implementar
+   estado, teclado, foco, semántica y gestos en JS/TS o HTML nativo.
+   Recomendamos Base UI para primitivas accesibles sin estilos; no es
+   obligatorio, Radix u otra solución también sirven. Aplicar las clases
+   de luz a sus elementos y reflejar los estados ARIA/data. Una clase
+   CSS no aporta apertura, selección, arrastre ni accesibilidad. El
+   bridge opcional shadcn/UI adapta tokens, no comportamiento.
 
 ## `LuzConfig` reference
 
@@ -177,13 +205,37 @@ Every field is optional; defaults below come from `LUZ_DEFAULT_CONFIG`.
 |---|---|---|
 | `vars` | unset | Raw custom properties, merged **last** — overrides an existing token by name, or adds a new one. The one field guaranteed to win over every internal calculation. |
 | `properties` | `false` | Generate `@property` declarations for every token — required for the browser to animate/transition a custom property (angle, gradient stop, …) instead of snapping. |
-| `selector` | `":root"` | Selector the theme block (`color-scheme` + every token) is emitted under. Set it to scope a theme to a container; add `.theme` to that container so it gets what `body` gets from the reset (font, background, color). Force light/dark per section with `color-scheme: light|dark` on the container. |
+| `selector` | `":root"` | Selector del bloque de tokens del tema y del bridge. Un selector de contenedor limita dónde se declaran esos tokens; añadir `.theme` al contenedor aplica fuente, fondo y color de base. No cambia el scope estático, cuya raíz es siempre `:root:not([data-luz-off])`. |
+| `exclude` | `[]` | Array readonly de nombres de componente no compartido, `"_print"`, `"bridge"` o `"utilities"`. Filtra la composición por defecto de `luz.css` y `components.css`. Controls está incluido salvo `exclude: ["controls"]`; imports directos no se filtran. |
 
 `luz().tokens.palettes` — `{ light?, dark? }` → `Record<paletteName,
 Record<weight, { l, c, h }>>` — carries the numeric OKLCH of every baked
 shade (palettes whose seed parsed: primary/secondary/tertiary/quaternary/
 neutral/surface-*/12 wheel hues), for swatches, diffs, or hex export.
 `mode: "auto"` gives both schemes; `"light"`/`"dark"` only the active one.
+
+### Scope estático y `data-luz-off`
+
+```html
+<section>
+  <button>Con luz</button>
+  <div data-luz-off><button>Sin reglas de luz</button></div>
+</section>
+```
+
+El scope estático incluye su raíz `:root:not([data-luz-off])` y excluye
+cada `[data-luz-off]` junto con sus descendientes (donut scope). Una
+`.theme` anidada no reactiva estilos dentro de un subárbol excluido.
+Este scope está incorporado en los archivos CSS reales del reset y los
+componentes: también aplica a imports directos y sin plugin. Las
+utilities emitidas por las entradas CSS de la integración usan el mismo
+scope. `selector` solo controla dónde se declaran los tokens del tema y
+del bridge, no limita las reglas estáticas a un contenedor.
+
+No elimina herencia: fuentes, colores y custom properties pueden seguir
+llegando desde el padre; el tema y el bridge siguen emitiendo tokens,
+y las declaraciones `@property` son globales. Si necesitás cambiar
+valores heredados dentro del wrapper, declaralos en tu propio CSS.
 
 Printing: `components/_print.css` ships a generic `@media print` layer —
 forces `color-scheme: light` (so `mode: "auto"` prints dark-on-white),
@@ -300,16 +352,22 @@ Pure CSS for appearance; behavior belongs to the consuming app. One
 canonical class per component; see `covers` below for every class name
 that component family also styles.
 
+
+El botón default usa `--btn-bg`: `oklch(from var(--element-background) calc(l + 0.03) c h)`,
+el mismo fondo base que Controls. Las variantes de esquema mantienen sus colores;
+`vars: { "btn-bg": "..." }` permite overridearlo.
+
 | Component | Category | Classes |
 |---|---|---|
 | Alert | Overlays | `.alert` — a direct-child `button` drops the alert's `--scheme` (default button look) |
 | Avatar | Identity | `.avatar` (`.sm`/`.lg`), `.avatar-group` (overlapping, outlined), `.avatar.more` (overflow count) |
-| Badge | Data | `.badge` — default is soft (16% tint of `--scheme`, or `--scheme-accent` without a scheme class); text mixes the scheme with `--foreground` so it reads in light and dark. Variants `.solid` (filled, auto-contrast text, `--on-badge` overrides), `.outline` (border only), `.ghost` (transparent, no border); sizes `.sm`/`.lg`; `.pill`. `justify-content: safe center`: centered while it fits, aligned to the start once the label overflows. `text-overflow` cannot reach a flex container's anonymous text: wrap the label in a child (`<span class="truncate">`) for the ellipsis |
+| Badge | Data | `.badge` — default neutro: fondo de superficie como el botón (`--badge-bg` lo overridea), texto `--foreground` y borde discreto. Las variantes de esquema mantienen fondo suave al 16% y texto teñido. `.solid` (relleno, auto-contraste, override `--on-badge`), `.outline`, `.ghost`, `.chip`; tamaños `.sm`/`.lg`; `.pill` redondeado, `.square` usa `--border-radius` sin cambiar padding ni colores. Texto largo: envolver en `<span class="truncate">`. |
 | Blockquote | Primitives | `blockquote` — knob `--blockquote-font-size` (default `--font-size-h5`) |
 | Breadcrumbs | Navigation | `.breadcrumbs` |
 | Button | Primitives | `.btn`, `.button`, `.icon`, `.cta`; flat (no shadows); `.soft`/`.outline`/`.ghost` combine with any scheme class; sizes `.sm`/`.lg`; `data-role="secondary\|tertiary\|apply\|cancel\|contrast"` equals `role=` |
 | Card | Surfaces | `.card` (does **not** clip: a decoration may straddle its border; a direct-child `table` opts the card into `overflow: hidden`), `.card-content` (direction under `:where()`, utilities override it), `.card-meta`, `.card-footer`, `.card-toolbar`, `.card-cover` (knob `--ratio`, default `3 / 1`), `.space`, `.card.center` — flush media (`figure`/`img`/`video`/`.card-cover`/`.card-meta` as first or last child) inherits the card radius. `.card.node` is the look of a node-editor card: its direct-child `.card-meta` becomes a title bar tinted 22% by the scheme set **on the bar itself** (`class="card-meta primary"` or `style="--scheme: var(--teal-500)"`, so the card body keeps its own `--current-bg`), with an accent `border-top`, `cursor: grab`, and `[data-dragging]` on the card for the lifted look; `.card-resize` is the bottom-trailing resize grip. Dragging and resizing themselves stay with the consumer (React Flow's `dragHandle`/`NodeResizer`) — luz only ships the look |
 | Code | Primitives | `code`, `pre`, `samp` — surface tokens `--code-bg`/`--on-code`; `kbd + kbd` spacing |
+| Controls | Primitives | Incluido por defecto; `exclude: ["controls"]` lo omite del bundle, el import directo `components/controls.css` no se filtra. `.led`, `.readout`, `.knob`, `.fader`, `.toggle-switch`, `.selector`, `.led-button`, `.control-label`, `.mfd` con `.mfd-screen` y `.mfd-keys`. Estado por ARIA/data, posición por `--knob-angle` (-135deg…135deg) y `--fader-value` (0–1); interacción y accesibilidad a cargo de la app. |
 | Collapsable | Surfaces | `.list` |
 | Divider | Primitives | `hr` |
 | Drawer | Overlays | `.drawer` (`popover`, `data-placement="left\|right\|bottom\|fullscreen"`) — non-modal by default: no backdrop, the rest of the page stays visible and clickable; `.drawer.modal` adds the `--modal-backdrop` veil, `.drawer-trigger`, `.drawer-icon`, `.radial-trigger` (`.fixed` = FAB at the bottom-right corner), `.radial-menu` (`.fixed`), `.radial-item` |

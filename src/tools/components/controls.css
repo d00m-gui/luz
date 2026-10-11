@@ -1,0 +1,810 @@
+@layer luz {
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    :where(
+      .led,
+      .readout,
+      .knob,
+      .fader,
+      .toggle-switch,
+      .selector,
+      .led-button,
+      .control-label,
+      .mfd
+    ):where(:scope, :scope *) {
+      --_control-relief: var(--control-relief, 1);
+      --_control-face: var(
+        --control-face,
+        oklch(from var(--element-background) calc(l + 0.03) c h)
+      );
+      --_control-well: var(
+        --control-well,
+        oklch(from var(--element-background) calc(l - 0.06) c h)
+      );
+      --_control-bezel: var(
+        --control-bezel,
+        oklch(from var(--element-background) calc(l + 0.015) c h)
+      );
+      --_control-ink: var(--control-ink, var(--foreground));
+      --_control-line: var(--control-line, transparent);
+      --_control-lit: var(
+        --scheme,
+        var(--control-led-on, var(--scheme-primary))
+      );
+      --_control-glow: var(--control-glow, calc(var(--size-unit) * 5));
+      --_control-font: var(--control-font, var(--font-monospace));
+      --_control-radius: var(--control-radius, var(--border-radius));
+      --_control-corner: var(--control-corner-shape, round);
+      --_control-high: oklch(
+        from var(--_control-face) calc(l + 0.06 * var(--_control-relief)) c h
+      );
+      --_control-highlight: oklch(
+        from var(--_control-face) calc(l + 0.12 * var(--_control-relief)) c h
+      );
+      --_control-low: oklch(
+        from var(--_control-face) calc(l - 0.05 * var(--_control-relief)) c h
+      );
+      --_control-engrave: oklch(from var(--_control-ink) l c h / 55%);
+      --_control-edge: oklch(
+        from var(--_control-ink) l c h / calc(0.14 * var(--_control-relief))
+      );
+      --_control-shade: oklch(
+        from var(--element-background) calc(l * 0.4) c h /
+          calc(0.5 * var(--_control-relief))
+      );
+      --_control-sheen: linear-gradient(
+        to bottom,
+        oklch(1 0 0 / calc(0.1 * var(--_control-relief))),
+        oklch(0 0 0 / calc(0.1 * var(--_control-relief)))
+      );
+      --_control-sheen-pressed: linear-gradient(
+        to bottom,
+        oklch(0 0 0 / calc(0.15 * var(--_control-relief))),
+        oklch(1 0 0 / calc(0.05 * var(--_control-relief)))
+      );
+      --_control-inset:
+        inset 0 calc(var(--size-unit) * 2) calc(var(--size-unit) * 4)
+          var(--_control-shade),
+        inset 0 calc(var(--size-unit) * -1) 0 var(--_control-edge),
+        inset 0 0 0 var(--border-width) var(--_control-line);
+      --_control-raised:
+        inset 0 var(--border-width) 0 var(--_control-edge),
+        inset 0 0 0 var(--border-width) var(--_control-line),
+        0 calc(var(--size-unit) * 2) calc(var(--size-unit) * 3)
+          var(--_control-shade);
+    }
+
+    .control-label:where(:scope, :scope *) {
+      font-family: var(--_control-font);
+      font-size: calc(var(--size-unit) * 6.5);
+      font-weight: var(--font-bold-weight);
+      letter-spacing: 0.12em;
+      line-height: 1;
+      text-transform: uppercase;
+      color: var(--_control-ink);
+      user-select: none;
+    }
+
+    .knob-dial:focus-visible:where(:scope, :scope *),
+    .fader-thumb:is(:focus-visible, :has(:focus-visible)):where(
+      :scope,
+      :scope *
+    ) {
+      outline: var(--size-unit) solid
+        oklch(from var(--scheme, var(--scheme-accent)) l c h / 50%);
+      outline-offset: calc(var(--size-unit) * 2);
+    }
+
+    :is(.knob, .toggle-switch, .selector, .fader, .mfd)[data-disabled]:where(
+      :scope,
+      :scope *
+    ),
+    .led-button:is(:disabled, [data-disabled]):where(:scope, :scope *) {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+
+    .led:where(:scope, :scope *) {
+      --_led-off: var(
+        --control-led-off,
+        radial-gradient(
+          circle at 35% 30%,
+          oklch(from var(--_control-lit) calc(l * 0.6) calc(c * 0.4) h),
+          oklch(from var(--_control-lit) calc(l * 0.25) calc(c * 0.3) h) 70%
+        )
+      );
+      display: inline-block;
+      flex: none;
+      inline-size: var(--led-size, calc(var(--size-unit) * 6));
+      block-size: var(--led-size, calc(var(--size-unit) * 6));
+      border-radius: 50%;
+      background: var(--_led-off);
+      box-shadow: 0 0 0 var(--border-width) var(--_control-shade);
+      transition:
+        background var(--duration-fast, 120ms) var(--ease-out, ease-out),
+        box-shadow var(--duration-fast, 120ms) var(--ease-out, ease-out);
+    }
+    .led:is([data-state="on"], [data-state="blink"]):where(:scope, :scope *),
+    .toggle-switch-body[aria-checked="true"] .led:where(:scope, :scope *),
+    .led-button[aria-pressed="true"] .led:where(:scope, :scope *),
+    .selector-option[aria-checked="true"] .led:where(:scope, :scope *) {
+      background: radial-gradient(
+        circle at 35% 30%,
+        oklch(from var(--_control-lit) 0.95 calc(c * 0.4) h),
+        var(--_control-lit) 65%
+      );
+      box-shadow:
+        0 0 0 var(--border-width) var(--_control-shade),
+        0 0 var(--_control-glow) oklch(from var(--_control-lit) l c h / 70%);
+    }
+    .led[data-state="blink"]:where(:scope, :scope *) {
+      animation: luz-led-blink 1s steps(1, end) infinite;
+    }
+    @keyframes luz-led-blink {
+      50% {
+        background: var(--_led-off);
+        box-shadow: 0 0 0 var(--border-width) var(--_control-shade);
+      }
+    }
+
+    .readout:where(:scope, :scope *) {
+      --_readout-ink: oklch(
+        from var(--scheme, var(--control-readout-ink, var(--scheme-secondary)))
+          max(l, 0.75) c h
+      );
+      display: inline-flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: var(--space-1);
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--_control-radius);
+      corner-shape: var(--_control-corner);
+      background: var(--_control-well);
+      box-shadow: var(--_control-inset);
+      color: var(--_readout-ink);
+      font-family: var(--control-readout-font, var(--font-monospace));
+      font-size: var(--font-size-xl);
+      font-weight: var(--font-bold-weight);
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      text-shadow: 0 0 calc(var(--_control-glow) * 0.5)
+        oklch(from var(--_readout-ink) l c h / 55%);
+      &.small {
+        padding: var(--space-1) var(--space-2);
+        font-size: var(--font-size-base);
+      }
+      &.large {
+        padding: var(--space-3) var(--space-4);
+        font-size: var(--font-size-3xl);
+      }
+    }
+    .readout-caption:where(:scope, :scope *) {
+      align-self: flex-start;
+      font-family: var(--_control-font);
+      font-size: calc(var(--size-unit) * 6);
+      font-weight: var(--font-weight);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--_control-engrave);
+      text-shadow: none;
+    }
+    .readout-value:where(:scope, :scope *) {
+      display: inline-flex;
+      align-items: baseline;
+      gap: var(--space-1);
+    }
+    .readout-unit:where(:scope, :scope *) {
+      font-family: var(--_control-font);
+      font-size: 0.45em;
+      text-transform: uppercase;
+      opacity: 0.8;
+    }
+
+    .knob:where(:scope, :scope *) {
+      --knob-size: calc(var(--size-unit) * 28);
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--_control-ink);
+      &.small {
+        --knob-size: calc(var(--size-unit) * 18);
+      }
+      &.large {
+        --knob-size: calc(var(--size-unit) * 40);
+      }
+    }
+    .knob-face:where(:scope, :scope *) {
+      position: relative;
+      display: grid;
+      place-items: center;
+      &:has(.knob-legend) {
+        margin: calc(var(--knob-size) * 0.5) calc(var(--knob-size) * 0.9)
+          calc(var(--knob-size) * 0.2);
+      }
+    }
+    .knob-dial:where(:scope, :scope *) {
+      --_knob-sweep: calc(var(--knob-angle, -135deg) + 135deg);
+      --_knob-origin: 0deg;
+      --_knob-from: min(var(--_knob-sweep), var(--_knob-origin));
+      --_knob-to: max(var(--_knob-sweep), var(--_knob-origin));
+      position: relative;
+      inline-size: var(--knob-size);
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: conic-gradient(
+        from -135deg,
+        var(--_control-well) 0 var(--_knob-from),
+        var(--scheme, var(--control-led-on, var(--neutral-200)))
+          var(--_knob-from) var(--_knob-to),
+        var(--_control-well) var(--_knob-to) 270deg,
+        transparent 270deg
+      );
+      touch-action: none;
+      cursor: ns-resize;
+      outline: none;
+      &[data-bipolar] {
+        --_knob-origin: 135deg;
+      }
+      [data-disabled] > .knob-face > & {
+        cursor: not-allowed;
+      }
+    }
+    .knob-cap:where(:scope, :scope *) {
+      position: absolute;
+      inset: calc(var(--knob-size) * 0.14);
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 50% 25%,
+        var(--_control-high),
+        var(--_control-low) 75%
+      );
+      box-shadow: var(--_control-raised);
+      rotate: var(--knob-angle, -135deg);
+      transition: rotate var(--duration-fast, 120ms) var(--ease-out, ease-out);
+      &::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: repeating-conic-gradient(
+          var(--_control-edge) 0 4deg,
+          transparent 4deg 10deg
+        );
+        mask: radial-gradient(circle, transparent 62%, #000 66%);
+      }
+      &::after {
+        content: "";
+        position: absolute;
+        inset-block-start: 8%;
+        inset-inline-start: 50%;
+        inline-size: max(var(--border-width), calc(var(--knob-size) * 0.05));
+        block-size: 30%;
+        translate: -50% 0;
+        border-radius: var(--border-width);
+        background: var(--_control-ink);
+      }
+      [data-dragging] > & {
+        transition: none;
+      }
+    }
+    .knob-readout:where(:scope, :scope *) {
+      position: absolute;
+      inset-block-start: 0;
+      inset-inline-start: 50%;
+      z-index: 1;
+      translate: -50% calc(-100% - var(--space-1));
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--duration-fast, 120ms) var(--ease-out, ease-out);
+      .knob:not([data-disabled]):hover > &,
+      .knob:has(.knob-dial:is(:focus-visible, [data-dragging])) > & {
+        opacity: 1;
+      }
+    }
+    .knob-legend:where(:scope, :scope *) {
+      position: absolute;
+      inset-block-start: 50%;
+      inset-inline-start: 50%;
+      padding: 0;
+      border: 0;
+      background: none;
+      color: var(--_control-engrave);
+      font-family: var(--_control-font);
+      font-size: calc(var(--size-unit) * 6);
+      font-weight: var(--font-bold-weight);
+      letter-spacing: 0.08em;
+      line-height: 1;
+      text-transform: uppercase;
+      white-space: nowrap;
+      cursor: pointer;
+      --_knob-legend-transform: translate(-50%, -50%)
+        rotate(var(--legend-angle, 0deg))
+        translateY(calc(var(--knob-size) * -0.5 - var(--space-4)))
+        rotate(calc(-1 * var(--legend-angle, 0deg)));
+      transform: var(--_knob-legend-transform);
+      transition: color var(--duration-fast, 120ms) var(--ease-out, ease-out);
+      &:is(:hover, :active) {
+        background: none;
+        transform: var(--_knob-legend-transform);
+        color: var(--_control-ink);
+      }
+      &[data-active="true"] {
+        color: var(--_control-lit);
+      }
+    }
+
+    .toggle-switch {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--_control-ink);
+    }
+    .toggle-switch-body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-2) var(--space-3);
+      border: 0;
+      border-radius: var(--_control-radius);
+      corner-shape: var(--_control-corner);
+      background: var(--_control-bezel);
+      box-shadow: var(--_control-raised);
+      color: inherit;
+      cursor: pointer;
+      outline: none;
+      &:hover,
+      &:active {
+        background: var(--_control-bezel);
+        transform: none;
+      }
+      [data-disabled] > & {
+        cursor: not-allowed;
+      }
+    }
+    .toggle-switch-legend {
+      font-family: var(--_control-font);
+      font-size: calc(var(--size-unit) * 5.5);
+      font-weight: var(--font-bold-weight);
+      letter-spacing: 0.12em;
+      line-height: 1;
+      text-transform: uppercase;
+      color: var(--_control-engrave);
+      transition: color var(--duration-fast, 120ms) var(--ease-out, ease-out);
+      [aria-checked="true"] > &.on,
+      :not([aria-checked="true"]) > &.off {
+        color: var(--_control-ink);
+      }
+    }
+    .toggle-switch-slot {
+      position: relative;
+      inline-size: calc(var(--size-unit) * 14);
+      aspect-ratio: 1;
+      margin-block: calc(var(--size-unit) * 9);
+      border-radius: 50%;
+      background: radial-gradient(
+        circle at 50% 35%,
+        var(--_control-high),
+        var(--_control-well) 75%
+      );
+      box-shadow: var(--_control-raised);
+    }
+    .toggle-switch-lever {
+      position: absolute;
+      inset-block-end: 50%;
+      inset-inline-start: 50%;
+      inline-size: calc(var(--size-unit) * 5);
+      block-size: calc(var(--size-unit) * 16);
+      translate: -50% 0;
+      transform-origin: 50% 100%;
+      scale: 1 -1;
+      border-radius: calc(var(--size-unit) * 3);
+      background: linear-gradient(
+        to right,
+        var(--_control-low),
+        var(--_control-highlight) 45%,
+        var(--_control-face)
+      );
+      transition: scale var(--duration-base, 200ms) var(--ease-spring, ease-out);
+      .toggle-switch-body[aria-checked="true"] & {
+        scale: 1 1;
+      }
+      &::after {
+        content: "";
+        position: absolute;
+        inset-block-start: calc(var(--size-unit) * -2);
+        inset-inline: calc(var(--size-unit) * -1);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle at 35% 30%,
+          var(--_control-highlight),
+          var(--_control-face) 70%
+        );
+      }
+    }
+    .toggle-switch.rocker {
+      .toggle-switch-slot {
+        inline-size: calc(var(--size-unit) * 16);
+        block-size: calc(var(--size-unit) * 26);
+        aspect-ratio: auto;
+        margin-block: 0;
+        padding: calc(var(--size-unit) * 1.5);
+        border-radius: var(--_control-radius);
+        corner-shape: var(--_control-corner);
+        background: var(--_control-well);
+        box-shadow: var(--_control-inset);
+      }
+      .toggle-switch-lever {
+        position: relative;
+        inset: auto;
+        display: block;
+        inline-size: 100%;
+        block-size: 100%;
+        translate: none;
+        scale: none;
+        border-radius: var(--_control-radius);
+        corner-shape: var(--_control-corner);
+        background: linear-gradient(
+          to bottom,
+          var(--_control-high),
+          var(--_control-low) 50%,
+          var(--_control-well) 50%,
+          var(--_control-face)
+        );
+        box-shadow:
+          inset 0 var(--border-width) 0 var(--_control-edge),
+          inset 0 0 0 var(--border-width) var(--_control-line);
+        transition: background var(--duration-fast, 120ms)
+          var(--ease-out, ease-out);
+        &::after {
+          inset-block-start: 20%;
+          inset-inline: 30%;
+          aspect-ratio: auto;
+          block-size: calc(var(--size-unit) * 1.5);
+          border-radius: var(--border-width);
+          background: var(--_control-engrave);
+          transition: background var(--duration-fast, 120ms)
+            var(--ease-out, ease-out);
+        }
+      }
+      [aria-checked="true"] .toggle-switch-lever {
+        background: linear-gradient(
+          to bottom,
+          var(--_control-well),
+          var(--_control-face) 50%,
+          var(--_control-high) 50%,
+          var(--_control-low)
+        );
+        &::after {
+          background: var(--_control-lit);
+          box-shadow: 0 0 var(--_control-glow)
+            oklch(from var(--_control-lit) l c h / 70%);
+        }
+      }
+    }
+
+    .led-button,
+    .selector-option {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-2);
+      padding: var(--space-2) var(--space-3);
+      border: 0;
+      border-radius: var(--_control-radius);
+      corner-shape: var(--_control-corner);
+      background-color: var(--_control-face);
+      background-image: var(--_control-sheen);
+      box-shadow: var(--_control-raised);
+      color: var(--_control-ink);
+      font-family: var(--_control-font);
+      font-size: calc(var(--size-unit) * 6.5);
+      font-weight: var(--font-bold-weight);
+      letter-spacing: 0.12em;
+      line-height: 1;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      transition:
+        background-color var(--duration-fast, 120ms) var(--ease-out, ease-out),
+        box-shadow var(--duration-fast, 120ms) var(--ease-out, ease-out);
+      &:hover {
+        background-color: color-mix(
+          in oklab,
+          var(--_control-face),
+          var(--_control-ink) calc(var(--state-hover-delta, 0.08) * 100%)
+        );
+      }
+      &:active,
+      &[aria-pressed="true"],
+      &[aria-checked="true"] {
+        background-color: var(
+          --control-face-pressed,
+          color-mix(in oklab, var(--_control-face), var(--_control-well) 40%)
+        );
+        background-image: var(--_control-sheen-pressed);
+        box-shadow: var(--_control-inset);
+      }
+    }
+
+    .selector {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--space-2);
+      color: var(--_control-ink);
+    }
+    .selector-options {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-1);
+      padding: var(--space-1);
+      border-radius: var(--_control-radius);
+      corner-shape: var(--_control-corner);
+      background: var(--_control-well);
+      box-shadow: var(--_control-inset);
+    }
+    .selector-option {
+      justify-content: flex-start;
+      outline: none;
+      &:is(:disabled, [data-disabled]) {
+        cursor: not-allowed;
+      }
+    }
+
+    .fader {
+      display: inline-grid;
+      gap: var(--space-2);
+      color: var(--_control-ink);
+      > .control-label {
+        grid-area: label;
+      }
+      &.vertical {
+        grid-template-areas: "readout" "control" "label";
+        justify-items: center;
+      }
+      &.horizontal {
+        grid-template: "label readout" auto "control control" auto / 1fr auto;
+        align-items: center;
+        inline-size: var(--fader-length, 100%);
+      }
+    }
+    .fader-readout {
+      grid-area: readout;
+    }
+    .fader-control {
+      grid-area: control;
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      touch-action: none;
+      cursor: pointer;
+      .vertical > & {
+        inline-size: calc(var(--size-unit) * 28);
+        block-size: var(--fader-length, calc(var(--size-unit) * 100));
+        margin-block: calc(var(--size-unit) * 6);
+      }
+      .horizontal > & {
+        block-size: calc(var(--size-unit) * 22);
+        margin-inline: calc(var(--size-unit) * 4);
+      }
+      [data-disabled] > & {
+        cursor: not-allowed;
+      }
+    }
+    .fader-track {
+      position: relative;
+      border-radius: calc(var(--size-unit) * 2);
+      background: var(--_control-well);
+      box-shadow: var(--_control-inset);
+      .fader.vertical & {
+        inline-size: calc(var(--size-unit) * 3);
+        block-size: 100%;
+      }
+      .fader.horizontal & {
+        inline-size: 100%;
+        block-size: calc(var(--size-unit) * 3);
+      }
+    }
+    .fader-fill {
+      position: absolute;
+      border-radius: inherit;
+      background: var(--scheme, var(--control-led-on, var(--neutral-400)));
+      .fader.vertical & {
+        inset-inline: 0;
+        inset-block-end: 0;
+        block-size: calc(var(--fader-value, 0) * 100%);
+      }
+      .fader.horizontal & {
+        inset-block: 0;
+        inset-inline-start: 0;
+        inline-size: calc(var(--fader-value, 0) * 100%);
+      }
+    }
+    .fader-thumb {
+      position: absolute;
+      border-radius: calc(var(--size-unit) * 2);
+      corner-shape: var(--_control-corner);
+      background-color: var(--_control-face);
+      box-shadow: var(--_control-raised);
+      cursor: grab;
+      &[data-dragging] {
+        cursor: grabbing;
+      }
+      &::after {
+        content: "";
+        position: absolute;
+        background: var(--scheme, var(--_control-ink));
+      }
+      .fader.vertical & {
+        inset-inline-start: 50%;
+        inset-block-end: calc(var(--fader-value, 0) * 100%);
+        translate: -50% 50%;
+        inline-size: calc(var(--size-unit) * 24);
+        block-size: calc(var(--size-unit) * 12);
+        background-image: linear-gradient(
+          to bottom,
+          var(--_control-highlight),
+          var(--_control-face) 45%,
+          var(--_control-low) 50%,
+          var(--_control-face) 55%,
+          var(--_control-high)
+        );
+        &::after {
+          inset-inline: var(--space-1);
+          inset-block-start: 50%;
+          block-size: calc(var(--border-width) * 2);
+          translate: 0 -50%;
+        }
+      }
+      .fader.horizontal & {
+        inset-block-start: 50%;
+        inset-inline-start: calc(var(--fader-value, 0) * 100%);
+        translate: -50% -50%;
+        inline-size: calc(var(--size-unit) * 8);
+        block-size: calc(var(--size-unit) * 16);
+        background-image: linear-gradient(
+          to right,
+          var(--_control-high),
+          var(--_control-face) 45%,
+          var(--_control-low) 50%,
+          var(--_control-face) 55%,
+          var(--_control-highlight)
+        );
+        &::after {
+          inset-block: var(--space-1);
+          inset-inline-start: 50%;
+          inline-size: calc(var(--border-width) * 2);
+          translate: -50% 0;
+        }
+      }
+    }
+    .fader-scale {
+      --_fader-tick: oklch(from var(--_control-ink) l c h / 35%);
+      position: absolute;
+      pointer-events: none;
+      .fader.vertical & {
+        inset: 0;
+        background:
+          linear-gradient(
+              to bottom,
+              var(--_fader-tick) 0 var(--border-width),
+              transparent 0
+            )
+            left / calc(var(--size-unit) * 6) 100% no-repeat,
+          linear-gradient(
+              to bottom,
+              var(--_fader-tick) 0 var(--border-width),
+              transparent 0
+            )
+            right / calc(var(--size-unit) * 6) 100% no-repeat,
+          repeating-linear-gradient(
+              to top,
+              var(--_fader-tick) 0 var(--border-width),
+              transparent 0 calc(100% / var(--fader-ticks, 10))
+            )
+            left / calc(var(--size-unit) * 6) 100% no-repeat,
+          repeating-linear-gradient(
+              to top,
+              var(--_fader-tick) 0 var(--border-width),
+              transparent 0 calc(100% / var(--fader-ticks, 10))
+            )
+            right / calc(var(--size-unit) * 6) 100% no-repeat;
+      }
+      .fader.horizontal & {
+        inset-inline: 0;
+        inset-block-end: 0;
+        block-size: calc(var(--size-unit) * 4);
+        background:
+          linear-gradient(
+            to left,
+            var(--_fader-tick) 0 var(--border-width),
+            transparent 0
+          ),
+          repeating-linear-gradient(
+            to right,
+            var(--_fader-tick) 0 var(--border-width),
+            transparent 0 calc(100% / var(--fader-ticks, 10))
+          );
+      }
+    }
+
+    .mfd {
+      display: inline-grid;
+      grid-template:
+        ". top ." auto
+        "left screen right" 1fr
+        ". bottom ." auto / auto 1fr auto;
+      gap: var(--space-2);
+      padding: var(--space-3);
+      border-radius: calc(var(--_control-radius) * 2);
+      corner-shape: var(--_control-corner);
+      background-color: var(--_control-bezel);
+      background-image: var(--_control-sheen);
+      box-shadow: var(--_control-raised);
+      color: var(--_control-ink);
+    }
+    .mfd-screen {
+      grid-area: screen;
+      min-inline-size: 0;
+      min-block-size: 0;
+      padding: var(--space-3);
+      overflow: hidden;
+      border-radius: var(--_control-radius);
+      corner-shape: var(--_control-corner);
+      background: var(--_control-well);
+      box-shadow: var(--_control-inset);
+    }
+    .mfd-keys {
+      display: flex;
+      justify-content: space-evenly;
+      gap: var(--space-2);
+      &.top {
+        grid-area: top;
+      }
+      &.bottom {
+        grid-area: bottom;
+      }
+      &.left,
+      &.right {
+        flex-direction: column;
+      }
+      &.left {
+        grid-area: left;
+      }
+      &.right {
+        grid-area: right;
+      }
+      > * {
+        justify-content: center;
+        min-inline-size: var(--mfd-key-size, calc(var(--size-unit) * 24));
+        min-block-size: calc(
+          var(--mfd-key-size, calc(var(--size-unit) * 24)) * 0.6
+        );
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      :is(
+        .led,
+        .knob-cap,
+        .knob-readout,
+        .knob-legend,
+        .toggle-switch-legend,
+        .toggle-switch-lever,
+        .led-button,
+        .selector-option
+      ),
+      .toggle-switch.rocker .toggle-switch-lever::after {
+        transition-duration: 0.01ms !important;
+      }
+      .led[data-state="blink"] {
+        animation: none;
+      }
+    }
+  }
+}

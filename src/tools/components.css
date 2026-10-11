@@ -17,6 +17,7 @@
 @import "./components/checkbox-radio.css";
 @import "./components/blockquote.css";
 @import "./components/button.css";
+@import "./components/controls.css";
 @import "./components/_contrast.css";
 @import "./components/_focus.css";
 @import "./components/_disabled.css";

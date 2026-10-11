@@ -2,7 +2,7 @@ import ts from "typescript";
 import { writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-const SRC_FILE = fileURLToPath(new URL("../../src/luz.ts", import.meta.url));
+const SRC_FILE = fileURLToPath(new URL("../../src/config.ts", import.meta.url));
 const OUT_FILE = fileURLToPath(
   new URL("../src/content/api.generated.ts", import.meta.url),
 );

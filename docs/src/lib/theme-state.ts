@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { LUZ_DEFAULT_CONFIG, type LuzConfig } from "../../../src/luz";
+import { LUZ_DEFAULT_CONFIG } from "../../../src/luz";
+import type { LuzConfig } from "../../../src/config";
 import { config as siteConfig } from "../../theme.config";
 
 const STORAGE_KEY = "luz-docs-toolbar";
@@ -44,9 +45,13 @@ export const DEFAULT_STATE: ToolbarState = {
   stateHoverDelta:
     siteConfig.stateHoverDelta ?? LUZ_DEFAULT_CONFIG.stateHoverDelta ?? 0.02,
   statePressedDelta:
-    siteConfig.statePressedDelta ?? LUZ_DEFAULT_CONFIG.statePressedDelta ?? 0.02,
+    siteConfig.statePressedDelta ??
+    LUZ_DEFAULT_CONFIG.statePressedDelta ??
+    0.02,
   statePressedShift: parseFloat(
-    siteConfig.statePressedShift ?? LUZ_DEFAULT_CONFIG.statePressedShift ?? "0.1ch",
+    siteConfig.statePressedShift ??
+      LUZ_DEFAULT_CONFIG.statePressedShift ??
+      "0.1ch",
   ),
   contrastThreshold:
     siteConfig.contrastThreshold ?? LUZ_DEFAULT_CONFIG.contrastThreshold ?? 0.6,

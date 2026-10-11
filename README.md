@@ -9,7 +9,7 @@ luz doesn't try to be a full Tailwind replacement, and it doesn't try to be a co
 1. **Classless** — plain semantic HTML, styled by luz's own reset. No classes needed.
 2. **Utility classes** — a small, closed set of Tailwind-shaped classes (`p-4`, `bg-primary-600`, `rounded`), generated at build time from your project's actual source, with zero arbitrary values and zero runtime JS.
 3. **A small curated set of visual patterns** — badge, alert, card, avatar, tabs, accordion, modal, breadcrumbs, skeleton. Pure CSS classes generated from your tokens; they style states but never implement behavior. The HTML-only interactions in this repository's demos are not a requirement for consumers.
-4. **Behavior belongs to your app** — implement interaction in JS/TS, ideally with accessible unstyled primitives such as [Base UI](https://base-ui.com) or [Radix](https://radix-ui.com) for menus, tabs, dialogs and keyboard navigation. Add luz classes to the rendered elements; the primitives supply behavior, not another theme.
+4. **La interacción y la accesibilidad son responsabilidad de tu app** — luz no implementa teclado, foco, selección ni apertura de menús o diálogos. Recomendamos primitivas accesibles sin estilos como [Base UI](https://base-ui.com); no es obligatorio y podés usar [Radix](https://radix-ui.com), HTML nativo u otra solución. Las clases de luz solo aportan apariencia a los elementos y estados que renderiza tu app.
 
 ## Features
 
@@ -27,6 +27,16 @@ luz doesn't try to be a full Tailwind replacement, and it doesn't try to be a co
 bun add @d00m-gui/luz
 # or: npm install @d00m-gui/luz / pnpm add @d00m-gui/luz
 ```
+
+### Skill opcional para agentes
+
+El paquete incluye [llms.txt](llms.txt), la referencia de API de esa versión, y `skills/luz/SKILL.md`. Para registrar la skill en un proyecto consumidor, después de instalar luz, ejecutá desde la raíz de ese proyecto:
+
+```sh
+node node_modules/@d00m-gui/luz/scripts/install-skill.mjs
+```
+
+También está disponible como bin `luz-install-skill` para scripts del proyecto. Crea `.agents/skills/luz` como enlace al directorio del paquete instalado (junction en Windows); rechaza cualquier destino existente, incluso enlaces rotos. No copia la API, no sobrescribe archivos, no modifica `AGENTS.md` y no corre durante la instalación. Al actualizar el paquete, la skill lee su `llms.txt` instalado. La referencia del sitio se copia desde el `llms.txt` raíz al iniciar Astro (`dev` o `build`); no editar `docs/public/llms.txt` a mano.
 
 ## Usage
 
@@ -49,7 +59,13 @@ Then import luz from your own stylesheet — the plugin expands the theme, the s
 @import "@d00m-gui/luz/luz.css";
 ```
 
-`luz.css` is the everything bundle (reset + components + theme + bridge + utilities). Pick pieces instead when you want less:
+`luz.css` incluye por defecto reset, todos los componentes (también controls y print), tema, bridge y utilities. Para omitir partes, configurá `exclude` en `luzVite`/`luzAstro`:
+
+```ts
+luzVite({ primary: "#f28c20", exclude: ["controls", "_print", "bridge", "utilities"] });
+```
+
+`exclude?: readonly (ComponentName | "_print" | "bridge" | "utilities")[]`, donde `ComponentName` es el nombre de un archivo de componente sin `.css`, excepto los compartidos que empiezan con `_`. Por defecto no se excluye nada. Filtra los imports agregados por `luz.css` y `components.css`; reset, tema y estilos compartidos siguen presentes. Los imports directos de `components/<name>.css`, `bridge.css` o `utilities.css` son elecciones explícitas y no se filtran. Para componer desde cero, importá las piezas:
 
 ```css
 @import "@d00m-gui/luz/reset.css";
@@ -59,9 +75,24 @@ Then import luz from your own stylesheet — the plugin expands the theme, the s
 @import "@d00m-gui/luz/utilities.css";
 ```
 
-`reset.css`, `components.css` and `components/<name>.css` are static files; `theme.css`, `bridge.css` and `utilities.css` are generated from your config and code. The lower-level form is the `@luz theme;` / `@luz bridge;` / `@luz utilities;` directive, which you can place anywhere in your CSS.
+Los componentes y el reset son archivos CSS reales con scope estático incorporado. El plugin filtra los imports de los manifests según `exclude`; `theme.css`, `bridge.css` y `utilities.css` se generan desde tu configuración y código. La forma de bajo nivel es `@luz theme;` / `@luz bridge;` / `@luz utilities;`, que podés colocar en tu CSS.
+
+`components/controls.css` está incluido por defecto en `luz.css` y `components.css`: controles de panel (`.led`, `.readout`, `.knob`, `.fader`, `.toggle-switch`, `.selector`, `.led-button`, `.control-label`) y un bisel `.mfd`. `exclude: ["controls"]` lo omite del bundle; un import directo siempre lo incluye. Son solo visuales: la app maneja interacción, teclado y accesibilidad; el estado se refleja en `aria-pressed`/`aria-checked`/`data-state`/`data-disabled`, la posición en `--knob-angle` (`-135deg`…`135deg`) y `--fader-value` (0–1). Las skins usan `vars` o custom properties en un contenedor (`--control-face`, `--control-ink`, `--control-led-on`, `--mfd-key-size`, etc.).
 
 The CSS entries put everything in the `luz` cascade layer, so any unlayered CSS of yours wins over it without import-order or specificity tricks. `@import … layer(name)` nests it as `name.luz`. Inside a layer, luz's few `!important` rules (`prefers-reduced-motion`, print) beat unlayered `!important` ones.
+
+### Scope y subárboles sin luz
+
+Los estilos estáticos usan siempre `:root:not([data-luz-off])` como raíz de scope, incluso al importar componentes directamente o sin plugin. `selector` solo define dónde se emiten los tokens del tema y del bridge; no cambia ese scope. Marcá un wrapper con `data-luz-off` para excluirlo, junto con su subárbol, de las reglas estáticas y las utilities emitidas por la integración:
+
+```html
+<section>
+  <button>Con luz</button>
+  <div data-luz-off><button>Sin reglas de luz</button></div>
+</section>
+```
+
+Es un scope con agujeros (donut scope), no un reset de la herencia: fuentes, colores y custom properties ya heredados pueden seguir presentes dentro de `data-luz-off`. El tema y el bridge emiten tokens, no se desactivan con ese atributo. Usá CSS propio si también necesitás cambiar esos valores heredados.
 
 `luz(config)` itself is pure and runs anywhere (browser, edge) if you need the tokens or the theme CSS without a bundler.
 

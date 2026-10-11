@@ -1,4 +1,6 @@
-import { luz, type LuzConfig } from "../luz";
+import { luz } from "../luz";
+import type { LuzConfig } from "../config";
+import { COMPONENT_NAMES } from "./component-names.generated";
 import { buildReset } from "./reset";
 import { scanSources } from "./scan";
 import { shadcnBridgeCSS } from "./shadcn-bridge";
@@ -11,14 +13,16 @@ export interface CssSections {
   utilities: string;
 }
 
-/** Runs `luz()`, the shadcn bridge and the utility scan over `root`; `reset` is the static `reset.css` + `components.css` pair. */
+/** Generates the configured CSS sections and scans `root` for utilities. */
 export function buildCssSections(config: LuzConfig, root: string): CssSections {
   const { theme, tokens } = luz(config);
   return {
-    reset: buildReset(),
+    reset: buildReset(config.exclude),
     theme,
-    bridge: shadcnBridgeCSS(tokens),
-    utilities: emitUtilitiesCSS(scanSources(root).candidates, tokens),
+    bridge: config.exclude?.includes("bridge") ? "" : shadcnBridgeCSS(tokens),
+    utilities: config.exclude?.includes("utilities")
+      ? ""
+      : emitUtilitiesCSS(scanSources(root).candidates, tokens),
   };
 }
 
@@ -27,8 +31,16 @@ function layered(css: string): string {
   return `@layer luz {\n${css}\n}`;
 }
 
+function scopedUtilities(css: string): string {
+  const rules = css.replace(
+    /^(\s*\.[^\n]+?) \{/gm,
+    "$1:where(:scope, :scope *) {",
+  );
+  return `@scope (:root:not([data-luz-off])) to ([data-luz-off]) {\n${rules}\n}`;
+}
+
 export function composeCss(sections: CssSections): string {
-  return `${sections.reset}\n${layered(`${sections.theme}\n${sections.bridge}\n${sections.utilities}`)}`;
+  return `${sections.reset}\n${layered(`${sections.theme}\n${sections.bridge}`)}\n${layered(scopedUtilities(sections.utilities))}`;
 }
 
 /** Sections the `@luz <section>;` directive can expand to. */
@@ -42,7 +54,7 @@ export interface ExpandedCss {
 const PACKAGE_CSS = "@d00m-gui/luz/";
 
 const ENTRY_IMPORT_RE =
-  /@import\s+(?:url\(\s*)?(["'])@d00m-gui\/luz\/(luz|theme|bridge|utilities)\.css\1\s*\)?(?:\s+layer\(([^)]*)\))?\s*;/g;
+  /@import\s+(?:url\(\s*)?(["'])@d00m-gui\/luz\/(luz|components|theme|bridge|utilities)\.css\1\s*\)?(?:\s+layer\(([^)]*)\))?\s*;/g;
 
 const DIRECTIVE_RE = /@luz\s+(theme|bridge|utilities)\s*;/g;
 
@@ -136,6 +148,7 @@ function directive(section: LuzSection, layer: string | undefined): string {
 export function expandLuzCss(
   code: string,
   provide: (section: LuzSection) => string,
+  exclude: LuzConfig["exclude"] = [],
 ): ExpandedCss | undefined {
   if (!code.includes(PACKAGE_CSS) && !code.includes("@luz ")) return undefined;
 
@@ -143,11 +156,20 @@ export function expandLuzCss(
   let source = code.replace(
     ENTRY_IMPORT_RE,
     (_match, _quote, entry: string, layer: string | undefined) => {
-      if (entry === "luz") {
-        for (const section of ENTRY_SECTIONS)
-          queued.push(directive(section, layer));
+      if (entry === "luz" || entry === "components") {
+        if (entry === "luz")
+          for (const section of ENTRY_SECTIONS)
+            if (!exclude.some((name) => name === section))
+              queued.push(directive(section, layer));
         const suffix = layer === undefined ? "" : ` layer(${layer})`;
-        return `@import "${PACKAGE_CSS}reset.css"${suffix};\n@import "${PACKAGE_CSS}components.css"${suffix};`;
+        const imports = COMPONENT_NAMES.filter(
+          (name) => !exclude.some((excluded) => excluded === name),
+        ).map(
+          (name) => `@import "${PACKAGE_CSS}components/${name}.css"${suffix};`,
+        );
+        if (entry === "luz")
+          imports.unshift(`@import "${PACKAGE_CSS}reset.css"${suffix};`);
+        return imports.join("\n");
       }
       queued.push(directive(entry as LuzSection, layer));
       return "";
@@ -166,8 +188,9 @@ export function expandLuzCss(
   const sections = new Set<LuzSection>();
   source = source.replace(DIRECTIVE_RE, (_match, section: LuzSection) => {
     sections.add(section);
-    return layered(provide(section));
+    const css = provide(section);
+    return layered(section === "utilities" ? scopedUtilities(css) : css);
   });
 
-  return sections.size === 0 ? undefined : { code: source, sections };
+  return source === code ? undefined : { code: source, sections };
 }

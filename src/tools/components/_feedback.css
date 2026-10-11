@@ -1,102 +1,106 @@
 @layer luz {
-  .success {
-    --scheme: var(--scheme-success);
-  }
-  .danger {
-    --scheme: var(--scheme-danger);
-  }
-  .warning {
-    --scheme: var(--scheme-warning);
-  }
-  .info {
-    --scheme: var(--scheme-info);
-  }
-  .primary {
-    --scheme: var(--scheme-primary);
-  }
-  .secondary {
-    --scheme: var(--scheme-secondary);
-  }
-  .tertiary {
-    --scheme: var(--scheme-tertiary);
-  }
-  .quaternary {
-    --scheme: var(--scheme-quaternary);
-  }
-  .neutral {
-    --scheme: var(--scheme-neutral);
-  }
-  .contrast {
-    --scheme: var(--foreground);
-  }
-  :where(
-    .success,
-    .danger,
-    .warning,
-    .info,
-    .primary,
-    .secondary,
-    .tertiary,
-    .quaternary,
-    .neutral,
-    .contrast
-  ) {
-    color: var(--scheme);
-  }
-  .solid {
-    --current-bg: var(--scheme, var(--scheme-primary));
-    background-color: var(--current-bg);
-    border-color: oklch(
-      from var(--current-bg) l c h / calc(alpha * var(--border-opacity, 0.3))
-    );
-    color: var(--current-color);
-  }
-  .soft {
-    --current-bg: oklch(from var(--scheme, var(--scheme-primary)) l c h / 14%);
-    background-color: var(--current-bg);
-    border-color: oklch(
-      from var(--scheme, var(--scheme-primary)) l c h /
-        calc(alpha * var(--border-opacity, 0.3))
-    );
-    color: color-mix(
-      in oklab,
-      var(--scheme, var(--scheme-primary)) 55%,
-      var(--foreground)
-    );
-  }
-  .outline {
-    --current-bg: transparent;
-    background-color: var(--current-bg);
-    border-width: 0;
-    color: color-mix(
-      in oklab,
-      var(--scheme, var(--scheme-primary)) 55%,
-      var(--foreground)
-    );
-    box-shadow: inset 0 0 0 var(--border-width)
-      oklch(
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    .success:where(:scope, :scope *) {
+      --scheme: var(--scheme-success);
+    }
+    .danger:where(:scope, :scope *) {
+      --scheme: var(--scheme-danger);
+    }
+    .warning:where(:scope, :scope *) {
+      --scheme: var(--scheme-warning);
+    }
+    .info:where(:scope, :scope *) {
+      --scheme: var(--scheme-info);
+    }
+    .primary:where(:scope, :scope *) {
+      --scheme: var(--scheme-primary);
+    }
+    .secondary:where(:scope, :scope *) {
+      --scheme: var(--scheme-secondary);
+    }
+    .tertiary:where(:scope, :scope *) {
+      --scheme: var(--scheme-tertiary);
+    }
+    .quaternary:where(:scope, :scope *) {
+      --scheme: var(--scheme-quaternary);
+    }
+    .neutral:where(:scope, :scope *) {
+      --scheme: var(--scheme-neutral);
+    }
+    .contrast:where(:scope, :scope *) {
+      --scheme: var(--foreground);
+    }
+    :where(
+      .success,
+      .danger,
+      .warning,
+      .info,
+      .primary,
+      .secondary,
+      .tertiary,
+      .quaternary,
+      .neutral,
+      .contrast
+    ):where(:scope, :scope *) {
+      color: var(--scheme);
+    }
+    .solid:where(:scope, :scope *) {
+      --current-bg: var(--scheme, var(--scheme-primary));
+      background-color: var(--current-bg);
+      border-color: oklch(
+        from var(--current-bg) l c h / calc(alpha * var(--border-opacity, 0.3))
+      );
+      color: var(--current-color);
+    }
+    .soft:where(:scope, :scope *) {
+      --current-bg: oklch(
+        from var(--scheme, var(--scheme-primary)) l c h / 14%
+      );
+      background-color: var(--current-bg);
+      border-color: oklch(
         from var(--scheme, var(--scheme-primary)) l c h /
           calc(alpha * var(--border-opacity, 0.3))
       );
-  }
-  .surface-primary {
-    --current-bg: var(--neutral-900);
-    background-color: var(--current-bg);
-    color: var(--current-color);
-  }
-  .surface-secondary {
-    --current-bg: var(--surface-secondary-900);
-    background-color: var(--current-bg);
-    color: var(--current-color);
-  }
-  .surface-tertiary {
-    --current-bg: var(--surface-tertiary-900);
-    background-color: var(--current-bg);
-    color: var(--current-color);
-  }
-  .surface-quaternary {
-    --current-bg: var(--surface-quaternary-900);
-    background-color: var(--current-bg);
-    color: var(--current-color);
+      color: color-mix(
+        in oklab,
+        var(--scheme, var(--scheme-primary)) 55%,
+        var(--foreground)
+      );
+    }
+    .outline:where(:scope, :scope *) {
+      --current-bg: transparent;
+      background-color: var(--current-bg);
+      border-width: 0;
+      color: color-mix(
+        in oklab,
+        var(--scheme, var(--scheme-primary)) 55%,
+        var(--foreground)
+      );
+      box-shadow: inset 0 0 0 var(--border-width)
+        oklch(
+          from var(--scheme, var(--scheme-primary)) l c h /
+            calc(alpha * var(--border-opacity, 0.3))
+        );
+    }
+    .surface-primary:where(:scope, :scope *) {
+      --current-bg: var(--neutral-900);
+      background-color: var(--current-bg);
+      color: var(--current-color);
+    }
+    .surface-secondary:where(:scope, :scope *) {
+      --current-bg: var(--surface-secondary-900);
+      background-color: var(--current-bg);
+      color: var(--current-color);
+    }
+    .surface-tertiary:where(:scope, :scope *) {
+      --current-bg: var(--surface-tertiary-900);
+      background-color: var(--current-bg);
+      color: var(--current-color);
+    }
+    .surface-quaternary:where(:scope, :scope *) {
+      --current-bg: var(--surface-quaternary-900);
+      background-color: var(--current-bg);
+      color: var(--current-color);
+    }
   }
 }

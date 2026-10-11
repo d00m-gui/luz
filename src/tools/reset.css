@@ -1,75 +1,80 @@
 @layer luz {
-  *,
-  *::before,
-  *::after {
-    border: 0;
-    margin: 0;
-    padding: 0;
-    font-family: inherit;
-    font-style: normal;
-    font-weight: var(--font-weight);
-    line-height: var(--line-height);
-    font-size: inherit;
-    box-sizing: border-box;
-  }
-  html,
-  body {
-    -webkit-font-smoothing: antialiased;
-    height: 100%;
-    margin: 0;
-    padding: 0;
-  }
-  body {
-    font-family: var(--font);
-    font-weight: var(--font-weight);
-    font-size: calc(var(--size-unit) * 10);
-    background-color: var(--background);
-    color: var(--foreground);
-  }
-  img,
-  picture,
-  video,
-  canvas {
-    max-width: 100%;
-    display: block;
-  }
-  figure {
-    & img {
-      width: 100%;
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    :where(:scope),
+    :where(:scope)::before,
+    :where(:scope)::after,
+    *:where(:scope, :scope *),
+    *:where(:scope, :scope *)::before,
+    *:where(:scope, :scope *)::after {
+      border: 0;
+      margin: 0;
+      padding: 0;
+      font-family: inherit;
+      font-style: normal;
+      font-weight: var(--font-weight);
+      line-height: var(--line-height);
+      font-size: inherit;
+      box-sizing: border-box;
     }
-  }
-  ol,
-  ul {
-    list-style: none;
-  }
-  ul li {
-    margin-left: var(--element-vertical);
-    list-style: inside square;
-  }
-  ol li {
-    margin-left: var(--element-vertical);
-    list-style: inside decimal;
-  }
-  br {
-    float: none;
-    clear: both;
-    width: 100%;
-    height: 0;
-    margin: 5px 0;
-    display: block;
-    overflow: hidden;
-  }
-  #root,
-  #__next {
-    isolation: isolate;
-  }
-  [hidden],
-  .hidden {
-    display: none;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    html {
-      scroll-behavior: auto !important;
+    html:where(:scope),
+    body:where(:scope, :scope *) {
+      -webkit-font-smoothing: antialiased;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+    body:where(:scope, :scope *) {
+      font-family: var(--font);
+      font-weight: var(--font-weight);
+      font-size: calc(var(--size-unit) * 10);
+      background-color: var(--background);
+      color: var(--foreground);
+    }
+    img:where(:scope, :scope *),
+    picture:where(:scope, :scope *),
+    video:where(:scope, :scope *),
+    canvas:where(:scope, :scope *) {
+      max-width: 100%;
+      display: block;
+    }
+    figure:where(:scope, :scope *) {
+      & img {
+        width: 100%;
+      }
+    }
+    ol:where(:scope, :scope *),
+    ul:where(:scope, :scope *) {
+      list-style: none;
+    }
+    ul li:where(:scope, :scope *) {
+      margin-left: var(--element-vertical);
+      list-style: inside square;
+    }
+    ol li:where(:scope, :scope *) {
+      margin-left: var(--element-vertical);
+      list-style: inside decimal;
+    }
+    br:where(:scope, :scope *) {
+      float: none;
+      clear: both;
+      width: 100%;
+      height: 0;
+      margin: 5px 0;
+      display: block;
+      overflow: hidden;
+    }
+    #root:where(:scope, :scope *),
+    #__next:where(:scope, :scope *) {
+      isolation: isolate;
+    }
+    [hidden]:where(:scope, :scope *),
+    .hidden:where(:scope, :scope *) {
+      display: none;
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html:where(:scope) {
+        scroll-behavior: auto !important;
+      }
     }
   }
 }

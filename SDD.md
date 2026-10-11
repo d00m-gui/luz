@@ -24,14 +24,15 @@ propia — ver `README.md` para el pitch de producto.
 ```
 src/
   luz.ts              orquestador: config → tokens → CSS string
+  config.ts            contrato público LuzConfig y exclusiones del bundle
   index.ts             entry pública (re-exports: luz, emitUtilitiesCSS, tipos)
   color/index.ts       entry `@d00m-gui/luz/color`: motor OKLCH puro (gamut.ts/hue.ts/wheel.ts) sin luz(), + srgbToOklch/oklchToSrgb/contrastRatio
   tools/
     constants.ts        curvas de shade (WEIGHTS) — datos puros
     reset.css            capa RESET: normalize genérico, no-por-componente
-    components.css        manifest de @import de components/*.css (1 archivo por componente, 58 hoy)
+    components.css        manifest ordenado de @import de components/*.css
     components/*.css      un archivo self-contained por componente (reset+layout+color+estados juntos); theme.css (contenedor scopeado), _print.css (capa @media print)
-    reset.ts              buildReset(): RESET + COMPONENTS desde reset-css.generated.ts — solo lo consume css.ts (buildCssSections), no luz()
+    reset.ts              buildReset(exclude): RESET + componentes seleccionados desde reset-css.generated.ts
     gamut.ts              parseColorToOklch/clampToSrgb/formatOklch/srgbToOklch/oklchToSrgb/contrastRatio: color literal → OKLCH numérico, gamut-mapeo real (binary search) contra sRGB, ratio WCAG
     hue.ts                LuzPalette/LuzRamp; luzPaletteSeeds: seed → ramp baked 50–950; luzShades: tokens {name}-N desde el ramp (literal) o live (calc()) si no hay seed; nearestSchemeWeight(ramp, l)
     wheel.ts             luzWheelPalettes: 12 paletas (red…pink), l heredada de primary, seed overrideable
@@ -101,8 +102,10 @@ generado (modelo Tailwind v4). Entries publicados (archivos reales en
 | `@d00m-gui/luz/bridge.css` | `@luz bridge;` → `shadcnBridgeCSS(tokens)` |
 | `@d00m-gui/luz/utilities.css` | `@luz utilities;` → utilities escaneadas |
 
-La composición es por `@import` del usuario (reset + theme + los
-componentes que quiera + utilities), no por toggles en `LuzConfig`.
+`LuzConfig.exclude` omite componentes no compartidos, `_print`, `bridge`
+y `utilities` del bundle. El plugin expande `luz.css` y `components.css`
+en imports individuales filtrados, conservando el orden y `layer(...)`.
+Los imports explícitos individuales y las directivas `@luz` no se filtran.
 `@luz <section>;` también puede escribirse a mano en cualquier CSS del
 proyecto (API de bajo nivel); sin plugin es un at-rule desconocido,
 inofensivo.
@@ -116,6 +119,13 @@ sin depender del orden ni de la especificidad; un `@import … layer(L)` lo
 anida como `L.luz`. `luz().theme` usado a mano no se envuelve. Los
 `!important` de luz (reduced-motion, print) quedan capados y por eso le
 ganan a los `!important` sin capa del consumidor.
+
+Las reglas estáticas y las utilities del adaptador usan
+`@scope (:root:not([data-luz-off])) to ([data-luz-off])` dentro de la capa.
+El atributo excluye el elemento marcado y sus descendientes; no corta la
+herencia ni desregistra `@property` o keyframes. Tema y bridge conservan
+sus tokens globales/scopeados por `selector`. Los portales fuera de zonas
+excluidas siguen recibiendo estilos.
 
 ## Principio de diseño: **la config siempre gana**
 
@@ -375,15 +385,11 @@ los fondos y el texto no cambian. `0` oculta contornos y `1` conserva el
 alfa original. Los colores explícitos de config siguen ganando y la
 opacidad se puede cambiar por subárbol. Foco y trazos de íconos no se atenúan.
 
-`btn-bg` es la excepción: su default (sin clase) apunta a
-`--scheme-neutral`, no a `--scheme-primary` — un `<button>` sin variante
-es neutral, `.primary`/`[role="primary"]` (vía `--scheme` en
-`_feedback.css`) es opt-in explícito. Decisión de diseño: la mayoría de
-los botones en una app conviven en la misma pantalla y no deberían
-competir por atención; forzar `primary` como default hace que cada
-pantalla necesite apagar el ruido a mano (`.neutral` en el 90% de los
-botones). El costo de marcar el único CTA que sí necesita destacar es
-el mismo en ambos esquemas.
+`btn-bg` en `theme-variables.ts` sigue la superficie local:
+`oklch(from var(--element-background) calc(l + 0.03) c h)`, igual que
+el fallback de `control-face`. El botón default no usa un shade fijo de
+la rampa; `.primary` y las otras variantes siguen usando `--scheme`.
+`vars: { "btn-bg": "..." }` conserva el override explícito.
 
 Nuevos tokens `scheme-success`/`-danger`/`-warning`/`-info` (mismo
 `chromaScaledEntry`, peso `200`) — hacían falta porque `_feedback.css`
@@ -658,10 +664,11 @@ var(--foreground))`, que tiende al foreground de cada modo y por eso se
 lee en claro y en oscuro. Se mezcla en `oklab` y no en `oklch`: el
 foreground es acromático pero lleva el hue del primario, y en `oklch` la
 interpolación de hue corría el verde hacia amarillo y el azul hacia
-violeta. `.badge` lee `--badge-color` (`--scheme` →
-`--badge-bg` → `--scheme-accent`): soft por defecto (16%), `.solid`
-(fondo pleno, `--current-color`, `--on-badge` lo pisa), `.outline` y
-`.ghost` (transparente); tamaños `.sm`/`.lg`. `join.css` pinta el texto
+violeta. El badge sin variante usa fondo de superficie (L + 0.03),
+`--foreground` y borde discreto; `--badge-bg` overridea el fondo.
+Las variantes de esquema mantienen el tinte suave (16%); `.solid`
+usa fondo pleno, `.outline` y `.ghost` quedan transparentes; tamaños `.sm`/`.lg`.
+`join.css` pinta el texto
 con el color de su borde, `var(--scheme, var(--element-border-color))`.
 
 `on-btn`/`on-kbd` siguen emitidos como tokens globales. En cambio,
@@ -870,8 +877,8 @@ supuesto). Ninguna sintaxis de import sirve para los dos.
 Solución: `scripts/generate-reset.ts` lee `reset.css`/`components.css`,
 resuelve los `@import` locales de `components.css` de forma recursiva, y
 escribe `src/tools/reset-css.generated.ts` (comiteado, no gitignored) con
-`RESET`/`COMPONENTS` como constantes de string planas — un módulo `.ts`
-normal, sin nada especial que ningún bundler necesite entender.
+`RESET` y un mapa `COMPONENTS` de strings por componente. También genera
+`component-names.generated.ts` con el orden del manifest y `LuzComponent`.
 `reset.ts` importa de ahí. **Hay que correr `bun run gen:reset` después de
 tocar `reset.css`, `components.css`, o cualquier archivo bajo
 `src/tools/components/`** — no es automático todavía (no hay watcher/hook,
@@ -906,10 +913,9 @@ cuando hoy es JS puro sin I/O. El generado evita ese costo por completo.
   del componente juntos, ya no repartidos entre capas globales),
   concatenados según el manifest `components.css`.
 
-No es togglable todavía (decisión explícita — ver `CLAUDE.md`): las 2
-siempre se generan juntas, `buildReset()` no toma parámetros aún. La
-función existe para que un futuro `layers` pueda seleccionar un subset sin
-otro rewrite — no para cambiar comportamiento hoy.
+`buildReset(exclude)` filtra ese mapa siguiendo el manifest; el Statusbar
+de docs compone las mismas exclusiones que el adaptador. La config de docs
+incluye todos los componentes por defecto.
 
 **Dos bugs reales corregidos de paso** (motivaron parte de esta revisión):
 `"font-weight"` de config no llegaba al reset universal (`*`) ni a `body`
@@ -1066,6 +1072,51 @@ arrastre del scrub, el lock y el resize los pone el consumidor):
 `--ease-out|spring` (escalares en `luz.ts`, pisables por `vars`), con
 guard de `prefers-reduced-motion`.
 
+## Controles de panel (`controls.css`)
+
+`components/controls.css` forma parte del manifest y del bundle por defecto.
+`exclude: ["controls"]` lo omite; el import individual permanece explícito.
+Sus nombres de clase no están namespaced por `@layer`; una zona con
+`data-luz-off` permite conservar estilos ajenos sin reglas de luz.
+
+Piezas solo visuales: `.led` (`data-state="on|blink"`), `.readout`
+(`-caption`/`-value`/`-unit`, `.small`/`.large`), `.knob` (`-face`,
+`-dial`, `-cap`, `-readout`, `-legend`; `.small`/`.large`;
+`[data-bipolar]`), `.fader.vertical|horizontal` (`-control`, `-track`,
+`-fill`, `-thumb`, `-scale`, `-readout`), `.toggle-switch` (`-body`,
+`-slot`, `-lever`, `-legend.on|off`; `.rocker`), `.selector`
+(`-options`, `-option`), `.led-button`, `.control-label` y el bisel
+`.mfd` (`.mfd-screen`, `.mfd-keys.top|bottom|left|right`). Estado por
+`aria-pressed`/`aria-checked`/`data-state`/`data-disabled`/
+`data-active` (leyenda elegida)/`data-dragging`; posición por
+`--knob-angle` (`-135deg`…`135deg`, `0` arriba), `--legend-angle`,
+`--fader-value` (0–1), `--fader-ticks`, `--fader-length`. El gesto
+(arrastre, rueda, teclado) es del consumidor.
+
+**Skin = config.** Los tokens públicos (`control-face`,
+`control-face-pressed`, `control-well`, `control-bezel`, `control-ink`,
+`control-line`, `control-led-on`, `control-led-off`, `control-glow`,
+`control-relief`, `control-font`, `control-readout-font`,
+`control-readout-ink`, `control-radius`, `control-corner-shape`,
+`mfd-key-size`) no los emite `luz()`: se fijan por `vars` (o como
+custom property en cualquier contenedor) y el CSS los lee con fallback.
+Cada control resuelve su versión privada `--_control-*` sobre sí mismo
+(`:where(.led, .knob, …)`), porque los defaults derivan de
+`--element-background` y declarados en `:root` capturarían el fondo de la
+página en vez de la superficie que contiene al control. `control-relief`
+(0–1+) escala el sombreado de bisel, brillo y sombra (0 = plano);
+`control-corner-shape: bevel` da esquinas en ángulo (solo Chromium, el
+resto cae a redondeado). Un `--scheme` por instancia (`.led.success`) le
+gana a `control-led-on`. Ejemplos en `docs/skins.config.ts` (`terminal`,
+`industrial`) y `/skins`, que los aplica con `luz({ ...skin, selector })`.
+
+`docs/src/controls-demo/` agrega ranges HTML nativos a las demos de Controls
+y skins, sincronizando CSS, readouts y leyendas. Pointer capture maneja
+arrastre, la rueda ajusta un paso sobre el control y el teclado conserva
+flechas/Home/End. Switches, radios y softkeys actualizan ARIA y vistas del
+MFD. El ciclo `astro:page-load` monta listeners con AbortController; cada
+skin conserva estado independiente. Nada de este comportamiento se publica.
+
 ## Convenciones de tokens
 
 - Nombres fijos: `primary`/`secondary`/`tertiary`/`quaternary`/`neutral`/
@@ -1181,3 +1232,16 @@ nombre — evita tener que armar el objeto a mano en un array gigante.
 - `CLAUDE.md` — instrucciones de trabajo para el asistente (gitignored).
 - `TODO.md` — backlog único (librería + `docs/`), gitignored. Reemplaza a
   los antiguos `HANDOFF.md`/`DOCS.md`, fusionados acá.
+
+## Documentación para agentes
+
+`llms.txt` en la raíz es la referencia canónica publicada con el paquete;
+la config de Astro la copia a `docs/public/llms.txt`. `skills/luz/SKILL.md`
+explica integración y consulta esa referencia de la versión instalada.
+La instalación de la skill en el consumidor es opcional, sin postinstall
+ni modificaciones de su `AGENTS.md`. Luz define estilos y estados visuales;
+el consumidor implementa interacción y accesibilidad, idealmente con Base UI.
+
+`bun run scripts/check-css-e2e.ts` construye un consumidor Vite temporal y
+ejercita Chromium: exclusiones, imports explícitos, capas, clases en html,
+boundary y descendientes excluidos, y portal fuera del límite.

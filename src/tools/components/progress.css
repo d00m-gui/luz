@@ -1,39 +1,41 @@
 @layer luz {
-  progress {
-    border: none;
-    border-radius: var(--border-radius);
-    height: calc(var(--size-unit) * 12);
-    background-color: var(--background);
-    box-shadow: 0 0 var(--size-unit) var(--progress-shadow) inset;
-    &::-moz-progress-bar {
-      background-color: var(--progress-fill);
-    }
-    &::-webkit-progress-bar {
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    progress:where(:scope, :scope *) {
+      border: none;
+      border-radius: var(--border-radius);
+      height: calc(var(--size-unit) * 12);
       background-color: var(--background);
+      box-shadow: 0 0 var(--size-unit) var(--progress-shadow) inset;
+      &::-moz-progress-bar {
+        background-color: var(--progress-fill);
+      }
+      &::-webkit-progress-bar {
+        background-color: var(--background);
+      }
+      &::-webkit-progress-value {
+        background-color: var(--progress-fill);
+      }
     }
-    &::-webkit-progress-value {
-      background-color: var(--progress-fill);
+    .meter:where(:scope, :scope *) {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: var(--space-1);
+      > code {
+        justify-self: end;
+      }
+      progress {
+        grid-column: 1 / -1;
+        width: 100%;
+      }
     }
-  }
-  .meter {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    gap: var(--space-1);
-    > code {
-      justify-self: end;
+    .progress:where(:scope, :scope *) {
+      background-image: linear-gradient(
+        to right,
+        oklch(from var(--progress-fill) l c h / 25%)
+          calc(var(--progress, 0) * 100%),
+        transparent 0
+      );
     }
-    progress {
-      grid-column: 1 / -1;
-      width: 100%;
-    }
-  }
-  .progress {
-    background-image: linear-gradient(
-      to right,
-      oklch(from var(--progress-fill) l c h / 25%)
-        calc(var(--progress, 0) * 100%),
-      transparent 0
-    );
   }
 }

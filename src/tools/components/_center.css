@@ -1,14 +1,16 @@
 @layer luz {
-  .center {
-    display: grid;
-    place-content: center;
-    place-items: center;
-  }
-  @supports not (align-content: center) {
-    .center {
-      display: flex;
-      align-items: center;
-      justify-content: center;
+  @scope (:root:not([data-luz-off])) to ([data-luz-off]) {
+    .center:where(:scope, :scope *) {
+      display: grid;
+      place-content: center;
+      place-items: center;
+    }
+    @supports not (align-content: center) {
+      .center:where(:scope, :scope *) {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
     }
   }
 }
